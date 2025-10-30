@@ -1,0 +1,204 @@
+/* --- Auth Page Specific Styles --- */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 1rem; /* Add padding for spacing */
+    min-height: 70vh; /* Ensures it's centered even on short pages */
+}
+
+.auth-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    padding: 2.5rem 3rem;
+    width: 100%;
+    max-width: 450px; /* Set a max-width for the form */
+}
+
+.auth-card h2 {
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-top: 0;
+    margin-bottom: 2rem;
+}
+
+.auth-subheading {
+    text-align: center;
+    color: var(--text-light);
+    margin-top: -1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* --- Form Group Styles --- */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.form-group label span {
+    font-weight: 400;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ced4da; /* Slightly darker border */
+    border-radius: 8px;
+    background-color: #f8f9fa; /* Light input background */
+    box-sizing: border-box; /* Important for padding to work */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+/* --- Checkbox --- */
+.form-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-checkbox input[type="checkbox"] {
+    width: 1.1em;
+    height: 1.1em;
+    cursor: pointer;
+}
+
+.form-checkbox label {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.auth-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+/* --- Full Width Button --- */
+.btn-full-width {
+    width: 100%;
+    padding: 0.9rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+.auth-footer-link {
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+
+/* --- OTP Page Specific Styles --- */
+.otp-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Space between inputs and button */
+}
+
+.otp-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.otp-input {
+    width: 48px;
+    height: 52px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.otp-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+/* --- Auth Divider ("Or continue with") --- */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin: 2rem 0; /* Increased margin */
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.auth-divider:not(:empty)::before {
+    margin-right: .75em;
+}
+
+.auth-divider:not(:empty)::after {
+    margin-left: .75em;
+}
+
+/* --- Google Sign-in Button --- */
+.btn-google-signin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-color);
+    background-color: #f8f9fa; /* Light background */
+    border: 1px solid #ced4da; /* Standard border */
+    border-radius: 8px;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.btn-google-signin:hover {
+    background-color: #f1f3f5; /* Slightly darker on hover */
+    border-color: #adb5bd;
+}
+
+.btn-google-signin img {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.75rem;
+}

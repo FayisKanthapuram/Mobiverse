@@ -1,0 +1,235 @@
+/* --- Hero Section (Home Page) --- */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 4rem 0;
+    background-color: var(--secondary-color);
+    border-radius: 16px;
+    margin: 2rem 0;
+    padding: 2rem 4rem;
+}
+
+.hero-content {
+    flex: 1;
+    max-width: 50%;
+}
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+}
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+}
+.hero-image {
+    flex: 1;
+    max-width: 45%;
+    text-align: center;
+}
+.hero-image img {
+    max-height: 400px;
+    object-fit: contain;
+}
+
+/* --- Product Section & Carousel (Home Page) --- */
+.product-section {
+    padding: 2rem 0;
+}
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+.carousel-wrapper {
+    position: relative;
+}
+.product-carousel {
+    display: flex;
+    gap: 20px;
+    overflow-x: scroll;
+    padding-bottom: 1.5rem; /* For shadow visibility */
+    /* Hides scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE/Edge */
+}
+.product-carousel::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
+}
+
+/* Carousel Buttons */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    color: var(--text-color);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+.carousel-btn:hover {
+    background-color: #fff;
+    transform: translateY(-50%) scale(1.1);
+}
+.carousel-btn.prev {
+    left: -20px;
+}
+.carousel-btn.next {
+    right: -20px;
+}
+
+/* --- Product Card (Home Page) --- */
+.product-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    /* This is key for the carousel */
+    flex: 0 0 280px; 
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-card-image {
+    background-color: var(--secondary-color);
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+}
+.product-card-image img {
+    height: 200px;
+    object-fit: contain;
+}
+.wishlist-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    color: var(--text-light);
+    cursor: pointer;
+}
+.wishlist-btn:hover {
+    color: red;
+}
+.product-card-content {
+    padding: 1.5rem;
+}
+.product-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+.product-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+.product-card .btn-secondary {
+    width: 80%;
+}
+
+/* --- Brands Section (Home Page) --- */
+.brands-section {
+    padding: 2rem 0;
+}
+.brands-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+}
+.brand-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+
+    padding: 2rem;
+    display: grid;
+    place-items: center;
+    transition: all 0.3s ease;
+}
+.brand-card img {
+    height: 40px;
+    object-fit: contain;
+    filter: grayscale(1);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+.brand-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+.brand-card:hover img {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
+/* --- Reviews Section (Home Page) --- */
+.reviews-section {
+    padding: 2rem 0 4rem 0;
+}
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.review-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+}
+.review-card p {
+    font-size: 1rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin: 0 0 1rem 0;
+}
+.review-card strong {
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+/* --- Responsive (Mobile) for Home Page Body --- */
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column-reverse;
+        padding: 2rem;
+        text-align: center;
+    }
+    .hero-content, .hero-image {
+        max-width: 100%;
+    }
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    .carousel-btn {
+        display: none; /* Hide arrows on mobile, rely on swiping */
+    }
+    .product-carousel {
+        /* Add snapping for a better mobile experience */
+        scroll-snap-type: x mandatory;
+    }
+    .product-card {
+        scroll-snap-align: start;
+    }
+}

@@ -1,0 +1,163 @@
+/* General Body and Layout */
+body {
+    font-family: 'Inter', sans-serif; /* Using a modern, clean font */
+    background-color: #f0f2f5; /* Light gray background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensure it takes full viewport height */
+    margin: 0;
+    flex-direction: column;
+    color: #333;
+}
+
+/* Login Card Container */
+.login-container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Soft shadow */
+    width: 100%;
+    max-width: 380px; /* Set a fixed max width for the card */
+    text-align: center;
+}
+
+/* Logo and Header Styling */
+.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+/* NEW STYLING FOR THE CUSTOM IMAGE */
+.logo-icon {
+    width: 28px; /* Adjust size as needed, 28px is close to the original emoji size */
+    height: auto;
+    /* Note: Since your image is a blue PNG/pixel art, 
+       you don't need the 'color' property here. */
+}
+
+/* Update the .logo spacing if necessary */
+.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px; /* Keep a gap between the image and the H1 */
+    margin-bottom: 5px;
+}
+
+.logo h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.admin-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.admin-header p {
+    color: #6c757d; /* Gray text for description */
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+/* Form Grouping and Labels */
+.login-form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.password-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #dee2e6; /* Light border */
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #4a90e2; /* Blue border on focus */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); /* Light blue glow on focus */
+}
+
+/* Links */
+.forgot-password {
+    color: #4a90e2;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Buttons */
+.btn-login,
+.btn-back {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+    margin-top: 10px;
+}
+
+.btn-login {
+    background-color: #4a90e2; /* Primary blue color */
+    color: white;
+}
+
+.btn-login:hover {
+    background-color: #3a7bd2; /* Slightly darker blue on hover */
+}
+
+.btn-back {
+    background-color: #e9ecef; /* Light gray for secondary button */
+    color: #495057;
+    margin-top: 15px; /* Add space below the primary button */
+}
+
+.btn-back:hover {
+    background-color: #dfe3e7;
+}
+
+/* Footer Text */
+.footer-text {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 30px;
+    text-align: center;
+}

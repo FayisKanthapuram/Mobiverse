@@ -1,0 +1,98 @@
+    <main class="container">
+
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title"><%= (typeof heroData !== 'undefined') ? heroData.title : 'SAMSUNG GALAXY S23 ULTRA 5G' %></h1>
+                <p class="hero-subtitle"><%= (typeof heroData !== 'undefined') ? heroData.subtitle : 'The Future in Your Hand. Order now and get exclusive launch offers.' %></p>
+                <a href="<%= (typeof heroData !== 'undefined') ? heroData.link : '/shop/s23-ultra' %>" class="btn btn-primary">Shop Now</a>
+            </div>
+            <div class="hero-image">
+                <img src="<%= (typeof heroData !== 'undefined') ? heroData.image : '/images/s23-ultra-hero.png' %>" alt="Samsung Galaxy S23 Ultra">
+            </div>
+        </section>
+
+        <% if (typeof latestProducts !== 'undefined' && latestProducts.length > 0) { %>
+        <section class="product-section">
+            <h2 class="section-title">Latest Launches</h2>
+            <div class="carousel-wrapper">
+                <button class="carousel-btn prev" data-carousel="latest-carousel"><i class="bi bi-chevron-left"></i></button>
+                <div class="product-carousel" id="latest-carousel">
+                    
+                    <% latestProducts.forEach(product => { %>
+                        <div class="product-card">
+                            <div class="product-card-image">
+                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
+                                <button class="wishlist-btn"><i class="bi bi-heart"></i></button>
+                            </div>
+                            <div class="product-card-content">
+                                <h3 class="product-name"><%= product.name %></h3>
+                                <p class="product-price">$<%= product.price.toFixed(2) %></p>
+                                <a href="/product/<%= product.slug %>" class="btn btn-secondary">Add to Cart</a>
+                            </div>
+                        </div>
+                    <% }) %>
+                    
+                </div>
+                <button class="carousel-btn next" data-carousel="latest-carousel"><i class="bi bi-chevron-right"></i></button>
+            </div>
+        </section>
+        <% } %>
+
+        <% if (typeof popularProducts !== 'undefined' && popularProducts.length > 0) { %>
+        <section class="product-section">
+            <h2 class="section-title">Most Popular</h2>
+            <div class="carousel-wrapper">
+                <button class="carousel-btn prev" data-carousel="popular-carousel"><i class="bi bi-chevron-left"></i></button>
+                <div class="product-carousel" id="popular-carousel">
+                    
+                    <% popularProducts.forEach(product => { %>
+                        <div class="product-card">
+                            <div class="product-card-image">
+                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
+                                <button class="wishlist-btn"><i class="bi bi-heart"></i></button>
+                            </div>
+                            <div class="product-card-content">
+                                <h3 class="product-name"><%= product.name %></h3>
+                                <p class="product-price">$<%= product.price.toFixed(2) %></p>
+                                <a href="/product/<%= product.slug %>" class="btn btn-secondary">Add to Cart</a>
+                            </div>
+                        </div>
+                    <% }) %>
+                    
+                </div>
+                <button class="carousel-btn next" data-carousel="popular-carousel"><i class="bi bi-chevron-right"></i></button>
+            </div>
+        </section>
+        <% } %>
+
+        <section class="brands-section">
+            <h2 class="section-title">Top Brands</h2>
+            <div class="brands-grid">
+                <div class="brand-card"><img src="/images/brands/apple.png" alt="Apple"></div>
+                <div class="brand-card"><img src="/images/brands/samsung.png" alt="Samsung"></div>
+                <div class="brand-card"><img src="/images/brands/oneplus.png" alt="OnePlus"></div>
+                <div class="brand-card"><img src="/images/brands/google.png" alt="Google"></div>
+                <div class="brand-card"><img src="/images/brands/xiaomi.png" alt="Xiaomi"></div>
+                <div class="brand-card"><img src="/images/brands/vivo.png" alt="Vivo"></div>
+            </div>
+        </section>
+
+        <section class="reviews-section">
+            <h2 class="section-title">Customer Reviews</h2>
+            <div class="reviews-grid">
+                <div class="review-card">
+                    <p>"Great experience! My new phone arrived in just two days. Excellent service and authentic products."</p>
+                    <strong>- Sarah J.</strong>
+                </div>
+                <div class="review-card">
+                    <p>"Found the best price for the S23 Ultra here. The website is easy to use and the checkout process was smooth."</p>
+                    <strong>- Mark L.</strong>
+                </div>
+                <div class="review-card">
+                    <p>"I love my new Pixel! Mobiverse has a great selection of flagship phones. Will definitely shop here again."</p>
+                    <strong>- Emily K.</strong>
+                </div>
+            </div>
+        </section>
+
+    </main>
