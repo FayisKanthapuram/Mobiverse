@@ -4,7 +4,7 @@ document.getElementById('logout-button').addEventListener('click',async()=>{
         if(responce.data.success){
             Toastify({
                 text: responce.data.message,
-                duration: 2000,
+                duration: 500,
                 gravity: "top",
                 position: "right",
                 backgroundColor: "#00b09b",
@@ -12,7 +12,7 @@ document.getElementById('logout-button').addEventListener('click',async()=>{
 
             setTimeout(() => {
                 window.location.href = responce.data.redirect;
-            }, 1100);
+            }, 600);
         }
     } catch (error) {
         Toastify({

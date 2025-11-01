@@ -43,7 +43,6 @@ export const loginAdmin = async (req, res) => {
     }
 
     const { email, password } = req.body;
-    console.log(req.body);
     const admin = await Admin.findOne({ email });
     if (!admin) {
       return res
@@ -60,7 +59,7 @@ export const loginAdmin = async (req, res) => {
       id: admin._id,
       email: admin.email,
     };
-    res.json({ success: true, redirect: "/admin/dashboard" });
+    res.json({ success: true , message:"Admin log in successfully", redirect: "/admin/dashboard" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error" });

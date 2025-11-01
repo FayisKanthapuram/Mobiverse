@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mobiverse Admin Login</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
     <link rel="stylesheet" href="/css/admin/login.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
@@ -22,12 +26,7 @@
         <p>Access the Mobiverse Management Panel</p>
       </div>
 
-      <form
-        class="login-form"
-        id="loginForm"
-        action="/admin/login"
-        method="POST"
-      >
+      <form class="login-form" id="loginForm">
         <div class="form-group">
           <label for="email">Email</label>
           <input
@@ -35,7 +34,6 @@
             id="email"
             name="email"
             placeholder="Enter your email"
-            required
           />
         </div>
 
@@ -51,7 +49,6 @@
             id="password"
             name="password"
             placeholder="Enter your password"
-            required
           />
         </div>
 
@@ -66,31 +63,11 @@
     <footer class="footer-text">
       &copy; 2025 Mobiverse Admin Portal. All Rights Reserved.
     </footer>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/toastify-js"
+    ></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-      document.getElementById("loginForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-
-        try {
-          const response = await axios.post("/admin/login", { email, password });
-
-          if (response.data.success) {
-            window.location.href = response.data.redirect;
-          }
-        } catch (error) {
-          Toastify({
-            text: error.response?.data?.message || "Login failed",
-            duration: 2000,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "#e74c3c",
-          }).showToast();
-        }
-      });
-    </script>
+    <script src="/js/admin/login.js"></script>
   </body>
 </html>
