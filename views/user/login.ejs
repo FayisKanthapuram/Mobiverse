@@ -1,1 +1,36 @@
-<h2>login</h2>
+<main class="container auth-container">
+    <div class="auth-card">
+        <h2>Welcome back to Mobiverse</h2>
+        
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-options">
+                <a href="/forgot-password" class="auth-link">Forgot Password?</a>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full-width">Login</button>
+        </form>
+        
+        <p class="auth-footer-link">
+            Don't have an account? <a href="/signup" class="auth-link">Sign up</a>
+        </p>
+
+        <div class="auth-divider">
+            <span>Or continue with</span>
+        </div>
+
+        <a href="/user/auth/google" class="btn-google-signin">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+            Sign in with Google
+        </a>
+    </div>
+</main>

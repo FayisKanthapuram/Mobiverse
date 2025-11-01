@@ -24,12 +24,15 @@
                 <input type="text" id="referralCode" name="referralCode">
             </div>
             
-            <!-- <div class="form-checkbox">
+            <div class="form-checkbox">
                 <input type="checkbox" id="terms" name="terms" required>
                 <label for="terms">
-                    I agree to the <a href="/terms" class="auth-link">Terms & Conditions</a>
+                    I agree to the 
+                    <button type="button" class="auth-link-button" id="open-terms-modal">
+                        Terms & Conditions
+                    </button>
                 </label>
-            </div> -->
+            </div>
             
             <button type="submit" class="btn btn-primary btn-full-width" id="registerBtn">Sign Up</button>
         </form>
@@ -42,9 +45,46 @@
             <span>Or continue with</span>
         </div>
 
-        <a href="/auth/google" class="btn-google-signin">
+        <a href="/user/auth/google" class="btn-google-signin">
             <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
             Sign in with Google
         </a>
         </div>
 </main>
+
+<div class="modal-overlay" id="terms-modal-overlay">
+    
+    <div class="modal-content">
+        <button class="modal-close" id="close-terms-modal">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        
+        <h2>Terms & Conditions</h2>
+        
+        <div class="modal-body">
+            <p>Welcome to Mobiverse! These terms and conditions outline the rules and regulations for the use of Mobiverse's Website.</p>
+            
+            <strong>1. Acceptance of Terms</strong>
+            <p>By accessing this website, we assume you accept these terms and conditions. Do not continue to use Mobiverse if you do not agree to all of the terms and conditions stated on this page.</p>
+
+            <strong>2. Cookies</strong>
+            <p>We employ the use of cookies. By accessing Mobiverse, you agreed to use cookies in agreement with the Mobiverse's Privacy Policy.</p>
+
+            <strong>3. License</strong>
+            <p>Unless otherwise stated, Mobiverse and/or its licensors own the intellectual property rights for all material on Mobiverse. All intellectual property rights are reserved. You may access this from Mobiverse for your own personal use subjected to restrictions set in these terms and conditions.</p>
+            <p>You must not:</p>
+            <ul>
+                <li>Republish material from Mobiverse</li>
+                <li>Sell, rent or sub-license material from Mobiverse</li>
+                <li>Reproduce, duplicate or copy material from Mobiverse</li>
+                <li>Redistribute content from Mobiverse</li>
+            </ul>
+
+            <strong>4. User Accounts</strong>
+            <p>You are responsible for maintaining the confidentiality of your account and password, including but not limited to the restriction of access to your computer and/or account. You agree to accept responsibility for any and all activities or actions that occur under your account and/or password.</p>
+
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        </div>
+
+    </div>
+</div>

@@ -16,8 +16,13 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
     },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    avatar: { type: String,default:'user'},
     isBlocked: {
       type: Boolean,
       default: false,
@@ -28,7 +33,7 @@ const userSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 

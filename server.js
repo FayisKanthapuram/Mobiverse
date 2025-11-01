@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import adminRoutes from "./routes/adminRoute.js";
 import userRoutes from "./routes/userRoute.js";
 import { connectDB } from "./config/db.js";
+import passport from "./config/passport.js";
 
 dotenv.config();
 const app = express();
@@ -30,6 +31,10 @@ app.use(
     },
   })
 );
+
+// Passport setup
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(nocache());
 app.use(express.static(path.join(__dirname, "public")));

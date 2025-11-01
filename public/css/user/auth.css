@@ -202,3 +202,128 @@
     height: 20px;
     margin-right: 0.75rem;
 }
+
+/* --- Auth Link Button --- */
+.auth-link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: inherit; /* Inherit font size from label */
+    font-family: inherit; /* Inherit font family */
+    text-decoration: none;
+    cursor: pointer;
+}
+.auth-link-button:hover {
+    text-decoration: underline;
+}
+
+/* --- Modal Overlay --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Start Hidden */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* --- Modal Active State --- */
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* --- Modal Content Box --- */
+.modal-content {
+    background-color: #fff;
+    padding: 2.5rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 700px; /* Wider for terms */
+    max-height: 80vh; /* Limit height */
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    
+    /* Animation */
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+
+    /* Key for scrolling */
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+/* --- Modal Close Button ('X') --- */
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1.75rem;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 0.5rem;
+    line-height: 1;
+}
+.modal-close:hover {
+    color: var(--text-color);
+}
+
+/* --- Modal Body (Scrollable Area) --- */
+.modal-body {
+    flex-grow: 1;
+    overflow-y: auto; /* This makes the content scrollable */
+    line-height: 1.7;
+    color: #495057;
+}
+
+.modal-body h3,
+.modal-body strong {
+    color: var(--text-color);
+    margin-top: 1.5rem;
+    display: block;
+}
+
+.modal-body p {
+    margin-bottom: 1rem;
+}
+
+.modal-body ul {
+    padding-left: 2rem;
+}
+
+/* Add to the end of auth.css */
+
+.form-options {
+    text-align: right;
+    margin-top: -0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-options .auth-link {
+    font-size: 0.9rem;
+}

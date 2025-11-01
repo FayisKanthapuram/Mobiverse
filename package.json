@@ -27,6 +27,8 @@
     "express-session": "^1.18.2",
     "joi": "^18.0.1",
     "mongoose": "^8.19.2",
-    "nocache": "^4.0.0"
+    "nocache": "^4.0.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
   }
 }

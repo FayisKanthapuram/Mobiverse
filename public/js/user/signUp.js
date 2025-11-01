@@ -41,9 +41,36 @@ document
           background: "#e74c3c",
         },
       }).showToast();
-    }finally {
+    } finally {
       // Re-enable button
       submitBtn.disabled = false;
       submitBtn.textContent = "Sign Up";
     }
   });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const openBtn = document.getElementById("open-terms-modal");
+  const closeBtn = document.getElementById("close-terms-modal");
+  const overlay = document.getElementById("terms-modal-overlay");
+
+  if (openBtn && closeBtn && overlay) {
+    // Open modal
+    openBtn.addEventListener("click", (e) => {
+      e.preventDefault(); // Stop form from submitting
+      overlay.classList.add("active");
+    });
+
+    // Close modal via 'X' button
+    closeBtn.addEventListener("click", () => {
+      overlay.classList.remove("active");
+    });
+
+    // Close modal by clicking background
+    overlay.addEventListener("click", (e) => {
+      // Only close if the click is on the overlay itself
+      if (e.target === overlay) {
+        overlay.classList.remove("active");
+      }
+    });
+  }
+});

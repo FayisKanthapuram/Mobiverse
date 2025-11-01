@@ -15,6 +15,8 @@ export default [
     },
     rules: {
       ...pluginJs.configs.recommended.rules,
+      "no-undef": "off", // disable false 'error is not defined' warning
+      "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }], // ignore unused vars like _err
     },
   },
 

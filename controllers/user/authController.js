@@ -10,9 +10,12 @@ export const loadSignUp = (req, res) => {
   });
 };
 
+export const loadLogin = (req, res) => {
+  res.render("user/login", { pageTitle: "login", pageCss: "auth" });
+};
+
 export const registerUser = async (req, res) => {
   try {
-    
     const userRegisterSchema = Joi.object({
       username: Joi.string().min(3).max(30).required().messages({
         "string.empty": "Username is required",
@@ -47,11 +50,11 @@ export const registerUser = async (req, res) => {
     }
     const { username, email, password } = req.body;
 
-    const user=await User.findOne({email})
+    const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({
         success: false,
-        message: 'User already exist',
+        message: "User already exist",
       });
     }
 
@@ -61,13 +64,30 @@ export const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
     });
-    return res.json({ success: true, redirect: "/user/login" ,message:"User registered successflly"});
+    return res.json({
+      success: true,
+      redirect: "/user/login",
+      message: "User registered successflly",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-export const loadLogin = (req, res) => {
-  res.render("user/login", { pageTitle: "login" });
+export const googleLogin = (req, res) => {
+  try {
+    if (req.user) {
+      req.session.user = {
+        id: req.user._id,
+        name: req.user.name || req.user.displayName,
+        email: req.user.email,
+      };
+      return res.redirect("/user/home");
+    } else {
+      return res.redirect("/user/signup");
+    }
+  } catch (err) {
+    return res.redirect("/user/signup");
+  }
 };
