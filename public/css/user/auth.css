@@ -149,6 +149,13 @@
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
 }
 
+.auth-link.disabled {
+    color: var(--text-light);
+    pointer-events: none; /* Prevents clicking */
+    cursor: default;
+    text-decoration: none;
+}
+
 /* --- Auth Divider ("Or continue with") --- */
 .auth-divider {
     display: flex;

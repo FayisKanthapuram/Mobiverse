@@ -1,0 +1,603 @@
+/* --- Brands Page Header --- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-title-group h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.page-title-group span {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.btn-primary-admin {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+.btn-primary-admin:hover {
+  background-color: #0b5ed7;
+}
+
+/* --- Filter & Search Bar --- */
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  margin-bottom: 1.5rem;
+}
+
+.search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-wrapper .bi-search {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #adb5bd;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 0.7rem 1rem 0.7rem 2.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.search-wrapper input:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+.filter-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  color: #495057;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* --- Table Styling --- */
+.table-container {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+th,
+td {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+  vertical-align: middle;
+}
+
+thead th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table Cell Content */
+.brand-logo-cell img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: contain;
+  background-color: #f8f9fa;
+  border: 1px solid #f1f3f5;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.status-badge i {
+  font-size: 0.9rem;
+}
+
+.status-listed {
+  color: #198754; /* Green */
+  background-color: #e8f3ee;
+}
+
+.status-unlisted {
+  color: #dc3545; /* Red */
+  background-color: #fdedee;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-icon-edit {
+  font-size: 1.1rem;
+  color: #495057;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+.btn-icon-edit:hover {
+  color: #0d6efd;
+}
+
+.btn-action {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-unlist {
+  color: #dc3545;
+  border-color: #f1b0b7;
+  background-color: #fff;
+}
+.btn-unlist:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.btn-list {
+  color: #198754;
+  border-color: #a3d0b9;
+  background-color: #fff;
+}
+.btn-list:hover {
+  background-color: #198754;
+  color: #fff;
+}
+
+/* --- Pagination --- */
+.pagination-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 1.25rem;
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-arrow,
+.page-number {
+  display: inline-block;
+  padding: 0.5rem 0.8rem;
+  min-width: 36px;
+  text-align: center;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #6c757d;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+.page-arrow:hover,
+.page-number:hover {
+  background-color: #f1f3f5;
+  border-color: #ced4da;
+}
+
+.page-number.active {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+  font-weight: 600;
+}
+
+.page-arrow.disabled {
+  color: #adb5bd;
+  pointer-events: none;
+  border-color: #e9ecef;
+}
+
+/* --- Admin Modal Overlay --- */
+.modal-overlay-admin {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.modal-overlay-admin.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* --- Admin Modal Content --- */
+.modal-admin {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 500px;
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+.modal-admin.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e9ecef;
+}
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Modal Body & Form */
+.modal-body {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.form-group-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.form-group-admin label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #343a40;
+}
+.form-group-admin label .required-star {
+  color: #dc3545;
+}
+.form-group-admin input[type="text"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.form-group-admin input[type="text"]:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+/* File Drop Zone (Add Modal) */
+.file-input-hidden {
+  display: none;
+}
+.file-drop-zone {
+  border: 2px dashed #ced4da;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.file-drop-zone:hover {
+  border-color: #0d6efd;
+}
+.file-drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6c757d;
+}
+.file-drop-content i {
+  font-size: 2rem;
+  color: #adb5bd;
+}
+.file-drop-content p {
+  font-weight: 600;
+  color: #495057;
+  margin: 0;
+}
+.file-drop-content span {
+  font-size: 0.9rem;
+}
+.btn-upload-file {
+  background: none;
+  border: none;
+  color: #0d6efd;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+.file-preview-add img {
+  max-width: 150px;
+  max-height: 150px;
+  margin: 0 auto;
+  display: block;
+  border-radius: 8px;
+}
+
+/* File Drop Zone (Edit Modal) */
+.file-drop-zone-edit {
+  display: flex;
+  gap: 1rem;
+  border: 2px dashed #ced4da;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+}
+.edit-image-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.edit-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.file-drop-content-edit {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #6c757d;
+}
+.file-drop-content-edit i {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+.file-drop-content-edit span {
+  font-weight: 600;
+  color: #495057;
+}
+.file-drop-content-edit p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Status Toggle Switch */
+.form-group-status {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.status-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: #495057;
+}
+.switch-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px; /* Smaller */
+  height: 24px; /* Smaller */
+}
+.switch-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider-toggle {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ced4da;
+  transition: 0.4s;
+}
+.slider-toggle:before {
+  position: absolute;
+  content: "";
+  height: 18px; /* Smaller */
+  width: 18px; /* Smaller */
+  left: 3px; /* Adjusted */
+  bottom: 3px; /* Adjusted */
+  background-color: white;
+  transition: 0.4s;
+}
+.slider-toggle.round {
+  border-radius: 24px;
+}
+.slider-toggle.round:before {
+  border-radius: 50%;
+}
+input:checked + .slider-toggle {
+  background-color: #0d6efd;
+}
+input:checked + .slider-toggle:before {
+  transform: translateX(20px); /* Adjusted */
+}
+
+/* Modal Footer */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e9ecef;
+}
+.btn-secondary-admin {
+  padding: 0.7rem 1.2rem;
+  background-color: #fff;
+  color: #495057;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+.btn-secondary-admin:hover {
+  background-color: #f8f9fa;
+}
+/* --- Add this to your admin-brands.css file --- */
+
+/* --- Filter Dropdown --- */
+.filter-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.filter-dropdown-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    color: #495057;
+    font-weight: 500;
+    cursor: pointer;
+    background-color: #fff;
+    font-size: 0.9rem;
+    min-width: 120px; /* Gives it some space */
+    justify-content: space-between;
+}
+.filter-dropdown-btn:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+.filter-dropdown-btn i {
+    transition: transform 0.2s ease;
+}
+
+.filter-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px); /* 5px below the button */
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    min-width: 100%;
+    padding: 0.5rem;
+    
+    /* Start hidden */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease-out;
+}
+
+.filter-dropdown-menu .filter-option {
+    display: block;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #495057;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+.filter-dropdown-menu .filter-option:hover {
+    background-color: #f1f3f5;
+    color: #212529;
+}
+
+/* --- Active States (Toggled by JS) --- */
+.filter-dropdown-container.active .filter-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.filter-dropdown-container.active .filter-dropdown-btn i {
+    transform: rotate(180deg);
+}
