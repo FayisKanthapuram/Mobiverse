@@ -12,23 +12,37 @@
 <div class="filter-bar">
   <form action="/admin/brands" method="GET" class="search-wrapper">
     <i class="bi bi-search"></i>
-    <input type="text" name="search" placeholder="Search by brand name..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" />
-    <input type="hidden" name="filter" id="filter-hidden-input" value="All" />
+    <input 
+      type="text" 
+      name="search" 
+      placeholder="Search by brand name..." 
+      value="<%= typeof searchQuery !== 'undefined' ? searchQuery : 'dsfasad' %>" 
+    />
+    <input type="hidden" name="filter" id="filter-hidden-input" value="<%= typeof filter !== 'undefined' ? filter : 'All' %>" />
   </form>
 
   <div class="filter-dropdown-container">
     <button type="button" class="filter-dropdown-btn" id="filter-btn">
-      <span id="filter-btn-text">All</span>
+      <span id="filter-btn-text">
+        <% if (filter === 'listed') { %>
+          Listed
+        <% } else if (filter === 'unlisted') { %>
+          Unlisted
+        <% } else { %>
+          All
+        <% } %>
+      </span>
       <i class="bi bi-chevron-down"></i>
     </button>
 
     <div class="filter-dropdown-menu" id="filter-menu">
       <a href="/admin/brands?filter=All" class="filter-option" data-value="All">All</a>
-      <a href="/admin/brands?filter=Listed" class="filter-option" data-value="Listed">Listed</a>
-      <a href="/admin/brands?filter=Unlisted" class="filter-option" data-value="Unlisted">Unlisted</a>
+      <a href="/admin/brands?filter=listed" class="filter-option" data-value="Listed">Listed</a>
+      <a href="/admin/brands?filter=unlisted" class="filter-option" data-value="Unlisted">Unlisted</a>
     </div>
   </div>
 </div>
+
 
 <div class="table-container">
   <table>
@@ -46,15 +60,11 @@
       <tr>
         <td>
           <div class="brand-logo-cell">
-            <img src="<%= brand.imageUrl %>" alt="<%= brand.name %>" />
+            <img src="<%= brand.logo %>" alt="<%= brand.brandName %>" />
           </div>
         </td>
-        <td><strong>
-            <%= brand.name %>
-          </strong></td>
-        <td>
-          <%= brand.productCount %>
-        </td>
+        <td><strong> <%= brand.brandName %> </strong></td>
+        <td><%= brand.productCount %></td>
         <td>
           <% if (brand.isListed) { %>
           <span class="status-badge status-listed">Listed</span>
@@ -64,20 +74,15 @@
         </td>
         <td>
           <div class="action-buttons">
-            <button type="button" class="btn-icon-edit open-edit-modal-btn" data-brand-id="<%= brand._id %>" data-brand-name="<%= brand.name %>" data-brand-image="<%= brand.imageUrl %>" data-brand-listed="<%= brand.isListed %>">
+            <button type="button" class="btn-icon-edit open-edit-modal-btn" data-brand-id="<%= brand._id %>" data-brand-name="<%= brand.brandName %>" data-brand-image="<%= brand.logo %>" data-brand-isListed="<%=brand.isListed%>" >
               <i class="bi bi-pencil-fill"></i>
             </button>
 
-            <% if (brand.isListed) { %>
-            <a href="/admin/brands/unlist/<%= brand._id %>" class="btn-action btn-unlist">Unlist</a>
-            <% } else { %>
-            <a href="/admin/brands/list/<%= brand._id %>" class="btn-action btn-list">List</a>
-            <% } %>
+            <a href="" class="btn-action btn-unlist"  data-brand-id="<%= brand._id %>" data-brand-isListed="<%=brand.isListed%>"><% if (brand.isListed) { %> Unlist <% } else { %> List <% } %></a>
           </div>
         </td>
       </tr>
-      <% }) %>
-      <% } else { %>
+      <% }) %> <% } else { %>
       <tr>
         <td colspan="5" style="text-align: center; color: #6c757d; padding: 3rem">
           No brands found.
@@ -88,7 +93,48 @@
   </table>
 </div>
 
-<div class="pagination-footer"></div>
+<div class="pagination-footer">
+    
+    <% if (brands && brands.length > 0) { %>
+        <% 
+            const startItem = (currentPage - 1) * limit + 1;
+            const endItem = (currentPage - 1) * limit + brands.length;
+        %>
+        <span>Showing <%= startItem %> to <%= endItem %> of <%= totalDocuments %> results</span>
+    <% } else { %>
+        <span>No results found</span>
+    <% } %>
+
+    <div class="pagination-controls">
+        
+        <% if(currentPage > 1) { %>
+            <a href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-arrow">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        <% } else { %>
+            <span classa="page-arrow disabled" aria-disabled="true">
+                <i class="bi bi-chevron-left"></i>
+            </span>
+        <% } %>
+
+        <% for(let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>&search=<%= searchQuery %>&filter=<%= filter %>" 
+               class="page-number <%= currentPage === i ? 'active' : '' %>">
+                <%= i %>
+            </a>
+        <% } %>
+
+        <% if(currentPage < totalPages) { %>
+            <a href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-arrow">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        <% } else { %>
+            <span class="page-arrow disabled" aria-disabled="true">
+                <i class="bi bi-chevron-right"></i>
+            </span>
+        <% } %>
+    </div>
+</div>
 
 <div class="modal-overlay-admin" id="modal-overlay"></div>
 
@@ -100,10 +146,10 @@
     </button>
   </div>
 
-  <form action="/admin/brands/add" method="POST" enctype="multipart/form-data" class="modal-body">
+  <form id="add-brand-form" enctype="multipart/form-data" class="modal-body">
     <div class="form-group-admin">
       <label for="brandName">Brand Name <span class="required-star">*</span></label>
-      <input type="text" id="brandName" name="name" placeholder="Enter brand name" required />
+      <input type="text" id="brandName" name="brandName" placeholder="Enter brand name" required />
     </div>
 
     <div class="form-group-admin">
@@ -115,21 +161,9 @@
           <span>or click to browse</span>
           <button type="button" class="btn-upload-file">Upload File</button>
         </div>
-        <input type="file" id="brandLogoAdd" name="logo" class="file-input-hidden" accept="image/*" />
+        <input type="file" id="brandLogoAdd" name="brandLogo" class="file-input-hidden" accept="image/*" />
       </div>
       <div class="file-preview-add" style="display: none"></div>
-    </div>
-
-    <div class="form-group-admin form-group-status">
-      <label>Status</label>
-      <div class="status-toggle-wrapper">
-        <span>Unlist</span>
-        <label class="switch-toggle">
-          <input type="checkbox" name="isListed" checked />
-          <span class="slider-toggle round"></span>
-        </label>
-        <span>List</span>
-      </div>
     </div>
 
     <div class="modal-footer">
@@ -149,38 +183,28 @@
     </button>
   </div>
 
-  <form action="/admin/brands/edit" method="POST" enctype="multipart/form-data" class="modal-body">
+  <form id="edit-brand-form" enctype="multipart/form-data" class="modal-body">
     <input type="hidden" id="editBrandId" name="brandId" />
 
     <div class="form-group-admin">
       <label for="editBrandName">Brand Name</label>
-      <input type="text" id="editBrandName" name="name" required />
+      <input type="text" id="editBrandName" name="brandName" required />
     </div>
 
     <div class="form-group-admin">
       <label for="brandLogoEdit">Brand Logo</label>
-      <div class="file-drop-zone-edit">
+      <div class="file-drop-zone-edit" >
         <div class="edit-image-preview" id="edit-image-preview"></div>
         <div class="file-drop-content-edit" id="file-drop-zone-edit">
           <i class="bi bi-upload"></i>
           <span>Click to upload</span>
           <p>or drag and drop</p>
         </div>
-        <input type="file" id="brandLogoEdit" name="logo" class="file-input-hidden" accept="image/*" />
+        <input type="file" id="brandLogoEdit" name="brandLogo" class="file-input-hidden" accept="image/*" />
       </div>
     </div>
 
-    <div class="form-group-admin form-group-status">
-      <label>Status</label>
-      <div class="status-toggle-wrapper">
-        <span>Unlist</span>
-        <label class="switch-toggle">
-          <input type="checkbox" id="editIsListed" name="isListed" />
-          <span class="slider-toggle round"></span>
-        </label>
-        <span>List</span>
-      </div>
-    </div>
+    
 
     <div class="modal-footer">
       <button type="button" class="btn-secondary-admin" data-close-target="#edit-brand-modal">

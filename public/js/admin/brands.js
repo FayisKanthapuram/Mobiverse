@@ -39,11 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- 2. "Edit Brand" Modal ---
   const editModal = document.getElementById("edit-brand-modal");
-  const editForm = editModal.querySelector("form");
+  const editForm = document.getElementById("edit-brand-form");
   const editBrandId = document.getElementById("editBrandId");
   const editBrandName = document.getElementById("editBrandName");
   const editImagePreview = document.getElementById("edit-image-preview");
-  const editIsListed = document.getElementById("editIsListed");
 
   document.querySelectorAll(".open-edit-modal-btn").forEach((button) => {
     button.addEventListener("click", () => {
@@ -51,15 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const id = button.dataset.brandId;
       const name = button.dataset.brandName;
       const imageUrl = button.dataset.brandImage;
-      const isListed = button.dataset.brandListed === "true";
 
       // Populate the form
       editBrandId.value = id;
       editBrandName.value = name;
-      editIsListed.checked = isListed;
 
-      // Set the form's 'action' attribute dynamically
-      editForm.action = `/admin/brands/edit/${id}`;
 
       // Populate the image preview
       editImagePreview.innerHTML = `<img src="${imageUrl}" alt="${name}">`;
@@ -67,6 +62,43 @@ document.addEventListener("DOMContentLoaded", () => {
       // Open the modal
       openModal(editModal);
     });
+  });
+
+  editForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    try {
+      const response = await axios.patch(`/admin/brands/edit`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (response.data.success) {
+        Toastify({
+          text: response.data.message,
+          duration: 1000,
+          gravity: "top",
+          position: "right",
+          style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+          },
+        }).showToast();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
+      }
+    } catch (error) {
+      console.error(error);
+      Toastify({
+        text: error.response?.data?.message || "Failed to add brand",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: {
+          background: "#e74c3c",
+        },
+      }).showToast();
+    }
   });
 
   // --- Optional: File Drop Zone Script (for "Add Brand" modal) ---
@@ -92,6 +124,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // --- File Drop Zone Script (for "Edit Brand" modal) ---
+const dropZoneEditContainer = document.querySelector(".file-drop-zone-edit");
+const fileInputEdit = document.getElementById("brandLogoEdit");
+const previewEdit = document.getElementById("edit-image-preview");
+const dropContentEdit = document.getElementById("file-drop-zone-edit");
+
+// Trigger file input click when the drop zone area is clicked
+// Note: We're listening on the container to allow clicks on the existing image or the "upload" text
+dropZoneEditContainer.addEventListener("click", () => fileInputEdit.click());
+
+// Handle file selection
+fileInputEdit.addEventListener("change", (e) => {
+  if (e.target.files && e.target.files[0]) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      // Set the new image preview
+      previewEdit.innerHTML = `<img src="${e.target.result}" alt="New Logo Preview">`;
+      // Ensure the preview <div> is visible
+      previewEdit.style.display = "block";
+      // Hide the "Drag & drop" text content
+      dropContentEdit.style.display = "none";
+    };
+    
+    reader.readAsDataURL(file);
+  }
+});
+
+  
+
   // --- NEW: Filter Dropdown Script ---
   const filterBtn = document.getElementById("filter-btn");
   const filterMenu = document.getElementById("filter-menu");
@@ -113,27 +176,78 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- This part is for your backend form ---
-  // It updates the hidden input and button text when an option is clicked.
-  // This is optional but good for user experience.
-  const filterOptions = document.querySelectorAll(".filter-option");
-  const filterBtnText = document.getElementById("filter-btn-text");
-  const hiddenInput = document.getElementById("filter-hidden-input");
+  document
+    .getElementById("add-brand-form")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  if (filterOptions && filterBtnText && hiddenInput) {
-    filterOptions.forEach((option_) => {
-      option.addEventListener("click", function (e) {
-        // Prevent default link behavior if you want to submit via form
-        // e.preventDefault();
+      const formData = new FormData(e.target);
 
-        const value = this.dataset.value;
-        filterBtnText.textContent = value;
-        hiddenInput.value = value;
+      try {
+        const response = await axios.post("/admin/brands/add", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
-        // You could auto-submit the form here if you want:
-        // this.closest('form').submit();
-      });
+        if (response.data.success) {
+          Toastify({
+            text: response.data.message,
+            duration: 1000,
+            gravity: "top",
+            position: "right",
+            style: {
+              background: "linear-gradient(to right, #00b09b, #96c93d)",
+            },
+          }).showToast();
+          setTimeout(() => {
+            window.location.reload();
+          }, 1200);
+        }
+      } catch (error) {
+        console.error(error);
+        Toastify({
+          text: error.response?.data?.message || "Failed to add brand",
+          duration: 2000,
+          gravity: "top",
+          position: "right",
+          style: {
+            background: "#e74c3c",
+          },
+        }).showToast();
+      }
     });
-  }
-});
+  document.querySelectorAll(".btn-unlist").forEach((button) => {
+    button.addEventListener("click", async (e) => {
+      e.preventDefault();
 
+      const brandId = button.dataset.brandId;
+      const isListed = button.dataset.brandIslisted === "true";
+
+      try {
+        const response = await axios.patch(`/admin/brands/list/${brandId}`);
+        if (response.data.success) {
+          Toastify({
+            text: isListed ? "Brand is now unlisted" : "Brand is now listed",
+            duration: 1000,
+            gravity: "top",
+            position: "right",
+            style: {
+              background: isListed
+                ? "#e74c3c"
+                : "linear-gradient(to right, #00b09b, #96c93d)",
+            },
+          }).showToast();
+
+          setTimeout(() => window.location.reload(), 1200);
+        }
+      } catch (error) {
+        Toastify({
+          text: error.response?.data?.message || "Something went wrong",
+          duration: 2000,
+          gravity: "top",
+          position: "right",
+          style: { background: "#e74c3c" },
+        }).showToast();
+      }
+    });
+  });
+});

@@ -34,10 +34,18 @@ export const registerUser = async (req, res) => {
         "string.empty": "Email is required",
       }),
 
-      password: Joi.string().min(6).required().messages({
-        "string.empty": "Password is required",
-        "string.min": "Password must be at least 6 characters long",
-      }),
+      password: Joi.string()
+        .pattern(
+          new RegExp(
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$"
+          )
+        )
+        .required()
+        .messages({
+          "string.empty": "Password is required",
+          "string.pattern.base":
+            "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character",
+        }),
 
       confirmPassword: Joi.string()
         .valid(Joi.ref("password"))
@@ -156,7 +164,7 @@ export const resendOtp = async (req, res) => {
     }
 
     const email = req.session.tempUser.email;
-    
+
     const sentEmail = await sendVerificationEmail(email, otp);
 
     if (!sentEmail) {
@@ -166,7 +174,6 @@ export const resendOtp = async (req, res) => {
       });
     }
 
-    
     req.session.otpExpiry = Date.now() + 1 * 60 * 1000;
     console.log("resend otp", otp);
     return res.json({
@@ -264,15 +271,20 @@ export const sendRecoverOtp = async (req, res) => {
   }
   const user = await User.findOne({ email });
   if (!user) {
-    console.log
+    console.log;
     return res.status(400).json({
       success: false,
       message: "No account found with this email",
     });
   }
-  if(!user.password){
-    console.log('user.password')
-    return res.status(400).json({ success: false, message: "Password change is not available for Google users" });
+  if (!user.password) {
+    console.log("user.password");
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "Password change is not available for Google users",
+      });
   }
   const otp = generateOtp();
   const sentEmail = await sendVerificationEmail(email, otp);
@@ -325,7 +337,7 @@ export const verifyRecoverOtp = async (req, res) => {
   }
   req.session.recoveryOtp = null;
   req.session.recoveryOtpExpiry = null;
-  req.session.resetPass=true;
+  req.session.resetPass = true;
   return res.json({
     success: true,
     message: "OTP verified successfully!",
@@ -337,7 +349,7 @@ export const loadResetPassword = (req, res) => {
   res.render("user/resetPassword", {
     pageTitle: "Reset Password",
     pageCss: "auth",
-    pageJs:"resetPassword"
+    pageJs: "resetPassword",
   });
 };
 
@@ -371,17 +383,17 @@ export const saveNewPassword = async (req, res) => {
         redirect: "/user/forgotPassword",
       });
     }
-    const user =await User.findOne({ email: req.session.recoverEmail });
+    const user = await User.findOne({ email: req.session.recoverEmail });
     const { password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
     await user.save();
-    req.session.resetPass=false;
+    req.session.resetPass = false;
 
     return res.status(200).json({
       success: true,
       redirect: "/user/login",
-      message:'Your password has been reset successfully'
+      message: "Your password has been reset successfully",
     });
   } catch (error) {
     console.error(error);

@@ -1,1 +1,87 @@
-<h2>Products</h2>
+<div class="main-header">
+  <div class="header-left">
+    <h2>Products Management</h2>
+    <p>Manage all mobile products and their variants</p>
+  </div>
+  <button class="btn btn-primary" id="open-add-modal-btn">
+    <i class="fas fa-plus"></i> Add Product
+  </button>
+</div>
+
+<div class="filter-bar">
+  <div class="search-wrapper">
+    <i class="fas fa-search"></i>
+    <input type="text" placeholder="Search by product name or brand..." />
+  </div>
+  <select class="filter-select">
+    <option value="">All Brands</option>
+  </select>
+  <select class="filter-select">
+    <option value="">All Status</option>
+    <option value="listed">Listed</option>
+    <option value="unlisted">Unlisted</option>
+  </select>
+  <select class="filter-select">
+    <option value="">All Products</option>
+  </select>
+</div>
+
+<div class="table-container">
+  <table class="products-table">
+    <thead>
+      <tr>
+        <th>Product Image</th>
+        <th>Product Name</th>
+        <th>Brand</th>
+        <th>Price Range</th>
+        <th>Total Stock</th>
+        <th>Status</th>
+        <th>Featured</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (typeof products !== 'undefined' && products.length > 0) { %> <%
+      products.forEach(product => { %>
+      <tr>
+        <td>
+          <img src="<%= product.images[0] || '/images/default-product.png' %>" alt="<%= product.name %>" class="product-table-img" />
+        </td>
+        <td><%= product.name %></td>
+        <td><%= product.brand %></td>
+        <td>₹<%= product.minPrice %> - ₹<%= product.maxPrice %></td>
+        <td><%= product.totalStock %></td>
+        <td>
+          <% if (product.status === 'Listed') { %>
+          <span class="status-badge status-listed">Listed</span>
+          <% } else { %>
+          <span class="status-badge status-unlisted">Unlisted</span>
+          <% } %>
+        </td>
+        <td><%= product.isFeatured ? 'Yes' : 'No' %></td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn-action btn-edit" data-product-id="<%= product._id %>">
+              <i class="fas fa-pencil-alt"></i> Edit
+            </button>
+            <% if (product.status === 'Listed') { %>
+            <button class="btn-action btn-unlist">Unlist</button>
+            <% } else { %>
+            <button class="btn-action btn-list">List</button>
+            <% } %>
+          </div>
+        </td>
+      </tr>
+      <% }); %> <% } else { %>
+      <tr>
+        <td colspan="8" style="text-align: center; padding: 20px">
+          No products found.
+        </td>
+      </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/admin/addNewProductModal') %> <%-
+include('../partials/admin/editProductModal') %>
