@@ -10,26 +10,28 @@
 </div>
 
 <div class="filter-bar">
-  <form action="/admin/brands" method="GET" class="search-wrapper">
+  <form action="/admin/brands" method="GET" class="search-wrapper" id="brand-search-form">
     <i class="bi bi-search"></i>
-    <input 
-      type="text" 
-      name="search" 
-      placeholder="Search by brand name..." 
-      value="<%= typeof searchQuery !== 'undefined' ? searchQuery : 'dsfasad' %>" 
-    />
+    <input type="text" name="search" id="brand-search-input" placeholder="Search by brand name..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" autocomplete="off" />
     <input type="hidden" name="filter" id="filter-hidden-input" value="<%= typeof filter !== 'undefined' ? filter : 'All' %>" />
+
+    <% if (typeof searchQuery !== 'undefined' && searchQuery.trim() !== '') { %>
+    <a href="/admin/brands?<%= `filter=${encodeURIComponent(filter || 'All')}` %>" class="btn-clear">
+      Clear
+    </a>
+    <% } %>
   </form>
+
 
   <div class="filter-dropdown-container">
     <button type="button" class="filter-dropdown-btn" id="filter-btn">
       <span id="filter-btn-text">
         <% if (filter === 'listed') { %>
-          Listed
+        Listed
         <% } else if (filter === 'unlisted') { %>
-          Unlisted
+        Unlisted
         <% } else { %>
-          All
+        All
         <% } %>
       </span>
       <i class="bi bi-chevron-down"></i>
@@ -42,7 +44,6 @@
     </div>
   </div>
 </div>
-
 
 <div class="table-container">
   <table>
@@ -74,11 +75,11 @@
         </td>
         <td>
           <div class="action-buttons">
-            <button type="button" class="btn-icon-edit open-edit-modal-btn" data-brand-id="<%= brand._id %>" data-brand-name="<%= brand.brandName %>" data-brand-image="<%= brand.logo %>" data-brand-isListed="<%=brand.isListed%>" >
+            <button type="button" class="btn-icon-edit open-edit-modal-btn" data-brand-id="<%= brand._id %>" data-brand-name="<%= brand.brandName %>" data-brand-image="<%= brand.logo %>" data-brand-isListed="<%=brand.isListed%>">
               <i class="bi bi-pencil-fill"></i>
             </button>
 
-            <a href="" class="btn-action btn-unlist"  data-brand-id="<%= brand._id %>" data-brand-isListed="<%=brand.isListed%>"><% if (brand.isListed) { %> Unlist <% } else { %> List <% } %></a>
+            <a href="" class="btn-action btn-unlist" data-brand-id="<%= brand._id %>" data-brand-isListed="<%=brand.isListed%>"><% if (brand.isListed) { %> Unlist <% } else { %> List <% } %></a>
           </div>
         </td>
       </tr>
@@ -94,46 +95,37 @@
 </div>
 
 <div class="pagination-footer">
-    
-    <% if (brands && brands.length > 0) { %>
-        <% 
-            const startItem = (currentPage - 1) * limit + 1;
-            const endItem = (currentPage - 1) * limit + brands.length;
-        %>
-        <span>Showing <%= startItem %> to <%= endItem %> of <%= totalDocuments %> results</span>
+  <% if (brands && brands.length > 0) { %> <% const startItem = (currentPage -
+  1) * limit + 1; const endItem = (currentPage - 1) * limit + brands.length; %>
+  <span>Showing <%= startItem %> to <%= endItem %> of <%= totalDocuments %>
+    results</span>
+  <% } else { %>
+  <span>No results found</span>
+  <% } %>
+
+  <div class="pagination-controls">
+    <% if(currentPage > 1) { %>
+    <a href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-arrow">
+      <i class="bi bi-chevron-left"></i>
+    </a>
     <% } else { %>
-        <span>No results found</span>
+    <span classa="page-arrow disabled" aria-disabled="true">
+      <i class="bi bi-chevron-left"></i>
+    </span>
+    <% } %> <% for(let i = 1; i <= totalPages; i++) { %>
+    <a href="?page=<%= i %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-number <%= currentPage === i ? 'active' : '' %>">
+      <%= i %>
+    </a>
+    <% } %> <% if(currentPage < totalPages) { %>
+    <a href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-arrow">
+      <i class="bi bi-chevron-right"></i>
+    </a>
+    <% } else { %>
+    <span class="page-arrow disabled" aria-disabled="true">
+      <i class="bi bi-chevron-right"></i>
+    </span>
     <% } %>
-
-    <div class="pagination-controls">
-        
-        <% if(currentPage > 1) { %>
-            <a href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-arrow">
-                <i class="bi bi-chevron-left"></i>
-            </a>
-        <% } else { %>
-            <span classa="page-arrow disabled" aria-disabled="true">
-                <i class="bi bi-chevron-left"></i>
-            </span>
-        <% } %>
-
-        <% for(let i = 1; i <= totalPages; i++) { %>
-            <a href="?page=<%= i %>&search=<%= searchQuery %>&filter=<%= filter %>" 
-               class="page-number <%= currentPage === i ? 'active' : '' %>">
-                <%= i %>
-            </a>
-        <% } %>
-
-        <% if(currentPage < totalPages) { %>
-            <a href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-arrow">
-                <i class="bi bi-chevron-right"></i>
-            </a>
-        <% } else { %>
-            <span class="page-arrow disabled" aria-disabled="true">
-                <i class="bi bi-chevron-right"></i>
-            </span>
-        <% } %>
-    </div>
+  </div>
 </div>
 
 <div class="modal-overlay-admin" id="modal-overlay"></div>
@@ -154,16 +146,35 @@
 
     <div class="form-group-admin">
       <label for="brandLogoAdd">Brand Logo</label>
-      <div class="file-drop-zone" id="file-drop-zone-add">
-        <div class="file-drop-content">
-          <i class="bi bi-upload"></i>
-          <p>Drag & drop your logo here</p>
-          <span>or click to browse</span>
-          <button type="button" class="btn-upload-file">Upload File</button>
+
+      <div class="upload-container" id="uploadContainer">
+        <input type="file" id="brandLogoAdd" name="brandLogo" accept="image/*" hidden />
+        <div class="upload-placeholder" id="uploadPlaceholder">
+          <i class="bi bi-image"></i>
+          <p>Click to Upload Logo</p>
         </div>
-        <input type="file" id="brandLogoAdd" name="brandLogo" class="file-input-hidden" accept="image/*" />
+        <div class="upload-preview" id="uploadPreview" style="display: none">
+          <img id="croppedImagePreview" alt="Cropped Preview" />
+          <button type="button" id="changeImageBtn" class="btn-secondary-admin small">
+            Change Image
+          </button>
+        </div>
       </div>
-      <div class="file-preview-add" style="display: none"></div>
+
+      <!-- Cropper Modal (inline) -->
+      <div id="cropperModal" class="cropper-modal">
+        <div class="cropper-wrapper">
+          <img id="cropperImage" alt="Crop area" />
+        </div>
+        <div class="cropper-actions">
+          <button type="button" id="cancelCropBtn" class="btn-secondary-admin">
+            Cancel
+          </button>
+          <button type="button" id="applyCropBtn" class="btn-primary-admin">
+            Apply Crop
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="modal-footer">
@@ -193,7 +204,7 @@
 
     <div class="form-group-admin">
       <label for="brandLogoEdit">Brand Logo</label>
-      <div class="file-drop-zone-edit" >
+      <div class="file-drop-zone-edit">
         <div class="edit-image-preview" id="edit-image-preview"></div>
         <div class="file-drop-content-edit" id="file-drop-zone-edit">
           <i class="bi bi-upload"></i>
@@ -203,8 +214,6 @@
         <input type="file" id="brandLogoEdit" name="brandLogo" class="file-input-hidden" accept="image/*" />
       </div>
     </div>
-
-    
 
     <div class="modal-footer">
       <button type="button" class="btn-secondary-admin" data-close-target="#edit-brand-modal">
