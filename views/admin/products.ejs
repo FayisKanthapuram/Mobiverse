@@ -87,3 +87,14 @@
 
 <%- include('../partials/admin/addNewProductModal') %> <%-
 include('../partials/admin/editProductModal') %>
+
+<!-- 🖼️ Cropper Modal -->
+<div id="cropperModal" class="cropper-modal">
+  <div class="cropper-wrapper">
+    <img id="cropperImage" alt="Crop Image" />
+    <div class="cropper-actions">
+      <button type="button" id="cancelCropBtn" class="btn btn-secondary">Cancel</button>
+      <button type="button" id="applyCropBtn" class="btn btn-primary">Apply Crop</button>
+    </div>
+  </div>
+</div>

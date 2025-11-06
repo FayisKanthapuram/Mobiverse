@@ -1,86 +1,93 @@
 <div class="modal-overlay" id="edit-product-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Edit Product</h2>
-            <button class="close-modal-btn">&times;</button>
-        </div>
-
-        <form id="edit-product-form" class="modal-form">
-            <input type="hidden" id="edit-product-id" name="productId">
-            
-            <div class="form-step">
-                <div class="step-header active">
-                    <h3>Step 1 – Basic Information</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="step-content" style="display: block;">
-                    <div class="form-group">
-                        <label for="edit-product-name">Product Name</label>
-                        <input type="text" id="edit-product-name" name="productName">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-brand">Brand</label>
-                        <select id="edit-brand" name="brand">
-                            <option value="">Select Brand</option>
-                            <option value="Apple">Apple</option>
-                            <option value="Samsung">Samsung</option>
-                            <option value="Google">Google</option>
-                            </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-description">Description</label>
-                        <textarea id="edit-description" name="description" rows="4"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Product Images</label>
-                        <div class="image-upload-box">
-                            <i class="fas fa-upload"></i>
-                            <p>Upload New Images</p>
-                            <input type="file" name="images" multiple class="image-upload-input" accept="image/*">
-                        </div>
-                        <div class="image-preview-container" id="edit-image-preview">
-                            </div>
-                    </div>
-                    <div class="form-group toggle-group">
-                        <label for="edit-featured">Mark as Featured Product</label>
-                        <label class="switch">
-                            <input type="checkbox" id="edit-featured" name="isFeatured">
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
-                    <div class="form-group toggle-group">
-                        <label for="edit-status">Product Status</label>
-                        <label class="switch">
-                            <input type="checkbox" id="edit-status" name="status">
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-step">
-                <div class="step-header">
-                    <h3>Step 2 – Product Variants</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="step-content">
-                    <div id="edit-variant-list">
-                    </div>
-
-                    <button type="button" class="btn-add-variant" id="edit-add-variant-btn">
-                        <i class="fas fa-plus"></i> Add Another Variant
-                    </button>
-
-                    <div class="total-stock-display">
-                        Total Stock: <span id="edit-total-stock">0 units</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
-                <button type="submit" class="btn btn-primary">Update Product</button>
-            </div>
-        </form>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Edit Product</h2>
+      <button class="close-modal-btn">&times;</button>
     </div>
+
+    <form id="edit-product-form" class="modal-form">
+      <input type="hidden" id="edit-product-id" name="productId">
+
+      <div class="form-step">
+        <div class="step-header active">
+          <h3>Step 1 – Basic Information</h3>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="step-content" style="display: block;">
+          <div class="form-group">
+            <label for="edit-product-name">Product Name</label>
+            <input type="text" id="edit-product-name" name="productName">
+          </div>
+
+          <div class="form-group">
+            <label for="edit-brand">Brand</label>
+            <select id="edit-brand" name="brand">
+              <option value="">Select Brand</option>
+              <option value="Apple">Apple</option>
+              <option value="Samsung">Samsung</option>
+              <option value="Google">Google</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-description">Description</label>
+            <textarea id="edit-description" name="description" rows="4"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Product Images (3 Required)</label>
+            <div class="three-image-upload">
+              <% for(let i = 1; i <= 3; i++) { %>
+                <div class="image-upload-box">
+                  <i class="fas fa-upload"></i>
+                  <p>Upload Image <%= i %></p>
+                  <input type="file" name="image<%= i %>" class="image-upload-input" accept="image/*" />
+                </div>
+                <div class="image-preview-container" id="edit-preview-image<%= i %>"></div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="form-group toggle-group">
+            <label for="edit-featured">Mark as Featured Product</label>
+            <label class="switch">
+              <input type="checkbox" id="edit-featured" name="isFeatured">
+              <span class="slider round"></span>
+            </label>
+          </div>
+
+          <div class="form-group toggle-group">
+            <label for="edit-status">Product Status</label>
+            <label class="switch">
+              <input type="checkbox" id="edit-status" name="status">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-step">
+        <div class="step-header">
+          <h3>Step 2 – Product Variants</h3>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="step-content">
+          <div id="edit-variant-list"></div>
+
+          <button type="button" class="btn-add-variant" id="edit-add-variant-btn">
+            <i class="fas fa-plus"></i> Add Another Variant
+          </button>
+
+          <div class="total-stock-display">
+            Total Stock: <span id="edit-total-stock">0 units</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Update Product</button>
+      </div>
+    </form>
+  </div>
 </div>
