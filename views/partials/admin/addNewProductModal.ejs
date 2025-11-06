@@ -1,133 +1,138 @@
 <div class="modal-overlay" id="add-product-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Add New Product</h2>
-            <button class="close-modal-btn">&times;</button>
-        </div>
-
-        <form id="add-product-form" class="modal-form">
-            <div class="form-step">
-                <div class="step-header active">
-                    <h3>Step 1 – Basic Information</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="step-content" style="display: block;">
-                    <div class="form-group">
-                        <label for="add-product-name">Product Name</label>
-                        <input type="text" id="add-product-name" name="productName" placeholder="e.g., iPhone 15 Pro Max">
-                    </div>
-                    <div class="form-group">
-                        <label for="add-brand">Brand</label>
-                        <select id="add-brand" name="brand">
-                            <option value="">Select Brand</option>
-                            <option value="Apple">Apple</option>
-                            <option value="Samsung">Samsung</option>
-                            <option value="Google">Google</option>
-                            </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="add-description">Description</label>
-                        <textarea id="add-description" name="description" rows="4" placeholder="Enter product description..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Product Images</label>
-                        <div class="image-upload-box">
-                            <i class="fas fa-upload"></i>
-                            <p>Upload Images</p>
-                            <input type="file" name="images" multiple class="image-upload-input" accept="image/*">
-                        </div>
-                        <div class="image-preview-container">
-                            </div>
-                    </div>
-                    <div class="form-group toggle-group">
-                        <label for="add-featured">Mark as Featured Product</label>
-                        <label class="switch">
-                            <input type="checkbox" id="add-featured" name="isFeatured">
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
-                    <div class="form-group toggle-group">
-                        <label for="add-status">Product Status</label>
-                        <label class="switch">
-                            <input type="checkbox" id="add-status" name="status" checked>
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-step">
-                <div class="step-header">
-                    <h3>Step 2 – Product Variants</h3>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="step-content">
-                    <div id="add-variant-list">
-                        </div>
-
-                    <button type="button" class="btn-add-variant" id="add-variant-btn">
-                        <i class="fas fa-plus"></i> Add Another Variant
-                    </button>
-
-                    <div class="total-stock-display">
-                        Total Stock: <span id="add-total-stock">0 units</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
-                <button type="submit" class="btn btn-primary">Add Product</button>
-            </div>
-        </form>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add New Product</h2>
+      <button class="close-modal-btn">&times;</button>
     </div>
+
+    <form id="add-product-form" class="modal-form">
+      <div class="form-step">
+        <div class="step-header active">
+          <h3>Step 1 – Basic Information</h3>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="step-content" style="display: block;">
+          <div class="form-group">
+            <label for="add-product-name">Product Name</label>
+            <input type="text" id="add-product-name" name="productName" placeholder="e.g., iPhone 15 Pro Max">
+          </div>
+          <div class="form-group">
+            <label for="add-brand">Brand</label>
+            <select id="add-brand" name="brand">
+              <% if (typeof brands !=='undefined' && brands.length> 0) { %>
+              <% brands.forEach(brand=> { %>
+              <option value="<%= brand._id %>">
+                <%= brand.brandName %>
+              </option>
+              <% }); %>
+              <% } else { %>
+              <option value="electronics">Electronics</option>
+              <% } %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="add-description">Description</label>
+            <textarea id="add-description" name="description" rows="4" placeholder="Enter product description..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Product Images</label>
+            <div class="image-upload-box">
+              <i class="fas fa-upload"></i>
+              <p>Upload Images</p>
+              <input type="file" name="images" multiple class="image-upload-input" accept="image/*">
+            </div>
+            <div class="image-preview-container">
+            </div>
+          </div>
+          <div class="form-group toggle-group">
+            <label for="add-featured">Mark as Featured Product</label>
+            <label class="switch">
+              <input type="checkbox" id="add-featured" name="isFeatured">
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <div class="form-group toggle-group">
+            <label for="add-status">Product Status</label>
+            <label class="switch">
+              <input type="checkbox" id="add-status" name="status" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-step">
+        <div class="step-header">
+          <h3>Step 2 – Product Variants</h3>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="step-content">
+          <div id="add-variant-list">
+          </div>
+
+          <button type="button" class="btn-add-variant" id="add-variant-btn">
+            <i class="fas fa-plus"></i> Add Another Variant
+          </button>
+
+          <div class="total-stock-display">
+            Total Stock: <span id="add-total-stock">0 units</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Add Product</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <template id="variant-template">
-    <div class="variant-form-section">
-        <div class="variant-header">
-            <h4>Variant <span class="variant-number">1</span></h4>
-            <button type="button" class="btn-remove-variant"><i class="fas fa-trash-alt"></i> Remove</button>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Regular Price (₹)</label>
-                <input type="number" name="regularPrice" placeholder="0" min="0" class="variant-price">
-            </div>
-            <div class="form-group">
-                <label>Sale Price (₹)</label>
-                <input type="number" name="salePrice" placeholder="0" min="0" class="variant-price">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>RAM</label>
-                <select name="ram">
-                    <option value="4GB">4GB</option>
-                    <option value="6GB">6GB</option>
-                    <option value="8GB">8GB</option>
-                    <option value="12GB">12GB</option>
-                    <option value="16GB">16GB</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Storage</label>
-                <select name="storage">
-                    <option value="64GB">64GB</option>
-                    <option value="128GB">128GB</option>
-                    <option value="256GB">256GB</option>
-                    <option value="512GB">512GB</option>
-                    <option value="1TB">1TB</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Colour</label>
-                <input type="text" name="colour" placeholder="e.g., Phantom Black">
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Stock Quantity</label>
-            <input type="number" name="stockQuantity" placeholder="0" min="0" class="variant-stock">
-        </div>
+  <div class="variant-form-section">
+    <div class="variant-header">
+      <h4>Variant <span class="variant-number">1</span></h4>
+      <button type="button" class="btn-remove-variant"><i class="fas fa-trash-alt"></i> Remove</button>
     </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Regular Price (₹)</label>
+        <input type="number" name="regularPrice" placeholder="0" min="0" class="variant-price">
+      </div>
+      <div class="form-group">
+        <label>Sale Price (₹)</label>
+        <input type="number" name="salePrice" placeholder="0" min="0" class="variant-price">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>RAM</label>
+        <select name="ram">
+          <option value="4GB">4GB</option>
+          <option value="6GB">6GB</option>
+          <option value="8GB">8GB</option>
+          <option value="12GB">12GB</option>
+          <option value="16GB">16GB</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Storage</label>
+        <select name="storage">
+          <option value="64GB">64GB</option>
+          <option value="128GB">128GB</option>
+          <option value="256GB">256GB</option>
+          <option value="512GB">512GB</option>
+          <option value="1TB">1TB</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Colour</label>
+        <input type="text" name="colour" placeholder="e.g., Phantom Black">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Stock Quantity</label>
+      <input type="number" name="stockQuantity" placeholder="0" min="0" class="variant-stock">
+    </div>
+  </div>
 </template>

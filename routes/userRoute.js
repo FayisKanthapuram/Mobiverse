@@ -29,7 +29,7 @@ router.get("/login", isLogin, loadLogin);
 router.post("/login", loginUser);
 
 //forgot-password
-router.get("/forgotPassword",loadForgotPassword);
+router.get("/forgotPassword",isLogin,loadForgotPassword);
 router.post('/forgotPassword',sendRecoverOtp);
 router.get('/verifyRecoverOtp',isVerifyRecoveryOtp,loadRecoverOtp)
 router.post('/verifyRecoverOtp',verifyRecoverOtp)

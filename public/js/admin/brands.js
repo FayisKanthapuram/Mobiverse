@@ -55,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
       editBrandId.value = id;
       editBrandName.value = name;
 
-
       // Populate the image preview
       editImagePreview.innerHTML = `<img src="${imageUrl}" alt="${name}">`;
 
@@ -64,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  //edit modal axios
   editForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
