@@ -204,16 +204,37 @@
 
     <div class="form-group-admin">
       <label for="brandLogoEdit">Brand Logo</label>
-      <div class="file-drop-zone-edit">
-        <div class="edit-image-preview" id="edit-image-preview"></div>
-        <div class="file-drop-content-edit" id="file-drop-zone-edit">
-          <i class="bi bi-upload"></i>
-          <span>Click to upload</span>
-          <p>or drag and drop</p>
+
+      <div class="upload-container" id="uploadContainerEdit">
+        <input type="file" id="brandLogoEdit" name="brandLogo" accept="image/*" hidden />
+        <div class="upload-placeholder" id="uploadPlaceholderEdit">
+          <i class="bi bi-image"></i>
+          <p>Click to Upload Logo</p>
         </div>
-        <input type="file" id="brandLogoEdit" name="brandLogo" class="file-input-hidden" accept="image/*" />
+        <div class="upload-preview" id="uploadPreviewEdit" style="display: none">
+          <img id="croppedImagePreviewEdit" alt="Cropped Preview" />
+          <button type="button" id="changeImageBtnEdit" class="btn-secondary-admin small">
+            Change Image
+          </button>
+        </div>
+      </div>
+
+      <!-- Cropper Modal for Edit -->
+      <div id="cropperModalEdit" class="cropper-modal">
+        <div class="cropper-wrapper">
+          <img id="cropperImageEdit" alt="Crop area" />
+        </div>
+        <div class="cropper-actions">
+          <button type="button" id="cancelCropBtnEdit" class="btn-secondary-admin">
+            Cancel
+          </button>
+          <button type="button" id="applyCropBtnEdit" class="btn-primary-admin">
+            Apply Crop
+          </button>
+        </div>
       </div>
     </div>
+
 
     <div class="modal-footer">
       <button type="button" class="btn-secondary-admin" data-close-target="#edit-brand-modal">

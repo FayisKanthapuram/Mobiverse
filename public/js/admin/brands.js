@@ -1,106 +1,45 @@
+// --------------------------------------
+// 🌐 Modal Overlay Handling
+// --------------------------------------
 const modalOverlay = document.getElementById("modal-overlay");
 
-// --- General Modal Open/Close Logic ---
 function openModal(modal) {
-  if (modal == null) return;
+  if (!modal) return;
   modal.classList.add("active");
   modalOverlay.classList.add("active");
 }
 
 function closeModal(modal) {
-  if (modal == null) return;
+  if (!modal) return;
   modal.classList.remove("active");
   modalOverlay.classList.remove("active");
 }
 
-// Close buttons (X and Cancel)
-document.querySelectorAll("[data-close-target]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const modal = document.querySelector(button.dataset.closeTarget);
+// Close buttons (X or Cancel)
+document.querySelectorAll("[data-close-target]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const modal = document.querySelector(btn.dataset.closeTarget);
     closeModal(modal);
   });
 });
 
-// Close by clicking overlay
+// Close modal by clicking overlay
 modalOverlay.addEventListener("click", () => {
-  document.querySelectorAll(".modal-admin.active").forEach((modal) => {
-    closeModal(modal);
-  });
+  document
+    .querySelectorAll(".modal-admin.active")
+    .forEach((m) => closeModal(m));
 });
 
-// --- 1. "Add Brand" Modal ---
+// --------------------------------------
+// ➕ Add Brand Modal
+// --------------------------------------
 const addModal = document.getElementById("add-brand-modal");
 const openAddModalBtn = document.getElementById("open-add-modal-btn");
+openAddModalBtn.addEventListener("click", () => openModal(addModal));
 
-openAddModalBtn.addEventListener("click", () => {
-  openModal(addModal);
-});
-
-// --- 2. "Edit Brand" Modal ---
-const editModal = document.getElementById("edit-brand-modal");
-const editForm = document.getElementById("edit-brand-form");
-const editBrandId = document.getElementById("editBrandId");
-const editBrandName = document.getElementById("editBrandName");
-const editImagePreview = document.getElementById("edit-image-preview");
-
-document.querySelectorAll(".open-edit-modal-btn").forEach((button) => {
-  button.addEventListener("click", () => {
-    // Get data from the button's data attributes
-    const id = button.dataset.brandId;
-    const name = button.dataset.brandName;
-    const imageUrl = button.dataset.brandImage;
-
-    // Populate the form
-    editBrandId.value = id;
-    editBrandName.value = name;
-
-    // Populate the image preview
-    editImagePreview.innerHTML = `<img src="${imageUrl}" alt="${name}">`;
-
-    // Open the modal
-    openModal(editModal);
-  });
-});
-
-//edit modal axios
-editForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const formData = new FormData(e.target);
-  try {
-    const response = await axios.patch(`/admin/brands/edit`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    if (response.data.success) {
-      Toastify({
-        text: response.data.message,
-        duration: 1000,
-        gravity: "top",
-        position: "right",
-        style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
-        },
-      }).showToast();
-      setTimeout(() => {
-        window.location.reload();
-      }, 1200);
-    }
-  } catch (error) {
-    console.error(error);
-    Toastify({
-      text: error.response?.data?.message || "Failed to add brand",
-      duration: 2000,
-      gravity: "top",
-      position: "right",
-      style: {
-        background: "#e74c3c",
-      },
-    }).showToast();
-  }
-});
-
-// ---  File Drop Zone Script (for "Add Brand" modal) ---
+// --------------------------------------
+// 🖼️ Add Brand - File Cropper Logic
+// --------------------------------------
 const fileInput = document.getElementById("brandLogoAdd");
 const uploadContainer = document.getElementById("uploadContainer");
 const placeholder = document.getElementById("uploadPlaceholder");
@@ -115,17 +54,14 @@ const changeImageBtn = document.getElementById("changeImageBtn");
 
 let cropper;
 
-// open file picker
 uploadContainer.addEventListener("click", () => fileInput.click());
 
-// handle file selection
 fileInput.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
   const ext = file.name.split(".").pop().toLowerCase();
   if (ext === "svg") {
-    // ✅ Skip cropping for SVGs
     const reader = new FileReader();
     reader.onload = (event) => {
       croppedImagePreview.src = event.target.result;
@@ -136,7 +72,6 @@ fileInput.addEventListener("change", (e) => {
     return;
   }
 
-  // Normal flow for PNG/JPG/WebP
   const reader = new FileReader();
   reader.onload = (event) => {
     cropperImage.src = event.target.result;
@@ -149,37 +84,22 @@ fileInput.addEventListener("change", (e) => {
         autoCropArea: 1,
         background: false,
         responsive: true,
-        movable: true,
-        zoomable: true,
       });
     };
   };
   reader.readAsDataURL(file);
 });
 
-
-// cancel crop
 cancelCropBtn.addEventListener("click", () => {
   cropperModal.classList.remove("active");
-
-  if (cropper) {
-    cropper.destroy();
-    cropper = null;
-  }
+  if (cropper) cropper.destroy();
+  cropper = null;
   fileInput.value = "";
 });
 
-// apply crop
 applyCropBtn.addEventListener("click", () => {
-  if (!cropper) {
-    console.warn("Cropper not initialized!");
-    return;
-  }
-
-  const canvas = cropper.getCroppedCanvas({
-    imageSmoothingEnabled: true,
-    imageSmoothingQuality: "high",
-  });
+  if (!cropper) return;
+  const canvas = cropper.getCroppedCanvas({ imageSmoothingQuality: "high" });
 
   canvas.toBlob((blob) => {
     const croppedUrl = canvas.toDataURL("image/png");
@@ -205,68 +125,19 @@ applyCropBtn.addEventListener("click", () => {
   cropper = null;
 });
 
-// change image
 changeImageBtn.addEventListener("click", () => {
   preview.style.display = "none";
   placeholder.style.display = "block";
   fileInput.value = "";
 });
 
-// --- File Drop Zone Script (for "Edit Brand" modal) ---
-const dropZoneEditContainer = document.querySelector(".file-drop-zone-edit");
-const fileInputEdit = document.getElementById("brandLogoEdit");
-const previewEdit = document.getElementById("edit-image-preview");
-const dropContentEdit = document.getElementById("file-drop-zone-edit");
-
-// Trigger file input click when the drop zone area is clicked
-// Note: We're listening on the container to allow clicks on the existing image or the "upload" text
-dropZoneEditContainer.addEventListener("click", () => fileInputEdit.click());
-
-// Handle file selection
-fileInputEdit.addEventListener("change", (e) => {
-  if (e.target.files && e.target.files[0]) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      // Set the new image preview
-      previewEdit.innerHTML = `<img src="${e.target.result}" alt="New Logo Preview">`;
-      // Ensure the preview <div> is visible
-      previewEdit.style.display = "block";
-      // Hide the "Drag & drop" text content
-      dropContentEdit.style.display = "none";
-    };
-
-    reader.readAsDataURL(file);
-  }
-});
-
-// --- NEW: Filter Dropdown Script ---
-const filterBtn = document.getElementById("filter-btn");
-const filterMenu = document.getElementById("filter-menu");
-const filterContainer = filterBtn
-  ? filterBtn.closest(".filter-dropdown-container")
-  : null;
-
-if (filterBtn && filterMenu && filterContainer) {
-  // Toggle menu on button click
-  filterBtn.addEventListener("click", () => {
-    filterContainer.classList.toggle("active");
-  });
-
-  // Close menu if clicking outside
-  document.addEventListener("click", (e) => {
-    if (!filterContainer.contains(e.target)) {
-      filterContainer.classList.remove("active");
-    }
-  });
-}
-
+// --------------------------------------
+// 🧾 Add Brand Submit (Axios)
+// --------------------------------------
 document
   .getElementById("add-brand-form")
   .addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const formData = new FormData(e.target);
 
     try {
@@ -280,39 +151,198 @@ document
           duration: 1000,
           gravity: "top",
           position: "right",
-          style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
-          },
+          style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
         }).showToast();
-        setTimeout(() => {
-          window.location.reload();
-        }, 1200);
+        setTimeout(() => window.location.reload(), 1200);
       }
     } catch (error) {
-      console.error(error);
       Toastify({
         text: error.response?.data?.message || "Failed to add brand",
         duration: 2000,
         gravity: "top",
         position: "right",
-        style: {
-          background: "#e74c3c",
-        },
+        style: { background: "#e74c3c" },
       }).showToast();
     }
   });
-document.querySelectorAll(".btn-unlist").forEach((button) => {
-  button.addEventListener("click", async (e) => {
-    e.preventDefault();
 
-    const brandId = button.dataset.brandId;
-    const isListed = button.dataset.brandIslisted === "true";
+// --------------------------------------
+// ✏️ Edit Brand Modal + populate
+// --------------------------------------
+const editModal = document.getElementById("edit-brand-modal");
+const editForm = document.getElementById("edit-brand-form");
+const editBrandId = document.getElementById("editBrandId");
+const editBrandName = document.getElementById("editBrandName");
+const croppedImagePreviewEdit = document.getElementById(
+  "croppedImagePreviewEdit"
+);
+const uploadPreviewEdit = document.getElementById("uploadPreviewEdit");
+const uploadPlaceholderEdit = document.getElementById("uploadPlaceholderEdit");
+
+document.querySelectorAll(".open-edit-modal-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const id = btn.dataset.brandId;
+    const name = btn.dataset.brandName;
+    const imageUrl = btn.dataset.brandImage;
+
+    editBrandId.value = id;
+    editBrandName.value = name;
+
+    croppedImagePreviewEdit.src = imageUrl;
+    uploadPreviewEdit.style.display = "flex";
+    uploadPlaceholderEdit.style.display = "none";
+
+    openModal(editModal);
+  });
+});
+
+
+
+// --------------------------------------
+// 🖼️ Edit Brand - File Cropper Logic
+// --------------------------------------
+const fileInputEditCrop = document.getElementById("brandLogoEdit");
+const uploadContainerEdit = document.getElementById("uploadContainerEdit");
+const placeholderEdit = document.getElementById("uploadPlaceholderEdit");
+const previewEditCrop = document.getElementById("uploadPreviewEdit");
+const cropperModalEdit = document.getElementById("cropperModalEdit");
+const cropperImageEdit = document.getElementById("cropperImageEdit");
+const cancelCropBtnEdit = document.getElementById("cancelCropBtnEdit");
+const applyCropBtnEdit = document.getElementById("applyCropBtnEdit");
+const changeImageBtnEdit = document.getElementById("changeImageBtnEdit");
+
+let cropperEdit;
+
+uploadContainerEdit.addEventListener("click", () => fileInputEditCrop.click()); //It makes the entire upload box area clickable
+
+fileInputEditCrop.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const ext = file.name.split(".").pop().toLowerCase(); //extract file extension in lower case
+  if (ext === "svg") {
+    //f the file is an SVG, we don’t want to crop it.SVGs are vector images — cropping them doesn’t make sense.
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      croppedImagePreviewEdit.src = event.target.result;
+      previewEditCrop.style.display = "flex";
+      placeholderEdit.style.display = "none"; //remove the text in there
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    //.onload is working after image is loaded
+    cropperImageEdit.src = event.target.result;
+    cropperModalEdit.classList.add("active");
+    cropperImageEdit.onload = () => {
+      if (cropperEdit) cropperEdit.destroy();
+      cropperEdit = new Cropper(cropperImageEdit, {
+        aspectRatio: 1,
+        viewMode: 1,// Restrict cropping inside the image bounds
+        autoCropArea: 1,//Automatically fill the whole image initially
+        background: true,
+        responsive: true,//responsive copper
+      });
+    };
+  };
+  reader.readAsDataURL(file);//after this reader.onload works(it read the image file from disk)
+});
+
+cancelCropBtnEdit.addEventListener("click", () => {
+  cropperModalEdit.classList.remove("active");
+  if (cropperEdit) cropperEdit.destroy();
+  cropperEdit = null;
+  fileInputEditCrop.value = "";
+});
+
+applyCropBtnEdit.addEventListener("click", () => {
+  if (!cropperEdit) return;
+  const canvas = cropperEdit.getCroppedCanvas({
+    imageSmoothingQuality: "high",
+  });
+
+  canvas.toBlob((blob) => {
+    //.toBlob converts whatever is drawn inside that canvas (your cropped image) into a binary file object called a Blob.
+    const croppedUrl = canvas.toDataURL("image/png");//Creates a preview URL that the browser can show
+    croppedImagePreviewEdit.src = croppedUrl;
+    previewEditCrop.style.display = "flex";
+    placeholderEdit.style.display = "none";
+    cropperModalEdit.classList.remove("active");
+
+    const originalName = fileInputEditCrop.files[0].name;
+    const baseName =
+      originalName.substring(0, originalName.lastIndexOf(".")) || originalName;
+    const croppedFile = new File([blob], baseName + ".png", {
+      type: "image/png",
+      lastModified: Date.now(),
+    });
+
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(croppedFile);
+    fileInputEditCrop.files = dataTransfer.files;
+  });
+
+  cropperEdit.destroy();
+  cropperEdit = null;
+});
+
+changeImageBtnEdit.addEventListener("click", () => {
+  previewEditCrop.style.display = "none";
+  placeholderEdit.style.display = "block";
+  fileInputEditCrop.value = "";
+});
+
+// --------------------------------------
+// 🧾 Edit Brand Submit (Axios)
+// --------------------------------------
+editForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  console.log(e.target)
+
+  try {
+    const response = await axios.patch(`/admin/brands/edit`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    if (response.data.success) {
+      Toastify({
+        text: response.data.message,
+        duration: 1000,
+        gravity: "top",
+        position: "right",
+        style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+      }).showToast();
+      setTimeout(() => window.location.reload(), 1200);
+    }
+  } catch (error) {
+    Toastify({
+      text: error.response?.data?.message || "Failed to update brand",
+      duration: 2000,
+      gravity: "top",
+      position: "right",
+      style: { background: "#e74c3c" },
+    }).showToast();
+  }
+});
+
+// --------------------------------------
+// 🔁 List / Unlist Brand
+// --------------------------------------
+document.querySelectorAll(".btn-unlist").forEach((btn) => {
+  btn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const brandId = btn.dataset.brandId;
+    const isListed = btn.dataset.brandIslisted === "true";
 
     try {
       const response = await axios.patch(`/admin/brands/list/${brandId}`);
       if (response.data.success) {
         Toastify({
-          text: isListed ? "Brand is now unlisted" : "Brand is now listed",
+          text: isListed ? "Brand Unlisted" : "Brand Listed",
           duration: 1000,
           gravity: "top",
           position: "right",
@@ -322,12 +352,11 @@ document.querySelectorAll(".btn-unlist").forEach((button) => {
               : "linear-gradient(to right, #00b09b, #96c93d)",
           },
         }).showToast();
-
         setTimeout(() => window.location.reload(), 1200);
       }
     } catch (error) {
       Toastify({
-        text: error.response?.data?.message || "Something went wrong",
+        text: "Something went wrong",
         duration: 2000,
         gravity: "top",
         position: "right",
@@ -337,17 +366,32 @@ document.querySelectorAll(".btn-unlist").forEach((button) => {
   });
 });
 
-const searchInput = document.getElementById("brand-search-input");
-  const searchForm = document.getElementById("brand-search-form");
-  let typingTimer;
+// --------------------------------------
+// 🔽 Filter Dropdown
+// --------------------------------------
+const filterBtn = document.getElementById("filter-btn");
+const filterMenu = document.getElementById("filter-menu");
+const filterContainer = filterBtn?.closest(".filter-dropdown-container");
 
-  // Debounce delay (milliseconds)
-  const typingDelay = 500; // half a second after last keystroke
-
-  searchInput.addEventListener("input", () => {
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-      // Submit the form automatically
-      searchForm.submit();
-    }, typingDelay);
+if (filterBtn && filterMenu && filterContainer) {
+  filterBtn.addEventListener("click", () =>
+    filterContainer.classList.toggle("active")
+  );
+  document.addEventListener("click", (e) => {
+    if (!filterContainer.contains(e.target))
+      filterContainer.classList.remove("active");
   });
+}
+
+// --------------------------------------
+// 🔍 Search (Debounce Auto Submit)
+// --------------------------------------
+const searchInput = document.getElementById("brand-search-input");
+const searchForm = document.getElementById("brand-search-form");
+let typingTimer;
+const typingDelay = 500;
+
+searchInput.addEventListener("input", () => {
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(() => searchForm.submit(), typingDelay);
+});

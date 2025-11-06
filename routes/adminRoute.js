@@ -22,7 +22,7 @@ import { loadCoupons } from "../controllers/admin/couponController.js";
 import { loadReferrals } from "../controllers/admin/referralController.js";
 import { loadBanners } from "../controllers/admin/bannerController.js";
 import { loadOffers } from "../controllers/admin/offerController.js";
-import { isLogin, requireLogin } from "../middlewares/adminAuth.js";
+import { isLogin, verifyAdmin } from "../middlewares/adminAuth.js";
 import upload from "../middlewares/upload.js";
 
 router.use(setLayout("admin"));
@@ -33,22 +33,22 @@ router.post("/register", registerAdmin);
 router.post("/login", loginAdmin);
 
 //dash
-router.get("/dashboard", requireLogin, loadDashboard);
+router.get("/dashboard", verifyAdmin, loadDashboard);
 
 //brands
-router.get("/brands", requireLogin, loadBrands);
+router.get("/brands", verifyAdmin, loadBrands);
 router.post("/brands/add", upload.single("brandLogo"), addBrand);
 router.patch("/brands/edit", upload.single("brandLogo"), editBrand);
 router.patch("/brands/list/:userId", listBrand);
 
-router.get("/banners", requireLogin, loadBanners);
-router.get("/products", requireLogin, loadProducts);
-router.get("/customers", requireLogin, loadCustomers);
-router.get("/orders", requireLogin, loadOrders);
-router.get("/coupons", requireLogin, loadCoupons);
-router.get("/referrals", requireLogin, loadReferrals);
-router.get("/banners", requireLogin, loadBanners);
-router.get("/offers", requireLogin, loadOffers);
+router.get("/banners", verifyAdmin, loadBanners);
+router.get("/products", verifyAdmin, loadProducts);
+router.get("/customers", verifyAdmin, loadCustomers);
+router.get("/orders", verifyAdmin, loadOrders);
+router.get("/coupons", verifyAdmin, loadCoupons);
+router.get("/referrals", verifyAdmin, loadReferrals);
+router.get("/banners", verifyAdmin, loadBanners);
+router.get("/offers", verifyAdmin, loadOffers);
 router.post("/logout", logoutAdmin);
 
 export default router;

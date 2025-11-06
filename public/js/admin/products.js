@@ -149,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.btn-edit').forEach(button => {
         button.addEventListener('click', async (e) => {
             const productId = e.currentTarget.dataset.productId;
+            console.log(productId);
             
             // --- This is where you call your backend ---
             // As an AI, I can't make the backend call, but here is how you'd structure it.
@@ -180,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 brand: 'Samsung',
                 description: 'Flagship Samsung phone with AI features',
                 images: [
-                    'image_712ec5.png' // Use the actual image path from your backend
+                    '/images/logo.png' // Use the actual image path from your backend
                 ],
                 isFeatured: false,
                 status: 'Unlisted', // 'Listed' or 'Unlisted'
