@@ -110,12 +110,14 @@ export const editBrand = async (req, res) => {
 
   const { brandName, brandId } = req.body;
   const brand = await brandModel.findOne({ _id: brandId });
-  const logoPath = req.file ? `/uploads/brands/${req.file.filename}` : brand.logo;
+  const logoPath = req.file
+    ? `/uploads/brands/${req.file.filename}`
+    : brand.logo;
 
-  console.log(brand.brandName,brandName)
+  console.log(brand.brandName, brandName);
   if (brand.brandName !== brandName) {
     const existingBrand = await brandModel.findOne({ brandName });
-    console.log(existingBrand)
+    console.log(existingBrand);
     if (existingBrand) {
       if (req.file) {
         const fs = await import("fs");
@@ -126,12 +128,14 @@ export const editBrand = async (req, res) => {
         .json({ success: false, message: "Brand name already exists" });
     }
   }
-  console.log(logoPath)
+  console.log(logoPath);
   brand.brandName = brandName;
   brand.logo = logoPath;
 
   await brand.save();
-  res.status(200).json({success:true,message:"Brand updated successfully!"})
+  res
+    .status(200)
+    .json({ success: true, message: "Brand updated successfully!" });
 };
 
 export const listBrand = async (req, res) => {
@@ -142,4 +146,15 @@ export const listBrand = async (req, res) => {
   brand.isListed = !brand.isListed;
   await brand.save();
   res.status(200).json({ success: true });
+};
+
+export const getBrandById = async (req, res) => {
+  try {
+    const brand = await brandModel.findById(req.params.id).lean();
+    if (!brand) return res.status(404).json({ message: "brand not found" });
+    res.json({ data:brand });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };

@@ -12,6 +12,7 @@ import {
 import {
   addBrand,
   editBrand,
+  getBrandById,
   listBrand,
   loadBrands,
 } from "../controllers/admin/brandController.js";
@@ -40,6 +41,7 @@ router.get("/brands", verifyAdmin, loadBrands);
 router.post("/brands/add", upload.single("brandLogo"), addBrand);
 router.patch("/brands/edit", upload.single("brandLogo"), editBrand);
 router.patch("/brands/list/:userId", listBrand);
+router.get('/api/brands/:id',verifyAdmin,getBrandById);
 
 router.get("/banners", verifyAdmin, loadBanners);
 router.get("/products", verifyAdmin, loadProducts);

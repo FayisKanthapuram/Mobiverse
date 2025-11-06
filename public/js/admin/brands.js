@@ -180,23 +180,33 @@ const uploadPreviewEdit = document.getElementById("uploadPreviewEdit");
 const uploadPlaceholderEdit = document.getElementById("uploadPlaceholderEdit");
 
 document.querySelectorAll(".open-edit-modal-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const id = btn.dataset.brandId;
-    const name = btn.dataset.brandName;
-    const imageUrl = btn.dataset.brandImage;
-
-    editBrandId.value = id;
-    editBrandName.value = name;
-
-    croppedImagePreviewEdit.src = imageUrl;
-    uploadPreviewEdit.style.display = "flex";
-    uploadPlaceholderEdit.style.display = "none";
-
-    openModal(editModal);
+  btn.addEventListener("click", async (e) => {
+    const brandId = e.currentTarget.dataset.brandId;
+    try {
+      const response = await axios.get(`/admin/api/brands/${brandId}`);
+      const brand = response.data.data;
+      populateEditModal(brand);
+      openModal(editModal);
+    } catch (error) {
+      console.error("Failed to fetch product data:", error);
+      Toastify({
+        text: "Could not load brand data. Please try again.",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: { background: "#e74c3c" },
+      }).showToast();
+    }
   });
 });
 
-
+const populateEditModal = (brand) => {
+  editBrandId.value = brand._id;
+  editBrandName.value = brand.brandName;
+  croppedImagePreviewEdit.src = brand.logo;
+  uploadPreviewEdit.style.display = "flex";
+  uploadPlaceholderEdit.style.display = "none";
+};
 
 // --------------------------------------
 // 🖼️ Edit Brand - File Cropper Logic
@@ -241,14 +251,14 @@ fileInputEditCrop.addEventListener("change", (e) => {
       if (cropperEdit) cropperEdit.destroy();
       cropperEdit = new Cropper(cropperImageEdit, {
         aspectRatio: 1,
-        viewMode: 1,// Restrict cropping inside the image bounds
-        autoCropArea: 1,//Automatically fill the whole image initially
+        viewMode: 1, // Restrict cropping inside the image bounds
+        autoCropArea: 1, //Automatically fill the whole image initially
         background: true,
-        responsive: true,//responsive copper
+        responsive: true, //responsive copper
       });
     };
   };
-  reader.readAsDataURL(file);//after this reader.onload works(it read the image file from disk)
+  reader.readAsDataURL(file); //after this reader.onload works(it read the image file from disk)
 });
 
 cancelCropBtnEdit.addEventListener("click", () => {
@@ -266,7 +276,7 @@ applyCropBtnEdit.addEventListener("click", () => {
 
   canvas.toBlob((blob) => {
     //.toBlob converts whatever is drawn inside that canvas (your cropped image) into a binary file object called a Blob.
-    const croppedUrl = canvas.toDataURL("image/png");//Creates a preview URL that the browser can show
+    const croppedUrl = canvas.toDataURL("image/png"); //Creates a preview URL that the browser can show
     croppedImagePreviewEdit.src = croppedUrl;
     previewEditCrop.style.display = "flex";
     placeholderEdit.style.display = "none";
@@ -301,7 +311,7 @@ changeImageBtnEdit.addEventListener("click", () => {
 editForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
-  console.log(e.target)
+  console.log(e.target);
 
   try {
     const response = await axios.patch(`/admin/brands/edit`, formData, {
