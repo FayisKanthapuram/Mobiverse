@@ -1,33 +1,42 @@
+// middlewares/upload.js
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-const uploadDir = "public/uploads/brands";
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// ✅ Reusable function to create storage for any folder
+const createStorage = (folderName) => {
+  const uploadDir = path.join("public", "uploads", folderName);
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const baseName = path.basename(file.originalname, path.extname(file.originalname));
-    const ext = path.extname(file.originalname).toLowerCase();
+  // Make sure folder exists
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-    // ✅ Keep .svg files as .svg (don’t force .png)
-    if (ext === ".svg") {
-      cb(null, `${Date.now()}-${baseName}.svg`);
-    } else {
-      cb(null, `${Date.now()}-${baseName}.png`);
-    }
-  },
-});
+  return multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+      const baseName = path.basename(file.originalname, path.extname(file.originalname));
+      const ext = path.extname(file.originalname).toLowerCase();
 
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const allowed = /jpeg|jpg|png|webp|svg/;
-    if (allowed.test(ext)) cb(null, true);
-    else cb(new Error("Only image files are allowed"));
-  },
-});
+      // Keep .svg as is
+      if (ext === ".svg") cb(null, `${Date.now()}-${baseName}.svg`);
+      else cb(null, `${Date.now()}-${baseName}.png`);
+    },
+  });
+};
+
+// ✅ File filter for images
+const fileFilter = (req, file, cb) => {
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowed = /jpeg|jpg|png|webp|svg/;
+  if (allowed.test(ext)) cb(null, true);
+  else cb(new Error("Only image files are allowed"));
+};
+
+// ✅ Export different upload middlewares
+const upload = {
+  brand: multer({ storage: createStorage("brands"), fileFilter }),
+  product: multer({ storage: createStorage("products"), fileFilter }),
+  customer: multer({ storage: createStorage("customers"), fileFilter }),
+  banner: multer({ storage: createStorage("banners"), fileFilter }),
+};
 
 export default upload;

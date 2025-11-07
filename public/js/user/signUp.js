@@ -34,7 +34,7 @@ document
     } catch (error) {
       Toastify({
         text: error.response?.data?.message || "Register user failed ❌",
-        duration: 1000,
+        duration: 2000,
         gravity: "top",
         position: "right",
         style: {

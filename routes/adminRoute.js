@@ -16,7 +16,10 @@ import {
   listBrand,
   loadBrands,
 } from "../controllers/admin/brandController.js";
-import { loadProducts } from "../controllers/admin/productController.js";
+import {
+  addProduct,
+  loadProducts,
+} from "../controllers/admin/productController.js";
 import { loadCustomers } from "../controllers/admin/customerController.js";
 import { loadOrders } from "../controllers/admin/orderController.js";
 import { loadCoupons } from "../controllers/admin/couponController.js";
@@ -38,13 +41,24 @@ router.get("/dashboard", verifyAdmin, loadDashboard);
 
 //brands
 router.get("/brands", verifyAdmin, loadBrands);
-router.post("/brands/add", upload.single("brandLogo"), addBrand);
-router.patch("/brands/edit", upload.single("brandLogo"), editBrand);
+router.post("/brands/add", upload.brand.single("brandLogo"), addBrand);
+router.patch("/brands/edit", upload.brand.single("brandLogo"), editBrand);
 router.patch("/brands/list/:userId", listBrand);
-router.get('/api/brands/:id',verifyAdmin,getBrandById);
+router.get("/api/brands/:id", verifyAdmin, getBrandById);
+
+//products
+router.get("/products", verifyAdmin, loadProducts);
+router.post(
+  "/products/add",
+  upload.product.fields([
+    { name: "image1", maxCount: 1 },
+    { name: "image2", maxCount: 1 },
+    { name: "image3", maxCount: 1 },
+  ]),
+  addProduct
+);
 
 router.get("/banners", verifyAdmin, loadBanners);
-router.get("/products", verifyAdmin, loadProducts);
 router.get("/customers", verifyAdmin, loadCustomers);
 router.get("/orders", verifyAdmin, loadOrders);
 router.get("/coupons", verifyAdmin, loadCoupons);

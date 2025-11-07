@@ -18,10 +18,10 @@ const productSchema = new mongoose.Schema(
 
     images: {
       type: [String],
-      required: [true, "At least one image is required"],
+      required: true,
       validate: {
-        validator: (arr) => arr.length > 0,
-        message: "At least one product image must be provided",
+        validator: (arr) => arr.length >= 3,
+        message: "At least 3 product images must be provided",
       },
     },
 

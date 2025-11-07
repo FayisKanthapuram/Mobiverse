@@ -310,4 +310,84 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Something went wrong while applying crop. Try again.");
     }
   });
+
+  //================================================
+  // 6. ADD PRODUCT (AXIOS)
+  //================================================
+
+  const form = document.getElementById("add-product-form");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+
+    const productName = document
+      .getElementById("add-product-name")
+      .value.trim();
+    const brand = document.getElementById("add-brand").value;
+    const description = document.getElementById("add-description").value.trim();
+
+
+    const imageInputs = form.querySelectorAll(".image-upload-input");
+    let imageCount = 0;
+    imageInputs.forEach((input, index) => {
+      if (input.files.length > 0) {
+        formData.append(`image${index + 1}`, input.files[0]);
+        imageCount++;
+      }
+    });
+
+
+    formData.append("productName", productName);
+    formData.append("brand", brand);
+    formData.append("description", description);
+    formData.append(
+      "isFeatured",
+      document.getElementById("add-featured").checked
+    );
+    formData.append("status", document.getElementById("add-status").checked);
+
+    const variantSections = form.querySelectorAll(".variant-form-section");
+    const variants = [];
+    variantSections.forEach((section) => {
+      variants.push({
+        regularPrice: section.querySelector('input[name="regularPrice"]').value,
+        salePrice: section.querySelector('input[name="salePrice"]').value,
+        ram: section.querySelector('select[name="ram"]').value,
+        storage: section.querySelector('select[name="storage"]').value,
+        colour: section.querySelector('input[name="colour"]').value.trim(),
+        stockQuantity: section.querySelector('input[name="stockQuantity"]')
+          .value,
+      });
+    });
+    formData.append("variants", JSON.stringify(variants));
+
+    // console.log(formData.get("image1").name);
+
+    try {
+      const response = await axios.post("/admin/products/add", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      if (response.data.success) {
+        Toastify({
+          text: response.data.message,
+          duration: 1000,
+          gravity: "top",
+          position: "right",
+          style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+        }).showToast();
+        form.reset();
+        document.getElementById("add-product-modal").style.display = "none";
+      }
+    } catch (err) {
+      console.error(err);
+      Toastify({
+        text: err.response?.data?.message || "Failed to add product",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: { background: "#e74c3c" },
+      }).showToast();
+    }
+  });
 });
