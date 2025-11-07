@@ -42,7 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
     header.addEventListener("click", () => {
       const content = header.nextElementSibling;
       header.classList.toggle("active");
-      content.style.display = content.style.display === "block" ? "none" : "block";
+      content.style.display =
+        content.style.display === "block" ? "none" : "block";
     });
   });
 
@@ -53,7 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const addVariantForm = (modalTypePrefix) => {
     if (!variantTemplate) return;
-    const variantList = document.getElementById(`${modalTypePrefix}-variant-list`);
+    const variantList = document.getElementById(
+      `${modalTypePrefix}-variant-list`
+    );
     if (!variantList) return;
 
     const newVariant = variantTemplate.content.cloneNode(true);
@@ -64,17 +67,21 @@ document.addEventListener("DOMContentLoaded", () => {
       updateTotalStock(modalTypePrefix);
     });
 
-    newVariant.querySelector(".btn-remove-variant").addEventListener("click", (e) => {
-      e.currentTarget.closest(".variant-form-section").remove();
-      updateVariantNumbers(modalTypePrefix);
-      updateTotalStock(modalTypePrefix);
-    });
+    newVariant
+      .querySelector(".btn-remove-variant")
+      .addEventListener("click", (e) => {
+        e.currentTarget.closest(".variant-form-section").remove();
+        updateVariantNumbers(modalTypePrefix);
+        updateTotalStock(modalTypePrefix);
+      });
 
     variantList.appendChild(newVariant);
   };
 
   const updateVariantNumbers = (modalTypePrefix) => {
-    const variantList = document.getElementById(`${modalTypePrefix}-variant-list`);
+    const variantList = document.getElementById(
+      `${modalTypePrefix}-variant-list`
+    );
     if (!variantList) return;
     variantList.querySelectorAll(".variant-form-section").forEach((v, i) => {
       v.querySelector(".variant-number").textContent = i + 1;
@@ -82,8 +89,12 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const updateTotalStock = (modalTypePrefix) => {
-    const variantList = document.getElementById(`${modalTypePrefix}-variant-list`);
-    const totalStockEl = document.getElementById(`${modalTypePrefix}-total-stock`);
+    const variantList = document.getElementById(
+      `${modalTypePrefix}-variant-list`
+    );
+    const totalStockEl = document.getElementById(
+      `${modalTypePrefix}-total-stock`
+    );
     if (!variantList || !totalStockEl) return;
 
     let total = 0;
@@ -93,8 +104,12 @@ document.addEventListener("DOMContentLoaded", () => {
     totalStockEl.textContent = `${total} units`;
   };
 
-  document.getElementById("add-variant-btn")?.addEventListener("click", () => addVariantForm("add"));
-  document.getElementById("edit-add-variant-btn")?.addEventListener("click", () => addVariantForm("edit"));
+  document
+    .getElementById("add-variant-btn")
+    ?.addEventListener("click", () => addVariantForm("add"));
+  document
+    .getElementById("edit-add-variant-btn")
+    ?.addEventListener("click", () => addVariantForm("edit"));
 
   //================================================
   // 4. Edit Product Modal Population
@@ -112,8 +127,22 @@ document.addEventListener("DOMContentLoaded", () => {
         isFeatured: false,
         status: "Unlisted",
         variants: [
-          { regularPrice: 69999, salePrice: 69999, ram: "8GB", storage: "128GB", colour: "Black", stockQuantity: 20 },
-          { regularPrice: 109999, salePrice: 109999, ram: "12GB", storage: "512GB", colour: "Cream", stockQuantity: 32 },
+          {
+            regularPrice: 69999,
+            salePrice: 69999,
+            ram: "8GB",
+            storage: "128GB",
+            colour: "Black",
+            stockQuantity: 20,
+          },
+          {
+            regularPrice: 109999,
+            salePrice: 109999,
+            ram: "12GB",
+            storage: "512GB",
+            colour: "Cream",
+            stockQuantity: 32,
+          },
         ],
       };
       populateEditModal(dummyProduct);
@@ -131,8 +160,12 @@ document.addEventListener("DOMContentLoaded", () => {
     form.querySelector("#edit-status").checked = product.status === "Listed";
 
     for (let i = 0; i < 3; i++) {
-      const previewContainer = form.querySelector(`#edit-preview-image${i + 1}`);
-      previewContainer.innerHTML = `<img src="${product.images[i] || "/images/default-product.png"}" class="img-preview" />`;
+      const previewContainer = form.querySelector(
+        `#edit-preview-image${i + 1}`
+      );
+      previewContainer.innerHTML = `<img src="${
+        product.images[i] || "/images/default-product.png"
+      }" class="img-preview" />`;
     }
 
     const variantList = form.querySelector("#edit-variant-list");
@@ -149,19 +182,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const variantCount = variantList.children.length + 1;
     newVariant.querySelector(".variant-number").textContent = variantCount;
 
-    newVariant.querySelector('input[name="regularPrice"]').value = variant.regularPrice;
-    newVariant.querySelector('input[name="salePrice"]').value = variant.salePrice;
+    newVariant.querySelector('input[name="regularPrice"]').value =
+      variant.regularPrice;
+    newVariant.querySelector('input[name="salePrice"]').value =
+      variant.salePrice;
     newVariant.querySelector('select[name="ram"]').value = variant.ram;
     newVariant.querySelector('select[name="storage"]').value = variant.storage;
     newVariant.querySelector('input[name="colour"]').value = variant.colour;
-    newVariant.querySelector('input[name="stockQuantity"]').value = variant.stockQuantity;
+    newVariant.querySelector('input[name="stockQuantity"]').value =
+      variant.stockQuantity;
 
-    newVariant.querySelector(".variant-stock").addEventListener("input", () => updateTotalStock("edit"));
-    newVariant.querySelector(".btn-remove-variant").addEventListener("click", (e) => {
-      e.currentTarget.closest(".variant-form-section").remove();
-      updateVariantNumbers("edit");
-      updateTotalStock("edit");
-    });
+    newVariant
+      .querySelector(".variant-stock")
+      .addEventListener("input", () => updateTotalStock("edit"));
+    newVariant
+      .querySelector(".btn-remove-variant")
+      .addEventListener("click", (e) => {
+        e.currentTarget.closest(".variant-form-section").remove();
+        updateVariantNumbers("edit");
+        updateTotalStock("edit");
+      });
 
     variantList.appendChild(newVariant);
   };
@@ -188,7 +228,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (ext === "svg") {
         const reader = new FileReader();
         reader.onload = (evt) => {
-          const previewContainer = input.closest(".image-upload-box").nextElementSibling;
+          const previewContainer =
+            input.closest(".image-upload-box").nextElementSibling;
           previewContainer.innerHTML = `<img src="${evt.target.result}" class="img-preview" />`;
         };
         reader.readAsDataURL(file);
@@ -228,29 +269,45 @@ document.addEventListener("DOMContentLoaded", () => {
   applyCropBtn.addEventListener("click", () => {
     if (!cropper || !activeInput) return;
 
-    const canvas = cropper.getCroppedCanvas({ imageSmoothingQuality: "high" });
-
-    canvas.toBlob((blob) => {
-      const croppedUrl = canvas.toDataURL("image/png");
-      const previewContainer = activeInput.closest(".image-upload-box").nextElementSibling;
-      previewContainer.innerHTML = `<img src="${croppedUrl}" class="img-preview" />`;
-
-      const originalName = activeInput.files[0].name;
-      const baseName = originalName.substring(0, originalName.lastIndexOf(".")) || originalName;
-      const croppedFile = new File([blob], baseName + ".png", {
-        type: "image/png",
-        lastModified: Date.now(),
+    try {
+      const canvas = cropper.getCroppedCanvas({
+        imageSmoothingQuality: "high",
       });
 
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(croppedFile);
-      activeInput.files = dataTransfer.files;
+      // Convert to base64 image immediately (synchronous)
+      const croppedUrl = canvas.toDataURL("image/png");
 
-      cropperModal.classList.remove("active");
-    });
+      // Show preview
+      const previewContainer =
+        activeInput.closest(".image-upload-box").nextElementSibling;
+      previewContainer.innerHTML = `<img src="${croppedUrl}" class="img-preview" />`;
 
-    cropper.destroy();
-    cropper = null;
-    activeInput = null;
+      // Convert base64 to Blob for file upload
+      fetch(croppedUrl)
+        .then((res) => res.blob())
+        .then((blob) => {
+          const originalName = activeInput.files[0].name;
+          const baseName =
+            originalName.substring(0, originalName.lastIndexOf(".")) ||
+            originalName;
+          const croppedFile = new File([blob], baseName + ".png", {
+            type: "image/png",
+            lastModified: Date.now(),
+          });
+
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(croppedFile);
+          activeInput.files = dataTransfer.files;
+
+          // Hide crop modal
+          cropperModal.classList.remove("active");
+          cropper.destroy();
+          cropper = null;
+          activeInput = null;
+        });
+    } catch (err) {
+      console.error("Crop apply failed:", err);
+      alert("Something went wrong while applying crop. Try again.");
+    }
   });
 });
