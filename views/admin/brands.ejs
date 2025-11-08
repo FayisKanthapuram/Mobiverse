@@ -62,11 +62,11 @@
         <td><%= brand.productCount %></td>
         <td>
           <% if (brand.isListed) { %>
-          <span class="status-badge status-listed" data-brand-status data-brand-id="<%= brand._id %>">
+          <span class="status-badge status-listed" data-brand-islisted data-brand-id="<%= brand._id %>">
             Listed
           </span>
           <% } else { %>
-          <span class="status-badge status-unlisted" data-brand-status data-brand-id="<%= brand._id %>">
+          <span class="status-badge status-unlisted" data-brand-islisted data-brand-id="<%= brand._id %>">
             Unlisted
           </span>
           <% } %>

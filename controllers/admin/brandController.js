@@ -139,7 +139,6 @@ export const editBrand = async (req, res) => {
 };
 
 export const listBrand = async (req, res) => {
-  console.log("hello");
   const { userId } = req.params;
   const brand = await brandModel.findOne({ _id: userId });
   if (!brand) res.status(400).json({ success: "false" });

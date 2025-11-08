@@ -338,7 +338,7 @@ editForm.addEventListener("submit", async (e) => {
 });
 
 // --------------------------------------
-// 🔁 List / Unlist Brand
+//  List / Unlist Brand
 // --------------------------------------
 document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
   btn.addEventListener("click", async (e) => {
@@ -355,12 +355,10 @@ document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
         btn.dataset.brandIslisted = (!isListed).toString();
 
         if (isListed) {
-          // Was listed → now unlisted
           btn.textContent = "List";
           btn.classList.remove("btn-unlist");
           btn.classList.add("btn-list");
         } else {
-          // Was unlisted → now listed
           btn.textContent = "Unlist";
           btn.classList.remove("btn-list");
           btn.classList.add("btn-unlist");

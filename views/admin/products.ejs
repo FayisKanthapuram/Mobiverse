@@ -71,9 +71,9 @@
               <i class="fas fa-pencil-alt"></i> Edit
             </button>
             <% if (product.status === 'list') { %>
-              <button type="submit" class="btn-action btn-unlist">Unlist</button>
+              <button type="submit" class="btn-action btn-unlist" data-product-id="<%= product._id %>">Unlist</button>
             <% } else { %>
-              <button type="submit" class="btn-action btn-list">List</button>
+              <button type="submit" class="btn-action btn-list" data-product-id="<%= product._id %>" data-product-isLIsted="<%= product.status %>">List</button>
             <% } %>
           </div>
         </td>
