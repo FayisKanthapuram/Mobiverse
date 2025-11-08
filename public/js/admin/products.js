@@ -242,7 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
       cropperImage.onload = () => {
         if (cropper) cropper.destroy();
         cropper = new Cropper(cropperImage, {
-          aspectRatio: 1,
           viewMode: 1,
           autoCropArea: 1,
           background: false,

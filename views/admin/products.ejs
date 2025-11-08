@@ -46,15 +46,19 @@
       products.forEach(product => { %>
       <tr>
         <td>
-          <img src="<%= product.images[0] || '/images/default-product.png' %>" alt="<%= product.name %>" class="product-table-img" />
+          <img src="<%= product.image || '/images/default-product.png' %>" alt="<%= product.name %>" class="product-table-img" />
         </td>
         <td><%= product.name %></td>
-        <td><%= product.brand %></td>
-        <td>5</td>
+        <td><%= product.brandID.brandName %></td>
+        <td><%= product.avgRating %></td>
+        <%if (product.minPrice ===product.maxPrice) {%>
+        <td>₹<%= product.minPrice %></td>
+        <% } else { %>
         <td>₹<%= product.minPrice %> - ₹<%= product.maxPrice %></td>
+        <% } %>
         <td><%= product.totalStock %></td>
         <td>
-          <% if (product.status === 'Listed') { %>
+          <% if (product.status === 'list') { %>
           <span class="status-badge status-listed">Listed</span>
           <% } else { %>
           <span class="status-badge status-unlisted">Unlisted</span>
@@ -66,10 +70,10 @@
             <button class="btn-action btn-edit" data-product-id="<%= product._id %>">
               <i class="fas fa-pencil-alt"></i> Edit
             </button>
-            <% if (product.status === 'Listed') { %>
-            <button class="btn-action btn-unlist">Unlist</button>
+            <% if (product.status === 'list') { %>
+              <button type="submit" class="btn-action btn-unlist">Unlist</button>
             <% } else { %>
-            <button class="btn-action btn-list">List</button>
+              <button type="submit" class="btn-action btn-list">List</button>
             <% } %>
           </div>
         </td>
@@ -93,8 +97,12 @@ include('../partials/admin/editProductModal') %>
   <div class="cropper-wrapper">
     <img id="cropperImage" alt="Crop Image" />
     <div class="cropper-actions">
-      <button type="button" id="cancelCropBtn" class="btn btn-secondary">Cancel</button>
-      <button type="button" id="applyCropBtn" class="btn btn-primary">Apply Crop</button>
+      <button type="button" id="cancelCropBtn" class="btn btn-secondary">
+        Cancel
+      </button>
+      <button type="button" id="applyCropBtn" class="btn btn-primary">
+        Apply Crop
+      </button>
     </div>
   </div>
 </div>

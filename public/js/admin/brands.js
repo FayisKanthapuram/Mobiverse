@@ -79,7 +79,6 @@ fileInput.addEventListener("change", (e) => {
     cropperImage.onload = () => {
       if (cropper) cropper.destroy();
       cropper = new Cropper(cropperImage, {
-        aspectRatio: 1,
         viewMode: 1,
         autoCropArea: 1,
         background: false,
@@ -250,7 +249,6 @@ fileInputEditCrop.addEventListener("change", (e) => {
     cropperImageEdit.onload = () => {
       if (cropperEdit) cropperEdit.destroy();
       cropperEdit = new Cropper(cropperImageEdit, {
-        aspectRatio: 1,
         viewMode: 1, // Restrict cropping inside the image bounds
         autoCropArea: 1, //Automatically fill the whole image initially
         background: true,
@@ -342,15 +340,40 @@ editForm.addEventListener("submit", async (e) => {
 // --------------------------------------
 // 🔁 List / Unlist Brand
 // --------------------------------------
-document.querySelectorAll(".btn-unlist").forEach((btn) => {
+document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
     const brandId = btn.dataset.brandId;
     const isListed = btn.dataset.brandIslisted === "true";
 
+    if (isListed && !confirm("Are you sure you want to unlist this brand?"))
+      return;
+
     try {
       const response = await axios.patch(`/admin/brands/list/${brandId}`);
       if (response.data.success) {
+        btn.dataset.brandIslisted = (!isListed).toString();
+
+        if (isListed) {
+          // Was listed → now unlisted
+          btn.textContent = "List";
+          btn.classList.remove("btn-unlist");
+          btn.classList.add("btn-list");
+        } else {
+          // Was unlisted → now listed
+          btn.textContent = "Unlist";
+          btn.classList.remove("btn-list");
+          btn.classList.add("btn-unlist");
+        }
+
+        // ✅ Update status badge if exists
+        const badge = document.querySelector(`[data-brand-status][data-brand-id="${brandId}"]`);
+        if (badge) {
+          badge.textContent = isListed ? "Unlisted" : "Listed";
+          badge.classList.toggle("status-listed", !isListed);
+          badge.classList.toggle("status-unlisted", isListed);
+        }
+
         Toastify({
           text: isListed ? "Brand Unlisted" : "Brand Listed",
           duration: 1000,
@@ -362,7 +385,6 @@ document.querySelectorAll(".btn-unlist").forEach((btn) => {
               : "linear-gradient(to right, #00b09b, #96c93d)",
           },
         }).showToast();
-        setTimeout(() => window.location.reload(), 1200);
       }
     } catch (error) {
       Toastify({

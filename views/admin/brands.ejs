@@ -22,17 +22,11 @@
     <% } %>
   </form>
 
-
   <div class="filter-dropdown-container">
     <button type="button" class="filter-dropdown-btn" id="filter-btn">
       <span id="filter-btn-text">
-        <% if (filter === 'listed') { %>
-        Listed
-        <% } else if (filter === 'unlisted') { %>
-        Unlisted
-        <% } else { %>
-        All
-        <% } %>
+        <% if (filter === 'listed') { %> Listed <% } else if (filter ===
+        'unlisted') { %> Unlisted <% } else { %> All <% } %>
       </span>
       <i class="bi bi-chevron-down"></i>
     </button>
@@ -68,18 +62,29 @@
         <td><%= brand.productCount %></td>
         <td>
           <% if (brand.isListed) { %>
-          <span class="status-badge status-listed">Listed</span>
+          <span class="status-badge status-listed" data-brand-status data-brand-id="<%= brand._id %>">
+            Listed
+          </span>
           <% } else { %>
-          <span class="status-badge status-unlisted">Unlisted</span>
+          <span class="status-badge status-unlisted" data-brand-status data-brand-id="<%= brand._id %>">
+            Unlisted
+          </span>
           <% } %>
         </td>
         <td>
           <div class="action-buttons">
-            <button type="button" class="btn-icon-edit open-edit-modal-btn" data-brand-id="<%= brand._id %>" >
+            <button type="button" class="btn-icon-edit open-edit-modal-btn" data-brand-id="<%= brand._id %>">
               <i class="bi bi-pencil-fill"></i>
             </button>
-
-            <a href="" class="btn-action btn-unlist" data-brand-id="<%= brand._id %>" data-brand-isListed="<%=brand.isListed%>"><% if (brand.isListed) { %> Unlist <% } else { %> List <% } %></a>
+            <% if (brand.isListed) { %>
+            <a href="" class="btn-action btn-unlist" data-brand-id="<%= brand._id %>" data-brand-islisted="<%= brand.isListed %>">
+              Unlist
+            </a>
+            <% } else { %>
+            <a href="" class="btn-action btn-list" data-brand-id="<%= brand._id %>" data-brand-islisted="<%= brand.isListed %>">
+              List
+            </a>
+            <% } %>
           </div>
         </td>
       </tr>
@@ -234,7 +239,6 @@
         </div>
       </div>
     </div>
-
 
     <div class="modal-footer">
       <button type="button" class="btn-secondary-admin" data-close-target="#edit-brand-modal">

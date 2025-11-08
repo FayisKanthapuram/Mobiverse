@@ -4,25 +4,14 @@ import { productValidationSchema } from "../../validators/productValidator.js";
 import variantModel from "../../models/variantModel.js";
 
 export const loadProducts = async (req, res) => {
-  const brands = await brandModel.find({}, { brandName: 1 }).lean();
-  const product = await productModal.find().populate("brandID");
-  const variants = await variantModel.find({ productId: product._id });
-  console.log(product);
+  const brands = await brandModel.find({isListed:true}, { brandName: 1 }).lean();
+  const products = await productModal.find().populate('brandID');
+  console.log(products)
   res.render("admin/products", {
     pageTitle: "Products",
     pageCss: "products",
     pageJs: "products",
-    products: [
-      {
-        name: "oppo",
-        images: ["/images/default-product.png"],
-        brand: "k30",
-        minPrice: "100",
-        maxPrice: "300",
-        totalStock: 300,
-        status: "jk",
-      },
-    ],
+    products,
     brands,
   });
 };
@@ -38,6 +27,12 @@ export const addProduct = async (req, res) => {
     const variants = JSON.parse(req.body.variants);
     const imagesByVariant = {};
 
+    if (!req.files || req.files.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No images uploaded" });
+    }
+
     //  Group uploaded images by variant index
     req.files.forEach((file) => {
       const match = file.fieldname.match(/variantImages_(\d+)_\d+/);
@@ -45,7 +40,7 @@ export const addProduct = async (req, res) => {
         const variantIndex = match[1];
         if (!imagesByVariant[variantIndex]) imagesByVariant[variantIndex] = [];
         imagesByVariant[variantIndex].push(
-          `/uploads/products/variants/${file.filename}`
+          `/uploads/products/${file.filename}`
         );
       }
     });
@@ -79,25 +74,24 @@ export const addProduct = async (req, res) => {
 
     const checkBrand = await brandModel.findById(brand);
     if (!checkBrand) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Invalid brand ID — brand not found in the database",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid brand ID — brand not found in the database",
+      });
     }
 
-    let minPrice=Infinity;
-    let maxPrice=-Infinity;
-    let totalStock=0;
-    for(let variant of finalVariants){
-      minPrice=Math.min(minPrice,variant.salePrice);
-      maxPrice=Math.max(maxPrice,variant.salePrice);
-      totalStock+=Number(variant.stockQuantity);
+    let minPrice = Infinity;
+    let maxPrice = -Infinity;
+    let totalStock = 0;
+    for (let variant of finalVariants) {
+      minPrice = Math.min(minPrice, variant.salePrice);
+      maxPrice = Math.max(maxPrice, variant.salePrice);
+      totalStock += Number(variant.stockQuantity);
     }
 
     const product = await productModal.create({
       name: productName,
+      image:imagesByVariant['0'][0],
       brandID: checkBrand._id,
       description,
       isFeatured,
@@ -107,24 +101,27 @@ export const addProduct = async (req, res) => {
       totalStock,
     });
 
-    for (let variant of finalVariants) {
-      await variantModel.create({
-        productId: product._id,
-        regularPrice:(variant.regularPrice!=='')? Number(variant.regularPrice):0,
-        salePrice: Number(variant.salePrice),
-        ram: variant.ram,
-        storage: variant.storage,
-        colour: variant.colour.toLowerCase(),
-        stock: Number(variant.stockQuantity),
-        images: variant.images,
-      });
-    }
-
+    await Promise.all(
+      finalVariants.map((variant) =>
+        variantModel.create({
+          productId: product._id,
+          regularPrice: variant.regularPrice ? Number(variant.regularPrice) : 0,
+          salePrice: Number(variant.salePrice),
+          ram: variant.ram,
+          storage: variant.storage,
+          colour: variant.colour.toLowerCase(),
+          stock: Number(variant.stockQuantity),
+          images: variant.images,
+        })
+      )
+    );
 
     // Proceed to save product in DB
     res.json({ success: true, message: "Product validated successfully" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("Error adding product", err.message);
+    res
+      .status(500)
+      .json({ success: false, message: err.message || "Server error" });
   }
 };

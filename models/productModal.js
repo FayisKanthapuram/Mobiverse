@@ -10,6 +10,11 @@ const productSchema = new mongoose.Schema(
       maxlength: [100, "Product name cannot exceed 100 characters"],
     },
 
+    image: {
+      type: String,
+      required: true,
+    },
+
     brandID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "brand",
