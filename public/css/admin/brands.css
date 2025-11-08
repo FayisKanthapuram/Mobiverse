@@ -549,75 +549,48 @@ input:checked + .slider-toggle:before {
   background-color: #f8f9fa;
 }
 
-/* --- Filter Dropdown --- */
-.filter-dropdown-container {
+/* --- Modern Select Dropdown --- */
+.filter-select-wrapper {
   position: relative;
-  display: inline-block;
 }
 
-.filter-dropdown-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.7rem 1rem;
+.filter-select-wrapper select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
   border: 1px solid #ced4da;
   border-radius: 6px;
-  color: #495057;
-  font-weight: 500;
-  cursor: pointer;
-  background-color: #fff;
+  padding: 0.7rem 2.5rem 0.7rem 1rem;
   font-size: 0.9rem;
-  min-width: 120px;
-  justify-content: space-between;
+  color: #495057;
+  cursor: pointer;
+  font-weight: 500;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.filter-dropdown-btn:focus {
-  outline: none;
+
+/* Hover & focus effects */
+.filter-select-wrapper select:hover {
+  border-color: #adb5bd;
+}
+.filter-select-wrapper select:focus {
   border-color: #0d6efd;
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
-}
-.filter-dropdown-btn i {
-  transition: transform 0.2s ease;
+  outline: none;
 }
 
-.filter-dropdown-menu {
+/* Dropdown arrow */
+.filter-select-wrapper::after {
+  content: "▼";
   position: absolute;
-  top: calc(100% + 5px);
-  right: 0;
-  background-color: #fff;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  z-index: 10;
-  min-width: 100%;
-  padding: 0.5rem;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.2s ease-out;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  color: #6c757d;
+  pointer-events: none;
 }
 
-.filter-dropdown-menu .filter-option {
-  display: block;
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  text-decoration: none;
-  color: #495057;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-.filter-dropdown-menu .filter-option:hover {
-  background-color: #f1f3f5;
-  color: #212529;
-}
-
-.filter-dropdown-container.active .filter-dropdown-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-.filter-dropdown-container.active .filter-dropdown-btn i {
-  transform: rotate(180deg);
-}
 
 /* Upload UI */
 .upload-container {

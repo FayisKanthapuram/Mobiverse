@@ -365,7 +365,9 @@ document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
         }
 
         // ✅ Update status badge if exists
-        const badge = document.querySelector(`[data-brand-status][data-brand-id="${brandId}"]`);
+        const badge = document.querySelector(
+          `[data-brand-status][data-brand-id="${brandId}"]`
+        );
         if (badge) {
           badge.textContent = isListed ? "Unlisted" : "Listed";
           badge.classList.toggle("status-listed", !isListed);
@@ -397,31 +399,50 @@ document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
 });
 
 // --------------------------------------
-// 🔽 Filter Dropdown
+//  Search(Debouncing)+pagination+filter
 // --------------------------------------
-const filterBtn = document.getElementById("filter-btn");
-const filterMenu = document.getElementById("filter-menu");
-const filterContainer = filterBtn?.closest(".filter-dropdown-container");
 
-if (filterBtn && filterMenu && filterContainer) {
-  filterBtn.addEventListener("click", () =>
-    filterContainer.classList.toggle("active")
-  );
-  document.addEventListener("click", (e) => {
-    if (!filterContainer.contains(e.target))
-      filterContainer.classList.remove("active");
-  });
+
+function changePage(page) {
+  const url = new URL(window.location);
+  url.searchParams.set("page", page);
+  window.location.href = url.href;
 }
 
-// --------------------------------------
-// 🔍 Search (Debounce Auto Submit)
-// --------------------------------------
-const searchInput = document.getElementById("brand-search-input");
-const searchForm = document.getElementById("brand-search-form");
-let typingTimer;
-const typingDelay = 500;
+let searchTimeout;
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(handleSearch, 1000);
+}
 
-searchInput.addEventListener("input", () => {
-  clearTimeout(typingTimer);
-  typingTimer = setTimeout(() => searchForm.submit(), typingDelay);
-});
+function handleSearch() {
+  const searchValue = document.getElementById("brand-search-input").value;
+  const url = new URL(window.location);
+  if (searchValue) {
+    url.searchParams.set("search", searchValue);
+  } else {
+    url.searchParams.delete("search");
+  }
+  url.searchParams.set("page", 1);
+  window.location.href = url.href;
+}
+
+function clearSearch(){
+  const url = new URL(window.location);
+  url.searchParams.delete('search');
+  window.location.href=url.href; 
+}
+
+function applyFilter(){
+
+  const filter= document.querySelector('select[name="filter"]').value;
+
+  const url=new URL(window.location);
+  if(filter){
+    url.searchParams.set('filter',filter);
+  }else{
+    url.searchParams.delete('filter');
+  }
+  url.searchParams.set("page", 1);
+  window.location.href = url.href;
+}

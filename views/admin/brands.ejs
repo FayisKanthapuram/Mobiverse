@@ -10,32 +10,22 @@
 </div>
 
 <div class="filter-bar">
-  <form action="/admin/brands" method="GET" class="search-wrapper" id="brand-search-form">
+  <!-- 🔍 Search Input -->
+  <div class="search-wrapper">
     <i class="bi bi-search"></i>
-    <input type="text" name="search" id="brand-search-input" placeholder="Search by brand name..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" autocomplete="off" />
-    <input type="hidden" name="filter" id="filter-hidden-input" value="<%= typeof filter !== 'undefined' ? filter : 'All' %>" />
-
-    <% if (typeof searchQuery !== 'undefined' && searchQuery.trim() !== '') { %>
-    <a href="/admin/brands?<%= `filter=${encodeURIComponent(filter || 'All')}` %>" class="btn-clear">
-      Clear
-    </a>
+    <input type="text" id="brand-search-input" placeholder="Search by brand name..." value="<%= typeof query.search !== 'undefined' ? query.search : '' %>" onkeyup="debounceSearch()" />
+    <% if (typeof query.search !== 'undefined' && query.search.trim() !== '') { %>
+    <button type="button" class="btn-clear" id="clear-search" onclick="clearSearch()">Clear</button>
     <% } %>
-  </form>
+  </div>
 
-  <div class="filter-dropdown-container">
-    <button type="button" class="filter-dropdown-btn" id="filter-btn">
-      <span id="filter-btn-text">
-        <% if (filter === 'listed') { %> Listed <% } else if (filter ===
-        'unlisted') { %> Unlisted <% } else { %> All <% } %>
-      </span>
-      <i class="bi bi-chevron-down"></i>
-    </button>
-
-    <div class="filter-dropdown-menu" id="filter-menu">
-      <a href="/admin/brands?filter=All" class="filter-option" data-value="All">All</a>
-      <a href="/admin/brands?filter=listed" class="filter-option" data-value="Listed">Listed</a>
-      <a href="/admin/brands?filter=unlisted" class="filter-option" data-value="Unlisted">Unlisted</a>
-    </div>
+  <!-- 🔽 Filter Dropdown (Normal Select) -->
+  <div class="filter-select-wrapper">
+    <select id="brand-filter-select" name="filter" onchange="applyFilter()">
+      <option value="All" <%= !query.filter? 'selected' : '' %>>All</option>
+      <option value="listed" <%= query.filter === 'listed' ? 'selected' : '' %>>Listed</option>
+      <option value="unlisted" <%= query.filter === 'unlisted' ? 'selected' : '' %>>Unlisted</option>
+    </select>
   </div>
 </div>
 
@@ -62,11 +52,11 @@
         <td><%= brand.productCount %></td>
         <td>
           <% if (brand.isListed) { %>
-          <span class="status-badge status-listed" data-brand-islisted data-brand-id="<%= brand._id %>">
+          <span class="status-badge status-listed" data-brand-status data-brand-id="<%= brand._id %>">
             Listed
           </span>
           <% } else { %>
-          <span class="status-badge status-unlisted" data-brand-islisted data-brand-id="<%= brand._id %>">
+          <span class="status-badge status-unlisted" data-brand-status data-brand-id="<%= brand._id %>">
             Unlisted
           </span>
           <% } %>
@@ -110,7 +100,7 @@
 
   <div class="pagination-controls">
     <% if(currentPage > 1) { %>
-    <a href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-arrow">
+    <a href="javascript:void(0)" class="page-arrow"  onclick="changePage(<%= currentPage -1 %>)" >
       <i class="bi bi-chevron-left"></i>
     </a>
     <% } else { %>
@@ -118,12 +108,12 @@
       <i class="bi bi-chevron-left"></i>
     </span>
     <% } %> <% for(let i = 1; i <= totalPages; i++) { %>
-    <a href="?page=<%= i %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-number <%= currentPage === i ? 'active' : '' %>">
+    <a href="javascript:void(0)" class="page-number <%= currentPage === i ? 'active' : '' %>" onclick="changePage(<%= i %>)">
       <%= i %>
     </a>
     <% } %> <% if(currentPage < totalPages) { %>
-    <a href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>&filter=<%= filter %>" class="page-arrow">
-      <i class="bi bi-chevron-right"></i>
+    <a href="javascript:void(0)"  class="page-arrow" onclick="changePage(<%= currentPage + 1 %>)">
+      <i class="bi bi-chevron-right" ></i>
     </a>
     <% } else { %>
     <span class="page-arrow disabled" aria-disabled="true">

@@ -2,7 +2,7 @@ import brandModel from "../../models/brandModel.js";
 import Joi from "joi";
 
 export const loadBrands = async (req, res) => {
-  const searchQuery = req.query.search || "";
+  const search = req.query.search || "";
   const filter = req.query.filter || "All";
   const currentPage = parseInt(req.query.page) || 1;
 
@@ -11,8 +11,8 @@ export const loadBrands = async (req, res) => {
 
   let query = {};
 
-  if (searchQuery) {
-    query.brandName = { $regex: searchQuery.trim(), $options: "i" };
+  if (search) {
+    query.brandName = { $regex: search.trim(), $options: "i" };
   }
 
   if (filter === "listed") {
@@ -33,12 +33,11 @@ export const loadBrands = async (req, res) => {
     pageCss: "brands",
     pageJs: "brands",
     brands,
-    filter,
     currentPage,
     limit,
     totalDocuments,
-    searchQuery,
     totalPages,
+    query:req.query
   });
 };
 
