@@ -16,15 +16,6 @@ const productSchema = new mongoose.Schema(
       required: [true, "Brand reference is required"],
     },
 
-    images: {
-      type: [String],
-      required: true,
-      validate: {
-        validator: (arr) => arr.length >= 3,
-        message: "At least 3 product images must be provided",
-      },
-    },
-
     description: {
       type: String,
       trim: true,

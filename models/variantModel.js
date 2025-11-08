@@ -15,7 +15,7 @@ const productVariantSchema = new mongoose.Schema(
       min: 0,
       validate: {
         validator: function (v) {
-          if (this.regularPrice>0 && v > this.regularPrice) {
+          if (this.regularPrice > 0 && v > this.regularPrice) {
             return false;
           }
           return true;
@@ -41,20 +41,15 @@ const productVariantSchema = new mongoose.Schema(
     },
     storage: {
       type: String,
-      enum: [
-        "16GB",
-        "32GB",
-        "64GB",
-        "128GB",
-        "256GB",
-        "512GB",
-        "1TB",
-        "2TB",
-      ],
+      enum: ["16GB", "32GB", "64GB", "128GB", "256GB", "512GB", "1TB", "2TB"],
       default: "64GB",
     },
     colour: { type: String, trim: true, required: true },
     stock: { type: Number, default: 0, min: 0 },
+    images: {
+      type: [String],
+      required: true,
+    },
     discount: { type: Number, default: 0, min: 0 },
     reviewsCount: { type: Number, default: 0 },
     isOnOffer: { type: Boolean, default: false, index: true },

@@ -34,19 +34,6 @@
             <textarea id="edit-description" name="description" rows="4"></textarea>
           </div>
 
-          <div class="form-group">
-            <label>Product Images (3 Required)</label>
-            <div class="three-image-upload">
-              <% for(let i = 1; i <= 3; i++) { %>
-                <div class="image-upload-box">
-                  <i class="fas fa-upload"></i>
-                  <p>Upload Image <%= i %></p>
-                  <input type="file" name="image<%= i %>" class="image-upload-input" accept="image/*" />
-                </div>
-                <div class="image-preview-container" id="edit-preview-image<%= i %>"></div>
-              <% } %>
-            </div>
-          </div>
 
           <div class="form-group toggle-group">
             <label for="edit-featured">Mark as Featured Product</label>

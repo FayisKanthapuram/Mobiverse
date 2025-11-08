@@ -159,15 +159,6 @@ document.addEventListener("DOMContentLoaded", () => {
     form.querySelector("#edit-featured").checked = product.isFeatured;
     form.querySelector("#edit-status").checked = product.status === "Listed";
 
-    for (let i = 0; i < 3; i++) {
-      const previewContainer = form.querySelector(
-        `#edit-preview-image${i + 1}`
-      );
-      previewContainer.innerHTML = `<img src="${
-        product.images[i] || "/images/default-product.png"
-      }" class="img-preview" />`;
-    }
-
     const variantList = form.querySelector("#edit-variant-list");
     variantList.innerHTML = "";
     product.variants.forEach((variant) => addEditVariantForm(variant));
@@ -207,118 +198,151 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   //================================================
-  // 5. PRODUCT IMAGE UPLOAD + CROPPER
+  // 5. VARIANT IMAGE UPLOAD + MULTI CROPPER (UPDATED)
   //================================================
   const cropperModal = document.getElementById("cropperModal");
   const cropperImage = document.getElementById("cropperImage");
   const cancelCropBtn = document.getElementById("cancelCropBtn");
   const applyCropBtn = document.getElementById("applyCropBtn");
+  const nextCropBtn = document.createElement("button");
+  nextCropBtn.textContent = "Next";
+  nextCropBtn.className = "btn btn-primary";
+  nextCropBtn.style.display = "none";
+  cropperModal.querySelector(".cropper-actions").appendChild(nextCropBtn);
 
   let cropper;
   let activeInput = null;
+  let imageFiles = [];
+  let currentIndex = 0;
 
-  document.querySelectorAll(".image-upload-input").forEach((input) => {
-    input.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+  // 🧩 Each variant’s images stored here
+  const variantImagesMap = new Map();
 
-      activeInput = e.target;
-      const ext = file.name.split(".").pop().toLowerCase();
+  document.addEventListener("change", (e) => {
+    if (!e.target.classList.contains("variant-image-upload-input")) return;
 
-      if (ext === "svg") {
-        const reader = new FileReader();
-        reader.onload = (evt) => {
-          const previewContainer =
-            input.closest(".image-upload-box").nextElementSibling;
-          previewContainer.innerHTML = `<img src="${evt.target.result}" class="img-preview" />`;
-        };
-        reader.readAsDataURL(file);
-        return;
-      }
+    const input = e.target;
+    const files = Array.from(input.files);
+    if (files.length === 0) return;
 
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        cropperImage.src = evt.target.result;
-        cropperModal.classList.add("active");
+    activeInput = input;
+    imageFiles = files;
+    currentIndex = 0;
 
-        cropperImage.onload = () => {
-          if (cropper) cropper.destroy();
-          cropper = new Cropper(cropperImage, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 1,
-            background: false,
-            responsive: true,
-            movable: true,
-            zoomable: true,
-          });
-        };
-      };
-      reader.readAsDataURL(file);
-    });
+    openCropperForCurrent();
   });
+
+  function openCropperForCurrent() {
+    const file = imageFiles[currentIndex];
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      cropperImage.src = evt.target.result;
+      cropperModal.classList.add("active");
+
+      cropperImage.onload = () => {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(cropperImage, {
+          aspectRatio: 1,
+          viewMode: 1,
+          autoCropArea: 1,
+          background: false,
+          responsive: true,
+        });
+      };
+
+      applyCropBtn.style.display =
+        currentIndex === imageFiles.length - 1 ? "inline-block" : "none";
+      nextCropBtn.style.display =
+        currentIndex < imageFiles.length - 1 ? "inline-block" : "none";
+    };
+    reader.readAsDataURL(file);
+  }
 
   cancelCropBtn.addEventListener("click", () => {
     cropperModal.classList.remove("active");
-    if (cropper) cropper.destroy();
+    cropper?.destroy();
     cropper = null;
-    if (activeInput) activeInput.value = "";
     activeInput = null;
   });
 
-  applyCropBtn.addEventListener("click", () => {
-    if (!cropper || !activeInput) return;
+  nextCropBtn.addEventListener("click", () => handleCrop(true));
+  applyCropBtn.addEventListener("click", () => handleCrop(false));
 
-    try {
-      const canvas = cropper.getCroppedCanvas({
-        imageSmoothingQuality: "high",
-      });
+  async function handleCrop(hasNext) {
+    const canvas = cropper.getCroppedCanvas({ imageSmoothingQuality: "high" });
+    const croppedUrl = canvas.toDataURL("image/png");
 
-      // Convert to base64 image immediately (synchronous)
-      const croppedUrl = canvas.toDataURL("image/png");
+    const blob = await (await fetch(croppedUrl)).blob();
+    const originalName = imageFiles[currentIndex].name.split(".")[0];
+    const croppedFile = new File([blob], `${originalName}_cropped.png`, {
+      type: "image/png",
+    });
 
-      // Show preview
-      const previewContainer =
-        activeInput.closest(".image-upload-box").nextElementSibling;
-      previewContainer.innerHTML = `<img src="${croppedUrl}" class="img-preview" />`;
+    // Save in map
+    if (!variantImagesMap.has(activeInput))
+      variantImagesMap.set(activeInput, []);
+    variantImagesMap.get(activeInput).push(croppedFile);
 
-      // Convert base64 to Blob for file upload
-      fetch(croppedUrl)
-        .then((res) => res.blob())
-        .then((blob) => {
-          const originalName = activeInput.files[0].name;
-          const baseName =
-            originalName.substring(0, originalName.lastIndexOf(".")) ||
-            originalName;
-          const croppedFile = new File([blob], baseName + ".png", {
-            type: "image/png",
-            lastModified: Date.now(),
-          });
+    if (cropper) cropper.destroy();
+    currentIndex++;
 
-          const dataTransfer = new DataTransfer();
-          dataTransfer.items.add(croppedFile);
-          activeInput.files = dataTransfer.files;
-
-          // Hide crop modal
-          cropperModal.classList.remove("active");
-          cropper.destroy();
-          cropper = null;
-          activeInput = null;
-        });
-    } catch (err) {
-      console.error("Crop apply failed:", err);
-      alert("Something went wrong while applying crop. Try again.");
+    if (hasNext && currentIndex < imageFiles.length) {
+      openCropperForCurrent();
+    } else if (!hasNext) {
+      finalizeVariantImages(activeInput);
     }
-  });
+  }
+
+  function finalizeVariantImages(inputElement) {
+    cropperModal.classList.remove("active");
+
+    const files = variantImagesMap.get(inputElement) || [];
+    const dt = new DataTransfer();
+    files.forEach((file) => dt.items.add(file));
+    inputElement.files = dt.files;
+
+    const previewContainer = inputElement
+      .closest(".form-group")
+      .querySelector(".variant-image-preview");
+    previewContainer.innerHTML = "";
+    files.forEach((file, idx) => {
+      const url = URL.createObjectURL(file);
+      const wrapper = document.createElement("div");
+      wrapper.className = "img-preview-wrapper";
+      wrapper.innerHTML = `
+      <img src="${url}" class="img-preview" />
+      <button type="button" class="remove-img-btn" data-index="${idx}">&times;</button>
+    `;
+      previewContainer.appendChild(wrapper);
+    });
+
+    previewContainer.querySelectorAll(".remove-img-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const index = e.currentTarget.dataset.index;
+        const list = variantImagesMap.get(inputElement);
+        list.splice(index, 1);
+        finalizeVariantImages(inputElement);
+      });
+    });
+
+    cropper = null;
+    activeInput = null;
+  }
 
   //================================================
   // 6. ADD PRODUCT (AXIOS)
   //================================================
-
   const form = document.getElementById("add-product-form");
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // ✅ Step 1: Validate minimum 3 images per variant
+    const variantInputs = document.querySelectorAll(
+      ".variant-image-upload-input"
+    );
+
+    // ✅ Step 2: Continue normal product data collection
     const formData = new FormData();
 
     const productName = document
@@ -326,17 +350,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .value.trim();
     const brand = document.getElementById("add-brand").value;
     const description = document.getElementById("add-description").value.trim();
-
-
-    const imageInputs = form.querySelectorAll(".image-upload-input");
-    let imageCount = 0;
-    imageInputs.forEach((input, index) => {
-      if (input.files.length > 0) {
-        formData.append(`image${index + 1}`, input.files[0]);
-        imageCount++;
-      }
-    });
-
 
     formData.append("productName", productName);
     formData.append("brand", brand);
@@ -349,8 +362,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const variantSections = form.querySelectorAll(".variant-form-section");
     const variants = [];
-    variantSections.forEach((section) => {
-      variants.push({
+
+    variantSections.forEach((section, index) => {
+      const variantData = {
         regularPrice: section.querySelector('input[name="regularPrice"]').value,
         salePrice: section.querySelector('input[name="salePrice"]').value,
         ram: section.querySelector('select[name="ram"]').value,
@@ -358,11 +372,18 @@ document.addEventListener("DOMContentLoaded", () => {
         colour: section.querySelector('input[name="colour"]').value.trim(),
         stockQuantity: section.querySelector('input[name="stockQuantity"]')
           .value,
-      });
-    });
-    formData.append("variants", JSON.stringify(variants));
+      };
 
-    // console.log(formData.get("image1").name);
+      const input = section.querySelector(".variant-image-upload-input");
+      const images = variantImagesMap.get(input) || [];
+      images.forEach((file, idx) => {
+        formData.append(`variantImages_${index}_${idx}`, file);
+      });
+
+      variants.push(variantData);
+    });
+
+    formData.append("variants", JSON.stringify(variants));
 
     try {
       const response = await axios.post("/admin/products/add", formData, {
@@ -376,6 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
           position: "right",
           style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
         }).showToast();
+
         form.reset();
         document.getElementById("add-product-modal").style.display = "none";
       }
