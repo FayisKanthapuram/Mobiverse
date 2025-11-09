@@ -63,10 +63,10 @@ const productSchema = new mongoose.Schema(
       },
     },
 
-    status: {
-      type: String,
-      enum: ["list", "unlist"],
-      default: "unlist",
+    isListed: {
+      type: Boolean,
+      required: true,
+      default: "true",
     },
   },
   { timestamps: true }

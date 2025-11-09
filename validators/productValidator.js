@@ -16,7 +16,7 @@ export const productValidationSchema = Joi.object({
   }),
 
   isFeatured: Joi.boolean().required(),
-  status: Joi.boolean().required(),
+  isListed: Joi.boolean().required(),
 
   variants: Joi.string()
     .custom((value, helpers) => {

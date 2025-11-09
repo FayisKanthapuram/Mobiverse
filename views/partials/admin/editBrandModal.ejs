@@ -1,0 +1,57 @@
+<div class="modal-admin" id="edit-brand-modal">
+  <div class="modal-header">
+    <h2>Edit Brand</h2>
+    <button class="modal-close-btn" data-close-target="#edit-brand-modal">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <form id="edit-brand-form" enctype="multipart/form-data" class="modal-body">
+    <input type="hidden" id="editBrandId" name="brandId" />
+
+    <div class="form-group-admin">
+      <label for="editBrandName">Brand Name</label>
+      <input type="text" id="editBrandName" name="brandName" required />
+    </div>
+
+    <div class="form-group-admin">
+      <label for="brandLogoEdit">Brand Logo</label>
+
+      <div class="upload-container" id="uploadContainerEdit">
+        <input type="file" id="brandLogoEdit" name="brandLogo" accept="image/*" hidden />
+        <div class="upload-placeholder" id="uploadPlaceholderEdit">
+          <i class="bi bi-image"></i>
+          <p>Click to Upload Logo</p>
+        </div>
+        <div class="upload-preview" id="uploadPreviewEdit" style="display: none">
+          <img id="croppedImagePreviewEdit" alt="Cropped Preview" />
+          <button type="button" id="changeImageBtnEdit" class="btn-secondary-admin small">
+            Change Image
+          </button>
+        </div>
+      </div>
+
+      <!-- Cropper Modal for Edit -->
+      <div id="cropperModalEdit" class="cropper-modal">
+        <div class="cropper-wrapper">
+          <img id="cropperImageEdit" alt="Crop area" />
+        </div>
+        <div class="cropper-actions">
+          <button type="button" id="cancelCropBtnEdit" class="btn-secondary-admin">
+            Cancel
+          </button>
+          <button type="button" id="applyCropBtnEdit" class="btn-primary-admin">
+            Apply Crop
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary-admin" data-close-target="#edit-brand-modal">
+        Cancel
+      </button>
+      <button type="submit" class="btn-primary-admin">Save Changes</button>
+    </div>
+  </form>
+</div>

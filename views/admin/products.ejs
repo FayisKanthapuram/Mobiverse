@@ -58,10 +58,10 @@
         <% } %>
         <td><%= product.totalStock %></td>
         <td>
-          <% if (product.status === 'list') { %>
-          <span class="status-badge status-listed">Listed</span>
+          <% if (product.isListed) { %>
+          <span class="status-badge status-listed" data-product-status data-product-id="<%= product._id %>">Listed</span>
           <% } else { %>
-          <span class="status-badge status-unlisted">Unlisted</span>
+          <span class="status-badge status-unlisted" data-product-status data-product-id="<%= product._id %>">Unlisted</span>
           <% } %>
         </td>
         <td><%= product.isFeatured ? 'Yes' : 'No' %></td>
@@ -70,10 +70,10 @@
             <button class="btn-action btn-edit" data-product-id="<%= product._id %>">
               <i class="fas fa-pencil-alt"></i> Edit
             </button>
-            <% if (product.status === 'list') { %>
-              <button type="submit" class="btn-action btn-unlist" data-product-id="<%= product._id %>">Unlist</button>
+            <% if (product.isListed) { %>
+            <button type="submit" class="btn-action btn-unlist" data-product-id="<%= product._id %>" data-product-islisted="<%= product.isListed %>">Unlist</button>
             <% } else { %>
-              <button type="submit" class="btn-action btn-list" data-product-id="<%= product._id %>" data-product-isLIsted="<%= product.status %>">List</button>
+            <button type="submit" class="btn-action btn-list" data-product-id="<%= product._id %>" data-product-islisted="<%= product.isListed %>">List</button>
             <% } %>
           </div>
         </td>
@@ -89,8 +89,10 @@
   </table>
 </div>
 
-<%- include('../partials/admin/addNewProductModal') %> <%-
-include('../partials/admin/editProductModal') %>
+
+<%- include('../partials/admin/pagination') %>
+<%- include('../partials/admin/addNewProductModal') %>
+<%-include('../partials/admin/editProductModal') %>
 
 <!-- 🖼️ Cropper Modal -->
 <div id="cropperModal" class="cropper-modal">

@@ -1,0 +1,55 @@
+<div class="modal-admin" id="add-brand-modal">
+  <div class="modal-header">
+    <h2>Add New Brand</h2>
+    <button class="modal-close-btn" data-close-target="#add-brand-modal">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <form id="add-brand-form" enctype="multipart/form-data" class="modal-body">
+    <div class="form-group-admin">
+      <label for="brandName">Brand Name <span class="required-star">*</span></label>
+      <input type="text" id="brandName" name="brandName" placeholder="Enter brand name" required />
+    </div>
+
+    <div class="form-group-admin">
+      <label for="brandLogoAdd">Brand Logo</label>
+
+      <div class="upload-container" id="uploadContainer">
+        <input type="file" id="brandLogoAdd" name="brandLogo" accept="image/*" hidden />
+        <div class="upload-placeholder" id="uploadPlaceholder">
+          <i class="bi bi-image"></i>
+          <p>Click to Upload Logo</p>
+        </div>
+        <div class="upload-preview" id="uploadPreview" style="display: none">
+          <img id="croppedImagePreview" alt="Cropped Preview" />
+          <button type="button" id="changeImageBtn" class="btn-secondary-admin small">
+            Change Image
+          </button>
+        </div>
+      </div>
+
+      <!-- Cropper Modal (inline) -->
+      <div id="cropperModal" class="cropper-modal">
+        <div class="cropper-wrapper">
+          <img id="cropperImage" alt="Crop area" />
+        </div>
+        <div class="cropper-actions">
+          <button type="button" id="cancelCropBtn" class="btn-secondary-admin">
+            Cancel
+          </button>
+          <button type="button" id="applyCropBtn" class="btn-primary-admin">
+            Apply Crop
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary-admin" data-close-target="#add-brand-modal">
+        Cancel
+      </button>
+      <button type="submit" class="btn-primary-admin">Save</button>
+    </div>
+  </form>
+</div>

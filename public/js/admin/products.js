@@ -336,12 +336,10 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // ✅ Step 1: Validate minimum 3 images per variant
     const variantInputs = document.querySelectorAll(
       ".variant-image-upload-input"
     );
 
-    // ✅ Step 2: Continue normal product data collection
     const formData = new FormData();
 
     const productName = document
@@ -357,7 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
       "isFeatured",
       document.getElementById("add-featured").checked
     );
-    formData.append("status", document.getElementById("add-status").checked);
+    formData.append("isListed", document.getElementById("add-status").checked);
 
     const variantSections = form.querySelectorAll(".variant-form-section");
     const variants = [];
@@ -397,8 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
           style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
         }).showToast();
 
-        form.reset();
-        document.getElementById("add-product-modal").style.display = "none";
+        setTimeout(() => window.location.reload(), 1200);
       }
     } catch (err) {
       console.error(err);
@@ -410,5 +407,70 @@ document.addEventListener("DOMContentLoaded", () => {
         style: { background: "#e74c3c" },
       }).showToast();
     }
+  });
+
+  //================================================
+  // 7. List / Unlist (AXIOS)
+  //================================================
+
+  document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const target = e.currentTarget;
+      const productId = target.dataset.productId;
+      const isListed = target.dataset.productIslisted === "true";
+
+      if (isListed && !confirm("Are you sure you want to unlist this product?"))
+        return;
+
+      target.disabled = true;
+
+      try {
+        const response = await axios.patch(`/admin/products/list/${productId}`);
+        if (response.data.success) {
+          target.dataset.productIslisted = (!isListed).toString();
+
+          if (isListed) {
+            target.textContent = "List";
+            target.classList.replace("btn-unlist", "btn-list");
+          } else {
+            target.textContent = "Unlist";
+            target.classList.replace("btn-list", "btn-unlist");
+          }
+
+          const badge = document.querySelector(
+            `[data-product-status][data-product-id="${productId}"]`
+          );
+          if (badge) {
+            badge.textContent = isListed ? "Unlisted" : "Listed";
+            badge.classList.toggle("status-listed", !isListed);
+            badge.classList.toggle("status-unlisted", isListed);
+          }
+
+          Toastify({
+            text: isListed ? "Product Unlisted" : "Product Listed",
+            duration: 1500,
+            gravity: "top",
+            position: "right",
+            style: {
+              background: isListed
+                ? "#e74c3c"
+                : "linear-gradient(to right, #00b09b, #96c93d)",
+            },
+          }).showToast();
+        }
+      } catch (error) {
+        console.error(error);
+        Toastify({
+          text: error.response?.data?.message || "Something went wrong",
+          duration: 2000,
+          gravity: "top",
+          position: "right",
+          style: { background: "#e74c3c" },
+        }).showToast();
+      } finally {
+        target.disabled = false;
+      }
+    });
   });
 });

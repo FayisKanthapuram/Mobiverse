@@ -387,6 +387,7 @@ document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
         }).showToast();
       }
     } catch (error) {
+      console.log(error)
       Toastify({
         text: "Something went wrong",
         duration: 2000,

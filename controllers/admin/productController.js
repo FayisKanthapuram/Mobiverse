@@ -4,15 +4,21 @@ import { productValidationSchema } from "../../validators/productValidator.js";
 import variantModel from "../../models/variantModel.js";
 
 export const loadProducts = async (req, res) => {
-  const brands = await brandModel.find({isListed:true}, { brandName: 1 }).lean();
-  const products = await productModal.find().populate('brandID');
-  console.log(products)
+  const brands = await brandModel
+    .find({ isListed: true }, { brandName: 1 })
+    .lean();
+  const products = await productModal.find().populate("brandID");
+  console.log(products);
   res.render("admin/products", {
     pageTitle: "Products",
     pageCss: "products",
     pageJs: "products",
     products,
     brands,
+    currentPage: 2,
+    limit: 5,
+    totalDocuments: 20,
+    totalPages: 5,
   });
 };
 
@@ -63,8 +69,8 @@ export const addProduct = async (req, res) => {
     console.log(finalVariants);
 
     const { productName, brand, description, isFeatured } = req.body;
-    let status = req.body.status;
-    status = status ? "list" : "unlist";
+    let isListed = req.body.isListed;
+    console.log(isListed);
     const checkName = await productModal.findOne({ name: productName });
     if (checkName) {
       return res
@@ -91,11 +97,11 @@ export const addProduct = async (req, res) => {
 
     const product = await productModal.create({
       name: productName,
-      image:imagesByVariant['0'][0],
+      image: imagesByVariant["0"][0],
       brandID: checkBrand._id,
       description,
       isFeatured,
-      status,
+      isListed,
       minPrice,
       maxPrice,
       totalStock,
@@ -124,4 +130,14 @@ export const addProduct = async (req, res) => {
       .status(500)
       .json({ success: false, message: err.message || "Server error" });
   }
+};
+
+export const listProduct = async (req, res) => {
+  const { productId } = req.params;
+  const product = await productModal.findById(productId);
+  if (!product)
+    res.status(404).json({ success: false, message: "product is not found" });
+  product.isListed = !product.isListed;
+  await product.save();
+  res.status(200).json({ success: true });
 };

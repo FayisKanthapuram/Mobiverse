@@ -18,6 +18,7 @@ import {
 } from "../controllers/admin/brandController.js";
 import {
   addProduct,
+  listProduct,
   loadProducts,
 } from "../controllers/admin/productController.js";
 import { loadCustomers } from "../controllers/admin/customerController.js";
@@ -43,7 +44,7 @@ router.get("/dashboard", verifyAdmin, loadDashboard);
 router.get("/brands", verifyAdmin, loadBrands);
 router.post("/brands/add", upload.brand.single("brandLogo"), addBrand);
 router.patch("/brands/edit", upload.brand.single("brandLogo"), editBrand);
-router.patch("/brands/list/:userId", listBrand);
+router.patch("/brands/list/:brandId", listBrand);
 router.get("/api/brands/:id", verifyAdmin, getBrandById);
 
 //products
@@ -53,6 +54,7 @@ router.post(
   upload.product.any(),
   addProduct
 );
+router.patch('/products/list/:productId',listProduct);
 
 router.get("/banners", verifyAdmin, loadBanners);
 router.get("/customers", verifyAdmin, loadCustomers);
