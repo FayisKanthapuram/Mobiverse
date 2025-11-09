@@ -18,6 +18,7 @@ import {
 } from "../controllers/admin/brandController.js";
 import {
   addProduct,
+  getProductById,
   listProduct,
   loadProducts,
 } from "../controllers/admin/productController.js";
@@ -55,6 +56,7 @@ router.post(
   addProduct
 );
 router.patch('/products/list/:productId',listProduct);
+router.get('/api/product/:productId',getProductById);
 
 router.get("/banners", verifyAdmin, loadBanners);
 router.get("/customers", verifyAdmin, loadCustomers);

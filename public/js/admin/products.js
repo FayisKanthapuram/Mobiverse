@@ -112,41 +112,27 @@ document.addEventListener("DOMContentLoaded", () => {
     ?.addEventListener("click", () => addVariantForm("edit"));
 
   //================================================
-  // 4. Edit Product Modal Population
+  // 4. Edit Product Modal populate
   //================================================
   document.querySelectorAll(".btn-edit").forEach((button) => {
     button.addEventListener("click", async (e) => {
       const productId = e.currentTarget.dataset.productId;
 
-      const dummyProduct = {
-        _id: "67890fgh",
-        name: "Galaxy S24",
-        brand: "Samsung",
-        description: "Flagship Samsung phone with AI features",
-        images: ["/images/logo.png", "/images/logo.png", "/images/logo.png"],
-        isFeatured: false,
-        status: "Unlisted",
-        variants: [
-          {
-            regularPrice: 69999,
-            salePrice: 69999,
-            ram: "8GB",
-            storage: "128GB",
-            colour: "Black",
-            stockQuantity: 20,
-          },
-          {
-            regularPrice: 109999,
-            salePrice: 109999,
-            ram: "12GB",
-            storage: "512GB",
-            colour: "Cream",
-            stockQuantity: 32,
-          },
-        ],
-      };
-      populateEditModal(dummyProduct);
-      openModal(editModal);
+      try {
+        const response = await axios.get(`/admin/api/product/${productId}`);
+        console.log(response.data.products);
+        populateEditModal(response.data.products);
+        openModal(editModal);
+      } catch (error) {
+        console.error("Failed to fetch product data:", error);
+        Toastify({
+          text: "Could not load product data. Please try again.",
+          duration: 2000,
+          gravity: "top",
+          position: "right",
+          style: { background: "#e74c3c" },
+        }).showToast();
+      }
     });
   });
 
@@ -154,10 +140,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("edit-product-form");
     form.querySelector("#edit-product-id").value = product._id;
     form.querySelector("#edit-product-name").value = product.name;
-    form.querySelector("#edit-brand").value = product.brand;
+    form.querySelector("#edit-brand").value = product.brandID;
     form.querySelector("#edit-description").value = product.description;
     form.querySelector("#edit-featured").checked = product.isFeatured;
-    form.querySelector("#edit-status").checked = product.status === "Listed";
+    form.querySelector("#edit-status").checked = product.isListed;
 
     const variantList = form.querySelector("#edit-variant-list");
     variantList.innerHTML = "";
@@ -173,16 +159,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const variantCount = variantList.children.length + 1;
     newVariant.querySelector(".variant-number").textContent = variantCount;
 
+    // 🧾 Populate fields
     newVariant.querySelector('input[name="regularPrice"]').value =
-      variant.regularPrice;
+      variant.regularPrice || "";
     newVariant.querySelector('input[name="salePrice"]').value =
-      variant.salePrice;
-    newVariant.querySelector('select[name="ram"]').value = variant.ram;
-    newVariant.querySelector('select[name="storage"]').value = variant.storage;
-    newVariant.querySelector('input[name="colour"]').value = variant.colour;
+      variant.salePrice || "";
+    newVariant.querySelector('select[name="ram"]').value = variant.ram || "4GB";
+    newVariant.querySelector('select[name="storage"]').value =
+      variant.storage || "64GB";
+    newVariant.querySelector('input[name="colour"]').value =
+      variant.colour || "";
     newVariant.querySelector('input[name="stockQuantity"]').value =
-      variant.stockQuantity;
+      variant.stockQuantity || 0;
 
+    // 🖼️ Populate existing images (server-side)
+    const previewContainer = newVariant.querySelector(".variant-image-preview");
+    if (variant.images && variant.images.length > 0) {
+      variant.images.forEach((imageUrl, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "img-preview-wrapper";
+        wrapper.innerHTML = `
+        <img src="${imageUrl}" class="img-preview" />
+        <button type="button" class="remove-img-btn" data-index="${index}">&times;</button>
+      `;
+        previewContainer.appendChild(wrapper);
+      });
+
+      // 💾 Also store these existing images in the variantImagesMap
+      const fileInput = newVariant.querySelector(".variant-image-upload-input");
+      variantImagesMap.set(fileInput, []); // empty map entry
+
+      // Optionally fetch images as File objects (if needed for re-upload)
+      // Not always required unless you want to re-submit these on update
+    }
+
+    // 🧮 Stock & Remove handlers
     newVariant
       .querySelector(".variant-stock")
       .addEventListener("input", () => updateTotalStock("edit"));
@@ -193,6 +204,14 @@ document.addEventListener("DOMContentLoaded", () => {
         updateVariantNumbers("edit");
         updateTotalStock("edit");
       });
+
+    // 🧹 Image removal handler for preloaded previews
+    previewContainer.querySelectorAll(".remove-img-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.target.closest(".img-preview-wrapper").remove();
+        // optionally mark removed images to delete from server
+      });
+    });
 
     variantList.appendChild(newVariant);
   };
@@ -295,37 +314,80 @@ document.addEventListener("DOMContentLoaded", () => {
   function finalizeVariantImages(inputElement) {
     cropperModal.classList.remove("active");
 
-    const files = variantImagesMap.get(inputElement) || [];
+    // 🧠 Get or initialize map for this variant input
+    if (!variantImagesMap.has(inputElement))
+      variantImagesMap.set(inputElement, []);
+    const existingFiles = variantImagesMap.get(inputElement);
+
+    // 🆕 Newly cropped files (from this cropper run)
+    const newFiles = imageFiles;
+
+    // ✅ Merge new with existing ones
+    const mergedFiles = [...existingFiles, ...newFiles];
+    variantImagesMap.set(inputElement, mergedFiles);
+
+    // ✅ Rebuild FileList for this input (used in form submit)
     const dt = new DataTransfer();
-    files.forEach((file) => dt.items.add(file));
+    mergedFiles.forEach((file) => dt.items.add(file));
     inputElement.files = dt.files;
 
+    // ✅ Preview container
     const previewContainer = inputElement
       .closest(".form-group")
       .querySelector(".variant-image-preview");
-    previewContainer.innerHTML = "";
-    files.forEach((file, idx) => {
+
+    // ⚠️ DO NOT clear old previews here
+    // Instead, append only new ones
+
+    newFiles.forEach((file, idx) => {
       const url = URL.createObjectURL(file);
       const wrapper = document.createElement("div");
       wrapper.className = "img-preview-wrapper";
       wrapper.innerHTML = `
       <img src="${url}" class="img-preview" />
-      <button type="button" class="remove-img-btn" data-index="${idx}">&times;</button>
+      <button type="button" class="remove-img-btn" data-type="new" data-index="${
+        mergedFiles.length - newFiles.length + idx
+      }">&times;</button>
     `;
       previewContainer.appendChild(wrapper);
     });
 
+    // ♻️ Wire up all remove buttons (works for both old + new)
     previewContainer.querySelectorAll(".remove-img-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const index = e.currentTarget.dataset.index;
-        const list = variantImagesMap.get(inputElement);
-        list.splice(index, 1);
-        finalizeVariantImages(inputElement);
-      });
+      btn.onclick = (e) => {
+        const type = e.currentTarget.dataset.type;
+        const index = parseInt(e.currentTarget.dataset.index);
+        const wrapper = e.currentTarget.closest(".img-preview-wrapper");
+        wrapper.remove();
+
+        if (type === "new") {
+          const fileList = variantImagesMap.get(inputElement);
+          fileList.splice(index, 1);
+
+          // Rebuild FileList
+          const dt2 = new DataTransfer();
+          fileList.forEach((f) => dt2.items.add(f));
+          inputElement.files = dt2.files;
+
+          // Update indices
+          previewContainer
+            .querySelectorAll('.remove-img-btn[data-type="new"]')
+            .forEach((b, i) => {
+              b.dataset.index = i;
+            });
+        } else if (type === "existing") {
+          const imgSrc = wrapper.querySelector("img").src;
+          if (!window.removedImages) window.removedImages = [];
+          window.removedImages.push(imgSrc);
+        }
+      };
     });
 
+    // 🔄 reset cropper state
     cropper = null;
     activeInput = null;
+    imageFiles = [];
+    currentIndex = 0;
   }
 
   //================================================

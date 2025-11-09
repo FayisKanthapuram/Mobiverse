@@ -1,13 +1,14 @@
 import brandModel from "../../models/brandModel.js";
-import productModal from "../../models/productModal.js";
+import productModel from "../../models/productModel.js";
 import { productValidationSchema } from "../../validators/productValidator.js";
 import variantModel from "../../models/variantModel.js";
+import mongoose from "mongoose";
 
 export const loadProducts = async (req, res) => {
   const brands = await brandModel
     .find({ isListed: true }, { brandName: 1 })
     .lean();
-  const products = await productModal.find().populate("brandID");
+  const products = await productModel.find().populate("brandID");
   console.log(products);
   res.render("admin/products", {
     pageTitle: "Products",
@@ -71,7 +72,7 @@ export const addProduct = async (req, res) => {
     const { productName, brand, description, isFeatured } = req.body;
     let isListed = req.body.isListed;
     console.log(isListed);
-    const checkName = await productModal.findOne({ name: productName });
+    const checkName = await productModel.findOne({ name: productName });
     if (checkName) {
       return res
         .status(400)
@@ -95,7 +96,7 @@ export const addProduct = async (req, res) => {
       totalStock += Number(variant.stockQuantity);
     }
 
-    const product = await productModal.create({
+    const product = await productModel.create({
       name: productName,
       image: imagesByVariant["0"][0],
       brandID: checkBrand._id,
@@ -134,10 +135,37 @@ export const addProduct = async (req, res) => {
 
 export const listProduct = async (req, res) => {
   const { productId } = req.params;
-  const product = await productModal.findById(productId);
+  const product = await productModel.findById(productId);
   if (!product)
     res.status(404).json({ success: false, message: "product is not found" });
   product.isListed = !product.isListed;
   await product.save();
   res.status(200).json({ success: true });
+};
+
+export const getProductById = async (req, res) => {
+  try {
+    console.log("hello");
+    const { productId } = req.params;
+    const products = await productModel.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(productId),
+        },
+      },
+      {
+        $lookup: {
+          from: "variants",
+          foreignField: "productId",
+          localField: "_id",
+          as: "variants",
+        },
+      },
+    ]);
+    console.log(products[0]);
+    res.status(200).json({ success: true, products: products[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ success: false });
+  }
 };

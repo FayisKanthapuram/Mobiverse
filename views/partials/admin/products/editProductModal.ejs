@@ -22,10 +22,11 @@
           <div class="form-group">
             <label for="edit-brand">Brand</label>
             <select id="edit-brand" name="brand">
-              <option value="">Select Brand</option>
-              <option value="Apple">Apple</option>
-              <option value="Samsung">Samsung</option>
-              <option value="Google">Google</option>
+              <% if (brands && brands.length > 0) { %>
+                <% brands.forEach(brand => { %>
+                  <option value="<%= brand._id %>"><%= brand.brandName %></option>
+                <% }); %>
+              <% } %>
             </select>
           </div>
 

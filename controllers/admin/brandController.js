@@ -151,7 +151,7 @@ export const getBrandById = async (req, res) => {
   try {
     const brand = await brandModel.findById(req.params.id).lean();
     if (!brand) return res.status(404).json({ message: "brand not found" });
-    res.json({ data: brand });
+    res.json({ brand });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Server error" });

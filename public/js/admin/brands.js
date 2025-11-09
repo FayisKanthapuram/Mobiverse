@@ -183,11 +183,10 @@ document.querySelectorAll(".open-edit-modal-btn").forEach((btn) => {
     const brandId = e.currentTarget.dataset.brandId;
     try {
       const response = await axios.get(`/admin/api/brands/${brandId}`);
-      const brand = response.data.data;
-      populateEditModal(brand);
+      populateEditModal(response.data.brand);
       openModal(editModal);
     } catch (error) {
-      console.error("Failed to fetch product data:", error);
+      console.error("Failed to fetch brand data:", error);
       Toastify({
         text: "Could not load brand data. Please try again.",
         duration: 2000,
