@@ -18,6 +18,7 @@ import {
 } from "../controllers/admin/brandController.js";
 import {
   addProduct,
+  editProduct,
   getProductById,
   listProduct,
   loadProducts,
@@ -57,6 +58,7 @@ router.post(
 );
 router.patch('/products/list/:productId',listProduct);
 router.get('/api/product/:productId',getProductById);
+router.patch('/products/edit/:productId',upload.product.any(),editProduct);
 
 router.get("/banners", verifyAdmin, loadBanners);
 router.get("/customers", verifyAdmin, loadCustomers);

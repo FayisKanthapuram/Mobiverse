@@ -159,7 +159,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const variantCount = variantList.children.length + 1;
     newVariant.querySelector(".variant-number").textContent = variantCount;
 
-    // 🧾 Populate fields
+    const variantSection = newVariant.querySelector(".variant-form-section");
+    variantSection.dataset.variantId = variant._id || "";
+
     newVariant.querySelector('input[name="regularPrice"]').value =
       variant.regularPrice || "";
     newVariant.querySelector('input[name="salePrice"]').value =
@@ -172,28 +174,17 @@ document.addEventListener("DOMContentLoaded", () => {
     newVariant.querySelector('input[name="stockQuantity"]').value =
       variant.stockQuantity || 0;
 
-    // 🖼️ Populate existing images (server-side)
+    // 🖼️ Populate existing images
+    const fileInput = newVariant.querySelector(".variant-image-upload-input");
     const previewContainer = newVariant.querySelector(".variant-image-preview");
+
     if (variant.images && variant.images.length > 0) {
-      variant.images.forEach((imageUrl, index) => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "img-preview-wrapper";
-        wrapper.innerHTML = `
-        <img src="${imageUrl}" class="img-preview" />
-        <button type="button" class="remove-img-btn" data-index="${index}">&times;</button>
-      `;
-        previewContainer.appendChild(wrapper);
-      });
-
-      // 💾 Also store these existing images in the variantImagesMap
-      const fileInput = newVariant.querySelector(".variant-image-upload-input");
-      variantImagesMap.set(fileInput, []); // empty map entry
-
-      // Optionally fetch images as File objects (if needed for re-upload)
-      // Not always required unless you want to re-submit these on update
+      populateVariantImagesForEdit(fileInput, previewContainer, variant.images);
+    } else {
+      variantImagesMap.set(fileInput, []);
     }
 
-    // 🧮 Stock & Remove handlers
+    // Stock / remove handlers
     newVariant
       .querySelector(".variant-stock")
       .addEventListener("input", () => updateTotalStock("edit"));
@@ -204,14 +195,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateVariantNumbers("edit");
         updateTotalStock("edit");
       });
-
-    // 🧹 Image removal handler for preloaded previews
-    previewContainer.querySelectorAll(".remove-img-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.target.closest(".img-preview-wrapper").remove();
-        // optionally mark removed images to delete from server
-      });
-    });
 
     variantList.appendChild(newVariant);
   };
@@ -234,7 +217,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let imageFiles = [];
   let currentIndex = 0;
 
-  // 🧩 Each variant’s images stored here
   const variantImagesMap = new Map();
 
   document.addEventListener("change", (e) => {
@@ -296,10 +278,11 @@ document.addEventListener("DOMContentLoaded", () => {
       type: "image/png",
     });
 
-    // Save in map
     if (!variantImagesMap.has(activeInput))
       variantImagesMap.set(activeInput, []);
-    variantImagesMap.get(activeInput).push(croppedFile);
+    variantImagesMap
+      .get(activeInput)
+      .push({ file: croppedFile, url: croppedUrl });
 
     if (cropper) cropper.destroy();
     currentIndex++;
@@ -314,105 +297,82 @@ document.addEventListener("DOMContentLoaded", () => {
   function finalizeVariantImages(inputElement) {
     cropperModal.classList.remove("active");
 
-    // 🧠 Get or initialize map for this variant input
-    if (!variantImagesMap.has(inputElement))
-      variantImagesMap.set(inputElement, []);
-    const existingFiles = variantImagesMap.get(inputElement);
-
-    // 🆕 Newly cropped files (from this cropper run)
-    const newFiles = imageFiles;
-
-    // ✅ Merge new with existing ones
-    const mergedFiles = [...existingFiles, ...newFiles];
-    variantImagesMap.set(inputElement, mergedFiles);
-
-    // ✅ Rebuild FileList for this input (used in form submit)
+    const entries = variantImagesMap.get(inputElement) || [];
     const dt = new DataTransfer();
-    mergedFiles.forEach((file) => dt.items.add(file));
+    entries.forEach((entry) => {
+      if (entry.file instanceof File) dt.items.add(entry.file);
+    });
     inputElement.files = dt.files;
 
-    // ✅ Preview container
     const previewContainer = inputElement
       .closest(".form-group")
       .querySelector(".variant-image-preview");
+    renderVariantPreview(inputElement, previewContainer);
 
-    // ⚠️ DO NOT clear old previews here
-    // Instead, append only new ones
+    cropper = null;
+    activeInput = null;
+  }
 
-    newFiles.forEach((file, idx) => {
-      const url = URL.createObjectURL(file);
+  function populateVariantImagesForEdit(fileInput, previewContainer, images) {
+    const formatted = images.map((img) =>
+      typeof img === "string"
+        ? { url: img, isExisting: true }
+        : { ...img, isExisting: true }
+    );
+    variantImagesMap.set(fileInput, formatted);
+    renderVariantPreview(fileInput, previewContainer);
+  }
+
+  function renderVariantPreview(inputElement, previewContainer) {
+    previewContainer.innerHTML = "";
+    const list = variantImagesMap.get(inputElement) || [];
+
+    list.forEach((entry, idx) => {
+      const url = entry.url || (entry.file && URL.createObjectURL(entry.file));
       const wrapper = document.createElement("div");
       wrapper.className = "img-preview-wrapper";
       wrapper.innerHTML = `
-      <img src="${url}" class="img-preview" />
-      <button type="button" class="remove-img-btn" data-type="new" data-index="${
-        mergedFiles.length - newFiles.length + idx
-      }">&times;</button>
-    `;
+        <img src="${url}" class="img-preview" />
+        <button type="button" class="remove-img-btn" data-index="${idx}">&times;</button>
+      `;
       previewContainer.appendChild(wrapper);
     });
 
-    // ♻️ Wire up all remove buttons (works for both old + new)
     previewContainer.querySelectorAll(".remove-img-btn").forEach((btn) => {
-      btn.onclick = (e) => {
-        const type = e.currentTarget.dataset.type;
-        const index = parseInt(e.currentTarget.dataset.index);
-        const wrapper = e.currentTarget.closest(".img-preview-wrapper");
-        wrapper.remove();
+      btn.addEventListener("click", (e) => {
+        const index = Number(e.currentTarget.dataset.index);
+        const arr = variantImagesMap.get(inputElement) || [];
+        arr.splice(index, 1);
+        variantImagesMap.set(inputElement, arr);
+        renderVariantPreview(inputElement, previewContainer);
 
-        if (type === "new") {
-          const fileList = variantImagesMap.get(inputElement);
-          fileList.splice(index, 1);
-
-          // Rebuild FileList
-          const dt2 = new DataTransfer();
-          fileList.forEach((f) => dt2.items.add(f));
-          inputElement.files = dt2.files;
-
-          // Update indices
-          previewContainer
-            .querySelectorAll('.remove-img-btn[data-type="new"]')
-            .forEach((b, i) => {
-              b.dataset.index = i;
-            });
-        } else if (type === "existing") {
-          const imgSrc = wrapper.querySelector("img").src;
-          if (!window.removedImages) window.removedImages = [];
-          window.removedImages.push(imgSrc);
-        }
-      };
+        const dt2 = new DataTransfer();
+        arr.forEach((entry) => {
+          if (entry.file instanceof File) dt2.items.add(entry.file);
+        });
+        inputElement.files = dt2.files;
+      });
     });
-
-    // 🔄 reset cropper state
-    cropper = null;
-    activeInput = null;
-    imageFiles = [];
-    currentIndex = 0;
   }
 
   //================================================
   // 6. ADD PRODUCT (AXIOS)
   //================================================
   const form = document.getElementById("add-product-form");
-
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const variantInputs = document.querySelectorAll(
-      ".variant-image-upload-input"
-    );
-
     const formData = new FormData();
 
-    const productName = document
-      .getElementById("add-product-name")
-      .value.trim();
-    const brand = document.getElementById("add-brand").value;
-    const description = document.getElementById("add-description").value.trim();
-
-    formData.append("productName", productName);
-    formData.append("brand", brand);
-    formData.append("description", description);
+    formData.append(
+      "productName",
+      document.getElementById("add-product-name").value.trim()
+    );
+    formData.append("brand", document.getElementById("add-brand").value);
+    formData.append(
+      "description",
+      document.getElementById("add-description").value.trim()
+    );
     formData.append(
       "isFeatured",
       document.getElementById("add-featured").checked
@@ -435,8 +395,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const input = section.querySelector(".variant-image-upload-input");
       const images = variantImagesMap.get(input) || [];
-      images.forEach((file, idx) => {
-        formData.append(`variantImages_${index}_${idx}`, file);
+      images.forEach((entry, idx) => {
+        if (entry.file)
+          formData.append(`variantImages_${index}_${idx}`, entry.file);
       });
 
       variants.push(variantData);
@@ -456,7 +417,6 @@ document.addEventListener("DOMContentLoaded", () => {
           position: "right",
           style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
         }).showToast();
-
         setTimeout(() => window.location.reload(), 1200);
       }
     } catch (err) {
@@ -470,69 +430,110 @@ document.addEventListener("DOMContentLoaded", () => {
       }).showToast();
     }
   });
-
   //================================================
-  // 7. List / Unlist (AXIOS)
+  // 8. EDIT PRODUCT (AXIOS)
   //================================================
+  const editForm = document.getElementById("edit-product-form");
 
-  document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const target = e.currentTarget;
-      const productId = target.dataset.productId;
-      const isListed = target.dataset.productIslisted === "true";
+  editForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      if (isListed && !confirm("Are you sure you want to unlist this product?"))
-        return;
+    const formData = new FormData();
 
-      target.disabled = true;
+    // 🆔 Get product ID
+    const productId = document.getElementById("edit-product-id").value;
+    formData.append("productId", productId);
 
-      try {
-        const response = await axios.patch(`/admin/products/list/${productId}`);
-        if (response.data.success) {
-          target.dataset.productIslisted = (!isListed).toString();
+    // 🧾 Collect product details
+    const productName = document
+      .getElementById("edit-product-name")
+      .value.trim();
+    const brand = document.getElementById("edit-brand").value;
+    const description = document
+      .getElementById("edit-description")
+      .value.trim();
 
-          if (isListed) {
-            target.textContent = "List";
-            target.classList.replace("btn-unlist", "btn-list");
-          } else {
-            target.textContent = "Unlist";
-            target.classList.replace("btn-list", "btn-unlist");
-          }
+    formData.append("productName", productName);
+    formData.append("brand", brand);
+    formData.append("description", description);
+    formData.append(
+      "isFeatured",
+      document.getElementById("edit-featured").checked
+    );
+    formData.append("isListed", document.getElementById("edit-status").checked);
 
-          const badge = document.querySelector(
-            `[data-product-status][data-product-id="${productId}"]`
-          );
-          if (badge) {
-            badge.textContent = isListed ? "Unlisted" : "Listed";
-            badge.classList.toggle("status-listed", !isListed);
-            badge.classList.toggle("status-unlisted", isListed);
-          }
+    // 🧩 Collect variant data
+    const variantSections = editForm.querySelectorAll(".variant-form-section");
+    const variants = [];
 
-          Toastify({
-            text: isListed ? "Product Unlisted" : "Product Listed",
-            duration: 1500,
-            gravity: "top",
-            position: "right",
-            style: {
-              background: isListed
-                ? "#e74c3c"
-                : "linear-gradient(to right, #00b09b, #96c93d)",
-            },
-          }).showToast();
+    variantSections.forEach((section, index) => {
+      const variantData = {
+        _id: section.dataset.variantId || null, // Include variantId if editing existing one
+        regularPrice: section.querySelector('input[name="regularPrice"]').value,
+        salePrice: section.querySelector('input[name="salePrice"]').value,
+        ram: section.querySelector('select[name="ram"]').value,
+        storage: section.querySelector('select[name="storage"]').value,
+        colour: section.querySelector('input[name="colour"]').value.trim(),
+        stockQuantity: section.querySelector('input[name="stockQuantity"]')
+          .value,
+      };
+
+      // 📸 Handle variant images
+      const input = section.querySelector(".variant-image-upload-input");
+      const images = variantImagesMap.get(input) || [];
+
+      const existingImageUrls = [];
+
+      // Separate existing & new images
+      images.forEach((entry, idx) => {
+        if (entry.file instanceof File) {
+          formData.append(`variantImages_${index}_${idx}`, entry.file);
+        } else if (entry.isExisting && entry.url) {
+          existingImageUrls.push(entry.url);
         }
-      } catch (error) {
-        console.error(error);
+      });
+
+      // Add existing image URLs to variantData
+      variantData.existingImages = existingImageUrls;
+
+      variants.push(variantData);
+    });
+
+    formData.append("variants", JSON.stringify(variants));
+
+    // 🧠 Send request
+    try {
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+      const response = await axios.patch(
+        `/admin/products/edit/${productId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      if (response.data.success) {
         Toastify({
-          text: error.response?.data?.message || "Something went wrong",
-          duration: 2000,
+          text: response.data.message || "Product updated successfully!",
+          duration: 1000,
           gravity: "top",
           position: "right",
-          style: { background: "#e74c3c" },
+          style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
         }).showToast();
-      } finally {
-        target.disabled = false;
+
+        setTimeout(() => window.location.reload(), 1200);
       }
-    });
+    } catch (err) {
+      console.error(err);
+      Toastify({
+        text: err.response?.data?.message || "Failed to update product",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: { background: "#e74c3c" },
+      }).showToast();
+    }
   });
 });

@@ -1,6 +1,7 @@
 import Joi from "joi";
 
 export const productValidationSchema = Joi.object({
+  productId:Joi.string().optional(),//for edit product
   productName: Joi.string().trim().min(3).max(100).required().messages({
     "string.empty": "Product name is required",
     "string.min": "Product name must be at least 3 characters long",
@@ -27,6 +28,8 @@ export const productValidationSchema = Joi.object({
         }
 
         const variantSchema = Joi.object({
+          _id:Joi.optional(),//for edit product
+          existingImages:Joi.array().optional(),//for edit product
           salePrice: Joi.number().min(0).required().messages({
             "number.base": "Sale price must be a number",
             "any.required": "Sale price is required",

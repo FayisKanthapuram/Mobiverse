@@ -9,7 +9,6 @@ export const loadProducts = async (req, res) => {
     .find({ isListed: true }, { brandName: 1 })
     .lean();
   const products = await productModel.find().populate("brandID");
-  console.log(products);
   res.render("admin/products", {
     pageTitle: "Products",
     pageCss: "products",
@@ -67,11 +66,9 @@ export const addProduct = async (req, res) => {
       ...variant,
       images: imagesByVariant[index] || [],
     }));
-    console.log(finalVariants);
 
     const { productName, brand, description, isFeatured } = req.body;
     let isListed = req.body.isListed;
-    console.log(isListed);
     const checkName = await productModel.findOne({ name: productName });
     if (checkName) {
       return res
@@ -145,7 +142,6 @@ export const listProduct = async (req, res) => {
 
 export const getProductById = async (req, res) => {
   try {
-    console.log("hello");
     const { productId } = req.params;
     const products = await productModel.aggregate([
       {
@@ -162,10 +158,72 @@ export const getProductById = async (req, res) => {
         },
       },
     ]);
-    console.log(products[0]);
     res.status(200).json({ success: true, products: products[0] });
   } catch (error) {
     console.log(error);
     res.status(404).json({ success: false });
+  }
+};
+
+export const editProduct = async (req, res) => {
+  try {
+    const { error } = productValidationSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    const variants = JSON.parse(req.body.variants);
+    console.log(variants);
+
+    const imagesByVariant = {};
+    const imageFieldName = {};
+
+    console.log(req.files);
+    if (req.files.length !== 0) {
+      req.files.forEach((file) => {
+        const match = file.fieldname.match(/variantImages_(\d+)_\d+/);
+        if (match) {
+          // console.log(match);
+          const variantIndex = match[1];
+          if (!imagesByVariant[variantIndex])
+            imagesByVariant[variantIndex] = [];
+          if (!imageFieldName[variantIndex]) imageFieldName[variantIndex] = [];
+          imagesByVariant[variantIndex].push(
+            `/uploads/products/${file.filename}`
+          );
+          imageFieldName[variantIndex].push(file.fieldname);
+        }
+      });
+      for (let key in imageFieldName) {
+        const isThreeImage = imageFieldName[key]
+          .map((x) => Number(x.split("_")[2]))
+          .some((x) => x >= 2);
+        if (!isThreeImage) {
+          return res.status(400).json({
+            success: false,
+            message: `Variant ${Number(key) + 1} must have at least 3 images.`,
+          });
+        }
+      }
+    } else {
+      for (let i = 0; i < variants.length; i++) {
+        if (variants[i].existingImages.length < 3) {
+          return res.status(400).json({
+            success: false,
+            message: `Variant ${i + 1} must have at least 3 images.`,
+          });
+        }
+      }
+    }
+
+    // for (let variant of variants) {
+
+    // }
+
+    res
+      .status(200)
+      .json({ message: "product edited successfully", success: true });
+  } catch (error) {
+    console.log(error);
   }
 };
