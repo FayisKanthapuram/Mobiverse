@@ -55,12 +55,6 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
       min: [0, "Maximum price cannot be negative"],
-      validate: {
-        validator: function (v) {
-          return v >= this.minPrice;
-        },
-        message: "Max price must be greater than or equal to min price.",
-      },
     },
 
     isListed: {

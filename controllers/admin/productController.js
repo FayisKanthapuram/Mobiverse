@@ -158,6 +158,7 @@ export const getProductById = async (req, res) => {
         },
       },
     ]);
+    console.log(products[0].variants);
     res.status(200).json({ success: true, products: products[0] });
   } catch (error) {
     console.log(error);
@@ -167,19 +168,20 @@ export const getProductById = async (req, res) => {
 
 export const editProduct = async (req, res) => {
   try {
+    const { productId } = req.params;
     const { error } = productValidationSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ success: false, message: error.message });
     }
 
     const variants = JSON.parse(req.body.variants);
-    console.log(variants);
+    // console.log(variants);
 
     const imagesByVariant = {};
-    const imageFieldName = {};
 
-    console.log(req.files);
+    // console.log(req.files);
     if (req.files.length !== 0) {
+      const imageFieldName = {};
       req.files.forEach((file) => {
         const match = file.fieldname.match(/variantImages_(\d+)_\d+/);
         if (match) {
@@ -194,14 +196,16 @@ export const editProduct = async (req, res) => {
           imageFieldName[variantIndex].push(file.fieldname);
         }
       });
-      for (let key in imageFieldName) {
-        const isThreeImage = imageFieldName[key]
+      for (let index in imageFieldName) {
+        const isThreeImage = imageFieldName[index]
           .map((x) => Number(x.split("_")[2]))
           .some((x) => x >= 2);
         if (!isThreeImage) {
           return res.status(400).json({
             success: false,
-            message: `Variant ${Number(key) + 1} must have at least 3 images.`,
+            message: `Variant ${
+              Number(index) + 1
+            } must have at least 3 images.`,
           });
         }
       }
@@ -216,9 +220,91 @@ export const editProduct = async (req, res) => {
       }
     }
 
-    // for (let variant of variants) {
+    let minPrice = Infinity;
+    let maxPrice = -Infinity;
+    let totalStock = 0;
+    for (let variant of variants) {
+      minPrice = Math.min(minPrice, variant.salePrice);
+      maxPrice = Math.max(maxPrice, variant.salePrice);
+      totalStock += Number(variant.stockQuantity);
+    }
 
-    // }
+    for (let index in imagesByVariant) {
+      variants[Number(index)].existingImages.push(...imagesByVariant[index]);
+    }
+
+    let updatedMainImagePath = null;
+    for (let i = 0; i < variants.length; i++) {
+      if (variants[i].existingImages?.length > 0) {
+        updatedMainImagePath = variants[i].existingImages[0];
+        break;
+      } else if (imagesByVariant[i]?.length > 0) {
+        updatedMainImagePath = imagesByVariant[i.toString()][0];
+        break;
+      }
+    }
+
+    const name = req.body.productName;
+    const product = await productModel.findOne({ _id: productId });
+    if (product.name !== name) {
+      const existingProduct = await productModel.findOne({ name });
+      if (existingProduct) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Product name already exists" });
+      }
+    }
+
+    await productModel.findByIdAndUpdate(
+      productId,
+      {
+        name,
+        brandID: req.body.brand,
+        description: req.body.description,
+        isFeatured: req.body.isFeatured,
+        isListed: req.body.isListed,
+        minPrice,
+        maxPrice,
+        totalStock,
+        image: updatedMainImagePath,
+      },
+      { new: true, runValidators: true }
+    );
+
+    await Promise.all(
+      variants.map((variant) => {
+        if (variant._id === null) {
+          return variantModel.create({
+            productId: product._id,
+            regularPrice: variant.regularPrice
+              ? Number(variant.regularPrice)
+              : 0,
+            salePrice: Number(variant.salePrice),
+            ram: variant.ram,
+            storage: variant.storage,
+            colour: variant.colour.toLowerCase(),
+            stock: Number(variant.stockQuantity),
+            images: variant.existingImages,
+          });
+        } else {
+          return variantModel.findByIdAndUpdate(
+            variant._id,
+            {
+              regularPrice: variant.regularPrice
+                ? Number(variant.regularPrice)
+                : 0,
+              salePrice: Number(variant.salePrice),
+              ram: variant.ram,
+              storage: variant.storage,
+              colour: variant.colour.toLowerCase(),
+              stock: Number(variant.stockQuantity),
+              images: variant.existingImages,
+            },
+            { new: true }
+          );
+        }
+      })
+    );
 
     res
       .status(200)

@@ -1,7 +1,6 @@
 import Joi from "joi";
 
 export const productValidationSchema = Joi.object({
-  productId:Joi.string().optional(),//for edit product
   productName: Joi.string().trim().min(3).max(100).required().messages({
     "string.empty": "Product name is required",
     "string.min": "Product name must be at least 3 characters long",
