@@ -1,0 +1,33 @@
+<div class="pagination-footer">
+  <% if (products && products.length > 0) { %> <% const startItem = (currentPage -
+  1) * limit + 1; const endItem = (currentPage - 1) * limit + products.length; %>
+  <span>Showing <%= startItem %> to <%= endItem %> of <%= totalDocuments %>
+    results</span>
+  <% } else { %>
+  <span>No results found</span>
+  <% } %>
+
+  <div class="pagination-controls">
+    <% if(currentPage > 1) { %>
+    <a href="javascript:void(0)" class="page-arrow"  onclick="changePage(<%= currentPage -1 %>)" >
+      <i class="bi bi-chevron-left"></i>
+    </a>
+    <% } else { %>
+    <span classa="page-arrow disabled" aria-disabled="true">
+      <i class="bi bi-chevron-left"></i>
+    </span>
+    <% } %> <% for(let i = 1; i <= totalPages; i++) { %>
+    <a href="javascript:void(0)" class="page-number <%= currentPage === i ? 'active' : '' %>" onclick="changePage(<%= i %>)">
+      <%= i %>
+    </a>
+    <% } %> <% if(currentPage < totalPages) { %>
+    <a href="javascript:void(0)"  class="page-arrow" onclick="changePage(<%= currentPage + 1 %>)">
+      <i class="bi bi-chevron-right" ></i>
+    </a>
+    <% } else { %>
+    <span class="page-arrow disabled" aria-disabled="true">
+      <i class="bi bi-chevron-right"></i>
+    </span>
+    <% } %>
+  </div>
+</div>

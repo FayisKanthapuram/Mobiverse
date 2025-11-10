@@ -602,3 +602,60 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// --------------------------------------
+//  9.Search(Debouncing)+pagination+filter
+// --------------------------------------
+
+function changePage(page) {
+  const url = new URL(window.location);
+  url.searchParams.set("page", page);
+  window.location.href = url.href;
+}
+
+let searchTimeout;
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(handleSearch, 1000);
+}
+
+function handleSearch() {
+  const searchValue = document.getElementById("product-search-input").value;
+  const url = new URL(window.location);
+  if (searchValue) {
+    url.searchParams.set("search", searchValue);
+  } else {
+    url.searchParams.delete("search");
+  }
+  url.searchParams.set("page", 1);
+  window.location.href = url.href;
+}
+
+function clearSearch() {
+  const url = new URL(window.location);
+  url.searchParams.delete("search");
+  window.location.href = url.href;
+}
+
+function applyFilter() {
+  const brandSelect = document.querySelector('select[name="brand"]');
+  const brand = brandSelect ? brandSelect.value : "";
+  const status = document.querySelector('select[name="status"]').value;
+
+  const url = new URL(window.location);
+
+  if (brand) {
+    url.searchParams.set("brand", brand);
+  } else {
+    url.searchParams.delete("brand");
+  }
+
+  if (status) {
+    url.searchParams.set("status", status);
+  } else {
+    url.searchParams.delete("status");
+  }
+
+  url.searchParams.set("page", 1);
+  window.location.href = url.href;
+}

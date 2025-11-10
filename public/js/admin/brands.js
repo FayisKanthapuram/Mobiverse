@@ -435,7 +435,7 @@ function clearSearch(){
 
 function applyFilter(){
 
-  const filter= document.querySelector('select[name="filter"]').value;
+  const filter= document.getElementById('brand-filter-select').value;
 
   const url=new URL(window.location);
   if(filter){

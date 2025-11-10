@@ -5,20 +5,55 @@ import variantModel from "../../models/variantModel.js";
 import mongoose from "mongoose";
 
 export const loadProducts = async (req, res) => {
+  const search = req.query.search || "";
+  const status = req.query.status || "All";
+  const brand = req.query.brand || "";
+  const currentPage = parseInt(req.query.page) || 1;
+
+  const limit = 5;
+  const skip = (currentPage - 1) * limit;
+
+  let query = {};
+
+  if (search) {
+    query.name = { $regex: search.trim(), $options: "i" };
+  }
+
+  if (status === "listed") {
+    query.isListed = true;
+  } else if (status === "unlisted") {
+    query.isListed = false;
+  }
+
+  if (brand && mongoose.Types.ObjectId.isValid(brand)) {
+    query.brandID = new mongoose.Types.ObjectId(brand);
+  } else if (brand && brand !== "All") {
+    console.warn("Invalid brand ID in query:", brand);
+  }
+
+  const totalDocuments = await productModel.find(query).countDocuments();
+  let totalPages = Math.ceil(totalDocuments / limit);
+
   const brands = await brandModel
     .find({ isListed: true }, { brandName: 1 })
     .lean();
-  const products = await productModel.find().populate("brandID");
+  const products = await productModel
+    .find(query)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .populate("brandID");
   res.render("admin/products", {
     pageTitle: "Products",
     pageCss: "products",
     pageJs: "products",
     products,
     brands,
-    currentPage: 2,
-    limit: 5,
-    totalDocuments: 20,
-    totalPages: 5,
+    currentPage,
+    limit,
+    totalDocuments,
+    totalPages,
+    query: req.query,
   });
 };
 

@@ -81,20 +81,30 @@
 }
 
 .btn-clear {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
+  background: linear-gradient(135deg, #eaf2ff, #f3f7ff);
+  color: #0d6efd;
+  border: 1px solid #cfe2ff;
+  border-radius: 10px;
+  padding: 8px 18px;
   font-weight: 600;
   font-size: 0.9rem;
-  text-decoration: none;
+  letter-spacing: 0.3px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.08);
 }
 
 .btn-clear:hover {
-  background-color: #bb2d3b;
+  background: linear-gradient(135deg, #0d6efd, #2563eb);
+  color: #fff;
+  border-color: #0d6efd;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+  transform: translateY(-2px);
+}
+
+.btn-clear:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(13, 110, 253, 0.15);
 }
 
 .filter-dropdown {

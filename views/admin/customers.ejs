@@ -1,1 +1,112 @@
-<h2>customers</h2>
+<div class="main-header">
+  <div class="header-left">
+    <h2>Customers Management</h2>
+    <p>Manage and monitor all customers in your marketplace.</p>
+  </div>
+</div>
+
+<div class="stats-container">
+  <div class="stat-card total">
+    <div class="icon-wrapper">
+      <i class="fas fa-users"></i>
+    </div>
+    <div class="stat-info">
+      <span>Total Users</span>
+      <h3>7</h3>
+    </div>
+  </div>
+  <div class="stat-card active">
+    <div class="icon-wrapper">
+      <i class="fas fa-user-check"></i>
+    </div>
+    <div class="stat-info">
+      <span>Active Users</span>
+      <h3>5</h3>
+    </div>
+  </div>
+  <div class="stat-card blocked">
+    <div class="icon-wrapper">
+      <i class="fas fa-user-lock"></i>
+    </div>
+    <div class="stat-info">
+      <span>Blocked Users</span>
+      <h3>1</h3>
+    </div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="search-wrapper">
+    <i class="fas fa-search"></i>
+    <input type="text" placeholder="Search customer name or email...">
+  </div>
+  <div class="filter-group">
+    <label for="status-filter">Status:</label>
+    <select id="status-filter" class="filter-select">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="blocked">Blocked</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="sort-by">Sort By:</label>
+    <select id="sort-by" class="filter-select">
+      <option value="recent">Recent</option>
+      <option value="oldest">Oldest</option>
+    </select>
+  </div>
+</div>
+
+<div class="table-container">
+  <table class="customers-table">
+    <thead>
+      <tr>
+        <th>Customer Name</th>
+        <th>Phone</th>
+        <th>Orders</th>
+        <th>Balance</th>
+        <th>Status</th>
+        <th>Block/Unblock</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (typeof customers !== 'undefined' && customers.length > 0) { %>
+      <% customers.forEach(customer => { %>
+      <tr>
+        <td>
+          <div class="customer-info">
+            <span><%= customer.name %></span>
+            <small><%= customer.email %></small>
+          </div>
+        </td>
+        <td><%= customer.phone %></td>
+        <td><%= customer.orderCount %></td>
+        <td>₹<%= customer.balance.toFixed(2) %></td>
+        <td>
+          <% if (customer.isBlocked) { %>
+          <span class="status-badge status-blocked">
+            <i class="fas fa-circle"></i> Blocked
+          </span>
+          <% } else { %>
+          <span class="status-badge status-active">
+            <i class="fas fa-circle"></i> Active
+          </span>
+          <% } %>
+        </td>
+        <td>
+          <label class="switch">
+            <input type="checkbox" class="block-toggle" data-customer-id="<%= customer._id %>" <%= !customer.isBlocked ? 'checked' : '' %>>
+            <span class="slider round"></span>
+          </label>
+        </td>
+      </tr>
+      <% }); %>
+      <% } else { %>
+      <tr>
+        <td colspan="6" style="text-align: center; padding: 20px;">No customers found.</td>
+      </tr>
+      <% } %>
+
+    </tbody>
+  </table>
+</div>

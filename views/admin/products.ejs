@@ -11,18 +11,27 @@
 <div class="filter-bar">
   <div class="search-wrapper">
     <i class="fas fa-search"></i>
-    <input type="text" placeholder="Search by product name or brand..." />
+    <input type="text" placeholder="Search by product name or brand..." id="product-search-input" value="<%= typeof query.search !== 'undefined' ? query.search : '' %>" onkeyup="debounceSearch()" />
   </div>
-  <select class="filter-select">
-    <option value="">All Brands</option>
+
+  <% if (typeof query.search !== 'undefined' && query.search.trim() !== '') { %>
+  <button type="button" class="btn-clear" id="clear-search" onclick="clearSearch()">Clear</button>
+  <% } %>
+
+  <select name="brand" onchange="applyFilter()" class="filter-select">
+    <option value="" <%= !query.brand ?'selected' : '' %>>All Brands</option>
+    <% if (brands && brands.length > 0) { %>
+    <% brands.forEach(brand => { %>
+    <option value="<%= brand._id %>" <%= String(query.brand) === String(brand._id) ? 'selected' : '' %>>
+      <%= brand.brandName %>
+    </option>
+    <% }); %>
+    <% } %>
   </select>
-  <select class="filter-select">
-    <option value="">All Status</option>
-    <option value="listed">Listed</option>
-    <option value="unlisted">Unlisted</option>
-  </select>
-  <select class="filter-select">
-    <option value="">All Products</option>
+  <select name="status" onchange="applyFilter()" class="filter-select">
+    <option value="All" <%= !query.status ?'selected' : '' %>>All</option>
+    <option value="listed" <%= query.status === 'listed' ? 'selected' : '' %>>Listed</option>
+    <option value="unlisted" <%= query.status === 'unlisted' ? 'selected' : '' %>>Unlisted</option>
   </select>
 </div>
 
@@ -90,7 +99,7 @@
 </div>
 
 
-<%- include('../partials/admin/pagination') %>
+<%- include('../partials/admin/products/pagination') %>
 <%- include('../partials/admin/products/addNewProductModal') %>
 <%-include('../partials/admin/products/editProductModal') %>
 
