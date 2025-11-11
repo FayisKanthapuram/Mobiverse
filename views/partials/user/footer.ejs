@@ -1,46 +1,49 @@
-<footer class="footer">
-    <div class="container footer-grid">
-        
-        <div class="footer-col" id="footer-about">
-            <a href="/" class="footer-logo">
-                <i class="bi bi-phone"></i>
-                <span>Mobiverse</span>
-            </a>
-            <p>Your one-stop shop for the latest mobile technology. We offer the best prices and fast, reliable shipping.</p>
-        </div>
+<footer class="bg-gray-900 text-gray-400 mt-20 pt-16 pb-8">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+            
+            <div class="lg:col-span-2">
+                <a href="/user/home" class="flex items-center gap-2 mb-4">
+                    <img src="/images/logo+name.png" alt="Mobiverse Logo" class="h-8">
+                </a>
+                <p class="text-sm max-w-sm">Your one-stop shop for the latest mobile technology. We offer the best prices and fast, reliable shipping.</p>
+            </div>
 
-        <div class="footer-col">
-            <strong>Shop</strong>
-            <a href="/shop/latest">Latest Launches</a>
-            <a href="/shop/popular">Popular</a>
-            <a href="/shop/best-sellers">Best Sellers</a>
-            <a href="/brands">All Brands</a>
-        </div>
+            <div>
+                <h5 class="font-bold text-white mb-4">Shop</h5>
+                <ul class="space-y-3">
+                    <li><a href="/shop/latest" class="hover:text-white transition-colors">Latest Launches</a></li>
+                    <li><a href="/shop/featured" class="hover:text-white transition-colors">Featured</a></li>
+                    <li><a href="/brands" class="hover:text-white transition-colors">All Brands</a></li>
+                </ul>
+            </div>
 
-        <div class="footer-col">
-            <strong>Company</strong>
-            <a href="/about">About Us</a>
-            <a href="/terms">Terms of Service</a>
-        </div>
+            <div>
+                <h5 class="font-bold text-white mb-4">Company</h5>
+                <ul class="space-y-3">
+                    <li><a href="/about" class="hover:text-white transition-colors">About Us</a></li>
+                    <li><a href="/terms" class="hover:text-white transition-colors">Terms of Service</a></li>
+                </ul>
+            </div>
 
-        <div class="footer-col">
-            <strong>Help</strong>
-            <a href="/contact">Contact Us</a>
-            <a href="/privacy">Privacy Policy</a>
-        </div>
-
-        <div class="footer-col" id="footer-social">
-            <strong>Follow Us</strong>
-            <div class="social-icons">
-                <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
-                <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+            <div>
+                <h5 class="font-bold text-white mb-4">Help</h5>
+                <ul class="space-y-3">
+                    <li><a href="/contact" class="hover:text-white transition-colors">Contact Us</a></li>
+                    <li><a href="/privacy" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                </ul>
             </div>
         </div>
 
-    </div>
-    <div class="footer-bottom">
-        <p>&copy; 2025 Mobiverse. All rights reserved.</p>
+        <hr class="border-gray-700 my-10">
+        <div class="flex flex-col md:flex-row justify-between items-center text-sm">
+            <p>&copy; 2025 Mobiverse. All rights reserved.</p>
+            <div class="flex gap-5 mt-4 md:mt-0 text-xl">
+                <a href="#" class="hover:text-white transition-colors"><i class="bi bi-facebook"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i class="bi bi-twitter-x"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i class="bi bi-instagram"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i class="bi bi-youtube"></i></a>
+            </div>
+        </div>
     </div>
 </footer>

@@ -26,11 +26,14 @@ passport.use(
           user = await User.findOne({ email });
         }
 
+        
+
         if (user) {
           // If user exists but doesn't have Google linked yet
           if (!user.googleId) {
             user.googleId = profile.id;
             user.isVerified = true;
+            user.avatar=profile.photos?.[0]?.value || null;
             await user.save();
           }
           return done(null, user);

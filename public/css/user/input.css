@@ -1,0 +1,30 @@
+/* public/css/user/input.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* * Now, copy and paste ALL your custom styles 
+ * (from the old 'style.css' we made) below!
+ */
+
+/* 1. Set the default font (optional, as Tailwind can do this) */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* 2. Custom Styles for Swiper Arrows */
+
+/* Hero Carousel Arrows */
+#hero-carousel .swiper-button-prev,
+#hero-carousel .swiper-button-next {
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    transition: background-color 0.2s ease;
+}
+/* ... (and so on) ... */
+
+/* (Paste all other custom styles from the previous style.css here) */

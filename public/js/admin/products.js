@@ -173,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
       variant.colour || "";
     newVariant.querySelector('input[name="stockQuantity"]').value =
       variant.stock || 0;
+    newVariant.querySelector('#varient-status').checked=variant.isListed;
 
     // 🖼️ Populate existing images
     const fileInput = newVariant.querySelector(".variant-image-upload-input");
@@ -391,6 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
         colour: section.querySelector('input[name="colour"]').value.trim(),
         stockQuantity: section.querySelector('input[name="stockQuantity"]')
           .value,
+        isListed: section.querySelector('input[name="isListed"]').checked,
       };
 
       const input = section.querySelector(".variant-image-upload-input");
@@ -541,6 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
         colour: section.querySelector('input[name="colour"]').value.trim(),
         stockQuantity: section.querySelector('input[name="stockQuantity"]')
           .value,
+        isListed: section.querySelector('input[name="isListed"]').checked,
       };
 
       // 📸 Handle variant images

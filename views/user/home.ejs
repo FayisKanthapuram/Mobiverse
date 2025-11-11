@@ -1,98 +1,120 @@
-    <main class="container">
+<% /* views/pages/home.ejs */ %>
 
-        <section class="hero">
-            <div class="hero-content">
-                <h1 class="hero-title"><%= (typeof heroData !== 'undefined') ? heroData.title : 'SAMSUNG GALAXY S23 ULTRA 5G' %></h1>
-                <p class="hero-subtitle"><%= (typeof heroData !== 'undefined') ? heroData.subtitle : 'The Future in Your Hand. Order now and get exclusive launch offers.' %></p>
-                <a href="<%= (typeof heroData !== 'undefined') ? heroData.link : '/shop/s23-ultra' %>" class="btn btn-primary">Shop Now</a>
-            </div>
-            <div class="hero-image">
-                <img src="<%= (typeof heroData !== 'undefined') ? heroData.image : '/images/s23-ultra-hero.png' %>" alt="Samsung Galaxy S23 Ultra">
-            </div>
-        </section>
+<main class="container mx-auto px-4 mt-8">
 
-        <% if (typeof latestProducts !== 'undefined' && latestProducts.length > 0) { %>
-        <section class="product-section">
-            <h2 class="section-title">Latest Launches</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-carousel="latest-carousel"><i class="bi bi-chevron-left"></i></button>
-                <div class="product-carousel" id="latest-carousel">
-                    
-                    <% latestProducts.forEach(product => { %>
-                        <div class="product-card">
-                            <div class="product-card-image">
-                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
-                                <button class="wishlist-btn"><i class="bi bi-heart"></i></button>
-                            </div>
-                            <div class="product-card-content">
-                                <h3 class="product-name"><%= product.name %></h3>
-                                <p class="product-price">$<%= product.price.toFixed(2) %></p>
-                                <a href="/product/<%= product.slug %>" class="btn btn-secondary">Add to Cart</a>
-                            </div>
-                        </div>
-                    <% }) %>
-                    
-                </div>
-                <button class="carousel-btn next" data-carousel="latest-carousel"><i class="bi bi-chevron-right"></i></button>
-            </div>
-        </section>
-        <% } %>
+  <section class="mb-12">
+    <div id="hero-carousel" class="swiper w-full h-[450px] rounded-2xl overflow-hidden shadow-lg">
+      <div class="swiper-wrapper">
 
-        <% if (typeof popularProducts !== 'undefined' && popularProducts.length > 0) { %>
-        <section class="product-section">
-            <h2 class="section-title">Most Popular</h2>
-            <div class="carousel-wrapper">
-                <button class="carousel-btn prev" data-carousel="popular-carousel"><i class="bi bi-chevron-left"></i></button>
-                <div class="product-carousel" id="popular-carousel">
-                    
-                    <% popularProducts.forEach(product => { %>
-                        <div class="product-card">
-                            <div class="product-card-image">
-                                <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
-                                <button class="wishlist-btn"><i class="bi bi-heart"></i></button>
-                            </div>
-                            <div class="product-card-content">
-                                <h3 class="product-name"><%= product.name %></h3>
-                                <p class="product-price">$<%= product.price.toFixed(2) %></p>
-                                <a href="/product/<%= product.slug %>" class="btn btn-secondary">Add to Cart</a>
-                            </div>
-                        </div>
-                    <% }) %>
-                    
-                </div>
-                <button class="carousel-btn next" data-carousel="popular-carousel"><i class="bi bi-chevron-right"></i></button>
+        <div class="swiper-slide bg-gray-800 text-white">
+          <div class="h-full flex flex-col md:flex-row items-center justify-between p-10 md:p-20">
+            <div class="text-center md:text-left z-10 mb-6 md:mb-0">
+              <h1 class="text-4xl md:text-5xl font-extrabold mb-4">
+                <%= heroData?.title || 'SAMSUNG GALAXY S23 ULTRA 5G' %>
+              </h1>
+              <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-lg">
+                <%= heroData?.subtitle || 'The Future in Your Hand. Order now and get exclusive launch offers.' %>
+              </p>
+              <a href="<%= heroData?.link || '/shop/s23-ultra' %>"
+                class="bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg text-lg hover:bg-blue-700 transition-colors">
+                Shop Now
+              </a>
             </div>
-        </section>
-        <% } %>
+            <img src="<%= heroData?.image || '/images/s23-ultra-hero.png' %>"
+              alt="Samsung Galaxy S23 Ultra" class="z-10 w-3/4 md:w-1/2 max-h-[300px] object-contain">
+          </div>
+        </div>
 
-        <section class="brands-section">
-            <h2 class="section-title">Top Brands</h2>
-            <div class="brands-grid">
-                <div class="brand-card"><img src="/images/brands/apple.png" alt="Apple"></div>
-                <div class="brand-card"><img src="/images/brands/samsung.png" alt="Samsung"></div>
-                <div class="brand-card"><img src="/images/brands/oneplus.png" alt="OnePlus"></div>
-                <div class="brand-card"><img src="/images/brands/google.png" alt="Google"></div>
-                <div class="brand-card"><img src="/images/brands/xiaomi.png" alt="Xiaomi"></div>
-                <div class="brand-card"><img src="/images/brands/vivo.png" alt="Vivo"></div>
+        <div class="swiper-slide bg-blue-700 text-white">
+          <div class="h-full flex items-center justify-center text-center p-10">
+            <div>
+              <h2 class="text-4xl md:text-5xl font-extrabold mb-4">New Pixel 9 Pro</h2>
+              <p class="text-lg md:text-xl text-blue-200 mb-8">The power of Google AI. In your pocket.</p>
+              <a href="/shop/pixel-9-pro"
+                class="bg-white text-blue-700 font-semibold px-8 py-3 rounded-lg text-lg hover:bg-gray-100 transition-colors">
+                Learn More
+              </a>
             </div>
-        </section>
+          </div>
+        </div>
 
-        <section class="reviews-section">
-            <h2 class="section-title">Customer Reviews</h2>
-            <div class="reviews-grid">
-                <div class="review-card">
-                    <p>"Great experience! My new phone arrived in just two days. Excellent service and authentic products."</p>
-                    <strong>- Sarah J.</strong>
-                </div>
-                <div class="review-card">
-                    <p>"Found the best price for the S23 Ultra here. The website is easy to use and the checkout process was smooth."</p>
-                    <strong>- Mark L.</strong>
-                </div>
-                <div class="review-card">
-                    <p>"I love my new Pixel! Mobiverse has a great selection of flagship phones. Will definitely shop here again."</p>
-                    <strong>- Emily K.</strong>
-                </div>
-            </div>
-        </section>
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+  </section>
 
-    </main>
+  <% if (latestProducts?.length > 0) { %>
+  <section class="mb-12">
+    <h2 class="text-3xl font-bold mb-6">Latest Launches</h2>
+
+    <div id="latest-carousel" class="swiper w-full">
+      <div class="swiper-wrapper pb-10">
+        
+        <% latestProducts.forEach(product => { %>
+          <%- include('../partials/user/_productCard', {product: product}) %>
+        <% }) %>
+
+      </div>
+      <div class="product-carousel-prev swiper-button-prev"></div>
+      <div class="product-carousel-next swiper-button-next"></div>
+    </div>
+  </section>
+  <% } %>
+
+  <% if (featuredProducts?.length > 0) { %>
+  <section class="mb-12">
+    <h2 class="text-3xl font-bold mb-6">Featured</h2>
+    <div id="popular-carousel" class="swiper w-full">
+      <div class="swiper-wrapper pb-10">
+
+        <% featuredProducts.forEach(product => { %>
+          <%- include('../partials/user/_productCard', {product}) %>
+        <% }) %>
+        
+      </div>
+      <div class="product-carousel-prev swiper-button-prev"></div>
+      <div class="product-carousel-next swiper-button-next"></div>
+    </div>
+  </section>
+  <% } %>
+
+  <section class="mb-12 py-10 bg-white rounded-2xl shadow-sm">
+    <h2 class="text-3xl font-bold mb-8 text-center">Top Brands</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 px-6">
+      <% brands.forEach(brand => { %>
+      <div
+        class="flex justify-center items-center p-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 hover:bg-gray-50 transition-all rounded-lg">
+        <img src="<%= brand.logo %>" alt="<%= brand.name %>" class="h-12">
+      </div>
+      <% }) %>
+    </div>
+  </section>
+
+  <section class="mb-12">
+    <h2 class="text-3xl font-bold mb-8 text-center">Customer Reviews</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <p class="text-gray-600 italic mb-4">"Great experience! My new phone arrived in just two days. Excellent
+          service and authentic products."</p>
+        <strong class="text-gray-900 font-semibold">- Sarah J.</strong>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <p class="text-gray-600 italic mb-4">"Found the best price for the S23 Ultra here. The website is easy to use
+          and the checkout process was smooth."</p>
+        <strong class="text-gray-900 font-semibold">- Mark L.</strong>
+      </div>
+      <div class="bg-white p-6 rounded-xl shadow-md">
+        <p class="text-gray-600 italic mb-4">"I love my new Pixel! Mobiverse has a great selection of flagship phones.
+          Will definitely shop here again."</p>
+        <strong class="text-gray-900 font-semibold">- Emily K.</strong>
+      </div>
+    </div>
+  </section>
+</main>
+
+<% /* No <script> tag here! 
+  It's all handled by your /js/user/home.js file,
+  which you should link in your main layout EJS file. 
+*/ %>

@@ -151,6 +151,7 @@ export const addProduct = async (req, res) => {
           colour: variant.colour.toLowerCase(),
           stock: Number(variant.stockQuantity),
           images: variant.images,
+          isListed:variant.isListed,
         })
       )
     );
@@ -193,7 +194,6 @@ export const getProductById = async (req, res) => {
         },
       },
     ]);
-    console.log(products[0].variants);
     res.status(200).json({ success: true, products: products[0] });
   } catch (error) {
     console.log(error);
@@ -320,6 +320,7 @@ export const editProduct = async (req, res) => {
             colour: variant.colour.toLowerCase(),
             stock: Number(variant.stockQuantity),
             images: variant.existingImages,
+            isListed:variant.isListed,
           });
         } else {
           return variantModel.findByIdAndUpdate(
@@ -334,6 +335,7 @@ export const editProduct = async (req, res) => {
               colour: variant.colour.toLowerCase(),
               stock: Number(variant.stockQuantity),
               images: variant.existingImages,
+              isListed:variant.isListed,
             },
             { new: true }
           );

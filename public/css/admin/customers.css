@@ -258,3 +258,12 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+
+.customer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border-color);
+}

@@ -56,6 +56,7 @@ export const productValidationSchema = Joi.object({
           colour: Joi.string().trim().min(2).required().messages({
             "string.empty": "Colour is required",
           }),
+          isListed:Joi.boolean().required(),
           stockQuantity: Joi.number()
             .integer()
             .min(0)

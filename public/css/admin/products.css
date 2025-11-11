@@ -499,6 +499,12 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+.toogle-varient{
+  height: 55px;
+  margin-left: 16px;
+  margin-right: 18px;
+}
+
 /* Variant Form Styles */
 .variant-form-section {
   border: 1px solid var(--border-color);

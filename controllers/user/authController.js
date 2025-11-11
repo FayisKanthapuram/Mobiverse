@@ -203,6 +203,7 @@ export const googleLogin = (req, res) => {
       return res.redirect("/user/signup");
     }
   } catch (err) {
+    console.log(err);
     return res.redirect("/user/signup");
   }
 };
