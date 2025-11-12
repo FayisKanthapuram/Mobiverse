@@ -1,0 +1,71 @@
+<aside>
+  <h2 class="text-xl font-semibold mb-5 text-gray-900">Filters</h2>
+  <!-- Brands -->
+  <div class="mb-8">
+    <h3 class="font-medium mb-3 text-gray-800">Brands</h3>
+    <ul class="space-y-2">
+      <li>
+        <a
+          onclick="brandFilter(this)"
+          href="javascript:void(0)"
+          name="all"
+          class="block px-4 py-2 rounded-lg transition-all duration-200 <%= (query.brand === 'all'||!query.brand) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100' %>"
+        >
+          All Brands
+        </a>
+      </li>
+      <% (brands || []).forEach(brand => { %>
+      <li>
+        <a
+          onclick="brandFilter(this)"
+          href="javascript:void(0)"
+          name="<%= brand.brandName %>"
+          class="block px-4 py-2 rounded-lg transition-all duration-200 <%= (query.brand === brand.brandName) ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100' %>"
+        >
+          <%= brand.brandName.charAt(0).toUpperCase() +
+          brand.brandName.slice(1).toLowerCase() %>
+        </a>
+      </li>
+      <% }) %>
+    </ul>
+  </div>
+  <!-- Price -->
+  <div class="border-t pt-6">
+    <h3 class="font-medium mb-3 text-gray-800">Price Range</h3>
+    <div class="space-y-4">
+      <div>
+        <label for="price-from" class="text-sm text-gray-500 font-medium"
+          >Price From:</label
+        >
+        <input
+          type="number"
+          id="price-from"
+          name="minPrice"
+          value="<%= query.min || '' %>"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+          placeholder="Min"
+        />
+      </div>
+      <div>
+        <label for="price-to" class="text-sm text-gray-500 font-medium"
+          >Price To:</label
+        >
+        <input
+          type="number"
+          id="price-to"
+          name="maxPrice"
+          value="<%= query.max || '' %>"
+          class="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+          placeholder="Max"
+        />
+      </div>
+      <button
+        onclick="event.preventDefault(); applyFilter()"
+        type="submit"
+        class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+      >
+        Apply Filter
+      </button>
+    </div>
+  </div>
+</aside>

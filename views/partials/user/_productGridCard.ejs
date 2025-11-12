@@ -1,0 +1,71 @@
+<div class="h-full">
+  <a href="/product/<%= product?.variants?._id %>" class="block group h-full">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-blue-200 relative">
+
+      <!-- Product Image -->
+      <div class="relative bg-gray-50 flex items-center justify-center h-60 overflow-hidden">
+        <img 
+          src="<%= product?.variants?.images[0] %>" 
+          alt="<%= product.name %>" 
+          class="h-52 w-auto object-contain transition-transform duration-500 group-hover:scale-110" 
+        />
+
+        <!-- Wishlist Button -->
+        <button 
+          type="button" 
+          class="absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-sm transition-colors"
+          onclick="event.stopPropagation(); event.preventDefault(); addToWishlist('<%= product?.variants?._id %>')">
+          <i class="bi bi-heart text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Product Info -->
+      <div class="p-4 flex flex-col justify-between h-[180px]">
+
+        <!-- Product Name -->
+        <h3 class="text-base font-medium text-gray-800 truncate leading-snug mb-2">
+          <%= product.name %>
+        </h3>
+
+        <!-- Rating -->
+        <div class="flex items-center space-x-1 mb-2">
+          <% 
+            const fullStars = Math.floor(product?.variants?.rating || 0);
+            const halfStar = (product?.variants?.rating % 1) >= 0.5;
+            const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+          %>
+          <% for(let i = 0; i < fullStars; i++) { %>
+            <i class="bi bi-star-fill text-yellow-400 text-sm"></i>
+          <% } %>
+          <% if(halfStar) { %>
+            <i class="bi bi-star-half text-yellow-400 text-sm"></i>
+          <% } %>
+          <% for(let i = 0; i < emptyStars; i++) { %>
+            <i class="bi bi-star text-yellow-400 text-sm"></i>
+          <% } %>
+          <span class="text-xs text-gray-500 ml-1">(<%= product?.variants?.rating?.toFixed(1) || '0.0' %>)</span>
+        </div>
+
+        <!-- Price -->
+        <div class="mb-3">
+          <p class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            ₹<%= product?.variants?.salePrice?.toLocaleString('en-IN') %>
+            <% if (product?.variants?.regularPrice) { %>
+              <del class="text-gray-400 text-sm">
+                ₹<%= product?.variants?.regularPrice?.toLocaleString('en-IN') %>
+              </del>
+            <% } %>
+          </p>
+        </div>
+
+        <!-- Add to Cart Button -->
+        <button 
+          type="button" 
+          class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-2.5 rounded-lg text-sm shadow-md hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] transition-all"
+          onclick="event.preventDefault(); addToCart('<%= product?.variants?._id %>')">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+  </a>
+</div>

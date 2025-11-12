@@ -28,3 +28,22 @@ body {
 /* ... (and so on) ... */
 
 /* (Paste all other custom styles from the previous style.css here) */
+/*
+ * ===============================================
+ * CUSTOM FIX: Hide number input steppers
+ * ===============================================
+ * This fixes the layout bug in the filter sidebar
+ * by removing the arrows that break Tailwind's w-full.
+ */
+
+/* Hide steppers for Chrome, Safari, Edge */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide steppers for Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
