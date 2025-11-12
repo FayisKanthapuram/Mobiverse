@@ -1,34 +1,3 @@
-// // --- Simple Search Toggle Script ---
-// document.addEventListener("DOMContentLoaded", () => {
-//   const searchIcon = document.getElementById("search-toggle-btn-simple");
-//   const searchInput = document.getElementById("search-input-simple");
-
-//   if (searchIcon && searchInput) {
-//     // --- Click the Search Icon ---
-//     searchIcon.addEventListener("click", (e) => {
-//       e.preventDefault();
-//       searchIcon.classList.add("hidden"); // Hide icon
-//       searchInput.classList.add("active"); // Show input
-//       searchInput.focus(); // Focus input
-//     });
-
-//     // --- When the search input loses focus ---
-//     searchInput.addEventListener("blur", () => {
-//       // Only hide if it's empty
-//       if (searchInput.value === "") {
-//         searchInput.classList.remove("active"); // Hide input
-//         searchIcon.classList.remove("hidden"); // Show icon
-//       }
-//     });
-
-//     // Optional: Pressing Enter in search
-//     searchInput.closest("form").addEventListener("submit", (e) => {
-//       if (searchInput.value === "") {
-//         e.preventDefault(); // Don't submit an empty form
-//       }
-//     });
-//   }
-// });
 
 // /js/user/user.js
 
@@ -55,3 +24,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+let searchTimeout;
+
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(handleSearch, 1000); 
+}
+
+function handleSearch() {
+  const searchInput = document.getElementById("product-search-input");
+  if (!searchInput) return;
+
+  const searchValue = searchInput.value.trim();
+
+  // Determine the correct base URL
+  const currentPath = window.location.pathname;
+  let url;
+
+  if (currentPath.startsWith("/user/brands")) {
+    url = new URL(window.location);
+  } else {
+    url = new URL("/user/brands", window.location.origin);
+  }
+
+  const currentSearch = url.searchParams.get("search") || "";
+
+  if (searchValue === currentSearch) return;
+
+  if (searchValue) {
+    url.searchParams.set("search", searchValue);
+  } else {
+    url.searchParams.delete("search");
+  }
+
+  url.searchParams.set("page", 1);
+  window.location.href = url.href;
+}

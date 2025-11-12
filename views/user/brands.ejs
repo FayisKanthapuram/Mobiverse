@@ -9,8 +9,6 @@
     <div class="w-full lg:w-1/4 xl:w-1/5 bg-white shadow-sm border border-gray-200 rounded-2xl p-6 h-fit sticky top-24">
       <%- include('../partials/user/_filterSidebar', {
         brands,
-        minPrice,
-        maxPrice
     }) %>
     </div>
 
@@ -20,10 +18,10 @@
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
           <h1 class="text-3xl font-bold text-gray-900 mb-1">
-            <%= query.brand+' Brands Mobiles' %>
+            <%= ((query.brand)?query.brand?.charAt(0)?.toUpperCase()+query.brand?.slice(1)?.toLowerCase():'All' )+' Brands Mobiles' %>
           </h1>
           <p class="text-gray-600 text-sm">
-            <%= 'Explore the latest ' + query.brand + ' All Brands smartphones.' %>
+            <%= 'Explore the latest ' +((query.brand)?query.brand?.charAt(0)?.toUpperCase()+query.brand?.slice(1)?.toLowerCase():'All' )+ ' Brands smartphones.' %>
           </p>
         </div>
 

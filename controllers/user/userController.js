@@ -135,14 +135,15 @@ export const loadHome = async (req, res) => {
 
 export const loadBrands = async (req, res) => {
   try {
-    const brand = req.query.brand || "";
+    const search = req.query.search || "";
+    const brand = req.query.brand || "all";
     const sort = req.query.sort || "";
     const minPrice = req.query.min;
     const maxPrice = req.query.max;
-    const currentPage=parseInt(req.query.page)||1;
+    const currentPage = parseInt(req.query.page) || 1;
 
-    const limit=3;
-    const skip=(currentPage-1)*limit;
+    const limit = 3;
+    const skip = (currentPage - 1) * limit;
 
     const matchStage = {
       "brands.isListed": true,
@@ -150,6 +151,9 @@ export const loadBrands = async (req, res) => {
     };
     if (brand && brand !== "all") {
       matchStage["brands.brandName"] = brand;
+    }
+    if(search){
+      matchStage["name"]={ $regex: search.trim(), $options: "i" };
     }
     const sortStage = {};
     if (sort === "price-asc") {
@@ -172,7 +176,6 @@ export const loadBrands = async (req, res) => {
     if (maxPrice) {
       priceStage["$lte"] = Number(maxPrice);
     }
-
     const pipeline = [
       {
         $lookup: {
@@ -224,12 +227,12 @@ export const loadBrands = async (req, res) => {
       pipeline.push({ $match: { "variants.salePrice": priceStage } });
     }
 
-    let pipeline1=structuredClone(pipeline)
-    pipeline1.push({$count:'totalDocuments'});
-    const [{totalDocuments}]=await productModel.aggregate(pipeline1);
-    const totalPages=Math.ceil(totalDocuments/limit);
+    let pipeline1 = structuredClone(pipeline);
+    pipeline1.push({ $count: "totalDocuments" });
+    const [{ totalDocuments }] = await productModel.aggregate(pipeline1);
+    const totalPages = Math.ceil(totalDocuments / limit);
 
-    pipeline.push({$skip:skip},{$limit:limit});
+    pipeline.push({ $skip: skip }, { $limit: limit });
     const products = await productModel.aggregate(pipeline);
 
     const brands = await brandModel.find({ isListed: true });
@@ -238,20 +241,21 @@ export const loadBrands = async (req, res) => {
       products,
       brands: brands,
       pageTitle: "Brands",
-      pageSubtitle: "hell",
       breadcrumbs: [
-        { name: "Home", link: "/" },
-        { name: "Brands", link: "/brands" },
-        { name: "All Brands" },
+        { name: "Home", link: "/user/home" },
+        { name: "Brands", link: "/user/brands" },
+        {
+          name: brand
+            ? brand.charAt(0).toUpperCase() + brand.slice(1).toLowerCase()
+            : "All Brands",
+        },
       ],
       pagination: {
         currentPage,
         totalPages,
-        hasPrevPage: currentPage>1,
-        hasNextPage: currentPage<totalPages,
+        hasPrevPage: currentPage > 1,
+        hasNextPage: currentPage < totalPages,
       },
-      minPrice: 0,
-      maxPrice: 0,
       pageJs: "brands",
     });
   } catch (error) {

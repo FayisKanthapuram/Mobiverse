@@ -54,7 +54,7 @@ router.get(
   googleLogin
 );
 
-router.get("/home", requireLogin, loadHome);
+router.get("/home", loadHome);
 router.get('/brands',loadBrands);
 router.get('/hello',getProductDetails);
 

@@ -25,7 +25,7 @@
 
 <body class="bg-gray-50 text-gray-900 antialiased">
     
-    <%- include('../partials/user/navbar') %>
+    <%- include('../partials/user/navbar', { query: typeof query !== 'undefined' ? query : {} }) %>
     
     <%- body %>
     
