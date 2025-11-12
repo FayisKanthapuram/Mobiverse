@@ -1,4 +1,3 @@
-
 <!-- Breadcrumb -->
 <nav class="container mx-auto px-4 py-4">
   <ol class="flex items-center space-x-2 text-sm text-gray-600">
@@ -15,16 +14,16 @@
 <!-- Product Section -->
 <div class="container mx-auto px-4 py-8">
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    
+
     <!-- Product Images -->
     <div class="space-y-4 relative">
       <!-- Main Image -->
       <div id="imageContainer" class="relative bg-white rounded-lg overflow-hidden border border-gray-200 cursor-crosshair" style="height: 600px;">
         <img id="mainImage" src="<%= product.images[0] %>" alt="<%= product.name %>" class="w-full h-full object-contain">
-        
+
         <!-- Zoom Lens -->
         <div id="zoomLens" class="absolute hidden pointer-events-none border-2 border-blue-600 bg-blue-100 bg-opacity-30" style="width: 150px; height: 150px;"></div>
-        
+
         <!-- Zoom Icon -->
         <button class="absolute bottom-4 right-4 bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 border border-gray-200">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,18 +31,18 @@
           </svg>
         </button>
       </div>
-      
+
       <!-- Zoomed Image Display -->
       <div id="zoomResult" class="hidden absolute bg-white border-2 border-gray-300 rounded-lg shadow-2xl z-50 overflow-hidden" style="width: 500px; height: 500px; left: 105%; top: 0;">
         <img id="zoomedImage" src="<%= product.images[0] %>" alt="Zoomed" class="absolute" style="transform-origin: top left;">
       </div>
-      
+
       <!-- Thumbnail Images -->
       <div class="flex space-x-3 overflow-x-auto pb-2">
         <% product.images.forEach((image, index) => { %>
-          <button onclick="changeImage('<%= image %>', event)" class="flex-shrink-0 w-24 h-24 bg-white rounded-lg overflow-hidden border-2 <%= index === 0 ? 'border-blue-600' : 'border-gray-200' %> hover:border-blue-600 transition">
-            <img src="<%= image %>" alt="Thumbnail <%= index + 1 %>" class="w-full h-full object-contain p-1">
-          </button>
+        <button onclick="changeImage('<%= image %>', event)" class="flex-shrink-0 w-24 h-24 bg-white rounded-lg overflow-hidden border-2 <%= index === 0 ? 'border-blue-600' : 'border-gray-200' %> hover:border-blue-600 transition">
+          <img src="<%= image %>" alt="Thumbnail <%= index + 1 %>" class="w-full h-full object-contain p-1">
+        </button>
         <% }); %>
       </div>
     </div>
@@ -52,14 +51,14 @@
     <div class="space-y-6">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= product.name %></h1>
-        
+
         <!-- Rating -->
         <div class="flex items-center space-x-2">
           <div class="flex">
             <% for(let i = 1; i <= 5; i++) { %>
-              <svg class="w-5 h-5 <%= i <= Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300' %>" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-              </svg>
+            <svg class="w-5 h-5 <%= i <= Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300' %>" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+            </svg>
             <% } %>
           </div>
           <span class="text-gray-600">(<%= product.reviewCount %> reviews)</span>
@@ -67,46 +66,58 @@
       </div>
 
       <!-- Price -->
-      <div class="flex items-center space-x-4">
-        <span class="text-3xl font-bold text-gray-900">₹<%= product.price.toLocaleString('en-IN') %></span>
-        <span class="text-xl text-gray-400 line-through">₹<%= product.originalPrice.toLocaleString('en-IN') %></span>
-        <span class="bg-red-100 text-red-600 px-3 py-1 rounded text-sm font-medium">
-          SAVE ₹<%= (product.originalPrice - product.price).toLocaleString('en-IN') %> (<%= Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) %>% OFF)
+      <div class="flex flex-wrap items-center space-x-4">
+        <span class="text-3xl font-bold text-gray-900">
+          ₹<%= product.price.toLocaleString('en-IN') %>
         </span>
+
+        <% if (product.originalPrice && product.originalPrice > product.price) { %>
+        <span class="text-xl text-gray-400 line-through">
+          ₹<%= product.originalPrice.toLocaleString('en-IN') %>
+        </span>
+        <span class="bg-red-100 text-red-600 px-3 py-1 rounded text-sm font-medium">
+          SAVE ₹<%= (product.originalPrice - product.price).toLocaleString('en-IN') %>
+          (<%= Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) %>% OFF)
+        </span>
+        <% } %>
       </div>
+
 
       <!-- Offers -->
       <div class="flex flex-wrap gap-2">
         <% product.offers.forEach(offer => { %>
-          <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm flex items-center">
-            <%= offer %>
-            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-            </svg>
-          </span>
+        <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm flex items-center">
+          <%= offer %>
+          <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+          </svg>
+        </span>
         <% }); %>
       </div>
 
       <!-- Color Selection -->
       <div>
         <h3 class="text-sm font-medium text-gray-900 mb-3">Color</h3>
-        <div class="flex space-x-2">
+        <div class="flex flex-wrap gap-2">
           <% product.colors.forEach((color, index) => { %>
-            <button class="w-10 h-10 rounded-full border-2 <%= index === 0 ? 'border-blue-600 ring-2 ring-blue-200' : 'border-gray-300' %> hover:border-blue-600" 
-                    style="background-color: <%= color.code %>;"
-                    title="<%= color.name %>"></button>
+          <button class="px-4 py-2 rounded-lg border-2 
+               <%= index === 0 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 text-gray-700' %> 
+               hover:border-blue-600 font-medium transition">
+            <%= color.name %>
+          </button>
           <% }); %>
         </div>
       </div>
+
 
       <!-- RAM Selection -->
       <div>
         <h3 class="text-sm font-medium text-gray-900 mb-3">RAM</h3>
         <div class="flex space-x-2">
           <% product.ramOptions.forEach((ram, index) => { %>
-            <button class="px-4 py-2 rounded-lg border-2 <%= index === 0 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 text-gray-700' %> hover:border-blue-600 font-medium">
-              <%= ram %>
-            </button>
+          <button class="px-4 py-2 rounded-lg border-2 <%= index === 0 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 text-gray-700' %> hover:border-blue-600 font-medium">
+            <%= ram %>
+          </button>
           <% }); %>
         </div>
       </div>
@@ -116,10 +127,10 @@
         <h3 class="text-sm font-medium text-gray-900 mb-3">Storage</h3>
         <div class="flex flex-wrap gap-2">
           <% product.storageOptions.forEach((storage, index) => { %>
-            <button class="px-4 py-2 rounded-lg border-2 <%= index === 0 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 text-gray-700' %> hover:border-blue-600">
-              <div class="font-medium"><%= storage.size %></div>
-              <div class="text-xs <%= index === 0 ? 'text-blue-100' : 'text-gray-500' %>">₹ <%= storage.price.toLocaleString('en-IN') %></div>
-            </button>
+          <button class="px-4 py-2 rounded-lg border-2 <%= index === 0 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 text-gray-700' %> hover:border-blue-600">
+            <div class="font-medium"><%= storage.size %></div>
+            <!-- <div class="text-xs <%= index === 0 ? 'text-blue-100' : 'text-gray-500' %>">₹ <%= storage.price.toLocaleString('en-IN') %></div> -->
+          </button>
           <% }); %>
         </div>
       </div>
@@ -128,32 +139,53 @@
       <div>
         <h3 class="text-sm font-medium text-gray-900 mb-3">Quantity</h3>
         <div class="flex items-center space-x-3">
-          <button class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50">
+          <button id="decreaseQty" class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
             </svg>
           </button>
-          <input type="number" value="1" min="1" class="w-16 text-center border border-gray-300 rounded-lg py-2">
-          <button class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50">
+
+          <input id="quantityInput" type="number" value="1" min="1" max="<%= product.stock %>" class="w-16 text-center border border-gray-300 rounded-lg py-2" />
+
+          <button id="increaseQty" class="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
           </button>
-          <span class="text-green-600 text-sm font-medium ml-4">● In Stock ( <%= product.stock %> units left)</span>
+
+          <% if (product.stock > 20) { %>
+          <!-- Hide stock message -->
+          <% } else if (product.stock > 10) { %>
+          <span class="text-green-600 text-sm font-medium ml-4">● In Stock (<%= product.stock %> units left)</span>
+          <% } else if (product.stock > 0) { %>
+          <span class="<%= product.stock <= 5 ? 'text-orange-500' : 'text-green-600' %> text-sm font-medium ml-4">
+            ● Hurry! Only <%= product.stock %> left
+          </span>
+          <% } else { %>
+          <span class="text-red-600 text-sm font-medium ml-4">● Out of Stock</span>
+          <% } %>
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex space-x-3">
+      <div class="flex space-x-3 mt-4">
+        <% if (product.stock === 0) { %>
+        <button class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-medium cursor-not-allowed">
+          Notify Me
+        </button>
+        <% } else { %>
         <button class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
           Add to Cart
         </button>
+        <% } %>
+
         <button class="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
           </svg>
         </button>
       </div>
+
     </div>
   </div>
 
@@ -164,7 +196,7 @@
         <button class="border-b-2 border-blue-600 text-blue-600 py-4 px-1 font-medium">Description</button>
       </nav>
     </div>
-    
+
     <div class="py-8">
       <p class="text-gray-700 leading-relaxed mb-4"><%= product.description.intro %></p>
       <p class="text-gray-700 leading-relaxed mb-4"><%= product.description.display %></p>
@@ -180,98 +212,121 @@
 </div>
 
 <script>
-// Change image function
-function changeImage(imageSrc, event) {
-  document.getElementById('mainImage').src = imageSrc;
-  document.getElementById('zoomedImage').src = imageSrc;
-  
-  // Update active thumbnail
-  const thumbnails = document.querySelectorAll('button[onclick^="changeImage"]');
-  thumbnails.forEach(thumb => {
-    thumb.classList.remove('border-blue-600');
-    thumb.classList.add('border-gray-200');
-  });
-  event.currentTarget.classList.remove('border-gray-200');
-  event.currentTarget.classList.add('border-blue-600');
-}
+  // Change image function
+  function changeImage(imageSrc, event) {
+    document.getElementById('mainImage').src = imageSrc;
+    document.getElementById('zoomedImage').src = imageSrc;
 
-// Image zoom functionality
-const imageContainer = document.getElementById('imageContainer');
-const mainImage = document.getElementById('mainImage');
-const zoomLens = document.getElementById('zoomLens');
-const zoomResult = document.getElementById('zoomResult');
-const zoomedImage = document.getElementById('zoomedImage');
-
-const zoomLevel = 2.5; // Zoom magnification level
-const lensWidth = 150;
-const lensHeight = 150;
-
-imageContainer.addEventListener('mouseenter', function() {
-  zoomLens.classList.remove('hidden');
-  zoomResult.classList.remove('hidden');
-});
-
-imageContainer.addEventListener('mouseleave', function() {
-  zoomLens.classList.add('hidden');
-  zoomResult.classList.add('hidden');
-});
-
-imageContainer.addEventListener('mousemove', function (e) {
-  const containerRect = imageContainer.getBoundingClientRect();
-  const imageRect = mainImage.getBoundingClientRect();
-
-  // Cursor position within container
-  const mouseX = e.clientX - containerRect.left;
-  const mouseY = e.clientY - containerRect.top;
-
-  // Compute image scale ratios (for object-contain)
-  const scaleX = imageRect.width / mainImage.naturalWidth;
-  const scaleY = imageRect.height / mainImage.naturalHeight;
-  const scale = Math.min(scaleX, scaleY);
-
-  // Actual drawn image dimensions inside container
-  const displayWidth = mainImage.naturalWidth * scale;
-  const displayHeight = mainImage.naturalHeight * scale;
-
-  // Offsets to center the image (object-contain)
-  const offsetX = (containerRect.width - displayWidth) / 2;
-  const offsetY = (containerRect.height - displayHeight) / 2;
-
-  // Cursor position relative to actual image
-  const x = mouseX - offsetX;
-  const y = mouseY - offsetY;
-
-  // Hide zoom if outside image bounds
-  if (x < 0 || y < 0 || x > displayWidth || y > displayHeight) {
-    zoomLens.classList.add('hidden');
-    zoomResult.classList.add('hidden');
-    return;
+    // Update active thumbnail
+    const thumbnails = document.querySelectorAll('button[onclick^="changeImage"]');
+    thumbnails.forEach(thumb => {
+      thumb.classList.remove('border-blue-600');
+      thumb.classList.add('border-gray-200');
+    });
+    event.currentTarget.classList.remove('border-gray-200');
+    event.currentTarget.classList.add('border-blue-600');
   }
 
-  zoomLens.classList.remove('hidden');
-  zoomResult.classList.remove('hidden');
+  // Image zoom functionality
+  const imageContainer = document.getElementById('imageContainer');
+  const mainImage = document.getElementById('mainImage');
+  const zoomLens = document.getElementById('zoomLens');
+  const zoomResult = document.getElementById('zoomResult');
+  const zoomedImage = document.getElementById('zoomedImage');
 
-  // Lens position
-  let lensX = x - lensWidth / 2;
-  let lensY = y - lensHeight / 2;
+  const zoomLevel = 2.5; // Zoom magnification level
+  const lensWidth = 150;
+  const lensHeight = 150;
 
-  // Clamp inside image bounds
-  lensX = Math.max(0, Math.min(lensX, displayWidth - lensWidth));
-  lensY = Math.max(0, Math.min(lensY, displayHeight - lensHeight));
+  imageContainer.addEventListener('mouseenter', function() {
+    zoomLens.classList.remove('hidden');
+    zoomResult.classList.remove('hidden');
+  });
 
-  zoomLens.style.left = (lensX + offsetX) + 'px';
-  zoomLens.style.top = (lensY + offsetY) + 'px';
+  imageContainer.addEventListener('mouseleave', function() {
+    zoomLens.classList.add('hidden');
+    zoomResult.classList.add('hidden');
+  });
 
-  // Update zoomed image dimensions
-  zoomedImage.style.width = (displayWidth * zoomLevel) + 'px';
-  zoomedImage.style.height = (displayHeight * zoomLevel) + 'px';
+  imageContainer.addEventListener('mousemove', function(e) {
+    const containerRect = imageContainer.getBoundingClientRect();
+    const imageRect = mainImage.getBoundingClientRect();
 
-  // Calculate zoomed image translation
-  const ratioX = lensX / displayWidth;
-  const ratioY = lensY / displayHeight;
+    // Cursor position within container
+    const mouseX = e.clientX - containerRect.left;
+    const mouseY = e.clientY - containerRect.top;
 
-  zoomedImage.style.transform = `translate(-${ratioX * zoomedImage.offsetWidth}px, -${ratioY * zoomedImage.offsetHeight}px)`;
-});
+    // Compute image scale ratios (for object-contain)
+    const scaleX = imageRect.width / mainImage.naturalWidth;
+    const scaleY = imageRect.height / mainImage.naturalHeight;
+    const scale = Math.min(scaleX, scaleY);
 
+    // Actual drawn image dimensions inside container
+    const displayWidth = mainImage.naturalWidth * scale;
+    const displayHeight = mainImage.naturalHeight * scale;
 
+    // Offsets to center the image (object-contain)
+    const offsetX = (containerRect.width - displayWidth) / 2;
+    const offsetY = (containerRect.height - displayHeight) / 2;
+
+    // Cursor position relative to actual image
+    const x = mouseX - offsetX;
+    const y = mouseY - offsetY;
+
+    // Hide zoom if outside image bounds
+    if (x < 0 || y < 0 || x > displayWidth || y > displayHeight) {
+      zoomLens.classList.add('hidden');
+      zoomResult.classList.add('hidden');
+      return;
+    }
+
+    zoomLens.classList.remove('hidden');
+    zoomResult.classList.remove('hidden');
+
+    // Lens position
+    let lensX = x - lensWidth / 2;
+    let lensY = y - lensHeight / 2;
+
+    // Clamp inside image bounds
+    lensX = Math.max(0, Math.min(lensX, displayWidth - lensWidth));
+    lensY = Math.max(0, Math.min(lensY, displayHeight - lensHeight));
+
+    zoomLens.style.left = (lensX + offsetX) + 'px';
+    zoomLens.style.top = (lensY + offsetY) + 'px';
+
+    // Update zoomed image dimensions
+    zoomedImage.style.width = (displayWidth * zoomLevel) + 'px';
+    zoomedImage.style.height = (displayHeight * zoomLevel) + 'px';
+
+    // Calculate zoomed image translation
+    const ratioX = lensX / displayWidth;
+    const ratioY = lensY / displayHeight;
+
+    zoomedImage.style.transform = `translate(-${ratioX * zoomedImage.offsetWidth}px, -${ratioY * zoomedImage.offsetHeight}px)`;
+  });
+  const decreaseBtn = document.getElementById('decreaseQty');
+  const increaseBtn = document.getElementById('increaseQty');
+  const quantityInput = document.getElementById('quantityInput');
+  const maxStock = parseInt(quantityInput.max);
+
+  decreaseBtn.addEventListener('click', () => {
+    let currentValue = parseInt(quantityInput.value);
+    if (currentValue > 1) {
+      quantityInput.value = currentValue - 1;
+    }
+  });
+
+  increaseBtn.addEventListener('click', () => {
+    let currentValue = parseInt(quantityInput.value);
+    if (currentValue < maxStock) {
+      quantityInput.value = currentValue + 1;
+    }
+  });
+
+  // Prevent manual entry beyond limits
+  quantityInput.addEventListener('input', () => {
+    let val = parseInt(quantityInput.value);
+    if (val < 1) quantityInput.value = 1;
+    if (val > maxStock) quantityInput.value = maxStock;
+  });
 </script>

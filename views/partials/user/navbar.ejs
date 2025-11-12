@@ -5,14 +5,13 @@
     </a>
 
     <div class="hidden md:flex items-center gap-6">
-      <a href="/user/home" class="text-base font-medium text-gray-700 hover:text-blue-600 transition-colors">Home</a>
+      <a href="/user/home" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Home</a>
       <a href="/user/brands" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Brands</a>
       <a href="/user/about" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">About Us</a>
       <a href="/user/contact" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Contact</a>
     </div>
 
     <div class="flex items-center gap-3">
-      <!-- ✅ Give the input an ID so JS can find it -->
       <input
         value="<%= typeof query.search !== 'undefined' ? query.search : '' %>"
         id="product-search-input"
@@ -42,7 +41,6 @@
       <a href="/contact" class="block text-base font-medium text-gray-500 hover:text-blue-600">Contact</a>
 
       <div class="flex items-center pt-2">
-        <!-- ✅ same ID, same debounce -->
         <input
           value="<%= typeof query.search !== 'undefined' ? query.search : '' %>"
           id="product-search-input"

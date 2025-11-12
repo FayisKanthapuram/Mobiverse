@@ -17,16 +17,13 @@ body {
     color: var(--text-color);
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+.auth-page .container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-a {
-    text-decoration: none;
-    color: var(--primary-color);
-    transition: color 0.2s ease;
+.auth-page a {
+  color: var(--primary-color);
 }
 a:hover {
     color: var(--primary-hover);

@@ -277,7 +277,7 @@ export const getProductDetails = async (req, res) => {
       originalPrice: 72990,
       rating: 4.8,
       reviewCount: 5,
-      stock: 12,
+      stock: 8,
       images: [
         "/image/iphone 17 pro blue image-1.webp",
         "/image/iphone 17 pro blue image-1.webp",
@@ -285,12 +285,12 @@ export const getProductDetails = async (req, res) => {
         "/image/iphone 17 pro blue image-1.webp",
         "/image/oppo k13 turbo image 1.webp",
       ],
-      offers: ["Gujarat Applies", "MOBILO ✓"],
+      offers: [],
       colors: [
-        { name: "Black", code: "#000000" },
-        { name: "Purple", code: "#800080" },
-        { name: "Orange", code: "#FF8C00" },
-        { name: "Gray", code: "#808080" },
+        { name: "Black" },
+        { name: "Purple" },
+        { name: "Orange" },
+        { name: "Gray" },
       ],
       ramOptions: ["6 GB", "8 GB", "12 GB"],
       storageOptions: [
