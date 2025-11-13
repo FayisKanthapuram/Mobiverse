@@ -3,7 +3,7 @@ import setLayout from "../middlewares/setLayout.js";
 const router = express.Router();
 import passport from "passport";
 
-import { getProductDetails, loadBrands, loadHome } from "../controllers/user/userController.js";
+import { getProductDetails, loadBrands, loadHome, loadProductDetails } from "../controllers/user/userController.js";
 import {
   loadSignUp,
   registerUser,
@@ -57,5 +57,7 @@ router.get(
 router.get("/home", loadHome);
 router.get('/brands',loadBrands);
 router.get('/hello',getProductDetails);
+
+router.get('/product/:variantId',loadProductDetails);
 
 export default router;

@@ -267,3 +267,31 @@ input:checked + .slider:before {
     object-fit: cover;
     border: 2px solid var(--border-color);
 }
+
+/* ========= Block / Unblock Button Styles ========= */
+.action-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s ease;
+    color: white;
+}
+
+/* Block (danger button) */
+.block-btn {
+    background-color: var(--danger-color);
+}
+.block-btn:hover {
+    background-color: #b52a38;
+}
+
+/* Unblock (success button) */
+.unblock-btn {
+    background-color: var(--success-color);
+}
+.unblock-btn:hover {
+    background-color: #0e6f44;
+}

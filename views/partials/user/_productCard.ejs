@@ -1,7 +1,7 @@
 <% /* views/partials/_productCard.ejs */ %>
 
 <div class="swiper-slide h-auto">
-  <a href="/product/<%= product?.variants?._id %>" class="block group h-full">
+  <a href="/user/product/<%= product?.variants?._id %>" class="block group h-full">
     <div class="bg-white rounded-xl shadow-md overflow-hidden h-full transition-all duration-300 hover:shadow-2xl relative">
       <div class="relative bg-gray-100 p-4 overflow-hidden">
         <img src="<%= product?.variants?.images[0] %>" alt="<%= product.name %>" class="h-48 w-full object-contain transition-transform duration-300 group-hover:scale-110" />

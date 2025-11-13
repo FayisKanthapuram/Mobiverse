@@ -23,6 +23,10 @@ const productVariantSchema = new mongoose.Schema(
         message: "Sale price cannot be greater than regular price",
       },
     },
+    rating:{
+      type:Number,
+      default:0
+    },
     ram: {
       type: String,
       enum: [
@@ -55,7 +59,7 @@ const productVariantSchema = new mongoose.Schema(
     isOnOffer: { type: Boolean, default: false, index: true },
 
     isListed: {
-      type: Boolean,
+      type: Boolean, 
       required: true,
       default: "true",
     },

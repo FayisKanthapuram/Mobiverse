@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
-    avatar: { type: String,default:'user'},
+    avatar: { type: String,default:'/images/defeault-profile-image.png'},
     isBlocked: {
       type: Boolean,
       default: false,

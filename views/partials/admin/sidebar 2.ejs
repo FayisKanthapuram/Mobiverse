@@ -1,0 +1,85 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <i class="bi bi-phone"></i>
+    <h2>Mobiverse<br />Admin</h2>
+  </div>
+
+  <ul class="sidebar-nav">
+    <li class="<%= pageTitle === 'Dashboard' ? 'active' : '' %>">
+      <a href="/admin/dashboard">
+        <i class="bi bi-grid-fill"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+
+    <li class="<%= pageTitle === 'Brands' ? 'active' : '' %>">
+      <a href="/admin/brands">
+        <i class="bi bi-tag"></i>
+        <span>Brands</span>
+      </a>
+    </li>
+
+    <li class="<%= pageTitle === 'Products' ? 'active' : '' %>">
+      <a href="/admin/products">
+        <i class="bi bi-box-seam"></i>
+        <span>Products</span>
+      </a>
+    </li>
+
+    <li class="<%= pageTitle === 'Customers' ? 'active' : '' %>">
+      <a href="/admin/customers">
+        <i class="bi bi-people"></i>
+        <span>Customers</span>
+      </a>
+    </li>
+
+    <li class="<%= pageTitle === 'Orders' ? 'active' : '' %>">
+      <a href="/admin/orders">
+        <i class="bi bi-cash-stack"></i>
+        <span>Orders</span>
+      </a>
+    </li>
+
+    <li class="<%= pageTitle === 'Coupons' ? 'active' : '' %>">
+      <a href="/admin/coupons">
+        <i class="bi bi-ticket-perforated"></i>
+        <span>Coupons</span>
+      </a>
+    </li>
+
+    <li class="<%= pageTitle === 'Referrals' ? 'active' : '' %>">
+      <a href="/admin/referrals">
+        <i class="bi bi-share"></i>
+        <span>Referrals</span>
+      </a>
+    </li>
+
+    <li class="<%= pageTitle === 'Banners' ? 'active' : '' %>">
+      <a href="/admin/banners">
+        <i class="bi bi-megaphone"></i>
+        <span>Banners</span>
+      </a>
+    </li>
+
+    <li class="<%= pageTitle === 'Offers' ? 'active' : '' %>">
+      <a href="/admin/offers">
+        <i class="bi bi-percent"></i> <span>Offers</span>
+      </a>
+    </li>
+  </ul>
+
+  <hr class="sidebar-divider" />
+
+  <div class="admin-profile">
+    <i class="bi bi-person-circle avatar"></i>
+    <div class="admin-info">
+      <strong>Admin Name</strong>
+      <span>Administrator</span>
+    </div>
+  </div>
+
+  <button type="button" class="logout-button" id="logout-button">
+    <i class="bi bi-box-arrow-right"></i>
+    <span>Logout</span>
+  </button>
+</aside>
