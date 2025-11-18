@@ -42,10 +42,10 @@ function handleSearch() {
   const currentPath = window.location.pathname;
   let url;
 
-  if (currentPath.startsWith("/user/brands")) {
+  if (currentPath.startsWith("/shop")) {
     url = new URL(window.location);
   } else {
-    url = new URL("/user/brands", window.location.origin);
+    url = new URL("/shop", window.location.origin);
   }
 
   const currentSearch = url.searchParams.get("search") || "";

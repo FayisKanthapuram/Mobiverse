@@ -1,0 +1,78 @@
+<aside class="w-80 bg-white rounded-lg shadow-sm p-6">
+  <!-- User Profile Header -->
+  <div class="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200">
+      <img
+        src="<%= user.avatar %>"
+        alt="<%= user.username %>"
+        class="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+        onerror="this.onerror=null; this.src='/images/user-avatar.svg';"
+      />
+    <div>
+      <h3 class="font-semibold text-gray-900"><%= user.username %></h3>
+      <p class="text-sm text-gray-600"><%= user.email %></p>
+    </div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav>
+    <ul class="space-y-1">
+      <li class="<%= pageTitle === 'Personal Information' ? 'bg-blue-50 rounded-lg' : '' %>">
+        <a href="/personal-info" class="flex items-center gap-3 px-4 py-3 <%= pageTitle === 'Personal Information' ? 'text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50' %> rounded-lg transition-colors">
+          <i class="bi bi-person text-lg"></i>
+          <span>Personal Information</span>
+        </a>
+      </li>
+
+      <li class="<%= pageTitle === 'Manage Address' ? 'bg-blue-50 rounded-lg' : '' %>">
+        <a href="/address" class="flex items-center gap-3 px-4 py-3 <%= pageTitle === 'Manage Address' ? 'text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50' %> rounded-lg transition-colors">
+          <i class="bi bi-house text-lg"></i>
+          <span>Manage Address</span>
+        </a>
+      </li>
+
+      <li class="<%= pageTitle === 'My Orders' ? 'bg-blue-50 rounded-lg' : '' %>">
+        <a href="/orders" class="flex items-center gap-3 px-4 py-3 <%= pageTitle === 'My Orders' ? 'text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50' %> rounded-lg transition-colors">
+          <i class="bi bi-box-seam text-lg"></i>
+          <span>My Orders</span>
+        </a>
+      </li>
+
+      <li class="<%= pageTitle === 'My Wallet' ? 'bg-blue-50 rounded-lg' : '' %>">
+        <a href="/wallet" class="flex items-center gap-3 px-4 py-3 <%= pageTitle === 'My Wallet' ? 'text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50' %> rounded-lg transition-colors">
+          <i class="bi bi-wallet2 text-lg"></i>
+          <span>My Wallet</span>
+        </a>
+      </li>
+
+      <li class="<%= pageTitle === 'Refer & Earn' ? 'bg-blue-50 rounded-lg' : '' %>">
+        <a href="/refer" class="flex items-center gap-3 px-4 py-3 <%= pageTitle === 'Refer & Earn' ? 'text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50' %> rounded-lg transition-colors">
+          <i class="bi bi-gift text-lg"></i>
+          <span>Refer & Earn</span>
+        </a>
+      </li>
+
+      <li class="<%= pageTitle === 'My Wishlist' ? 'bg-blue-50 rounded-lg' : '' %>">
+        <a href="/wishlist" class="flex items-center gap-3 px-4 py-3 <%= pageTitle === 'My Wishlist' ? 'text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50' %> rounded-lg transition-colors">
+          <i class="bi bi-heart text-lg"></i>
+          <span>My Wishlist</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <hr class="my-6 border-gray-200" />
+
+  <!-- Logout Button -->
+  <button type="button" id="logout-button" class="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium">
+    <i class="bi bi-box-arrow-right text-lg"></i>
+    <span>Logout</span>
+  </button>
+</aside>
+
+<script>
+document.getElementById('logout-button').addEventListener('click', function() {
+  if (confirm('Are you sure you want to logout?')) {
+    window.location.href = '/logout';
+  }
+});
+</script>

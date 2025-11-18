@@ -10,7 +10,7 @@ document
     submitBtn.disabled = true;
     submitBtn.textContent = "Registering...";
     try {
-      const response = await axios.post("/user/register", {
+      const response = await axios.post("/register", {
         username,
         email,
         password,

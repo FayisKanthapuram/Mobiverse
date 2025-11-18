@@ -9,7 +9,7 @@ document
     submitBtn.textContent = "sending...";
 
     try {
-      const response = await axios.post("/user/forgotPassword", { email });
+      const response = await axios.post("/forgotPassword", { email });
 
       if (response.data.success) {
         Toastify({

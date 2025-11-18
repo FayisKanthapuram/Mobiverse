@@ -1,0 +1,96 @@
+<header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+    
+    <!-- Logo -->
+    <a href="/home" class="flex items-center gap-2">
+      <img src="/images/logo+name.png" alt="Mobiverse Logo" class="h-8" />
+    </a>
+
+    <!-- Desktop Menu -->
+    <div class="hidden md:flex items-center gap-6">
+      <a href="/home" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Home</a>
+      <a href="/shop" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Shop</a>
+      <a href="/about" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">About Us</a>
+      <a href="/contact" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Contact</a>
+    </div>
+
+    <!-- Right Section -->
+    <div class="flex items-center gap-3">
+
+      <!-- Search Input -->
+      <input
+        value="<%= typeof query.search !== 'undefined' ? query.search : '' %>"
+        id="product-search-input"
+        type="text"
+        placeholder="Search..."
+        class="px-4 py-2 w-full border border-gray-300 rounded-full text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+        onkeyup="debounceSearch()"
+      >
+
+      <!-- Sign In Button -->
+      <a
+        href="/login"
+        class="hidden md:inline-block px-5 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-all shadow-sm whitespace-nowrap"
+      >
+        Sign In
+      </a>
+
+      <!-- Sign Up Button -->
+      <a
+        href="/signup"
+        class="hidden md:inline-block px-5 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap"
+      >
+        Sign Up
+      </a>
+
+      <!-- Mobile Menu Toggle -->
+      <button id="mobile-menu-btn" class="md:hidden text-gray-600 text-2xl">
+        <i class="bi bi-list"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+    <div class="px-4 py-3 space-y-3">
+
+      <a href="/" class="block text-base font-medium text-gray-700 hover:text-blue-600">Home</a>
+      <a href="/shop" class="block text-base font-medium text-gray-500 hover:text-blue-600">Shop</a>
+      <a href="/about" class="block text-base font-medium text-gray-500 hover:text-blue-600">About Us</a>
+      <a href="/contact" class="block text-base font-medium text-gray-500 hover:text-blue-600">Contact</a>
+
+      <!-- Mobile Search -->
+      <div class="flex items-center pt-2">
+        <input
+          value="<%= typeof query.search !== 'undefined' ? query.search : '' %>"
+          id="product-search-input-mobile"
+          type="text"
+          placeholder="Search..."
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+          onkeyup="debounceSearch()"
+        />
+      </div>
+
+      <!-- Mobile Buttons -->
+      <div class="pt-3 space-y-2 border-t border-gray-200">
+
+        <!-- Mobile Sign In -->
+        <a
+          href="/login"
+          class="block w-full text-center px-5 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-all shadow-sm whitespace-nowrap"
+        >
+          Sign In
+        </a>
+
+        <!-- Mobile Sign Up -->
+        <a
+          href="/signup"
+          class="block w-full text-center px-5 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-all shadow-sm whitespace-nowrap"
+        >
+          Sign Up
+        </a>
+      </div>
+
+    </div>
+  </div>
+</header>

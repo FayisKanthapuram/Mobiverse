@@ -5,7 +5,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
 
   try {
-    const response = await axios.post("/user/login", { email, password });
+    const response = await axios.post("/login", { email, password });
 
     if (response.data.success) {
       Toastify({
@@ -33,3 +33,30 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     }).showToast();
   }
 });
+
+const urlParams = new URLSearchParams(window.location.search);
+const error = urlParams.get("error");
+
+if (error === "blocked") {
+  Toastify({
+    text: "Your account is currently blocked. Please contact the admin for assistance.",
+    duration: 4000,
+    gravity: "top", // top or bottom
+    position: "right", // left, center, right
+    backgroundColor: "#e63946",
+    close: true,
+    stopOnFocus: true,
+  }).showToast();
+}
+
+if(error=== "login"){
+  Toastify({
+    text: "You need to log in to continue",
+    duration: 4000,
+    gravity: "top", // top or bottom
+    position: "right", // left, center, right
+    backgroundColor: "#e63946",
+    close: true,
+    stopOnFocus: true,
+  }).showToast();
+}

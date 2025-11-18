@@ -5,7 +5,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
   const confirmPassword = document.getElementById("confirmPassword").value;
 
   try {
-    const response = await axios.post("/user/resetPassword", {
+    const response = await axios.post("/resetPassword", {
       password,
       confirmPassword,
     });

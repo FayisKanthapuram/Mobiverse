@@ -1,56 +1,79 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".unblock-btn , .block-btn").forEach((btn) => {
+    btn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const target = event.currentTarget;
+      const customerId = target.dataset.customerId;
+      const isBlocked = target.dataset.isBlocked === "true";
 
-    // Find all the block/unblock toggles on the page
-    const blockToggles = document.querySelectorAll('.block-toggle');
+      
+      if(!isBlocked&&!confirm("Are you sure you want to block this customer?"))
+        return;
+    
+      target.disabled=true;
+    
+      try {
+        const response = await axios.patch(
+          `/admin/customer/block/${customerId}`
+        );
+        if (response.data.success) {
+          target.dataset.isBlocked = (!isBlocked).toString();
+          let activeCount=Number(document.getElementById('active-count').textContent);
+          let blockCount=Number(document.getElementById('block-count').textContent);
+          if (isBlocked) {
+            activeCount++;
+            blockCount--;
+            target.textContent = "Block";
+            target.classList.replace("unblock-btn","block-btn");
+          } else {
+            activeCount--;
+            blockCount++;
+            target.textContent = "Unblock";
+            target.classList.replace("block-btn", "unblock-btn");
+          }
+          document.getElementById('active-count').textContent=activeCount;
+          document.getElementById('block-count').textContent=blockCount;
 
-    blockToggles.forEach(toggle => {
-        toggle.addEventListener('change', (event) => {
-            
-            const customerId = event.target.dataset.customerId;
-            
-            // The 'checked' state means the user is ACTIVE.
-            // Therefore, 'isBlocked' is the opposite of the 'checked' state.
-            const isBlocked = !event.target.checked;
+          const badge = document.querySelector(
+            `[data-customer-status][data-customer-id="${customerId}"]`
+          );
 
-            if (isBlocked) {
-                console.log(`Sending API call to BLOCK customer: ${customerId}`);
-                // You can also show a confirmation modal here
-            } else {
-                console.log(`Sending API call to UNBLOCK customer: ${customerId}`);
-            }
+          if(badge){
+            badge.textContent=isBlocked?"Active":"Blocked";
+            badge.classList.toggle('status-blocked',!isBlocked);
+            badge.classList.toggle('status-active',isBlocked);
+          }
 
-            // =======================================================
-            // TODO: This is where you'll send the request to your backend
-            // =======================================================
-            /*
-            // Example using fetch:
-            fetch(`/admin/customers/toggle-block/${customerId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ isBlocked: isBlocked })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Customer status updated successfully');
-                    // Optionally, reload the page or update the status badge text
-                    // location.reload(); 
-                } else {
-                    console.error('Failed to update status');
-                    // Revert the toggle if the API call failed
-                    event.target.checked = !isBlocked;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Revert the toggle if the API call failed
-                event.target.checked = !isBlocked;
-            });
-            */
-            // =======================================================
-
-        });
+          Toastify({
+            text: !isBlocked ? "Customer Blocked" : "Customer Unblocked",
+            duration: 1500,
+            gravity: "top",
+            position: "right",
+            style: {
+              background: !isBlocked
+                ? "#e74c3c"
+                : "linear-gradient(to right, #00b09b, #96c93d)",
+            },
+          }).showToast();
+        }
+      } catch (error) {
+        console.log(error);
+        Toastify({
+          text: error.response?.data?.message || "Something went wrong",
+          duration: 2000,
+          gravity: "top",
+          position: "right",
+          style: { background: "#e74c3c" },
+        }).showToast();
+      }finally{
+        target.disabled=false;
+      }
     });
+  });
 });
+
+function changePage(page) {
+  const url = new URL(window.location);
+  url.searchParams.set("page", page);
+  window.location.href = url.href;
+}

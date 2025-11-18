@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       startCountdown();
       try {
-        const response = await axios.post("/user/resendOtp");
+        const response = await axios.post("/resendOtp");
         Toastify({
           text: response.data.message,
           duration: 2000,
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
 
     try {
-      const response = await axios.post("/user/verifyRecoverOtp", { otp });
+      const response = await axios.post("/verifyRecoverOtp", { otp });
 
       if (response.data.success) {
         Toastify({

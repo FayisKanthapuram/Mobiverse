@@ -308,8 +308,6 @@ changeImageBtnEdit.addEventListener("click", () => {
 editForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
-  console.log(e.target);
-
   try {
     const response = await axios.patch(`/admin/brands/edit`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -363,7 +361,6 @@ document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
           btn.classList.add("btn-unlist");
         }
 
-        // ✅ Update status badge if exists
         const badge = document.querySelector(
           `[data-brand-status][data-brand-id="${brandId}"]`
         );
