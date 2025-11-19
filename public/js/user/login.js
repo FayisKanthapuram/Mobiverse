@@ -60,3 +60,15 @@ if(error=== "login"){
     stopOnFocus: true,
   }).showToast();
 }
+
+if(error=== "logout"){
+  Toastify({
+    text: "Logged out successfully.",
+    duration: 4000,
+    gravity: "top", // top or bottom
+    position: "right", // left, center, right
+    backgroundColor: "#e63946",
+    close: true,
+    stopOnFocus: true,
+  }).showToast();
+}

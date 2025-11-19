@@ -415,3 +415,12 @@ export const saveNewPassword = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+export const logOutUser=(req,res)=>{
+  try {
+    req.session.destroy();
+    res.redirect('/login');
+  } catch (error) {
+    console.log(error);
+  }
+}

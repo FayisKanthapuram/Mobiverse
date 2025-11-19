@@ -1,3 +1,4 @@
+
 <div class="min-h-screen bg-gray-50">
   <div class="container mx-auto px-4 py-8">
     <div class="flex gap-6">
@@ -6,10 +7,26 @@
 
       <!-- Main Content -->
       <div class="flex-1 bg-white rounded-lg shadow-sm p-8">
-        <div class="mb-8">
-          <h1 class="text-2xl font-semibold text-gray-900">Change Email Address</h1>
-          <p class="text-gray-600 mt-1">Update your email address with OTP verification</p>
-        </div>
+        <% if (user.googleId) { %>
+          <!-- Blocked for Google Users -->
+          <div class="text-center py-12">
+            <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="bi bi-google text-5xl text-blue-600"></i>
+            </div>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-3">Google Account</h2>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">
+              Your email is managed by Google and cannot be changed here. Please manage your email through your Google Account settings.
+            </p>
+            <a href="/personal-info" class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="bi bi-arrow-left"></i> Back to Personal Info
+            </a>
+          </div>
+        <% } else { %>
+          <!-- Email Change Form -->
+          <div class="mb-8">
+            <h1 class="text-2xl font-semibold text-gray-900">Change Email Address</h1>
+            <p class="text-gray-600 mt-1">Update your email address with OTP verification</p>
+          </div>
 
         <!-- Step Indicator -->
         <div class="mb-8">
@@ -37,13 +54,16 @@
               <!-- Current Email -->
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Current Email Address</label>
-                <input type="email" value="<%= user.email %>" readonly class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+                <input type="email" value="<%= user.email %>" readonly
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
               </div>
 
               <!-- New Email -->
               <div class="mb-6">
                 <label for="newEmail" class="block text-sm font-medium text-gray-700 mb-2">New Email Address *</label>
-                <input type="email" id="newEmail" name="newEmail" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Enter your new email address">
+                <input type="email" id="newEmail" name="newEmail" required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  placeholder="Enter your new email address">
                 <p class="text-sm text-gray-500 mt-1">We'll send a verification code to this email</p>
               </div>
 
@@ -52,7 +72,7 @@
                 <button type="submit" id="sendOtpBtn" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
                   <i class="bi bi-send"></i> Send Verification Code
                 </button>
-                <a href="/personal-info" class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                <a href="/user/personal-info" class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">
                   <i class="bi bi-x-circle"></i> Cancel
                 </a>
               </div>
@@ -87,7 +107,7 @@
               <!-- Resend OTP -->
               <div class="mb-6 text-center">
                 <p class="text-sm text-gray-600">
-                  Didn't receive the code?
+                  Didn't receive the code? 
                   <button type="button" id="resendOtpBtn" class="text-blue-600 hover:text-blue-700 font-medium">
                     Resend Code
                   </button>
@@ -114,277 +134,13 @@
             </div>
             <h3 class="text-2xl font-semibold text-gray-900 mb-2">Email Updated Successfully!</h3>
             <p class="text-gray-600 mb-6">Your email address has been changed successfully.</p>
-            <a href="/personal-info" class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+            <a href="/user/personal-info" class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
               Back to Personal Info
             </a>
           </div>
         </div>
+        <% } %>
       </div>
     </div>
   </div>
 </div>
-
-<script>
-  let newEmailValue = '';
-  let otpTimer = null;
-  let timeLeft = 60;
-
-  // Step 1: Send OTP
-  document.getElementById('emailForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const newEmail = document.getElementById('newEmail').value.trim();
-    const submitButton = document.getElementById('sendOtpBtn');
-    submitButton.disabled = true;
-    submitButton.textContent = "Sending....";
-    try {
-      const oldEmail = '<%= user.email %>';
-      const response = await axios.post('/edit-email', {
-        newEmail,
-        oldEmail
-      });
-      if (response.data.success) {
-        Toastify({
-          text: response.data.message,
-          duration: 1000,
-          gravity: "top",
-          position: "right",
-          style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
-          },
-        }).showToast();
-
-        showStep2(newEmail);
-      }
-    } catch (error) {
-      Toastify({
-        text: error.response?.data?.message || "Change password failed",
-        duration: 2000,
-        gravity: "top",
-        position: "right",
-        style: {
-          background: "#e74c3c",
-        },
-      }).showToast();
-    } finally {
-      submitButton.disabled = false;
-      submitButton.innerHTML = `<i class="bi bi-send"></i> Send Verification Code`;
-    }
-  });
-
-  // Show Step 2 (OTP Verification)
-  function showStep2(email) {
-    document.getElementById('step1-form').classList.add('hidden');
-    document.getElementById('step2-form').classList.remove('hidden');
-    document.getElementById('sentToEmail').textContent = email;
-
-    // Update step indicators
-    document.getElementById('step1-indicator').classList.remove('bg-blue-600', 'text-white');
-    document.getElementById('step1-indicator').classList.add('bg-green-600', 'text-white');
-    document.getElementById('step1-indicator').innerHTML = '<i class="bi bi-check text-lg"></i>';
-    document.getElementById('step1-text').classList.remove('text-blue-600');
-    document.getElementById('step1-text').classList.add('text-green-600');
-
-    document.getElementById('step-line').classList.remove('bg-gray-300');
-    document.getElementById('step-line').classList.add('bg-blue-600');
-
-    document.getElementById('step2-indicator').classList.remove('bg-gray-300', 'text-gray-600');
-    document.getElementById('step2-indicator').classList.add('bg-blue-600', 'text-white');
-    document.getElementById('step2-text').classList.remove('text-gray-400');
-    document.getElementById('step2-text').classList.add('text-blue-600');
-
-    // Focus first OTP input
-    document.querySelector('.otp-input').focus();
-
-    // Start timer
-    startTimer();
-  }
-
-  // OTP Input Handling
-  const otpInputs = document.querySelectorAll('.otp-input');
-
-  otpInputs.forEach((input, index) => {
-    input.addEventListener('input', function(e) {
-      const value = e.target.value;
-
-      // Only allow numbers
-      if (!/^\d*$/.test(value)) {
-        e.target.value = '';
-        return;
-      }
-
-      // Move to next input
-      if (value && index < otpInputs.length - 1) {
-        otpInputs[index + 1].focus();
-      }
-    });
-
-    input.addEventListener('keydown', function(e) {
-      // Move to previous on backspace
-      if (e.key === 'Backspace' && !e.target.value && index > 0) {
-        otpInputs[index - 1].focus();
-      }
-    });
-
-    // Handle paste
-    input.addEventListener('paste', function(e) {
-      e.preventDefault();
-      const pastedData = e.clipboardData.getData('text').slice(0, 6);
-
-      if (/^\d+$/.test(pastedData)) {
-        pastedData.split('').forEach((char, i) => {
-          if (otpInputs[i]) {
-            otpInputs[i].value = char;
-          }
-        });
-        otpInputs[Math.min(pastedData.length, 5)].focus();
-      }
-    });
-  });
-
-  // Verify OTP
-  document.getElementById('otpForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const otp = Array.from(otpInputs).map(input => input.value).join('');
-    const submitButton = document.getElementById('verifyOtpBtn');
-    submitButton.disabled = true;
-    submitButton.textContent = "Verifying OTP...";
-    try {
-      const response = await axios.post("/edit-email/otp", {
-        otp
-      });
-
-      if (response.data.success) {
-        Toastify({
-          text: response.data.message,
-          duration: 2000,
-          gravity: "top",
-          position: "right",
-          style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
-          },
-        }).showToast();
-        showSuccess();
-      }
-
-    } catch (error) {
-      Toastify({
-        text: error.response?.data?.message || "Something went wrong",
-        duration: 2000,
-        gravity: "top",
-        position: "right",
-        style: {
-          background: "#e74c3c",
-        },
-      }).showToast();
-    }finally {
-      submitButton.disabled = false;
-      submitButton.innerHTML = `<i class="bi bi-check-circle"></i> Verify & Update Email`;
-    }
-  });
-
-  // Resend OTP
-  document.getElementById('resendOtpBtn').addEventListener('click',async function() {
-    if (timeLeft > 0) {
-      return;
-    }
-    otpInputs.forEach(input => input.value = '');
-    otpInputs[0].focus();
-
-    // Restart timer
-    startTimer();
-
-    try {
-      const response = await axios.post("/edit-email/resend-otp");
-
-      if (response.data.success) {
-        Toastify({
-          text: response.data.message,
-          duration: 2000,
-          gravity: "top",
-          position: "right",
-          style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
-          },
-        }).showToast();
-      }
-
-    } catch (error) {
-      Toastify({
-        text: error.response?.data?.message || "Something went wrong",
-        duration: 2000,
-        gravity: "top",
-        position: "right",
-        style: {
-          background: "#e74c3c",
-        },
-      }).showToast();
-    }
-  });
-
-  // Back Button
-  document.getElementById('backBtn').addEventListener('click', function() {
-    document.getElementById('step2-form').classList.add('hidden');
-    document.getElementById('step1-form').classList.remove('hidden');
-
-    // Reset step indicators
-    document.getElementById('step1-indicator').classList.add('bg-blue-600', 'text-white');
-    document.getElementById('step1-indicator').classList.remove('bg-green-600');
-    document.getElementById('step1-indicator').textContent = '1';
-    document.getElementById('step1-text').classList.add('text-blue-600');
-    document.getElementById('step1-text').classList.remove('text-green-600');
-
-    document.getElementById('step-line').classList.add('bg-gray-300');
-    document.getElementById('step-line').classList.remove('bg-blue-600');
-
-    document.getElementById('step2-indicator').classList.add('bg-gray-300', 'text-gray-600');
-    document.getElementById('step2-indicator').classList.remove('bg-blue-600', 'text-white');
-    document.getElementById('step2-text').classList.add('text-gray-400');
-    document.getElementById('step2-text').classList.remove('text-blue-600');
-
-    // Clear timer
-    if (otpTimer) {
-      clearInterval(otpTimer);
-    }
-
-    // Clear OTP inputs
-    otpInputs.forEach(input => input.value = '');
-  });
-
-  // Show Success Message
-  function showSuccess() {
-    document.getElementById('step2-form').classList.add('hidden');
-    document.getElementById('successMessage').classList.remove('hidden');
-
-    if (otpTimer) {
-      clearInterval(otpTimer);
-    }
-  }
-
-  // Timer for Resend OTP
-  function startTimer() {
-    timeLeft = 30;
-    const resendBtn = document.getElementById('resendOtpBtn');
-    const timerDisplay = document.getElementById('timer');
-
-    resendBtn.disabled = true;
-    resendBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
-    if (otpTimer) {
-      clearInterval(otpTimer);
-    }
-
-    otpTimer = setInterval(function() {
-      timeLeft--;
-      timerDisplay.textContent = `Resend code in ${timeLeft}s`;
-
-      if (timeLeft <= 0) {
-        clearInterval(otpTimer);
-        resendBtn.disabled = false;
-        resendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        timerDisplay.textContent = '';
-      }
-    }, 1000);
-  }
-</script>

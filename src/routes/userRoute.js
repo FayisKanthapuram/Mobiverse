@@ -4,10 +4,12 @@ const router = express.Router();
 import passport from "passport";
 
 import {
-  loadPersonalInfo,
   loadShop,
   loadHome,
   loadProductDetails,
+} from "../controllers/user/userController.js";
+import {
+  loadPersonalInfo,
   loadEditInfo,
   loadEditEmail,
   editInfo,
@@ -15,7 +17,8 @@ import {
   editEmail,
   sendOtpToEditEmail,
   reSendOtpToEditEmail,
-} from "../controllers/user/userController.js";
+  updatePassword,
+} from "../controllers/user/profileController.js";
 import {
   loadSignUp,
   registerUser,
@@ -31,6 +34,7 @@ import {
   verifyRecoverOtp,
   loadRecoverOtp,
   saveNewPassword,
+  logOutUser,
 } from "../controllers/user/authController.js";
 import {
   isBlocked,
@@ -74,8 +78,12 @@ router.get(
   googleLogin
 );
 
+//home
 router.get("/home", isBlocked, loadHome);
 router.get("/shop", isBlocked, loadShop);
+router.get("/product/:variantId", loadProductDetails);
+
+//profile
 router.get("/personal-info", requireLogin, isBlocked, loadPersonalInfo);
 router.get("/edit-info", requireLogin, isBlocked, loadEditInfo);
 router.patch("/edit-info", upload.user.single("profilePicture"), editInfo);
@@ -84,7 +92,9 @@ router.post("/edit-email", editEmail);
 router.post("/edit-email/otp", sendOtpToEditEmail);
 router.post("/edit-email/resend-otp", reSendOtpToEditEmail);
 router.get("/change-password", requireLogin, isBlocked, loadChangePassword);
+router.post('/update-password',updatePassword);
 
-router.get("/product/:variantId", loadProductDetails);
+//logout
+router.post('/logout',logOutUser)
 
 export default router;
