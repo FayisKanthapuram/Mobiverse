@@ -107,9 +107,7 @@ export const loadVerifyOtp = (req, res) => {
 
 export const verifyOtp = async (req, res) => {
   try {
-    console.log("hello");
     const { otp } = req.body;
-    console.log(otp, "registered");
     if (!req.session.otp || !req.session.tempUser) {
       return res.status(401).json({
         success: false,

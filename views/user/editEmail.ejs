@@ -114,7 +114,7 @@
             </div>
             <h3 class="text-2xl font-semibold text-gray-900 mb-2">Email Updated Successfully!</h3>
             <p class="text-gray-600 mb-6">Your email address has been changed successfully.</p>
-            <a href="/user/personal-info" class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+            <a href="/personal-info" class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
               Back to Personal Info
             </a>
           </div>
@@ -136,10 +136,10 @@
     const newEmail = document.getElementById('newEmail').value.trim();
     const submitButton = document.getElementById('sendOtpBtn');
     submitButton.disabled = true;
-    submitButton.textContent = "Sending";
+    submitButton.textContent = "Sending....";
     try {
       const oldEmail = '<%= user.email %>';
-      const response = await axios.patch('/change-email', {
+      const response = await axios.post('/edit-email', {
         newEmail,
         oldEmail
       });
@@ -154,26 +154,22 @@
           },
         }).showToast();
 
-        setTimeout(() => {
-          window.location.href = response.data.redirect;
-        }, 1200);
+        showStep2(newEmail);
       }
     } catch (error) {
-
+      Toastify({
+        text: error.response?.data?.message || "Change password failed",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: {
+          background: "#e74c3c",
+        },
+      }).showToast();
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Sign Up";
+      submitButton.disabled = false;
+      submitButton.innerHTML = `<i class="bi bi-send"></i> Send Verification Code`;
     }
-
-    // TODO: Make API call to send OTP
-    // fetch('/api/user/send-email-otp', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ newEmail: newEmail })
-    // })
-
-    // For now, simulate success
-    showStep2(newEmail);
   });
 
   // Show Step 2 (OTP Verification)
@@ -247,48 +243,84 @@
   });
 
   // Verify OTP
-  document.getElementById('otpForm').addEventListener('submit', function(e) {
+  document.getElementById('otpForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const otp = Array.from(otpInputs).map(input => input.value).join('');
+    const submitButton = document.getElementById('verifyOtpBtn');
+    submitButton.disabled = true;
+    submitButton.textContent = "Verifying OTP...";
+    try {
+      const response = await axios.post("/edit-email/otp", {
+        otp
+      });
 
-    if (otp.length !== 6) {
-      alert('Please enter the complete 6-digit code');
-      return;
+      if (response.data.success) {
+        Toastify({
+          text: response.data.message,
+          duration: 2000,
+          gravity: "top",
+          position: "right",
+          style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+          },
+        }).showToast();
+        showSuccess();
+      }
+
+    } catch (error) {
+      Toastify({
+        text: error.response?.data?.message || "Something went wrong",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: {
+          background: "#e74c3c",
+        },
+      }).showToast();
+    }finally {
+      submitButton.disabled = false;
+      submitButton.innerHTML = `<i class="bi bi-check-circle"></i> Verify & Update Email`;
     }
-
-    // TODO: Make API call to verify OTP and update email
-    // fetch('/api/user/verify-email-otp', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ newEmail: newEmailValue, otp: otp })
-    // })
-
-    // For now, simulate success
-    showSuccess();
   });
 
   // Resend OTP
-  document.getElementById('resendOtpBtn').addEventListener('click', function() {
+  document.getElementById('resendOtpBtn').addEventListener('click',async function() {
     if (timeLeft > 0) {
       return;
     }
-
-    // TODO: Make API call to resend OTP
-    // fetch('/api/user/send-email-otp', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ newEmail: newEmailValue })
-    // })
-
-    // Clear OTP inputs
     otpInputs.forEach(input => input.value = '');
     otpInputs[0].focus();
 
     // Restart timer
     startTimer();
 
-    alert('Verification code has been resent!');
+    try {
+      const response = await axios.post("/edit-email/resend-otp");
+
+      if (response.data.success) {
+        Toastify({
+          text: response.data.message,
+          duration: 2000,
+          gravity: "top",
+          position: "right",
+          style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+          },
+        }).showToast();
+      }
+
+    } catch (error) {
+      Toastify({
+        text: error.response?.data?.message || "Something went wrong",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: {
+          background: "#e74c3c",
+        },
+      }).showToast();
+    }
   });
 
   // Back Button
@@ -332,7 +364,7 @@
 
   // Timer for Resend OTP
   function startTimer() {
-    timeLeft = 60;
+    timeLeft = 30;
     const resendBtn = document.getElementById('resendOtpBtn');
     const timerDisplay = document.getElementById('timer');
 
@@ -354,11 +386,5 @@
         timerDisplay.textContent = '';
       }
     }, 1000);
-  }
-
-  // Email validation
-  function isValidEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
   }
 </script>
