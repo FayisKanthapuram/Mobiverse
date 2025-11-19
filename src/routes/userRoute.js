@@ -45,6 +45,13 @@ import {
   requireLogin,
 } from "../middlewares/userAuth.js";
 import upload from "../middlewares/upload.js";
+import {
+  addAddress,
+  deleteAddress,
+  editAddress,
+  loadManageAddress,
+  setDefaultAddress,
+} from "../controllers/user/addressController.js";
 
 router.use(setLayout("user"));
 
@@ -92,9 +99,16 @@ router.post("/edit-email", editEmail);
 router.post("/edit-email/otp", sendOtpToEditEmail);
 router.post("/edit-email/resend-otp", reSendOtpToEditEmail);
 router.get("/change-password", requireLogin, isBlocked, loadChangePassword);
-router.post('/update-password',updatePassword);
+router.post("/update-password", updatePassword);
+
+//address
+router.get("/address", loadManageAddress);
+router.post("/address", addAddress);
+router.put("/address/:addressId", editAddress);
+router.patch('/address/:addressId/set-default',setDefaultAddress);
+router.delete('/address/:addressId',deleteAddress);
 
 //logout
-router.post('/logout',logOutUser)
+router.post("/logout", logOutUser);
 
 export default router;

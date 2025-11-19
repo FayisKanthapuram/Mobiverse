@@ -84,7 +84,7 @@ export const editInfo = async (req, res) => {
 export const loadEditEmail = async (req, res) => {
   try {
     const user = await userModel.findById(req.session.user);
-    res.render("user/editEmail", { pageTitle: "Personal Information", user });
+    res.render("user/editEmail", { pageTitle: "Personal Information", user ,pageJs:'editEmail'});
   } catch (error) {
     console.error("Error fetching edit Email", error);
     res.status(500).render("error", {
