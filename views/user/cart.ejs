@@ -1,0 +1,202 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Cart Items Section -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <% if (cart && cart.items && cart.items.length > 0) { %>
+          <!-- Cart Items List -->
+          <div class="divide-y divide-gray-100">
+            <% cart.items.forEach(function(item) { %>
+            <div class="p-6 hover:bg-gray-50 transition-colors">
+              <div class="flex gap-4">
+                <!-- Product Image -->
+                <div class="w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
+                  <img src="<%= item.variantId.images[0] %>" alt="<%= item.productId.name %>" class="w-full h-full object-contain" />
+                </div>
+
+                <!-- Product Details -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between items-start mb-2">
+                    <div class="flex-1 pr-4">
+                      <a href="/product/<%= item.variantId._id %>" class="text-lg font-semibold text-gray-900 mb-1 line-clamp-2 hover:underline">
+                        <%= item.productId.name %>
+                      </a>
+                      <div class="flex flex-wrap gap-2 text-xs text-gray-600">
+                        <% if (item.variantId.colour) { %>
+                        <span class="px-2 py-1 bg-gray-100 rounded">
+                          <i class="bi bi-palette"></i> <%= item.variantId.colour %>
+                        </span>
+                        <% } %>
+                        <% if (item.variantId.ram) { %>
+                        <span class="px-2 py-1 bg-gray-100 rounded">
+                          <i class="bi bi-memory"></i> <%= item.variantId.ram %>
+                        </span>
+                        <% } %>
+                        <% if (item.variantId.storage) { %>
+                        <span class="px-2 py-1 bg-gray-100 rounded">
+                          <i class="bi bi-device-hdd"></i> <%= item.variantId.storage %>
+                        </span>
+                        <% } %>
+                      </div>
+                    </div>
+                    <!-- Remove Button -->
+                    <button onclick="removeFromCart('<%= item._id %>')" class="text-gray-400 hover:text-red-500 transition-colors p-1" title="Remove">
+                      <i class="bi bi-trash text-lg"></i>
+                    </button>
+                  </div>
+
+                  <!-- Price and Quantity -->
+                  <div class="flex items-center justify-between mt-4">
+                    <!-- Quantity Controls -->
+                    <div class="flex items-center gap-3">
+
+                      <!-- Decrease -->
+                      <button class="qty-btn w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors <%= item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : '' %>" data-item-id="<%= item._id %>" data-new-qty="<%= item.quantity - 1 %>" <%= item.quantity <= 1 ? 'disabled' : '' %>>
+                        <i class="bi bi-dash text-gray-600"></i>
+                      </button>
+
+                      <span id="qty-<%= item._id %>" class="text-gray-900 font-semibold w-8 text-center">
+                        <%= item.quantity %>
+                      </span>
+
+                      <!-- Increase -->
+                      <button class="qty-btn w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors <%= item.quantity >= item.variantId.stock ? 'opacity-50 cursor-not-allowed' : '' %>" data-item-id="<%= item._id %>" data-new-qty="<%= item.quantity + 1 %>" <%= item.quantity >= item.variantId.stock ? 'disabled' : '' %>>
+                        <i class="bi bi-plus text-gray-600"></i>
+                      </button>
+
+                    </div>
+
+                    <!-- Price -->
+                    <div class="text-right">
+                      <p id="price-<%= item._id %>" class="text-xl font-bold text-gray-900">
+                        ₹<%= (item.variantId.salePrice * item.quantity).toLocaleString('en-IN') %>
+                      </p>
+                      <% if (item.variantId.regularPrice > item.variantId.salePrice) { %>
+                      <p id="regPrice-<%= item._id %>" class="text-sm text-gray-500">
+                        <del>₹<%= (item.variantId.regularPrice * item.quantity).toLocaleString('en-IN') %></del>
+                      </p>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <!-- Stock Status -->
+                  <% if (item.quantity >= item.variantId.stock) { %>
+                  <p class="text-xs text-orange-600 mt-2">
+                    <i class="bi bi-exclamation-triangle"></i> Maximum stock reached
+                  </p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+            <% }); %>
+          </div>
+          <% } else { %>
+          <!-- Empty Cart -->
+          <div class="text-center py-16">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="bi bi-cart-x text-5xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">Your Cart is Empty</h3>
+            <p class="text-gray-600 mb-6">Add products to your cart to see them here</p>
+            <a href="/products" class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+              Continue Shopping
+            </a>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Order Summary Section -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
+          <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+
+          <!-- Price Details -->
+          <div class="space-y-4 mb-6">
+            <div class="flex justify-between text-gray-700">
+              <span>Subtotal (<%= cart?.items?.length || 0 %> items)</span>
+              <span id="subtotal" class="font-semibold">
+                ₹<%= (cart?.subtotal || 0).toLocaleString('en-IN') %>
+              </span>
+            </div>
+
+            <% if (cart?.discount > 0) { %>
+            <div class="flex justify-between text-green-600">
+              <span>Discount</span>
+              <span class="font-semibold" id="discount">-₹<%= (cart.discount).toLocaleString('en-IN') %></span>
+            </div>
+            <% } %>
+
+            <div class="flex justify-between text-gray-700">
+              <span>Delivery Charges</span>
+              <% if (cart?.deliveryCharge === 0) { %>
+              <span class="font-semibold text-green-600">FREE</span>
+              <% } else { %>
+              <span class="font-semibold">₹<%= (cart?.deliveryCharge || 0).toLocaleString('en-IN') %></span>
+              <% } %>
+            </div>
+
+            <% if (cart?.tax > 0) { %>
+            <div class="flex justify-between text-gray-700">
+              <span>Tax</span>
+              <span class="font-semibold">₹<%= (cart.tax).toLocaleString('en-IN') %></span>
+            </div>
+            <% } %>
+
+            <div class="pt-4 border-t border-gray-200">
+              <div class="flex justify-between text-gray-900">
+                <span class="text-lg font-bold">Total Amount</span>
+                <span id="total" class="text-2xl font-bold">₹<%= (cart?.subtotal+cart?.tax || 0).toLocaleString('en-IN') %></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Savings Display -->
+          <% if (cart?.discount > 0) { %>
+          <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-6">
+            <p class="text-green-700 text-sm font-medium text-center">
+              <i class="bi bi-tag-fill"></i> You're saving ₹
+              <span id="savings">
+                <%= cart.discount.toLocaleString('en-IN') %>
+              </span>
+              on this order!
+            </p>
+          </div>
+          <% } %>
+
+          <!-- Checkout Button -->
+          <% if (cart && cart.items && cart.items.length > 0) { %>
+          <a href="/checkout" class="block w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-4 rounded-xl text-center shadow-md hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] transition-all mb-3">
+            Proceed to Checkout
+            <i class="bi bi-arrow-right ml-2"></i>
+          </a>
+          <a href="/shop" class="block w-full bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl text-center hover:bg-gray-200 transition-colors">
+            Continue Shopping
+          </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products Section -->
+    <% if (relatedProducts && relatedProducts.length > 0) { %>
+    <div class="mt-16">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">You May Also Like</h2>
+        <a href="/shop" class="text-blue-600 hover:text-blue-700 font-semibold text-sm">
+          View All <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <% relatedProducts.forEach(function(product) { %>
+        <%- include('../partials/user/_productGridCard', { product: product }) %>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</div>

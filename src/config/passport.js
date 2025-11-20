@@ -32,7 +32,6 @@ passport.use(
           // If user exists but doesn't have Google linked yet
           if (!user.googleId) {
             user.googleId = profile.id;
-            user.isVerified = true;
             user.avatar=profile.photos?.[0]?.value || null;
             await user.save();
           }
@@ -44,7 +43,6 @@ passport.use(
             email: email,
             googleId: profile.id,
             avatar: profile.photos?.[0]?.value || null, // optional: save profile pic
-            isVerified: true,
           });
           await newUser.save();
           return done(null, newUser);

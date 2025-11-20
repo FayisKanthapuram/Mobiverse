@@ -214,7 +214,7 @@ export const googleLogin = (req, res) => {
     }
 
     req.session.user = req.user._id;
-    return res.redirect("/home");
+    return res.redirect("/home?message=login-success");
   } catch (err) {
     console.log(err);
     return res.redirect("/signup");

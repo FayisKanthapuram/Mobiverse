@@ -6,20 +6,9 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
   try {
     const response = await axios.post("/login", { email, password });
-
+    console.log(response);
     if (response.data.success) {
-      Toastify({
-        text: response.data.message,
-        duration: 500,
-        gravity: "top",
-        position: "right",
-        style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
-        },
-      }).showToast();
-      setTimeout(() => {
-        window.location.href = response.data.redirect;
-      }, 600);
+      window.location.href = '/home?message=login-success';
     }
   } catch (error) {
     Toastify({

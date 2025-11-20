@@ -47,6 +47,7 @@ export const loadHome = async (req, res) => {
                   $and: [
                     { $eq: ["$productId", "$$productId"] },
                     { $eq: ["$isListed", true] },
+                    { $gte: ["$stock", 1] },
                   ],
                 },
               },
@@ -101,6 +102,7 @@ export const loadHome = async (req, res) => {
                   $and: [
                     { $eq: ["$productId", "$$productId"] },
                     { $eq: ["$isListed", true] },
+                    { $gte: ["$stock", 1] },
                   ],
                 },
               },
@@ -208,6 +210,7 @@ export const loadShop = async (req, res) => {
                   $and: [
                     { $eq: ["$productId", "$$productId"] },
                     { $eq: ["$isListed", true] },
+                    { $gte: ["$stock", 1] },
                   ],
                 },
               },
@@ -269,8 +272,6 @@ export const loadShop = async (req, res) => {
     console.log(error);
   }
 };
-
-
 
 export const loadProductDetails = async (req, res) => {
   try {
@@ -355,6 +356,7 @@ export const loadProductDetails = async (req, res) => {
                   $and: [
                     { $eq: ["$productId", "$$productId"] },
                     { $eq: ["$isListed", true] },
+                    { $gte: ["$stock", 1] },
                   ],
                 },
               },
@@ -421,6 +423,7 @@ export const loadProductDetails = async (req, res) => {
       selectedVariant,
       colorGroups,
       pageTitle: product.name,
+      pageJs:'productDetails',
       relatedProducts,
       reviews,
       breadcrumbs: [

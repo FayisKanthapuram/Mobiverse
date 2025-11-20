@@ -120,7 +120,7 @@
         <% if (selectedVariant.stock === 0) { %>
         <button class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-medium cursor-not-allowed">Notify Me</button>
         <% } else { %>
-        <button class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">Add to Cart</button>
+        <button onclick="event.preventDefault(); addToCart('<%= selectedVariant?._id %>')" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">Add to Cart</button>
         <% } %>
 
         <button class="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50">

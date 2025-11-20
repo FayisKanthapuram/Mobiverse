@@ -96,16 +96,24 @@ export const editAddress = async (req, res) => {
     }
 
     let updatedAddress = { ...req.body, userId: user._id };
-    console.log(updatedAddress);
     if (req.body.setDefault) {
       await addressModel.updateMany(
         { userId: user._id },
         { $set: { setDefault: false } }
       );
     } else if (address.setDefault) {
-      updatedAddress.setDefault = true;
+      const anotherAddress = await addressModel.findOne({
+        userId: user._id,
+        _id: { $ne: addressId },
+      });
+
+      if (anotherAddress) {
+        await addressModel.updateOne(
+          { _id: anotherAddress._id },
+          { $set: { setDefault: true } }
+        );
+      }
     }
-    console.log(updatedAddress);
 
     await addressModel.findByIdAndUpdate(
       addressId,
@@ -167,7 +175,7 @@ export const deleteAddress = async (req, res) => {
     if (address.setDefault) {
       const anotherAddress = await addressModel.findOne({
         userId,
-        _id: { $ne: addressId }
+        _id: { $ne: addressId },
       });
 
       if (anotherAddress) {
@@ -184,7 +192,6 @@ export const deleteAddress = async (req, res) => {
       success: true,
       message: "Address deleted successfully",
     });
-
   } catch (error) {
     return res.status(500).json({
       success: false,

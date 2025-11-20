@@ -82,7 +82,7 @@ document
     const currentPassword = document.getElementById("currentPassword").value;
     const newPassword = document.getElementById("newPassword").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
-    const userId=e.target.dataset.userId;
+    const userId = e.target.dataset.userId;
     console.log(userId);
 
     try {
@@ -90,7 +90,7 @@ document
         currentPassword,
         newPassword,
         confirmPassword,
-        userId
+        userId,
       });
 
       if (response.data.success) {

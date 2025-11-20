@@ -17,18 +17,46 @@
           onclick="event.stopPropagation(); event.preventDefault(); addToWishlist('<%= product?.variants?._id %>')">
           <i class="bi bi-heart text-lg"></i>
         </button>
+
+        <!-- Discount Badge -->
+        <% if (product?.variants?.regularPrice && product?.variants?.salePrice < product?.variants?.regularPrice) { 
+          const discountPercent = Math.round(((product.variants.regularPrice - product.variants.salePrice) / product.variants.regularPrice) * 100);
+        %>
+          <div class="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
+            <%= discountPercent %>% OFF
+          </div>
+        <% } %>
       </div>
 
       <!-- Product Info -->
-      <div class="p-4 flex flex-col justify-between h-[180px]">
+      <div class="p-4 flex flex-col h-[280px]">
 
         <!-- Product Name -->
-        <h3 class="text-base font-medium text-gray-800 truncate leading-snug mb-2">
+        <h3 class="text-base font-medium text-gray-800 line-clamp-2 leading-snug mb-2 min-h-[2.5rem]">
           <%= product.name %>
         </h3>
 
+        <!-- Variants (Color, RAM, Storage) -->
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <% if (product?.variants?.colour) { %>
+            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+              <i class="bi bi-palette"></i> <%= product.variants.colour %>
+            </span>
+          <% } %>
+          <% if (product?.variants?.ram) { %>
+            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+              <i class="bi bi-memory"></i> <%= product.variants.ram %>
+            </span>
+          <% } %>
+          <% if (product?.variants?.storage) { %>
+            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+              <i class="bi bi-device-hdd"></i> <%= product.variants.storage %>
+            </span>
+          <% } %>
+        </div>
+
         <!-- Rating -->
-        <div class="flex items-center space-x-1 mb-2">
+        <div class="flex items-center space-x-1 mb-3">
           <% 
             const fullStars = Math.floor(product?.variants?.rating || 0);
             const halfStar = (product?.variants?.rating % 1) >= 0.5;
@@ -48,23 +76,55 @@
 
         <!-- Price -->
         <div class="mb-3">
-          <p class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            ₹<%= product?.variants?.salePrice?.toLocaleString('en-IN') %>
-            <% if (product?.variants?.regularPrice) { %>
+          <div class="flex items-center gap-2 flex-wrap">
+            <p class="text-xl font-bold text-gray-900">
+              ₹<%= product?.variants?.salePrice?.toLocaleString('en-IN') %>
+            </p>
+            <% if (product?.variants?.regularPrice && product?.variants?.salePrice < product?.variants?.regularPrice) { %>
               <del class="text-gray-400 text-sm">
                 ₹<%= product?.variants?.regularPrice?.toLocaleString('en-IN') %>
               </del>
             <% } %>
-          </p>
+          </div>
         </div>
 
-        <!-- Add to Cart Button -->
-        <button 
-          type="button" 
-          class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-2.5 rounded-lg text-sm shadow-md hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] transition-all"
-          onclick="event.preventDefault(); addToCart('<%= product?.variants?._id %>')">
-          Add to Cart
-        </button>
+        <!-- Spacer to push button to bottom -->
+        <div class="flex-grow"></div>
+
+        <!-- Stock Status / Button Container -->
+        <div class="mt-auto">
+          <!-- Stock Status -->
+          <% if (product?.variants?.stock > 0 && product?.variants?.stock < 10) { %>
+            <div class="mb-2">
+              <span class="text-xs text-orange-600 font-semibold">
+                <i class="bi bi-exclamation-triangle"></i> Only <%= product.variants.stock %> left!
+              </span>
+            </div>
+          <% } else if (product?.variants?.stock <= 0) { %>
+            <div class="mb-2">
+              <span class="text-xs text-red-600 font-semibold">
+                <i class="bi bi-exclamation-circle"></i> Out of Stock
+              </span>
+            </div>
+          <% } %>
+
+          <!-- Add to Cart Button -->
+          <% if (product?.variants?.stock > 0) { %>
+            <button 
+              type="button" 
+              class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-2.5 rounded-lg text-sm shadow-md hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] transition-all"
+              onclick="event.preventDefault(); addToCart('<%= product?.variants?._id %>')">
+              <i class="bi bi-cart-plus"></i> Add to Cart
+            </button>
+          <% } else { %>
+            <button 
+              type="button" 
+              class="w-full bg-gray-300 text-gray-600 font-semibold py-2.5 rounded-lg text-sm cursor-not-allowed"
+              disabled>
+              <i class="bi bi-x-circle"></i> Out of Stock
+            </button>
+          <% } %>
+        </div>
       </div>
     </div>
   </a>
