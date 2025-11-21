@@ -5,133 +5,69 @@ import cartModel from "../../models/cartModel.js";
 import productModel from "../../models/productModel.js";
 import variantModel from "../../models/variantModel.js";
 import { addToCartSchema } from "../../validators/cartValidator.js";
+import { calculateCartTotals, getCartItems } from "../../services/cartServices.js";
 
 export const loadCart = async (req, res) => {
-  const relatedProducts = await productModel.aggregate([
-    {
-      $lookup: {
-        from: "brands",
-        foreignField: "_id",
-        localField: "brandID",
-        as: "brands",
-      },
-    },
-    {
-      $unwind: "$brands",
-    },
-    {
-      $match: {
-        "brands.isListed": true,
-        isListed: true,
-      },
-    },
-    {
-      $lookup: {
-        from: "variants",
-        let: { productId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$productId", "$$productId"] },
-                  { $eq: ["$isListed", true] },
-                  { $gte: ["$stock", 1] },
-                ],
-              },
-            },
-          },
-          {
-            $sort: { salePrice: 1 },
-          },
-          {
-            $limit: 1,
-          },
-        ],
-        as: "variants",
-      },
-    },
-    {
-      $unwind: "$variants",
-    },
-    {
-      $limit: 5,
-    },
-  ]);
   try {
-    let items = await cartModel.aggregate([
+    const relatedProducts = await productModel.aggregate([
+      {
+        $lookup: {
+          from: "brands",
+          foreignField: "_id",
+          localField: "brandID",
+          as: "brands",
+        },
+      },
+      {
+        $unwind: "$brands",
+      },
       {
         $match: {
-          userId: new mongoose.Types.ObjectId(req.session.user),
+          "brands.isListed": true,
+          isListed: true,
         },
       },
       {
         $lookup: {
           from: "variants",
-          localField: "variantId",
-          foreignField: "_id",
-          as: "variantId",
+          let: { productId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$productId", "$$productId"] },
+                    { $eq: ["$isListed", true] },
+                    { $gte: ["$stock", 1] },
+                  ],
+                },
+              },
+            },
+            {
+              $sort: { salePrice: 1 },
+            },
+            {
+              $limit: 1,
+            },
+          ],
+          as: "variants",
         },
       },
-      { $unwind: "$variantId" },
-
-      // Only active variants
-      { $match: { "variantId.isListed": true } },
       {
-        $lookup: {
-          from: "products",
-          localField: "productId",
-          foreignField: "_id",
-          as: "productId",
-        },
+        $unwind: "$variants",
       },
-      { $unwind: "$productId" },
-
-      // Only active products
-      { $match: { "productId.isListed": true } },
       {
-        $lookup: {
-          from: "brands",
-          localField: "productId.brandID",
-          foreignField: "_id",
-          as: "brand",
-        },
+        $limit: 5,
       },
-      { $unwind: "$brand" },
-
-      // Only active brands
-      { $match: { "brand.isListed": true } },
     ]);
+    const items = await getCartItems(req.session.user);
 
-    let subtotal = 0;
-    let discount = 0;
-    let tax = 0;
-
-    for (let item of items) {
-      if (item.quantity > item.variantId.stock&&item.variantId.stock!==0) {
-        item.quantity = 1;
-        item.adjusted = true; 
-        await cartModel.updateOne({ _id: item._id }, { $set: { quantity: 1 } });
-      } else {
-        item.adjusted = false; 
-      }
-      subtotal += item.variantId.salePrice * item.quantity;
-      if (item?.variantId?.regularPrice) {
-        discount +=
-          (item.variantId.regularPrice - item.variantId.salePrice) *
-          item.quantity;
-      }
-    }
+    const cartTotals = await calculateCartTotals(items);
 
     res.render("user/cart", {
       pageTitle: "Cart",
       pageJs: "cart",
-      cart: {
-        subtotal,
-        discount,
-        tax,
-        items,
-      },
+      cart: cartTotals,
       relatedProducts,
     });
   } catch (error) {
@@ -142,6 +78,12 @@ export const loadCart = async (req, res) => {
 
 export const addToCart = async (req, res) => {
   try {
+    if (!req.session.user) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: "Please log in to add products to your cart.",
+      });
+    }
     const { error } = addToCartSchema.validate(req.body);
     if (error) {
       return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({
@@ -176,18 +118,19 @@ export const addToCart = async (req, res) => {
 
     if (checkExist) {
       if (checkExist.quantity + 1 > variant.stock) {
-      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({
-        success: false,
-        message: "Product is already in the cart and has reached maximum stock, so the quantity cannot be increased.",
-      });
+        return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({
+          success: false,
+          message:
+            "Product is already in the cart and has reached maximum stock, so the quantity cannot be increased.",
+        });
       }
 
       checkExist.quantity += 1;
       await checkExist.save();
 
       return res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Product is already in the cart. Quantity has been updated",
+        success: true,
+        message: "Product is already in the cart. Quantity has been updated",
       });
     }
 

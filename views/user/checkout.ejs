@@ -1,0 +1,692 @@
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="container mx-auto px-4">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Checkout Section -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- 1. Shipping Address -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900">
+              <i class="bi bi-geo-alt text-blue-600"></i> Shipping Address
+            </h2>
+            <button 
+              onclick="openAddAddressModal()" 
+              class="text-blue-600 hover:text-blue-700 font-semibold text-sm">
+              <i class="bi bi-plus-circle"></i> Add New
+            </button>
+          </div>
+
+          <% if (addresses && addresses.length > 0) { %>
+            <div class="space-y-3">
+              <% addresses.forEach(function(address) { %>
+                <label class="block cursor-pointer">
+                  <input 
+                    type="radio" 
+                    name="selectedAddress" 
+                    value="<%= address._id || address.id %>"
+                    class="peer hidden"
+                    <%= address.isDefault ? 'checked' : '' %>
+                    onchange="selectAddress('<%= address._id || address.id %>')">
+                  <div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all hover:border-blue-300">
+                    <div class="flex items-start gap-3">
+                      <% if (address.addressType === 'home') { %>
+                        <i class="bi bi-house-door text-xl text-blue-600 mt-1"></i>
+                      <% } else if (address.addressType === 'office') { %>
+                        <i class="bi bi-briefcase text-xl text-purple-600 mt-1"></i>
+                      <% } else { %>
+                        <i class="bi bi-geo-alt text-xl text-orange-600 mt-1"></i>
+                      <% } %>
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                          <h4 class="font-semibold text-gray-900 capitalize"><%= address.addressType || 'Address' %></h4>
+                          <% if (address.isDefault) { %>
+                            <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded">Default</span>
+                          <% } %>
+                        </div>
+                        <p class="text-gray-900 font-medium"><%= address.fullName %></p>
+                        <p class="text-sm text-gray-600 mt-1">
+                          <%= address.address1 %><% if (address.address2) { %>, <%= address.address2 %><% } %><br>
+                          <%= address.city %>, <%= address.state %> - <%= address.pincode %><br>
+                          India
+                        </p>
+                        <p class="text-sm text-gray-700 mt-1">
+                          <i class="bi bi-telephone"></i> <%= address.phone %>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="text-center py-8">
+              <p class="text-gray-600 mb-4">No addresses found. Please add a shipping address.</p>
+              <button 
+                onclick="openAddAddressModal()" 
+                class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="bi bi-plus-circle"></i> Add Address
+              </button>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- 2. Payment Method -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="bi bi-credit-card text-blue-600"></i> Payment Method
+          </h2>
+
+          <div class="space-y-3">
+            <!-- Razorpay -->
+            <label class="block cursor-pointer">
+              <input 
+                type="radio" 
+                name="paymentMethod" 
+                value="razorpay"
+                class="peer hidden"
+                checked
+                onchange="selectPaymentMethod('razorpay')">
+              <div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all hover:border-blue-300">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="bi bi-credit-card-2-front text-2xl text-blue-600"></i>
+                  </div>
+                  <div class="flex-1">
+                    <h4 class="font-semibold text-gray-900">Online Payment (Razorpay)</h4>
+                    <p class="text-sm text-gray-600">Credit Card, Debit Card, UPI, Net Banking</p>
+                  </div>
+                  <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded">Secure</span>
+                </div>
+              </div>
+            </label>
+
+            <!-- Wallet -->
+            <label class="block cursor-pointer">
+              <input 
+                type="radio" 
+                name="paymentMethod" 
+                value="wallet"
+                class="peer hidden"
+                onchange="selectPaymentMethod('wallet')">
+              <div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all hover:border-blue-300">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i class="bi bi-wallet2 text-2xl text-purple-600"></i>
+                  </div>
+                  <div class="flex-1">
+                    <h4 class="font-semibold text-gray-900">Wallet</h4>
+                    <p class="text-sm text-gray-600">Available Balance: ₹<%= user.walletBalance?.toLocaleString('en-IN') || 0 %></p>
+                  </div>
+                  <% if (user.walletBalance < cart.total) { %>
+                    <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">Insufficient</span>
+                  <% } %>
+                </div>
+              </div>
+            </label>
+
+            <!-- Cash on Delivery -->
+            <label class="block cursor-pointer">
+              <input 
+                type="radio" 
+                name="paymentMethod" 
+                value="cod"
+                class="peer hidden"
+                onchange="selectPaymentMethod('cod')">
+              <div class="border-2 border-gray-200 rounded-lg p-4 peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all hover:border-blue-300">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i class="bi bi-cash-coin text-2xl text-orange-600"></i>
+                  </div>
+                  <div class="flex-1">
+                    <h4 class="font-semibold text-gray-900">Cash on Delivery</h4>
+                    <p class="text-sm text-gray-600">Pay when you receive</p>
+                  </div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. Apply Coupon -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="bi bi-tag text-blue-600"></i> Apply Coupon
+          </h2>
+
+          <div class="flex gap-3">
+            <input 
+              type="text" 
+              id="couponCode" 
+              placeholder="Enter coupon code"
+              class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all uppercase"
+              value="<%= appliedCoupon?.code || '' %>">
+            <button 
+              onclick="applyCoupon()" 
+              id="applyCouponBtn"
+              class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+              Apply
+            </button>
+          </div>
+
+          <% if (appliedCoupon) { %>
+            <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i class="bi bi-check-circle-fill text-green-600"></i>
+                <span class="text-green-700 font-medium">Coupon "<%= appliedCoupon.code %>" applied!</span>
+              </div>
+              <button onclick="removeCoupon()" class="text-red-600 hover:text-red-700">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          <% } %>
+
+          <button 
+            onclick="openCouponsModal()" 
+            class="mt-4 text-blue-600 hover:text-blue-700 font-semibold text-sm">
+            <i class="bi bi-eye"></i> View Available Coupons
+          </button>
+        </div>
+
+        <!-- 4. Order Items -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-6">
+            <i class="bi bi-box-seam text-blue-600"></i> Order Items (<%= cart.items.length %>)
+          </h2>
+
+          <div class="space-y-4">
+            <% cart.items.forEach(function(item) { %>
+              <div class="flex gap-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                  <img 
+                    src="<%= item.variantId.images[0] %>" 
+                    alt="<%= item.productId.name %>"
+                    class="w-full h-full object-contain">
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="font-semibold text-gray-900 line-clamp-1"><%= item.productId.name %></h4>
+                  <div class="flex flex-wrap gap-1.5 mt-1">
+                    <% if (item.variantId.colour) { %>
+                      <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                        <%= item.variantId.colour %>
+                      </span>
+                    <% } %>
+                    <% if (item.variantId.ram) { %>
+                      <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                        <%= item.variantId.ram %>
+                      </span>
+                    <% } %>
+                    <% if (item.variantId.storage) { %>
+                      <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                        <%= item.variantId.storage %>
+                      </span>
+                    <% } %>
+                  </div>
+                  <div class="flex justify-between items-center mt-2">
+                    <span class="text-sm text-gray-600">Qty: <%= item.quantity %></span>
+                    <span class="font-bold text-gray-900">₹<%= (item.variantId.salePrice * item.quantity).toLocaleString('en-IN') %></span>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 5. Order Summary Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
+          <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+
+          <div class="space-y-4 mb-6">
+            <div class="flex justify-between text-gray-700">
+              <span>Subtotal (<%= cart.items.length %> items)</span>
+              <span class="font-semibold">₹<%= cart.subtotal.toLocaleString('en-IN') %></span>
+            </div>
+
+            <% if (cart.discount > 0) { %>
+              <div class="flex justify-between text-green-600">
+                <span>Discount</span>
+                <span class="font-semibold">-₹<%= cart.discount.toLocaleString('en-IN') %></span>
+              </div>
+            <% } %>
+
+            <div class="flex justify-between text-gray-700">
+              <span>Delivery Charges</span>
+              <% if (cart.deliveryCharge === 0) { %>
+                <span class="font-semibold text-green-600">FREE</span>
+              <% } else { %>
+                <span class="font-semibold">₹<%= cart.deliveryCharge.toLocaleString('en-IN') %></span>
+              <% } %>
+            </div>
+
+            <% if (cart.tax > 0) { %>
+              <div class="flex justify-between text-gray-700">
+                <span>Tax</span>
+                <span class="font-semibold">₹<%= cart.tax.toLocaleString('en-IN') %></span>
+              </div>
+            <% } %>
+
+            <div class="pt-4 border-t border-gray-200">
+              <div class="flex justify-between text-gray-900">
+                <span class="text-lg font-bold">Total Amount</span>
+                <span class="text-2xl font-bold">₹<%= (cart.subtotal + cart.tax).toLocaleString('en-IN') %></span>
+              </div>
+            </div>
+          </div>
+
+          <% if (cart.discount > 0) { %>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-6">
+              <p class="text-green-700 text-sm font-medium text-center">
+                <i class="bi bi-tag-fill"></i> You're saving ₹ <%= cart.discount.toLocaleString('en-IN') %> on this order!
+              </p>
+            </div>
+          <% } %>
+
+          <button 
+            onclick="placeOrder()" 
+            id="placeOrderBtn"
+            class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-4 rounded-xl shadow-md hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] transition-all mb-3">
+            <i class="bi bi-check-circle"></i> Place Order
+          </button>
+
+          <a 
+            href="/cart" 
+            class="block w-full text-center bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-colors">
+            <i class="bi bi-arrow-left"></i> Back to Cart
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Address Modal -->
+<div id="addressModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold text-gray-900">Add New Address</h2>
+      <button onclick="closeAddressModal()" class="text-gray-500 hover:text-gray-700">
+        <i class="bi bi-x-lg text-2xl"></i>
+      </button>
+    </div>
+
+    <form id="addressForm" class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Address Type -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-3">Address Type *</label>
+          <div class="flex gap-4">
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="addressType" value="home" checked class="peer hidden">
+              <div class="border-2 border-gray-300 rounded-lg p-4 text-center peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all">
+                <i class="bi bi-house-door text-2xl text-gray-600"></i>
+                <p class="font-medium text-gray-900 mt-2">Home</p>
+              </div>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="addressType" value="office" class="peer hidden">
+              <div class="border-2 border-gray-300 rounded-lg p-4 text-center peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all">
+                <i class="bi bi-briefcase text-2xl text-gray-600"></i>
+                <p class="font-medium text-gray-900 mt-2">Office</p>
+              </div>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="radio" name="addressType" value="other" class="peer hidden">
+              <div class="border-2 border-gray-300 rounded-lg p-4 text-center peer-checked:border-blue-600 peer-checked:bg-blue-50 transition-all">
+                <i class="bi bi-geo-alt text-2xl text-gray-600"></i>
+                <p class="font-medium text-gray-900 mt-2">Other</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+          <input type="text" id="fullName" name="fullName" required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="Enter full name">
+        </div>
+
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+          <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="10 digit phone number">
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="address1" class="block text-sm font-medium text-gray-700 mb-2">Address Line 1 *</label>
+          <input type="text" id="address1" name="address1" required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="House No., Building Name">
+        </div>
+
+        <div class="md:col-span-2">
+          <label for="address2" class="block text-sm font-medium text-gray-700 mb-2">Address Line 2</label>
+          <input type="text" id="address2" name="address2"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="Road Name, Area (Optional)">
+        </div>
+
+        <div>
+          <label for="city" class="block text-sm font-medium text-gray-700 mb-2">City *</label>
+          <input type="text" id="city" name="city" required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="Enter city">
+        </div>
+
+        <div>
+          <label for="state" class="block text-sm font-medium text-gray-700 mb-2">State *</label>
+          <input type="text" id="state" name="state" required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="Enter state">
+        </div>
+
+        <div>
+          <label for="pincode" class="block text-sm font-medium text-gray-700 mb-2">PIN Code *</label>
+          <input type="text" id="pincode" name="pincode" required pattern="[0-9]{6}"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="6 digit PIN code">
+        </div>
+
+        <input type="hidden" name="country" value="India">
+
+        <div class="md:col-span-2">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" id="setDefault" name="setDefault"
+              class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+            <span class="text-sm font-medium text-gray-700">Set as default address</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex gap-4 mt-8 pt-6 border-t border-gray-200">
+        <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+          <i class="bi bi-check-circle"></i> Save Address
+        </button>
+        <button type="button" onclick="closeAddressModal()" class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Available Coupons Modal -->
+<div id="couponsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+  <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+      <h2 class="text-xl font-semibold text-gray-900">Available Coupons</h2>
+      <button onclick="closeCouponsModal()" class="text-gray-500 hover:text-gray-700">
+        <i class="bi bi-x-lg text-2xl"></i>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <% if (availableCoupons && availableCoupons.length > 0) { %>
+        <% availableCoupons.forEach(function(coupon) { %>
+          <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="px-3 py-1 bg-blue-100 text-blue-700 font-bold rounded text-sm"><%= coupon.code %></span>
+                  <span class="text-green-600 font-semibold"><%= coupon.discountType === 'percentage' ? coupon.discountValue + '% OFF' : '₹' + coupon.discountValue + ' OFF' %></span>
+                </div>
+                <p class="text-sm text-gray-600"><%= coupon.description %></p>
+                <p class="text-xs text-gray-500 mt-1">
+                  Min. order: ₹<%= coupon.minOrderValue?.toLocaleString('en-IN') || 0 %>
+                  <% if (coupon.maxDiscount) { %>
+                    | Max discount: ₹<%= coupon.maxDiscount.toLocaleString('en-IN') %>
+                  <% } %>
+                </p>
+                <p class="text-xs text-gray-500">Valid till: <%= new Date(coupon.validTill).toLocaleDateString('en-IN') %></p>
+              </div>
+              <button 
+                onclick="applyCouponCode('<%= coupon.code %>')" 
+                class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                Apply
+              </button>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="text-center py-8">
+          <p class="text-gray-600">No coupons available at the moment.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedAddressId = null;
+let selectedPaymentMethod = 'razorpay';
+
+// Select Address
+function selectAddress(addressId) {
+  selectedAddressId = addressId;
+}
+
+// Select Payment Method
+function selectPaymentMethod(method) {
+  selectedPaymentMethod = method;
+}
+
+// Add Address Modal
+function openAddAddressModal() {
+  document.getElementById('addressModal').classList.remove('hidden');
+  document.getElementById('addressModal').classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAddressModal() {
+  document.getElementById('addressModal').classList.add('hidden');
+  document.getElementById('addressModal').classList.remove('flex');
+  document.body.style.overflow = 'auto';
+}
+
+// Address Form Submit
+document.getElementById('addressForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  const addressData = {
+    addressType: formData.get('addressType'),
+    fullName: formData.get('fullName'),
+    phone: formData.get('phone'),
+    address1: formData.get('address1'),
+    address2: formData.get('address2'),
+    city: formData.get('city'),
+    state: formData.get('state'),
+    pincode: formData.get('pincode'),
+    country: 'India',
+    isDefault: formData.get('setDefault') === 'on'
+  };
+
+  // TODO: API call to save address
+  fetch('/api/user/address', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(addressData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert(data.message || 'Failed to add address');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to add address');
+  });
+});
+
+// Coupons Modal
+function openCouponsModal() {
+  document.getElementById('couponsModal').classList.remove('hidden');
+  document.getElementById('couponsModal').classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCouponsModal() {
+  document.getElementById('couponsModal').classList.add('hidden');
+  document.getElementById('couponsModal').classList.remove('flex');
+  document.body.style.overflow = 'auto';
+}
+
+// Apply Coupon
+function applyCoupon() {
+  const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
+  if (!couponCode) {
+    alert('Please enter a coupon code');
+    return;
+  }
+
+  // TODO: API call to apply coupon
+  fetch('/api/cart/apply-coupon', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ couponCode: couponCode })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert(data.message || 'Invalid coupon code');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to apply coupon');
+  });
+}
+
+function applyCouponCode(code) {
+  document.getElementById('couponCode').value = code;
+  closeCouponsModal();
+  applyCoupon();
+}
+
+// Remove Coupon
+function removeCoupon() {
+  if (!confirm('Remove applied coupon?')) return;
+
+  // TODO: API call to remove coupon
+  fetch('/api/cart/remove-coupon', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert(data.message || 'Failed to remove coupon');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to remove coupon');
+  });
+}
+
+// Place Order
+function placeOrder() {
+  // Get selected address
+  const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+  if (!selectedAddress) {
+    alert('Please select a delivery address');
+    return;
+  }
+
+  // Get selected payment method
+  const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+  if (!selectedPayment) {
+    alert('Please select a payment method');
+    return;
+  }
+
+  const addressId = selectedAddress.value;
+  const paymentMethod = selectedPayment.value;
+
+  // Check wallet balance if wallet selected
+  if (paymentMethod === 'wallet') {
+    const walletBalance = <%= user.walletBalance || 0 %>;
+    const totalAmount = <%= cart.subtotal + cart.tax %>;
+    if (walletBalance < totalAmount) {
+      alert('Insufficient wallet balance. Please select another payment method.');
+      return;
+    }
+  }
+
+  // Disable button to prevent double submission
+  const placeOrderBtn = document.getElementById('placeOrderBtn');
+  placeOrderBtn.disabled = true;
+  placeOrderBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+
+  const orderData = {
+    addressId: addressId,
+    paymentMethod: paymentMethod
+  };
+
+  // TODO: API call to place order
+  fetch('/api/order/place', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(orderData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Redirect to success page
+      window.location.href = '/order/success/' + data.orderId;
+    } else {
+      alert(data.message || 'Failed to place order');
+      placeOrderBtn.disabled = false;
+      placeOrderBtn.innerHTML = '<i class="bi bi-check-circle"></i> Place Order';
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to place order. Please try again.');
+    placeOrderBtn.disabled = false;
+    placeOrderBtn.innerHTML = '<i class="bi bi-check-circle"></i> Place Order';
+  });
+}
+
+// Close modals on outside click
+document.getElementById('addressModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAddressModal();
+});
+
+document.getElementById('couponsModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCouponsModal();
+});
+
+// Close modals on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    if (!document.getElementById('addressModal').classList.contains('hidden')) {
+      closeAddressModal();
+    }
+    if (!document.getElementById('couponsModal').classList.contains('hidden')) {
+      closeCouponsModal();
+    }
+  }
+});
+
+// Auto-select default address on page load
+window.addEventListener('DOMContentLoaded', function() {
+  const defaultAddress = document.querySelector('input[name="selectedAddress"]:checked');
+  if (defaultAddress) {
+    selectedAddressId = defaultAddress.value;
+  }
+});
+</script>

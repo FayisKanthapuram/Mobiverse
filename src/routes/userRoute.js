@@ -53,6 +53,7 @@ import {
   setDefaultAddress,
 } from "../controllers/user/addressController.js";
 import { addToCart, deleteCartItem, loadCart, updateCartItem } from "../controllers/user/cartController.js";
+import { laodCheckOut } from "../controllers/user/checkoutController.js";
 
 router.use(setLayout("user"));
 
@@ -114,6 +115,9 @@ router.get('/cart',loadCart);
 router.post('/cart/add',addToCart)
 router.patch("/cart/update/:id", updateCartItem);
 router.delete('/cart/remove/:id',deleteCartItem);
+
+//checkout
+router.get('/checkout',laodCheckOut);
 
 //logout
 router.post("/logout", logOutUser);
