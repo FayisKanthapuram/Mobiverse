@@ -2,14 +2,20 @@
   <div class="container mx-auto px-4">
     <h1 class="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
 
+    <% const hasOutOfStock = cart.items.some(i => i.variantId.stock <= 0); %>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Cart Items Section -->
       <div class="lg:col-span-2">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <% if (cart && cart.items && cart.items.length > 0) { %>
+
           <!-- Cart Items List -->
           <div class="divide-y divide-gray-100">
-            <% cart.items.forEach(function(item) { %>
+            <% cart.items.forEach(function(item) { 
+                 const outOfStock = item.variantId.stock <= 0;
+            %>
+
             <div class="p-6 hover:bg-gray-50 transition-colors">
               <div class="flex gap-4">
                 <!-- Product Image -->
@@ -24,17 +30,21 @@
                       <a href="/product/<%= item.variantId._id %>" class="text-lg font-semibold text-gray-900 mb-1 line-clamp-2 hover:underline">
                         <%= item.productId.name %>
                       </a>
+
+                      <!-- Variant Details -->
                       <div class="flex flex-wrap gap-2 text-xs text-gray-600">
                         <% if (item.variantId.colour) { %>
                         <span class="px-2 py-1 bg-gray-100 rounded">
                           <i class="bi bi-palette"></i> <%= item.variantId.colour %>
                         </span>
                         <% } %>
+
                         <% if (item.variantId.ram) { %>
                         <span class="px-2 py-1 bg-gray-100 rounded">
                           <i class="bi bi-memory"></i> <%= item.variantId.ram %>
                         </span>
                         <% } %>
+
                         <% if (item.variantId.storage) { %>
                         <span class="px-2 py-1 bg-gray-100 rounded">
                           <i class="bi bi-device-hdd"></i> <%= item.variantId.storage %>
@@ -42,6 +52,7 @@
                         <% } %>
                       </div>
                     </div>
+
                     <!-- Remove Button -->
                     <button onclick="removeFromCart('<%= item._id %>')" class="text-gray-400 hover:text-red-500 transition-colors p-1" title="Remove">
                       <i class="bi bi-trash text-lg"></i>
@@ -54,7 +65,13 @@
                     <div class="flex items-center gap-3">
 
                       <!-- Decrease -->
-                      <button class="qty-btn w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors <%= item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : '' %>" data-item-id="<%= item._id %>" data-new-qty="<%= item.quantity - 1 %>" <%= item.quantity <= 1 ? 'disabled' : '' %>>
+                      <button 
+                        class="qty-btn w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center 
+                        hover:bg-gray-100 transition-colors 
+                        <%= outOfStock || item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : '' %>"
+                        data-item-id="<%= item._id %>"
+                        data-new-qty="<%= item.quantity - 1 %>"
+                        <%= outOfStock || item.quantity <= 1 ? 'disabled' : '' %>>
                         <i class="bi bi-dash text-gray-600"></i>
                       </button>
 
@@ -63,7 +80,13 @@
                       </span>
 
                       <!-- Increase -->
-                      <button class="qty-btn w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition-colors <%= item.quantity >= item.variantId.stock ? 'opacity-50 cursor-not-allowed' : '' %>" data-item-id="<%= item._id %>" data-new-qty="<%= item.quantity + 1 %>" <%= item.quantity >= item.variantId.stock ? 'disabled' : '' %>>
+                      <button 
+                        class="qty-btn w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center 
+                        hover:bg-gray-100 transition-colors 
+                        <%= outOfStock || item.quantity >= item.variantId.stock ? 'opacity-50 cursor-not-allowed' : '' %>"
+                        data-item-id="<%= item._id %>"
+                        data-new-qty="<%= item.quantity + 1 %>"
+                        <%= outOfStock || item.quantity >= item.variantId.stock ? 'disabled' : '' %>>
                         <i class="bi bi-plus text-gray-600"></i>
                       </button>
 
@@ -74,6 +97,7 @@
                       <p id="price-<%= item._id %>" class="text-xl font-bold text-gray-900">
                         ₹<%= (item.variantId.salePrice * item.quantity).toLocaleString('en-IN') %>
                       </p>
+
                       <% if (item.variantId.regularPrice > item.variantId.salePrice) { %>
                       <p id="regPrice-<%= item._id %>" class="text-sm text-gray-500">
                         <del>₹<%= (item.variantId.regularPrice * item.quantity).toLocaleString('en-IN') %></del>
@@ -83,16 +107,23 @@
                   </div>
 
                   <!-- Stock Status -->
-                  <% if (item.quantity >= item.variantId.stock) { %>
-                  <p class="text-xs text-orange-600 mt-2">
-                    <i class="bi bi-exclamation-triangle"></i> Maximum stock reached
-                  </p>
+                  <% if (outOfStock) { %>
+                    <p class="text-sm text-red-600 font-semibold mt-2">
+                      <i class="bi bi-x-circle"></i> Out of Stock
+                    </p>
+                  <% } else if (item.quantity >= item.variantId.stock) { %>
+                    <p class="text-xs text-orange-600 mt-2">
+                      <i class="bi bi-exclamation-triangle"></i> Maximum stock reached
+                    </p>
                   <% } %>
+
                 </div>
               </div>
             </div>
+
             <% }); %>
           </div>
+
           <% } else { %>
           <!-- Empty Cart -->
           <div class="text-center py-16">
@@ -113,6 +144,14 @@
       <div class="lg:col-span-1">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
           <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+
+          <!-- Warning If Out of Stock Exists -->
+          <% if (hasOutOfStock) { %>
+          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+            <i class="bi bi-exclamation-triangle"></i>
+            Remove out-of-stock items to proceed with checkout.
+          </div>
+          <% } %>
 
           <!-- Price Details -->
           <div class="space-y-4 mb-6">
@@ -168,7 +207,7 @@
           <% } %>
 
           <!-- Checkout Button -->
-          <% if (cart && cart.items && cart.items.length > 0) { %>
+          <% if (cart && cart.items && cart.items.length > 0 && !hasOutOfStock) { %>
           <a href="/checkout" class="block w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-4 rounded-xl text-center shadow-md hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] transition-all mb-3">
             Proceed to Checkout
             <i class="bi bi-arrow-right ml-2"></i>
@@ -181,7 +220,7 @@
       </div>
     </div>
 
-    <!-- Related Products Section -->
+    <!-- Related Products -->
     <% if (relatedProducts && relatedProducts.length > 0) { %>
     <div class="mt-16">
       <div class="flex justify-between items-center mb-6">
@@ -193,7 +232,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         <% relatedProducts.forEach(function(product) { %>
-        <%- include('../partials/user/_productGridCard', { product: product }) %>
+          <%- include('../partials/user/_productGridCard', { product: product }) %>
         <% }); %>
       </div>
     </div>

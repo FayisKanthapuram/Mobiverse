@@ -111,7 +111,9 @@ async function addToCart(variantId) {
   try {
     const response = await axios.post("/cart/add", { variantId, quantity: 1 });
     console.log(response.data.success);
-    if (response.data.success) {
+    if (response.data.success&&response.data.message) {
+      window.location.href = "/cart?message=cart-inc";
+    }else if (response.data.success) {
       window.location.href = "/cart?message=cart-add";
     }
   } catch (error) {
@@ -161,6 +163,8 @@ if (message === "cart-add") {
   text = "Item added to cart";
 }else if(message==='item-delete'){
   text="Item successfully removed from the cart."
+}else if(message==='cart-inc'){
+  text="Product already existed in cart, quantity incremented"
 }
 
 if (message) {

@@ -62,6 +62,7 @@ export const loadCart = async (req, res) => {
     .find({ userId: req.session.user })
     .populate("productId")
     .populate("variantId");
+  console.log(items);
   let subtotal = 0;
   let discount = 0;
   let tax = 0;
@@ -122,9 +123,13 @@ export const addToCart = async (req, res) => {
     });
 
     if (checkExist) {
-      return res
-        .status(HttpStatus.CONFLICT)
-        .json({ success: false, message: "Product is already in the cart." });
+      checkExist.quantity++;
+      await checkExist.save();
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Product already existed in cart, quantity incremented",
+      });
     }
 
     await cartModel.create({
