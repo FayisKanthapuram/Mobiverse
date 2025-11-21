@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { HttpStatus } from "../../constants/statusCode.js";
 import brandModel from "../../models/brandModel.js";
 import cartModel from "../../models/cartModel.js";
@@ -57,35 +58,86 @@ export const loadCart = async (req, res) => {
       $limit: 5,
     },
   ]);
+  try {
+    let items = await cartModel.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(req.session.user),
+        },
+      },
+      {
+        $lookup: {
+          from: "variants",
+          localField: "variantId",
+          foreignField: "_id",
+          as: "variantId",
+        },
+      },
+      { $unwind: "$variantId" },
 
-  const items = await cartModel
-    .find({ userId: req.session.user })
-    .populate("productId")
-    .populate("variantId");
-  console.log(items);
-  let subtotal = 0;
-  let discount = 0;
-  let tax = 0;
-  for (let item of items) {
-    subtotal += item.variantId.salePrice * item.quantity;
-    if (item?.variantId?.regularPrice) {
-      discount +=
-        (item.variantId.regularPrice - item.variantId.salePrice) *
-        item.quantity;
+      // Only active variants
+      { $match: { "variantId.isListed": true } },
+      {
+        $lookup: {
+          from: "products",
+          localField: "productId",
+          foreignField: "_id",
+          as: "productId",
+        },
+      },
+      { $unwind: "$productId" },
+
+      // Only active products
+      { $match: { "productId.isListed": true } },
+      {
+        $lookup: {
+          from: "brands",
+          localField: "productId.brandID",
+          foreignField: "_id",
+          as: "brand",
+        },
+      },
+      { $unwind: "$brand" },
+
+      // Only active brands
+      { $match: { "brand.isListed": true } },
+    ]);
+
+    let subtotal = 0;
+    let discount = 0;
+    let tax = 0;
+
+    for (let item of items) {
+      if (item.quantity > item.variantId.stock&&item.variantId.stock!==0) {
+        item.quantity = 1;
+        item.adjusted = true; 
+        await cartModel.updateOne({ _id: item._id }, { $set: { quantity: 1 } });
+      } else {
+        item.adjusted = false; 
+      }
+      subtotal += item.variantId.salePrice * item.quantity;
+      if (item?.variantId?.regularPrice) {
+        discount +=
+          (item.variantId.regularPrice - item.variantId.salePrice) *
+          item.quantity;
+      }
     }
-  }
 
-  res.render("user/cart", {
-    pageTitle: "Cart",
-    pageJs: "cart",
-    cart: {
-      subtotal,
-      discount,
-      items,
-      tax,
-    },
-    relatedProducts,
-  });
+    res.render("user/cart", {
+      pageTitle: "Cart",
+      pageJs: "cart",
+      cart: {
+        subtotal,
+        discount,
+        tax,
+        items,
+      },
+      relatedProducts,
+    });
+  } catch (error) {
+    console.log("Cart Load Error:", error);
+    return res.status(500).send("Internal Server Error");
+  }
 };
 
 export const addToCart = async (req, res) => {
@@ -123,12 +175,19 @@ export const addToCart = async (req, res) => {
     });
 
     if (checkExist) {
-      checkExist.quantity++;
+      if (checkExist.quantity + 1 > variant.stock) {
+      return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({
+        success: false,
+        message: "Product is already in the cart and has reached maximum stock, so the quantity cannot be increased.",
+      });
+      }
+
+      checkExist.quantity += 1;
       await checkExist.save();
 
       return res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Product already existed in cart, quantity incremented",
+      success: true,
+      message: "Product is already in the cart. Quantity has been updated",
       });
     }
 
