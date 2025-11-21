@@ -47,13 +47,12 @@ export const getCartItems = async (userId) => {
   ]);
 };
 
-
 // ------- Calculate Subtotal, Discounts, and Fix Quantity -------
 export const calculateCartTotals = async (items) => {
   let subtotal = 0;
   let discount = 0;
   let tax = 0;
-  let deliveryCharge=0;
+  let deliveryCharge = 0;
 
   for (let item of items) {
     // Auto-adjust invalid quantity
@@ -62,12 +61,14 @@ export const calculateCartTotals = async (items) => {
       item.adjusted = true;
 
       await cartModel.updateOne({ _id: item._id }, { $set: { quantity: 1 } });
+    } else if (item.variantId.stock === 0) {
+      item.quantity = 0;
     } else {
       item.adjusted = false;
     }
 
     // Totals
-    subtotal += item.variantId.salePrice * item.quantity;
+    subtotal += item.variantId.regularPrice * item.quantity;
 
     if (item.variantId.regularPrice) {
       discount +=
@@ -83,7 +84,7 @@ export const calculateCartTotals = async (items) => {
     subtotal,
     discount,
     tax,
+    deliveryCharge,
     items,
-    deliveryCharge
   };
 };

@@ -4,7 +4,7 @@ import { calculateCartTotals, getCartItems } from "../../services/cartServices.j
 
 export const laodCheckOut = async (req, res) => {
   const user = await userModel.findById(req.session.user);
-  const addresses = await addressModel.find();
+  const addresses = await addressModel.find({userId:req.session.user});
 
   const items = await getCartItems(req.session.user);
   const cartTotals = await calculateCartTotals(items);

@@ -183,7 +183,7 @@
             <div class="pt-4 border-t border-gray-200">
               <div class="flex justify-between text-gray-900">
                 <span class="text-lg font-bold">Total Amount</span>
-                <span id="total" class="text-2xl font-bold">₹<%= (cart?.subtotal+cart?.tax || 0).toLocaleString('en-IN') %></span>
+                <span id="total" class="text-2xl font-bold">₹<%= (cart?.subtotal+cart?.tax+cart?.deliveryCharge-cart?.discount || 0).toLocaleString('en-IN') %></span>
               </div>
             </div>
           </div>

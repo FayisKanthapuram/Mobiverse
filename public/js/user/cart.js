@@ -40,7 +40,7 @@ async function updateQuantity(itemId, newQuantity) {
       document.querySelector("#savings").innerText =
         "₹" + cartTotals.discount.toLocaleString("en-IN");
       document.querySelector("#discount").innerText =
-        "₹" + cartTotals.discount.toLocaleString("en-IN");
+        "-₹" + cartTotals.discount.toLocaleString("en-IN");
     }
 
     // 🔥 Update button dataset after updated qty

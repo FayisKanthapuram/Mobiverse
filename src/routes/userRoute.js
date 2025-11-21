@@ -54,6 +54,7 @@ import {
 } from "../controllers/user/addressController.js";
 import { addToCart, deleteCartItem, loadCart, updateCartItem } from "../controllers/user/cartController.js";
 import { laodCheckOut } from "../controllers/user/checkoutController.js";
+import { loadOrderSuccess, placeOrder } from "../controllers/user/orderController.js";
 
 router.use(setLayout("user"));
 
@@ -118,6 +119,10 @@ router.delete('/cart/remove/:id',deleteCartItem);
 
 //checkout
 router.get('/checkout',laodCheckOut);
+
+//order
+router.post('/order/place',placeOrder);
+router.get('/order/success/:id',loadOrderSuccess);
 
 //logout
 router.post("/logout", logOutUser);
