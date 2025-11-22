@@ -23,8 +23,17 @@ import {
   listProduct,
   loadProducts,
 } from "../controllers/admin/productController.js";
-import { blockCustomer, loadCustomers } from "../controllers/admin/customerController.js";
-import { loadOrders } from "../controllers/admin/orderController.js";
+import {
+  blockCustomer,
+  loadCustomers,
+} from "../controllers/admin/customerController.js";
+import {
+  laodOrderDetails,
+  loadOrders,
+  updateOrderStatus,
+  handleReturnRequest,
+  markItemReturned,
+} from "../controllers/admin/orderController.js";
 import { loadCoupons } from "../controllers/admin/couponController.js";
 import { loadReferrals } from "../controllers/admin/referralController.js";
 import { loadBanners } from "../controllers/admin/bannerController.js";
@@ -51,22 +60,23 @@ router.get("/api/brands/:id", verifyAdmin, getBrandById);
 
 //products
 router.get("/products", verifyAdmin, loadProducts);
-router.post(
-  "/products/add",
-  upload.product.any(),
-  addProduct
-);
-router.patch('/products/list/:productId',listProduct);
-router.get('/api/product/:productId',getProductById);
-router.patch('/products/edit/:productId',upload.product.any(),editProduct);
+router.post("/products/add", upload.product.any(), addProduct);
+router.patch("/products/list/:productId", listProduct);
+router.get("/api/product/:productId", getProductById);
+router.patch("/products/edit/:productId", upload.product.any(), editProduct);
 
 //customers
 router.get("/customers", verifyAdmin, loadCustomers);
-router.patch('/customer/block/:id',blockCustomer)
+router.patch("/customer/block/:id", blockCustomer);
 
+//orders
+router.get("/orders", verifyAdmin, loadOrders);
+router.get("/orders/:id", laodOrderDetails);
+router.patch("/orders/:id/status", updateOrderStatus);
+router.patch("/orders/:id/return-request", handleReturnRequest);
+router.patch("/orders/:id/mark-returned", markItemReturned);
 
 router.get("/banners", verifyAdmin, loadBanners);
-router.get("/orders", verifyAdmin, loadOrders);
 router.get("/coupons", verifyAdmin, loadCoupons);
 router.get("/referrals", verifyAdmin, loadReferrals);
 router.get("/banners", verifyAdmin, loadBanners);

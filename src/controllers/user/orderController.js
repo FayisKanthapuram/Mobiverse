@@ -7,6 +7,7 @@ import {
   getCartItems,
 } from "../../services/cartServices.js";
 import { orderValidation } from "../../validators/placeOrderValidator.js";
+import userModel from "../../models/userModel.js";
 
 export const placeOrder = async (req, res) => {
   try {
@@ -66,8 +67,7 @@ export const placeOrder = async (req, res) => {
 
     // Set Payment Status
     let paymentStatus = "Pending";
-    if (paymentMethod === "cod") paymentStatus = "Pending";
-    if (paymentMethod === "wallet") paymentStatus = "Paid"; // wallet paid instantly
+    if (paymentMethod === "razorpay"||paymentMethod === "wallet") paymentStatus = "Paid";
 
     // Create Order
     const order = await Order.create({
@@ -89,11 +89,6 @@ export const placeOrder = async (req, res) => {
         cartTotals.discount +
         cartTotals.deliveryCharge +
         cartTotals.tax,
-
-      // update timeline
-      statusTimeline: {
-        confirmedAt: new Date(),
-      },
 
       expectedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days
     });
@@ -117,9 +112,17 @@ export const placeOrder = async (req, res) => {
 };
 
 export const loadOrderSuccess = async (req, res) => {
-  const order = await Order.find({ orderId: req.params.id }).populate('orderedItems.productId').populate(
-    "orderedItems.variantId"
-  );
+  const order = await Order.find({ orderId: req.params.id })
+    .populate("orderedItems.productId")
+    .populate("orderedItems.variantId");
   console.log(order[0]);
   res.render("user/orderSuccess", { pageTitle: "Success", order: order[0] });
+};
+
+export const laodMyOrders = async (req, res) => {
+  const user = await userModel.findById(req.session.user);
+  const orders = await Order.find()
+    .populate("orderedItems.productId")
+    .populate("orderedItems.variantId");
+  res.render("user/myOrders", {pageTitle:'My Orders', user, orders });
 };

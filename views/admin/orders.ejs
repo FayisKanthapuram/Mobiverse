@@ -1,1 +1,771 @@
-<h2>orders</h2>
+<!-- Orders Management Page -->
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Orders Management</h1>
+      <p class="subtitle">Manage and monitor all orders in your marketplace.</p>
+    </div>
+    <button class="btn-primary" onclick="exportOrders()">
+      <i class="bi bi-download"></i>
+      Export Orders
+    </button>
+  </div>
+
+  <!-- Analytics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card stat-blue">
+      <div class="stat-icon">
+        <i class="bi bi-cart3"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value"><%= analytics.totalOrders || 0 %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-green">
+      <div class="stat-icon">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Active Orders</div>
+        <div class="stat-value"><%= analytics.activeOrders || 0 %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-orange">
+      <div class="stat-icon">
+        <i class="bi bi-arrow-return-left"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Returned Orders</div>
+        <div class="stat-value"><%= analytics.returnedOrders || 0 %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-red">
+      <div class="stat-icon">
+        <i class="bi bi-x-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Cancelled Orders</div>
+        <div class="stat-value"><%= analytics.cancelledOrders || 0 %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-purple">
+      <div class="stat-icon">
+        <i class="bi bi-currency-rupee"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">₹<%= (analytics.totalRevenue || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-container">
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search order ID, customer name or email..."
+        value="<%= searchQuery || '' %>"
+        onkeyup="handleSearch()"
+      />
+    </div>
+
+    <div class="filter-group">
+      <label>Status:</label>
+      <select id="statusFilter" class="filter-select" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="Pending" <%= statusFilter === 'Pending' ? 'selected' : '' %>>Pending</option>
+        <option value="Confirmed" <%= statusFilter === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+        <option value="Processing" <%= statusFilter === 'Processing' ? 'selected' : '' %>>Processing</option>
+        <option value="Shipped" <%= statusFilter === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+        <option value="Out for Delivery" <%= statusFilter === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
+        <option value="Delivered" <%= statusFilter === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+        <option value="Cancelled" <%= statusFilter === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+        <option value="Returned" <%= statusFilter === 'Returned' ? 'selected' : '' %>>Returned</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Payment:</label>
+      <select id="paymentStatusFilter" class="filter-select" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="Pending" <%= paymentStatusFilter === 'Pending' ? 'selected' : '' %>>Pending</option>
+        <option value="Paid" <%= paymentStatusFilter === 'Paid' ? 'selected' : '' %>>Paid</option>
+        <option value="Failed" <%= paymentStatusFilter === 'Failed' ? 'selected' : '' %>>Failed</option>
+        <option value="Refunded" <%= paymentStatusFilter === 'Refunded' ? 'selected' : '' %>>Refunded</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Sort By:</label>
+      <select id="sortFilter" class="filter-select" onchange="applyFilters()">
+        <option value="recent" <%= sortFilter === 'recent' ? 'selected' : '' %>>Recent</option>
+        <option value="oldest" <%= sortFilter === 'oldest' ? 'selected' : '' %>>Oldest</option>
+        <option value="amount-high" <%= sortFilter === 'amount-high' ? 'selected' : '' %>>Amount (High to Low)</option>
+        <option value="amount-low" <%= sortFilter === 'amount-low' ? 'selected' : '' %>>Amount (Low to High)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Items</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (orders && orders.length > 0) { %>
+          <% orders.forEach(order => { %>
+            <tr>
+              <td>
+                <strong class="order-id">#<%= order.orderId %></strong>
+              </td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-name"><%= order.userId.username || 'N/A' %></div>
+                  <div class="customer-email"><%= order.userId.email || '' %></div>
+                </div>
+              </td>
+              <td><%= new Date(order.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+              <td><%= order.orderedItems.length %></td>
+              <td><strong class="amount">₹<%= order.finalAmount.toLocaleString('en-IN') %></strong></td>
+              <td>
+                <% 
+                  let paymentClass = '';
+                  if (order.paymentStatus === 'Paid') paymentClass = 'status-active';
+                  else if (order.paymentStatus === 'Pending') paymentClass = 'status-pending';
+                  else if (order.paymentStatus === 'Failed') paymentClass = 'status-blocked';
+                  else if (order.paymentStatus === 'Refunded') paymentClass = 'status-refunded';
+                %>
+                <span class="status-badge <%= paymentClass %>">
+                  <%= order.paymentStatus %>
+                </span>
+              </td>
+              <td>
+                <% 
+                  let statusClass = '';
+                  if (order.orderStatus === 'Delivered') statusClass = 'status-active';
+                  else if (order.orderStatus === 'Shipped' || order.orderStatus === 'Out for Delivery') statusClass = 'status-shipping';
+                  else if (order.orderStatus === 'Pending') statusClass = 'status-pending';
+                  else if (order.orderStatus === 'Confirmed' || order.orderStatus === 'Processing') statusClass = 'status-processing';
+                  else if (order.orderStatus === 'Cancelled') statusClass = 'status-blocked';
+                  else if (order.orderStatus === 'Returned') statusClass = 'status-returned';
+                %>
+                <span class="status-badge <%= statusClass %>">
+                  <%= order.orderStatus %>
+                </span>
+              </td>
+              <td>
+                <a href="/admin/orders/<%= order._id %>" class="btn-view">
+                  View Details
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" class="no-data">
+              <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No orders found</p>
+              </div>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-container">
+    <div class="pagination-info">
+      <% if (orders && orders.length > 0) { %>
+        <% const startItem = (currentPage - 1) * limit + 1; %>
+        <% const endItem = Math.min((currentPage - 1) * limit + orders.length, totalOrders); %>
+        Showing <%= startItem %> to <%= endItem %> of <%= totalOrders %> results
+      <% } else { %>
+        No results found
+      <% } %>
+    </div>
+
+    <div class="pagination-controls">
+      <% if(currentPage > 1) { %>
+        <button class="page-btn" onclick="changePage(<%= currentPage - 1 %>)">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+      <% } else { %>
+        <button class="page-btn" disabled>
+          <i class="bi bi-chevron-left"></i>
+        </button>
+      <% } %>
+      
+      <% 
+        const maxPagesToShow = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+        let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+        
+        if (endPage - startPage < maxPagesToShow - 1) {
+          startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+      %>
+      
+      <% if (startPage > 1) { %>
+        <button class="page-btn" onclick="changePage(1)">1</button>
+        <% if (startPage > 2) { %>
+          <span class="pagination-dots">...</span>
+        <% } %>
+      <% } %>
+      
+      <% for(let i = startPage; i <= endPage; i++) { %>
+        <button 
+          class="page-btn <%= currentPage === i ? 'active' : '' %>" 
+          onclick="changePage(<%= i %>)"
+        >
+          <%= i %>
+        </button>
+      <% } %>
+      
+      <% if (endPage < totalPages) { %>
+        <% if (endPage < totalPages - 1) { %>
+          <span class="pagination-dots">...</span>
+        <% } %>
+        <button class="page-btn" onclick="changePage(<%= totalPages %>)"><%= totalPages %></button>
+      <% } %>
+      
+      <% if(currentPage < totalPages) { %>
+        <button class="page-btn" onclick="changePage(<%= currentPage + 1 %>)">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      <% } else { %>
+        <button class="page-btn" disabled>
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<style>
+.page-container {
+  padding: 24px;
+  max-width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.stat-blue .stat-icon {
+  background: rgba(219, 234, 254, 0.5);
+  color: #3b82f6;
+}
+
+.stat-green .stat-icon {
+  background: rgba(187, 247, 208, 0.5);
+  color: #10b981;
+}
+
+.stat-orange .stat-icon {
+  background: rgba(254, 243, 199, 0.5);
+  color: #f59e0b;
+}
+
+.stat-red .stat-icon {
+  background: rgba(254, 226, 226, 0.5);
+  color: #ef4444;
+}
+
+.stat-purple .stat-icon {
+  background: rgba(237, 233, 254, 0.5);
+  color: #8b5cf6;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+/* Filters */
+.filters-container {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-box {
+  flex: 1;
+  min-width: 250px;
+  position: relative;
+}
+
+.search-box i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.search-box input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.filter-select {
+  padding: 10px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  background: white;
+  min-width: 140px;
+  transition: all 0.2s;
+}
+
+.filter-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Table */
+.table-wrapper {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table th {
+  padding: 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.data-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #333;
+}
+
+.data-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.order-id {
+  color: #007bff;
+  font-weight: 500;
+}
+
+.customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.customer-name {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.customer-email {
+  font-size: 13px;
+  color: #999;
+}
+
+.amount {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-blocked,
+.status-cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-shipping {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-processing {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.status-refunded {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.status-returned {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.btn-view {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn-view:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #999;
+}
+
+.empty-state i {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+}
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.page-btn {
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0e0e0;
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled):not(.active) {
+  background: #f8f9fa;
+  border-color: #ccc;
+}
+
+.page-btn.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-dots {
+  padding: 0 8px;
+  color: #999;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    min-width: 100%;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-select {
+    flex: 1;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 900px;
+  }
+
+  .pagination-container {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+}
+</style>
+
+<script>
+function changePage(page) {
+  const url = new URL(window.location);
+  url.searchParams.set('page', page);
+  window.location.href = url.toString();
+}
+
+function applyFilters() {
+  const url = new URL(window.location);
+  
+  const status = document.getElementById('statusFilter').value;
+  const paymentStatus = document.getElementById('paymentStatusFilter').value;
+  const sort = document.getElementById('sortFilter').value;
+
+  if (status) {
+    url.searchParams.set('status', status);
+  } else {
+    url.searchParams.delete('status');
+  }
+
+  if (paymentStatus) {
+    url.searchParams.set('paymentStatus', paymentStatus);
+  } else {
+    url.searchParams.delete('paymentStatus');
+  }
+
+  if (sort) {
+    url.searchParams.set('sort', sort);
+  } else {
+    url.searchParams.delete('sort');
+  }
+
+  url.searchParams.set('page', 1);
+  window.location.href = url.toString();
+}
+
+let searchTimeout;
+function handleSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    const searchTerm = document.getElementById('searchInput').value;
+    const url = new URL(window.location);
+    
+    if (searchTerm) {
+      url.searchParams.set('search', searchTerm);
+    } else {
+      url.searchParams.delete('search');
+    }
+    
+    url.searchParams.set('page', 1);
+    window.location.href = url.toString();
+  }, 500);
+}
+
+function exportOrders() {
+  window.location.href = '/admin/orders/export';
+}
+</script>
