@@ -42,188 +42,173 @@
           <!-- Orders List -->
           <div id="ordersList" class="space-y-6">
             <% if (orders && orders.length > 0) { %>
-              <% orders.forEach(function(order) { %>
-                <div class="order-item border border-gray-200 rounded-xl p-6 hover:border-blue-300 transition-colors" data-status="<%= order.orderStatus %>">
-                  <!-- Order Header -->
-                  <div class="flex flex-wrap justify-between items-start gap-4 mb-4 pb-4 border-b border-gray-200">
-                    <div>
-                      <div class="flex items-center gap-3 mb-2">
-                        <h3 class="text-lg font-bold text-gray-900">Order #<%= order.orderId %></h3>
-                        <span class="status-badge px-3 py-1 rounded-full text-xs font-semibold <%= getStatusClass(order.orderStatus) %>">
-                          <%= order.orderStatus %>
-                        </span>
-                      </div>
-                      <p class="text-sm text-gray-600">
-                        <i class="bi bi-calendar"></i> Placed on <%= new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
-                      </p>
-                      <% if (order.expectedDelivery) { %>
-                        <p class="text-sm text-gray-600">
-                          <i class="bi bi-truck"></i> Expected by <%= new Date(order.expectedDelivery).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
-                        </p>
+            <% orders.forEach(function(order) { %>
+            <div class="order-item border border-gray-200 rounded-xl p-6 hover:border-blue-300 transition-colors" data-status="<%= order.orderStatus %>">
+              <!-- Order Header -->
+              <div class="flex flex-wrap justify-between items-start gap-4 mb-4 pb-4 border-b border-gray-200">
+                <div>
+                  <div class="flex items-center gap-3 mb-2">
+                    <h3 class="text-lg font-bold text-gray-900">Order #<%= order.orderId %></h3>
+                    <span class="status-badge px-3 py-1 rounded-full text-xs font-semibold <%= getStatusClass(order.orderStatus) %>">
+                      <%= order.orderStatus %>
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-600">
+                    <i class="bi bi-calendar"></i> Placed on <%= new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                  </p>
+                  <% if (order.expectedDelivery) { %>
+                  <p class="text-sm text-gray-600">
+                    <i class="bi bi-truck"></i> Expected by <%= new Date(order.expectedDelivery).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                  </p>
+                  <% } %>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-600 mb-1">Total Amount</p>
+                  <p class="text-2xl font-bold text-gray-900">₹<%= order.finalAmount.toLocaleString('en-IN') %></p>
+                </div>
+              </div>
+
+              <!-- Order Items -->
+              <div class="space-y-3 mb-4">
+                <% order.orderedItems.forEach(function(item, index) { %>
+                <div class="flex gap-4 <%= ['Cancelled', 'Returned'].includes(item.itemStatus) ? 'opacity-60' : '' %>">
+                  <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                    <img src="<%= item.variantId.images[0] %>" alt="<%= item.productId.name %>" class="w-full h-full object-contain">
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-start gap-2">
+                      <h4 class="font-semibold text-gray-900 line-clamp-1 flex-1"><%= item.productId.name %></h4>
+                      <!-- Item Status Badge -->
+                      <span class="px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap <%= getItemStatusClass(item.itemStatus) %>">
+                        <%= item.itemStatus.replace(/([A-Z])/g, ' $1').trim() %>
+                      </span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 mt-1">
+                      <% if (item.variantId.colour) { %>
+                      <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                        <%= item.variantId.colour %>
+                      </span>
+                      <% } %>
+                      <% if (item.variantId.ram) { %>
+                      <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                        <%= item.variantId.ram %>
+                      </span>
+                      <% } %>
+                      <% if (item.variantId.storage) { %>
+                      <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                        <%= item.variantId.storage %>
+                      </span>
                       <% } %>
                     </div>
-                    <div class="text-right">
-                      <p class="text-sm text-gray-600 mb-1">Total Amount</p>
-                      <p class="text-2xl font-bold text-gray-900">₹<%= order.finalAmount.toLocaleString('en-IN') %></p>
+                    <div class="flex justify-between items-center mt-2">
+                      <span class="text-sm text-gray-600">Qty: <%= item.quantity %></span>
+                      <span class="font-bold text-gray-900">₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></span>
                     </div>
-                  </div>
-
-                  <!-- Order Items -->
-                  <div class="space-y-3 mb-4">
-                    <% order.orderedItems.forEach(function(item, index) { %>
-                      <div class="flex gap-4 <%= ['Cancelled', 'Returned'].includes(item.itemStatus) ? 'opacity-60' : '' %>">
-                        <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                          <img 
-                            src="<%= item.variantId.images[0] %>" 
-                            alt="<%= item.productId.name %>"
-                            class="w-full h-full object-contain">
-                        </div>
-                        <div class="flex-1 min-w-0">
-                          <div class="flex justify-between items-start gap-2">
-                            <h4 class="font-semibold text-gray-900 line-clamp-1 flex-1"><%= item.productId.name %></h4>
-                            <!-- Item Status Badge -->
-                            <span class="px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap <%= getItemStatusClass(item.itemStatus) %>">
-                              <%= item.itemStatus.replace(/([A-Z])/g, ' $1').trim() %>
-                            </span>
-                          </div>
-                          <div class="flex flex-wrap gap-1.5 mt-1">
-                            <% if (item.variantId.colour) { %>
-                              <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                <%= item.variantId.colour %>
-                              </span>
-                            <% } %>
-                            <% if (item.variantId.ram) { %>
-                              <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                <%= item.variantId.ram %>
-                              </span>
-                            <% } %>
-                            <% if (item.variantId.storage) { %>
-                              <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                <%= item.variantId.storage %>
-                              </span>
-                            <% } %>
-                          </div>
-                          <div class="flex justify-between items-center mt-2">
-                            <span class="text-sm text-gray-600">Qty: <%= item.quantity %></span>
-                            <span class="font-bold text-gray-900">₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></span>
-                          </div>
-                          <!-- Item Cancel/Return Reason -->
-                          <% if (item.reason && ['Cancelled', 'ReturnRequested', 'Returned'].includes(item.itemStatus)) { %>
-                            <p class="text-xs text-gray-600 mt-1 italic">
-                              <i class="bi bi-info-circle"></i> Reason: <%= item.reason %>
-                            </p>
-                          <% } %>
-                          <!-- Item Action Buttons -->
-                          <div class="flex gap-2 mt-2">
-                            <% if (['Pending', 'Confirmed', 'Processing'].includes(item.itemStatus)) { %>
-                              <button 
-                                onclick="openCancelItemModal('<%= order._id %>', '<%= item._id %>', '<%= item.productId.name %>')"
-                                class="text-xs px-3 py-1 bg-red-50 text-red-600 font-medium rounded hover:bg-red-100 transition-colors">
-                                <i class="bi bi-x-circle"></i> Cancel Item
-                              </button>
-                            <% } %>
-                            <% if (item.itemStatus === 'Delivered') { %>
-                              <button 
-                                onclick="openReturnItemModal('<%= order._id %>', '<%= item._id %>', '<%= item.productId.name %>')"
-                                class="text-xs px-3 py-1 bg-orange-50 text-orange-600 font-medium rounded hover:bg-orange-100 transition-colors">
-                                <i class="bi bi-arrow-return-left"></i> Return Item
-                              </button>
-                            <% } %>
-                            <% if (item.itemStatus === 'ReturnRequested') { %>
-                              <span class="text-xs px-3 py-1 bg-orange-100 text-orange-700 font-medium rounded">
-                                <i class="bi bi-hourglass-split"></i> Return Pending
-                              </span>
-                            <% } %>
-                          </div>
-                        </div>
-                      </div>
-                    <% }); %>
-                  </div>
-
-                  <!-- Payment & Delivery Info -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p class="text-xs text-gray-600 mb-1">Payment Method</p>
-                      <div class="flex items-center gap-2">
-                        <% if (order.paymentMethod === 'razorpay') { %>
-                          <i class="bi bi-credit-card text-blue-600"></i>
-                          <span class="font-medium text-gray-900">Online Payment</span>
-                        <% } else if (order.paymentMethod === 'wallet') { %>
-                          <i class="bi bi-wallet2 text-purple-600"></i>
-                          <span class="font-medium text-gray-900">Wallet</span>
-                        <% } else if (order.paymentMethod === 'cod') { %>
-                          <i class="bi bi-cash-coin text-orange-600"></i>
-                          <span class="font-medium text-gray-900">Cash on Delivery</span>
-                        <% } %>
-                        <span class="ml-auto px-2 py-0.5 rounded text-xs font-semibold <%= order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
-                          <%= order.paymentStatus %>
-                        </span>
-                      </div>
-                    </div>
-                    <div>
-                      <p class="text-xs text-gray-600 mb-1">Delivery Address</p>
-                      <p class="font-medium text-gray-900 text-sm line-clamp-2">
-                        <%= order.shippingAddress.fullName %>, <%= order.shippingAddress.city %>
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- Order Actions -->
-                  <div class="flex flex-wrap gap-3">
-                    <a 
-                      href="/order/details/<%= order._id %>" 
-                      class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                      <i class="bi bi-eye"></i> View Details
-                    </a>
-
-                    <% if (order.orderStatus === 'Delivered' || order.orderStatus === 'Partially Delivered') { %>
-                      <button 
-                        onclick="downloadInvoice('<%= order._id %>')"
-                        class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm">
-                        <i class="bi bi-download"></i> Download Invoice
-                      </button>
+                    <!-- Item Cancel/Return Reason -->
+                    <% if (item.reason && ['Cancelled', 'ReturnRequested', 'Returned'].includes(item.itemStatus)) { %>
+                    <p class="text-xs text-gray-600 mt-1 italic">
+                      <i class="bi bi-info-circle"></i> Reason: <%= item.reason %>
+                    </p>
+                    <% } %>
+                    <!-- Admin Note (Return Approved or Rejected) -->
+                    <% if (item.adminNote && ['ReturnApproved', 'ReturnRejected', 'Returned'].includes(item.itemStatus)) { %>
+                    <p class="text-xs text-blue-700 mt-1 italic">
+                      <i class="bi bi-chat-left-quote"></i> Admin Note: <%= item.adminNote %>
+                    </p>
                     <% } %>
 
-                    <% if (['Pending', 'Confirmed', 'Processing'].includes(order.orderStatus)) { %>
-                      <button 
-                        onclick="openCancelModal('<%= order._id %>')"
-                        class="px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-colors text-sm">
-                        <i class="bi bi-x-circle"></i> Cancel Order
-                      </button>
-                    <% } %>
-
-                    <% if (order.orderStatus === 'Delivered' || order.orderStatus === 'Partially Delivered') { %>
-                      <button 
-                        onclick="openReturnModal('<%= order._id %>')"
-                        class="px-4 py-2 bg-orange-50 text-orange-600 font-semibold rounded-lg hover:bg-orange-100 transition-colors text-sm">
-                        <i class="bi bi-arrow-return-left"></i> Return Items
-                      </button>
-                    <% } %>
-
-                    <% if (['Shipped', 'Out for Delivery'].includes(order.orderStatus) || order.orderStatus.includes('Partially')) { %>
-                      <button 
-                        onclick="trackOrder('<%= order._id %>')"
-                        class="px-4 py-2 bg-green-50 text-green-600 font-semibold rounded-lg hover:bg-green-100 transition-colors text-sm">
-                        <i class="bi bi-geo-alt"></i> Track Order
-                      </button>
-                    <% } %>
                   </div>
                 </div>
-              <% }); %>
-            <% } else { %>
-              <!-- Empty State -->
-              <div class="text-center py-16">
-                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="bi bi-box-seam text-5xl text-gray-400"></i>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Orders Found</h3>
-                <p class="text-gray-600 mb-6">You haven't placed any orders yet</p>
-                <a 
-                  href="/shop" 
-                  class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                  <i class="bi bi-shop"></i> Start Shopping
-                </a>
+                <% }); %>
               </div>
+
+              <!-- Payment & Delivery Info -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <p class="text-xs text-gray-600 mb-1">Payment Method</p>
+                  <div class="flex items-center gap-2">
+                    <% if (order.paymentMethod === 'razorpay') { %>
+                    <i class="bi bi-credit-card text-blue-600"></i>
+                    <span class="font-medium text-gray-900">Online Payment</span>
+                    <% } else if (order.paymentMethod === 'wallet') { %>
+                    <i class="bi bi-wallet2 text-purple-600"></i>
+                    <span class="font-medium text-gray-900">Wallet</span>
+                    <% } else if (order.paymentMethod === 'cod') { %>
+                    <i class="bi bi-cash-coin text-orange-600"></i>
+                    <span class="font-medium text-gray-900">Cash on Delivery</span>
+                    <% } %>
+                    <span class="ml-auto px-2 py-0.5 rounded text-xs font-semibold <%= order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
+                      <%= order.paymentStatus %>
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-600 mb-1">Delivery Address</p>
+                  <p class="font-medium text-gray-900 text-sm line-clamp-2">
+                    <%= order.shippingAddress.fullName %>, <%= order.shippingAddress.city %>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Order Actions -->
+              <div class="flex flex-wrap gap-3">
+                <a href="/order/details/<%= order._id %>" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                  <i class="bi bi-eye"></i> View Details
+                </a>
+
+                <% if (order.orderStatus === 'Delivered' || order.orderStatus === 'Partially Delivered') { %>
+                <button onclick="downloadInvoice('<%= order._id %>')" class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                  <i class="bi bi-download"></i> Download Invoice
+                </button>
+                <% } %>
+
+                <% 
+                      const hasCancellableItems = order.orderedItems.some(item => 
+                        ['Pending', 'Confirmed', 'Processing'].includes(item.itemStatus)
+                      );
+                      const hasReturnableItems = order.orderedItems.some(item => 
+                        item.itemStatus === 'Delivered'
+                      );
+                    %>
+
+                <% if (hasCancellableItems) { %>
+                <button onclick='openCancelOrderModal(<%= JSON.stringify(order) %>)' class="px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-colors text-sm">
+                  <i class="bi bi-x-circle"></i> Cancel Items
+                </button>
+                <% } %>
+
+                <% if (hasReturnableItems) { %>
+                <button onclick='openReturnOrderModal(<%= JSON.stringify(order) %>)' class="px-4 py-2 bg-orange-50 text-orange-600 font-semibold rounded-lg hover:bg-orange-100 transition-colors text-sm">
+                  <i class="bi bi-arrow-return-left"></i> Return Items
+                </button>
+                <% } %>
+
+                <% 
+                  const hasTrackableItem = order.orderedItems.some(item => 
+                    ["Shipped", "Out for Delivery"].includes(item.itemStatus)
+                  );
+                %>
+
+                <% if (hasTrackableItem) { %>
+                <button onclick="trackOrder('<%= order._id %>')" class="px-4 py-2 bg-green-50 text-green-600 font-semibold rounded-lg hover:bg-green-100 transition-colors text-sm">
+                  <i class="bi bi-geo-alt"></i> Track Order
+                </button>
+                <% } %>
+              </div>
+            </div>
+            <% }); %>
+            <% } else { %>
+            <!-- Empty State -->
+            <div class="text-center py-16">
+              <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-box-seam text-5xl text-gray-400"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">No Orders Found</h3>
+              <p class="text-gray-600 mb-6">You haven't placed any orders yet</p>
+              <a href="/shop" class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="bi bi-shop"></i> Start Shopping
+              </a>
+            </div>
             <% } %>
           </div>
         </div>
@@ -234,21 +219,23 @@
 
 <!-- Cancel Single Item Modal -->
 <div id="cancelItemModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-  <div class="bg-white rounded-lg max-w-md w-full">
-    <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-      <h3 class="text-xl font-semibold text-gray-900">Cancel Item</h3>
+  <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+      <h3 class="text-xl font-semibold text-gray-900">Cancel Items</h3>
       <button onclick="closeCancelItemModal()" class="text-gray-500 hover:text-gray-700">
         <i class="bi bi-x-lg text-2xl"></i>
       </button>
     </div>
     <form id="cancelItemForm" class="p-6">
       <input type="hidden" id="cancelItemOrderId" name="orderId">
-      <input type="hidden" id="cancelItemId" name="itemId">
-      
-      <p class="text-gray-700 mb-4">
-        Are you sure you want to cancel "<span id="cancelItemName" class="font-semibold"></span>"?
-      </p>
-      
+
+      <p class="text-sm text-gray-600 mb-4">Select items you want to cancel:</p>
+
+      <!-- Items Selection -->
+      <div id="cancelItemsList" class="space-y-2 mb-4 max-h-60 overflow-y-auto">
+        <!-- Items will be populated dynamically -->
+      </div>
+
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Cancellation *</label>
         <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -279,21 +266,23 @@
 
 <!-- Return Single Item Modal -->
 <div id="returnItemModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-  <div class="bg-white rounded-lg max-w-md w-full">
-    <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-      <h3 class="text-xl font-semibold text-gray-900">Return Item</h3>
+  <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+      <h3 class="text-xl font-semibold text-gray-900">Return Items</h3>
       <button onclick="closeReturnItemModal()" class="text-gray-500 hover:text-gray-700">
         <i class="bi bi-x-lg text-2xl"></i>
       </button>
     </div>
     <form id="returnItemForm" class="p-6">
       <input type="hidden" id="returnItemOrderId" name="orderId">
-      <input type="hidden" id="returnItemId" name="itemId">
-      
-      <p class="text-gray-700 mb-4">
-        Request return for "<span id="returnItemName" class="font-semibold"></span>"
-      </p>
-      
+
+      <p class="text-sm text-gray-600 mb-4">Select items you want to return:</p>
+
+      <!-- Items Selection -->
+      <div id="returnItemsList" class="space-y-2 mb-4 max-h-60 overflow-y-auto">
+        <!-- Items will be populated dynamically -->
+      </div>
+
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Return *</label>
         <select name="reason" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
@@ -307,12 +296,12 @@
           <option value="Other">Other</option>
         </select>
       </div>
-      
+
       <div class="mb-6">
         <label class="block text-sm font-medium text-gray-700 mb-2">Additional Details (Optional)</label>
         <textarea name="comments" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Describe the issue in detail..."></textarea>
       </div>
-      
+
       <div class="flex gap-3">
         <button type="submit" class="flex-1 px-6 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition-colors">
           Submit Return Request
@@ -375,7 +364,7 @@
     </div>
     <form id="returnForm" class="p-6">
       <input type="hidden" id="returnOrderId" name="orderId">
-      
+
       <!-- Select Items to Return -->
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-3">Select Items to Return *</label>
@@ -397,12 +386,12 @@
           <option value="Other">Other</option>
         </select>
       </div>
-      
+
       <div class="mb-6">
         <label class="block text-sm font-medium text-gray-700 mb-2">Additional Details (Optional)</label>
         <textarea name="comments" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Describe the issue in detail..."></textarea>
       </div>
-      
+
       <div class="flex gap-3">
         <button type="submit" class="flex-1 px-6 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition-colors">
           Submit Return Request
@@ -416,315 +405,20 @@
 </div>
 
 <style>
-.filter-tab {
-  background-color: #f3f4f6;
-  color: #6b7280;
-}
+  .filter-tab {
+    background-color: #f3f4f6;
+    color: #6b7280;
+  }
 
-.filter-tab.active {
-  background-color: #2563eb;
-  color: white;
-}
+  .filter-tab.active {
+    background-color: #2563eb;
+    color: white;
+  }
 
-.filter-tab:hover:not(.active) {
-  background-color: #e5e7eb;
-}
+  .filter-tab:hover:not(.active) {
+    background-color: #e5e7eb;
+  }
 </style>
-
-<script>
-let currentOrderData = null;
-
-// Open Cancel Item Modal
-function openCancelItemModal(orderId, itemId, itemName) {
-  document.getElementById('cancelItemOrderId').value = orderId;
-  document.getElementById('cancelItemId').value = itemId;
-  document.getElementById('cancelItemName').textContent = itemName;
-  document.getElementById('cancelItemModal').classList.remove('hidden');
-  document.getElementById('cancelItemModal').classList.add('flex');
-  document.body.style.overflow = 'hidden';
-}
-
-// Close Cancel Item Modal
-function closeCancelItemModal() {
-  document.getElementById('cancelItemModal').classList.add('hidden');
-  document.getElementById('cancelItemModal').classList.remove('flex');
-  document.body.style.overflow = 'auto';
-  document.getElementById('cancelItemForm').reset();
-}
-
-// Cancel Item Form Submit
-document.getElementById('cancelItemForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  const orderId = formData.get('orderId');
-  const itemId = formData.get('itemId');
-  const reason = formData.get('reason');
-  const comments = formData.get('comments');
-
-  // TODO: API call to cancel item
-  fetch(`/api/order/${orderId}/cancel-item/${itemId}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reason, comments })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      alert('Item cancelled successfully!');
-      window.location.reload();
-    } else {
-      alert(data.message || 'Failed to cancel item');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Failed to cancel item');
-  });
-});
-
-// Open Return Item Modal
-function openReturnItemModal(orderId, itemId, itemName) {
-  document.getElementById('returnItemOrderId').value = orderId;
-  document.getElementById('returnItemId').value = itemId;
-  document.getElementById('returnItemName').textContent = itemName;
-  document.getElementById('returnItemModal').classList.remove('hidden');
-  document.getElementById('returnItemModal').classList.add('flex');
-  document.body.style.overflow = 'hidden';
-}
-
-// Close Return Item Modal
-function closeReturnItemModal() {
-  document.getElementById('returnItemModal').classList.add('hidden');
-  document.getElementById('returnItemModal').classList.remove('flex');
-  document.body.style.overflow = 'auto';
-  document.getElementById('returnItemForm').reset();
-}
-
-// Return Item Form Submit
-document.getElementById('returnItemForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  const orderId = formData.get('orderId');
-  const itemId = formData.get('itemId');
-  const reason = formData.get('reason');
-  const comments = formData.get('comments');
-
-  // TODO: API call to return item
-  fetch(`/api/order/${orderId}/return-item/${itemId}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reason, comments })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      alert('Return request submitted successfully!');
-      window.location.reload();
-    } else {
-      alert(data.message || 'Failed to submit return request');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Failed to submit return request');
-  });
-});
-
-// Filter Orders
-function filterOrders(status) {
-  const orderItems = document.querySelectorAll('.order-item');
-  const tabs = document.querySelectorAll('.filter-tab');
-  
-  // Update active tab
-  tabs.forEach(tab => tab.classList.remove('active'));
-  event.target.classList.add('active');
-  
-  // Filter orders
-  orderItems.forEach(item => {
-    if (status === 'all') {
-      item.style.display = 'block';
-    } else {
-      const itemStatus = item.getAttribute('data-status');
-      // Handle partial statuses
-      if (status === 'Delivered' && (itemStatus === 'Delivered' || itemStatus === 'Partially Delivered')) {
-        item.style.display = 'block';
-      } else if (status === 'Cancelled' && (itemStatus === 'Cancelled' || itemStatus === 'Partially Cancelled')) {
-        item.style.display = 'block';
-      } else if (status === 'Returned' && (itemStatus === 'Returned' || itemStatus === 'Partially Returned')) {
-        item.style.display = 'block';
-      } else if (itemStatus === status) {
-        item.style.display = 'block';
-      } else {
-        item.style.display = 'none';
-      }
-    }
-  });
-  
-  // Check if no orders visible
-  const visibleOrders = Array.from(orderItems).filter(item => item.style.display !== 'none');
-  const ordersList = document.getElementById('ordersList');
-  
-  if (visibleOrders.length === 0) {
-    const existingEmpty = ordersList.querySelector('.empty-filter-state');
-    if (!existingEmpty) {
-      const emptyState = document.createElement('div');
-      emptyState.className = 'empty-filter-state text-center py-16';
-      emptyState.innerHTML = `
-        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i class="bi bi-inbox text-5xl text-gray-400"></i>
-        </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">No ${status !== 'all' ? status : ''} Orders</h3>
-        <p class="text-gray-600">You don't have any ${status !== 'all' ? status.toLowerCase() : ''} orders</p>
-      `;
-      ordersList.appendChild(emptyState);
-    }
-  } else {
-    const existingEmpty = ordersList.querySelector('.empty-filter-state');
-    if (existingEmpty) {
-      existingEmpty.remove();
-    }
-  }
-}
-
-// Open Cancel Modal
-function openCancelModal(orderId) {
-  document.getElementById('cancelOrderId').value = orderId;
-  document.getElementById('cancelModal').classList.remove('hidden');
-  document.getElementById('cancelModal').classList.add('flex');
-  document.body.style.overflow = 'hidden';
-}
-
-// Close Cancel Modal
-function closeCancelModal() {
-  document.getElementById('cancelModal').classList.add('hidden');
-  document.getElementById('cancelModal').classList.remove('flex');
-  document.body.style.overflow = 'auto';
-  document.getElementById('cancelForm').reset();
-}
-
-// Cancel Form Submit
-document.getElementById('cancelForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  const orderId = formData.get('orderId');
-  const reason = formData.get('reason');
-  const comments = formData.get('comments');
-
-  // TODO: API call to cancel order
-  fetch(`/api/order/cancel/${orderId}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reason, comments })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      alert('Order cancelled successfully!');
-      window.location.reload();
-    } else {
-      alert(data.message || 'Failed to cancel order');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Failed to cancel order');
-  });
-});
-
-// Open Return Modal
-function openReturnModal(orderId) {
-  document.getElementById('returnOrderId').value = orderId;
-  
-  // TODO: Fetch order items that can be returned (Delivered items only)
-  fetch(`/api/order/${orderId}/returnable-items`)
-    .then(response => response.json())
-    .then(data => {
-      if (data.success && data.items.length > 0) {
-        const itemsList = document.getElementById('returnItemsList');
-        itemsList.innerHTML = '';
-        
-        data.items.forEach(item => {
-          if (item.itemStatus === 'Delivered') {
-            const itemHtml = `
-              <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 transition-colors">
-                <input type="checkbox" name="returnItems[]" value="${item._id}" class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
-                <img src="${item.variantId.images[0]}" alt="${item.productId.name}" class="w-12 h-12 object-contain bg-gray-100 rounded">
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-gray-900 truncate">${item.productId.name}</p>
-                  <p class="text-xs text-gray-600">Qty: ${item.quantity}</p>
-                </div>
-              </label>
-            `;
-            itemsList.innerHTML += itemHtml;
-          }
-        });
-        
-        document.getElementById('returnModal').classList.remove('hidden');
-        document.getElementById('returnModal').classList.add('flex');
-        document.body.style.overflow = 'hidden';
-      } else {
-        alert('No items available for return');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Failed to load returnable items');
-    });
-}
-
-// Close Return Modal
-function closeReturnModal() {
-  document.getElementById('returnModal').classList.add('hidden');
-  document.getElementById('returnModal').classList.remove('flex');
-  document.body.style.overflow = 'auto';
-  document.getElementById('returnForm').reset();
-}
-
-// Return Form Submit
-document.getElementById('returnForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  const orderId = formData.get('orderId');
-  const reason = formData.get('reason');
-  const comments = formData.get('comments');
-  const returnItems = formData.getAll('returnItems[]');
-
-  if (returnItems.length === 0) {
-    alert('Please select at least one item to return');
-    return;
-  }
-
-  // TODO: API call to submit return request
-  fetch(`/api/order/return/${orderId}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ returnItems, reason, comments })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      alert('Return request submitted successfully!');
-      window.location.reload();
-    } else {
-      alert(data.message || 'Failed to submit return request');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('Failed to submit return request');
-  });
-});
-
-// Track Order
-function trackOrder(orderId) {
-  window.location.href = `/order/track/${orderId}`;
-}
-
-// Download Invoice
-function downloadInvoice(orderId) {
-  window.open(`/api/order/invoice/${orderId}`, '_blank');
-}
-</script>
 
 <%
 function getStatusClass(status) {

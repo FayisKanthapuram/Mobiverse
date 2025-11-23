@@ -54,7 +54,7 @@ import {
 } from "../controllers/user/addressController.js";
 import { addToCart, deleteCartItem, loadCart, updateCartItem } from "../controllers/user/cartController.js";
 import { laodCheckOut } from "../controllers/user/checkoutController.js";
-import { laodMyOrders, loadOrderSuccess, placeOrder } from "../controllers/user/orderController.js";
+import { cancelOrderItems, laodMyOrders, loadOrderDetails, loadOrderSuccess, loadTrackOrder, placeOrder, returnOrderItems } from "../controllers/user/orderController.js";
 
 router.use(setLayout("user"));
 
@@ -121,9 +121,13 @@ router.delete('/cart/remove/:id',deleteCartItem);
 router.get('/checkout',laodCheckOut);
 
 //order
-router.get('/orders',laodMyOrders);
+router.get('/orders',requireLogin,laodMyOrders);
 router.post('/order/place',placeOrder);
-router.get('/order/success/:id',loadOrderSuccess);
+router.get('/order/success/:id',requireLogin,loadOrderSuccess);
+router.post('/order/:id/cancel-items',cancelOrderItems);
+router.post('/order/:id/return-items',returnOrderItems);
+router.get('/order/track/:id',requireLogin,loadTrackOrder);
+router.get('/order/details/:id',requireLogin,loadOrderDetails);
 
 
 //logout

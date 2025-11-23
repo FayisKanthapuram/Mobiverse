@@ -2,7 +2,7 @@ import brandModel from "../../models/brandModel.js";
 import Order from "../../models/orderModel.js";
 
 export const loadOrders = async (req, res) => {
-  const orders = await Order.find().populate("userId", "username email");
+  const orders = await Order.find().sort({createdAt:-1}).populate("userId", "username email");
   const pageData = {
     sortFilter: "recent",
     pageTitle: "orders",

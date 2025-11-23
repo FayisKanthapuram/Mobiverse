@@ -6,7 +6,10 @@ import {
   calculateCartTotals,
   getCartItems,
 } from "../../services/cartServices.js";
-import { orderValidation } from "../../validators/placeOrderValidator.js";
+import {
+  OrderItemsSchema,
+  orderValidation,
+} from "../../validators/OrderValidator.js";
 import userModel from "../../models/userModel.js";
 
 export const placeOrder = async (req, res) => {
@@ -23,7 +26,6 @@ export const placeOrder = async (req, res) => {
     const userId = req.session.user;
     const { addressId, paymentMethod } = req.body;
 
-    // Check Address Exists
     const address = await addressModel.findById(addressId).lean();
     if (!address) {
       return res.status(HttpStatus.NOT_FOUND).json({
@@ -32,8 +34,8 @@ export const placeOrder = async (req, res) => {
       });
     }
 
-    // Get Cart Items
     const items = await getCartItems(userId);
+    console.log(items);
     if (!items.length) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -41,10 +43,8 @@ export const placeOrder = async (req, res) => {
       });
     }
 
-    // Calculate Totals
     const cartTotals = await calculateCartTotals(items);
 
-    // Build Ordered Items Array
     const orderedItems = items.map((item) => ({
       productId: item.productId._id,
       variantId: item.variantId._id,
@@ -52,7 +52,6 @@ export const placeOrder = async (req, res) => {
       price: item.variantId.salePrice,
     }));
 
-    // Embed Address into Order
     const shippingAddress = {
       fullName: address.fullName,
       phone: address.phone,
@@ -65,9 +64,9 @@ export const placeOrder = async (req, res) => {
       addressType: address.addressType,
     };
 
-    // Set Payment Status
     let paymentStatus = "Pending";
-    if (paymentMethod === "razorpay"||paymentMethod === "wallet") paymentStatus = "Paid";
+    if (paymentMethod === "razorpay" || paymentMethod === "wallet")
+      paymentStatus = "Paid";
 
     // Create Order
     const order = await Order.create({
@@ -93,10 +92,8 @@ export const placeOrder = async (req, res) => {
       expectedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days
     });
 
-    // Clear Cart
     await cartModel.deleteMany({ userId });
 
-    // Response
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "Order placed successfully",
@@ -115,14 +112,123 @@ export const loadOrderSuccess = async (req, res) => {
   const order = await Order.find({ orderId: req.params.id })
     .populate("orderedItems.productId")
     .populate("orderedItems.variantId");
-  console.log(order[0]);
   res.render("user/orderSuccess", { pageTitle: "Success", order: order[0] });
 };
 
 export const laodMyOrders = async (req, res) => {
   const user = await userModel.findById(req.session.user);
   const orders = await Order.find()
+    .sort({ createdAt: -1 })
     .populate("orderedItems.productId")
     .populate("orderedItems.variantId");
-  res.render("user/myOrders", {pageTitle:'My Orders', user, orders });
+  res.render("user/myOrders", {
+    pageTitle: "My Orders",
+    pageJs: "myOrder",
+    user,
+    orders,
+  });
+};
+
+export const cancelOrderItems = async (req, res) => {
+  try {
+    const { error } = OrderItemsSchema.validate(req.body);
+    if (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
+    const { id } = req.params;
+
+    const { itemIds, reason, comments } = req.body;
+    const order = await Order.findById(id);
+
+    let isAllReturned = true;
+    order.orderedItems.forEach((item) => {
+      console.log(item._id);
+      console.log(itemIds.includes(item._id));
+      if (itemIds.includes(item._id.toString())) {
+        item.itemStatus = "Cancelled";
+        item.reason = `${reason}, ${comments}`;
+      }
+      if (item.itemStatus !== "Cancelled") {
+        isAllReturned = false;
+      }
+    });
+
+    if (isAllReturned) {
+      order.orderStatus = "Cancelled";
+
+      order.statusTimeline.cancelledAt = Date.now();
+    } else order.orderStatus = "Partially Cancelled";
+
+    await order.save();
+
+    return res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Order Cancelled successfully",
+    });
+  } catch (error) {
+    console.log("Order Error:", error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Something went wrong while cancelling the order.",
+    });
+  }
+};
+
+export const returnOrderItems = async (req, res) => {
+  try {
+    const { error } = OrderItemsSchema.validate(req.body);
+    if (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
+    const { id } = req.params;
+
+    const { itemIds, reason, comments } = req.body;
+    const order = await Order.findById(id);
+
+    order.orderedItems.forEach((item) => {
+      console.log(item._id);
+      console.log(itemIds.includes(item._id));
+      if (itemIds.includes(item._id.toString())) {
+        item.itemStatus = "ReturnRequested";
+        item.reason = `${reason}, ${comments}`;
+      }
+    });
+
+    order.orderStatus = "Partially Returned";
+
+    await order.save();
+
+    return res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Order returned successfully",
+    });
+  } catch (error) {
+    console.log("Order Error:", error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Something went wrong while cancelling the order.",
+    });
+  }
+};
+
+export const loadTrackOrder = async (req, res) => {
+  const id = req.params.id;
+  const order = await Order.findById(id)
+    .populate("orderedItems.productId")
+    .populate("orderedItems.variantId");
+  res.render("user/trackOrder", { pageTitle: "My Orders", order });
+};
+
+export const loadOrderDetails = async (req, res) => {
+  const id = req.params.id;
+  const order = await Order.findById(id)
+    .populate("orderedItems.productId")
+    .populate("orderedItems.variantId");
+  res.render("user/orderDetails", { pageTitle: "My Orders", order });
 };

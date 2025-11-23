@@ -32,25 +32,25 @@
         const hasReturnRequests = order.orderedItems.some(item => item.itemStatus === 'ReturnRequested');
         const hasApprovedReturns = order.orderedItems.some(item => item.itemStatus === 'ReturnApproved');
       %>
-      
+
       <% if (hasReturnRequests) { %>
-        <div class="alert alert-warning">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-          <div class="alert-content">
-            <strong>Return Requests Pending</strong>
-            <p>There are items waiting for your return approval decision.</p>
-          </div>
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div class="alert-content">
+          <strong>Return Requests Pending</strong>
+          <p>There are items waiting for your return approval decision.</p>
         </div>
+      </div>
       <% } %>
 
       <% if (hasApprovedReturns) { %>
-        <div class="alert alert-info">
-          <i class="bi bi-box-seam"></i>
-          <div class="alert-content">
-            <strong>Approved Returns</strong>
-            <p>Items are approved for return. Mark them as returned once received.</p>
-          </div>
+      <div class="alert alert-info">
+        <i class="bi bi-box-seam"></i>
+        <div class="alert-content">
+          <strong>Approved Returns</strong>
+          <p>Items are approved for return. Mark them as returned once received.</p>
         </div>
+      </div>
       <% } %>
 
       <!-- Order Status Card -->
@@ -69,23 +69,28 @@
           <span class="status-badge <%= statusClass %>"><%= order.orderStatus %></span>
         </div>
         <div class="card-body">
-          <!-- Only show status update if order is not cancelled or returned -->
-          <% if (order.orderStatus !== 'Cancelled' && order.orderStatus !== 'Returned'&& order.orderStatus !== 'Partially Returned'&& order.orderStatus !== 'Partially Cancelled'&& order.orderStatus !== 'Partially Delivered') { %>
-            <div class="status-update-section">
-              <label for="statusSelect">Update Order Status</label>
-              <div class="status-update-controls">
-                <select id="statusSelect" class="form-select">
-                  <option value="Pending" <%= order.orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
-                  <option value="Confirmed" <%= order.orderStatus === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
-                  <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
-                  <option value="Shipped" <%= order.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                  <option value="Out for Delivery" <%= order.orderStatus === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
-                  <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                </select>
-                <button class="btn-primary" onclick="updateOrderStatus()">Update</button>
-              </div>
-              <p class="status-note"><i class="bi bi-info-circle"></i> Cancel and Return are user-initiated actions</p>
+          <%
+            const activeItemExists = order.orderedItems.some(item =>
+              ["Pending", "Confirmed", "Processing", "Shipped", "Out for Delivery"]
+                .includes(item.itemStatus)
+            );
+          %>
+          <% if (activeItemExists) { %>
+          <div class="status-update-section">
+            <label for="statusSelect">Update Order Status</label>
+            <div class="status-update-controls">
+              <select id="statusSelect" class="form-select">
+                <option value="Pending" <%= order.orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+                <option value="Confirmed" <%= order.orderStatus === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+                <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                <option value="Shipped" <%= order.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                <option value="Out for Delivery" <%= order.orderStatus === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
+                <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+              </select>
+              <button class="btn-primary" onclick="updateOrderStatus()">Update</button>
             </div>
+            <p class="status-note"><i class="bi bi-info-circle"></i> Cancel and Return are user-initiated actions</p>
+          </div>
           <% } %>
 
           <!-- Order Timeline -->
@@ -95,7 +100,7 @@
               <div class="timeline-content">
                 <div class="timeline-title">Order Placed</div>
                 <% if (order.createdAt) { %>
-                  <div class="timeline-date"><%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="timeline-date"><%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
@@ -105,7 +110,7 @@
               <div class="timeline-content">
                 <div class="timeline-title">Confirmed</div>
                 <% if (order.statusTimeline?.confirmedAt) { %>
-                  <div class="timeline-date"><%= new Date(order.statusTimeline.confirmedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="timeline-date"><%= new Date(order.statusTimeline.confirmedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
@@ -115,7 +120,7 @@
               <div class="timeline-content">
                 <div class="timeline-title">Processing</div>
                 <% if (order.statusTimeline?.processedAt) { %>
-                  <div class="timeline-date"><%= new Date(order.statusTimeline.processedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="timeline-date"><%= new Date(order.statusTimeline.processedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
@@ -125,7 +130,7 @@
               <div class="timeline-content">
                 <div class="timeline-title">Shipped</div>
                 <% if (order.statusTimeline?.shippedAt) { %>
-                  <div class="timeline-date"><%= new Date(order.statusTimeline.shippedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="timeline-date"><%= new Date(order.statusTimeline.shippedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
@@ -135,7 +140,7 @@
               <div class="timeline-content">
                 <div class="timeline-title">Out for Delivery</div>
                 <% if (order.statusTimeline?.outForDeliveryAt) { %>
-                  <div class="timeline-date"><%= new Date(order.statusTimeline.outForDeliveryAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="timeline-date"><%= new Date(order.statusTimeline.outForDeliveryAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
@@ -145,33 +150,33 @@
               <div class="timeline-content">
                 <div class="timeline-title">Delivered</div>
                 <% if (order.statusTimeline?.deliveredAt) { %>
-                  <div class="timeline-date"><%= new Date(order.statusTimeline.deliveredAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="timeline-date"><%= new Date(order.statusTimeline.deliveredAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
 
             <% if (order.orderStatus === 'Cancelled' || order.statusTimeline?.cancelledAt) { %>
-              <div class="timeline-item completed cancelled">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                  <div class="timeline-title">Cancelled</div>
-                  <% if (order.statusTimeline?.cancelledAt) { %>
-                    <div class="timeline-date"><%= new Date(order.statusTimeline.cancelledAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
-                  <% } %>
-                </div>
+            <div class="timeline-item completed cancelled">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-title">Cancelled</div>
+                <% if (order.statusTimeline?.cancelledAt) { %>
+                <div class="timeline-date"><%= new Date(order.statusTimeline.cancelledAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <% } %>
               </div>
+            </div>
             <% } %>
 
             <% if (order.orderStatus === 'Returned' || order.statusTimeline?.returnedAt) { %>
-              <div class="timeline-item completed returned">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                  <div class="timeline-title">Returned</div>
-                  <% if (order.statusTimeline?.returnedAt) { %>
-                    <div class="timeline-date"><%= new Date(order.statusTimeline.returnedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
-                  <% } %>
-                </div>
+            <div class="timeline-item completed returned">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-title">Returned</div>
+                <% if (order.statusTimeline?.returnedAt) { %>
+                <div class="timeline-date"><%= new Date(order.statusTimeline.returnedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <% } %>
               </div>
+            </div>
             <% } %>
           </div>
         </div>
@@ -185,35 +190,35 @@
         <div class="card-body">
           <div class="items-list">
             <% order.orderedItems.forEach(item => { %>
-              <div class="item-card <%= item.itemStatus === 'ReturnRequested' ? 'return-requested' : '' %> <%= item.itemStatus === 'ReturnApproved' ? 'return-approved' : '' %>">
-                <div class="item-main-content">
-                  <div class="item-image">
-                    <% if (item.variantId.images && item.variantId.images.length > 0) { %>
-                      <img src="<%= item.variantId.images[0] %>" alt="<%= item.productId.name %>">
-                    <% } else { %>
-                      <div class="no-image">
-                        <i class="bi bi-image"></i>
-                      </div>
+            <div class="item-card <%= item.itemStatus === 'ReturnRequested' ? 'return-requested' : '' %> <%= item.itemStatus === 'ReturnApproved' ? 'return-approved' : '' %>">
+              <div class="item-main-content">
+                <div class="item-image">
+                  <% if (item.variantId.images && item.variantId.images.length > 0) { %>
+                  <img src="<%= item.variantId.images[0] %>" alt="<%= item.productId.name %>">
+                  <% } else { %>
+                  <div class="no-image">
+                    <i class="bi bi-image"></i>
+                  </div>
+                  <% } %>
+                </div>
+                <div class="item-details">
+                  <div class="item-name"><%= item.productId?.name || 'Product' %></div>
+                  <div class="item-variant">
+                    <% if (item.variantId?.color) { %>
+                    <span>Color: <%= item.variantId.color %></span>
+                    <% } %>
+                    <% if (item.variantId?.storage) { %>
+                    <span>Storage: <%= item.variantId.storage %></span>
+                    <% } %>
+                    <% if (item.variantId?.ram) { %>
+                    <span>RAM: <%= item.variantId.ram %></span>
                     <% } %>
                   </div>
-                  <div class="item-details">
-                    <div class="item-name"><%= item.productId?.name || 'Product' %></div>
-                    <div class="item-variant">
-                      <% if (item.variantId?.color) { %>
-                        <span>Color: <%= item.variantId.color %></span>
-                      <% } %>
-                      <% if (item.variantId?.storage) { %>
-                        <span>Storage: <%= item.variantId.storage %></span>
-                      <% } %>
-                      <% if (item.variantId?.ram) { %>
-                        <span>RAM: <%= item.variantId.ram %></span>
-                      <% } %>
-                    </div>
-                    <div class="item-quantity">Quantity: <strong><%= item.quantity %></strong></div>
-                    <% if (item.itemStatus) { %>
-                      <div class="item-status-row">
-                        Status: 
-                        <% 
+                  <div class="item-quantity">Quantity: <strong><%= item.quantity %></strong></div>
+                  <% if (item.itemStatus) { %>
+                  <div class="item-status-row">
+                    Status:
+                    <% 
                           let itemStatusClass = '';
                           if (item.itemStatus === 'Delivered') itemStatusClass = 'status-active';
                           else if (item.itemStatus === 'Shipped') itemStatusClass = 'status-shipping';
@@ -224,139 +229,134 @@
                           else if (item.itemStatus === 'ReturnRequested' || item.itemStatus === 'ReturnApproved') itemStatusClass = 'status-refunded';
                           else if (item.itemStatus === 'ReturnRejected') itemStatusClass = 'status-blocked';
                         %>
-                        <span class="status-badge <%= itemStatusClass %>"><%= item.itemStatus %></span>
-                      </div>
-                    <% } %>
+                    <span class="status-badge <%= itemStatusClass %>"><%= item.itemStatus %></span>
                   </div>
-                  <div class="item-price">
-                    <div class="price-label">Price</div>
-                    <div class="price-value">₹<%= (item.price * item.quantity).toLocaleString('en-IN', {minimumFractionDigits: 2}) %></div>
-                    <div class="price-per-unit">₹<%= item.price.toLocaleString('en-IN') %> each</div>
-                  </div>
+                  <% } %>
                 </div>
+                <div class="item-price">
+                  <div class="price-label">Price</div>
+                  <div class="price-value">₹<%= (item.price * item.quantity).toLocaleString('en-IN', {minimumFractionDigits: 2}) %></div>
+                  <div class="price-per-unit">₹<%= item.price.toLocaleString('en-IN') %> each</div>
+                </div>
+              </div>
 
-                <!-- Return Request Section -->
-                <% if (item.itemStatus === 'ReturnRequested') { %>
-                  <div class="return-request-section">
-                    <div class="return-header">
-                      <i class="bi bi-arrow-return-left"></i>
-                      <strong>Return Request</strong>
-                    </div>
-                    <div class="return-reason">
-                      <label>Customer Reason:</label>
-                      <p><%= item.reason || 'No reason provided' %></p>
-                    </div>
-                    <% if (item.itemTimeline?.returnRequestedAt) { %>
-                      <div class="return-date">
-                        Requested: <%= new Date(item.itemTimeline.returnRequestedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
-                      </div>
-                    <% } %>
-                    <div class="return-actions">
-                      <div class="admin-note-input">
-                        <label for="adminNote_<%= item._id %>">Admin Note (Optional)</label>
-                        <textarea 
-                          id="adminNote_<%= item._id %>" 
-                          class="form-textarea" 
-                          rows="2" 
-                          placeholder="Add a note for approval/rejection..."
-                        ></textarea>
-                      </div>
-                      <div class="return-buttons">
-                        <button class="btn-reject" onclick="handleReturn('<%= order._id %>', '<%= item._id %>', 'reject')">
-                          <i class="bi bi-x-circle"></i>
-                          Reject
-                        </button>
-                        <button class="btn-approve" onclick="handleReturn('<%= order._id %>', '<%= item._id %>', 'approve')">
-                          <i class="bi bi-check-circle"></i>
-                          Approve
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+              <!-- Return Request Section -->
+              <% if (item.itemStatus === 'ReturnRequested') { %>
+              <div class="return-request-section">
+                <div class="return-header">
+                  <i class="bi bi-arrow-return-left"></i>
+                  <strong>Return Request</strong>
+                </div>
+                <div class="return-reason">
+                  <label>Customer Reason:</label>
+                  <p><%= item.reason || 'No reason provided' %></p>
+                </div>
+                <% if (item.itemTimeline?.returnRequestedAt) { %>
+                <div class="return-date">
+                  Requested: <%= new Date(item.itemTimeline.returnRequestedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
+                </div>
                 <% } %>
-
-                <!-- Approved Return Section -->
-                <% if (item.itemStatus === 'ReturnApproved') { %>
-                  <div class="approved-return-section">
-                    <div class="approved-header">
-                      <i class="bi bi-check-circle-fill"></i>
-                      <strong>Return Approved</strong>
-                    </div>
-                    <% if (item.reason) { %>
-                      <div class="approved-reason">
-                        <label>Reason:</label>
-                        <p><%= item.reason %></p>
-                      </div>
-                    <% } %>
-                    <% if (item.itemTimeline?.returnApprovedAt) { %>
-                      <div class="approved-date">
-                        Approved: <%= new Date(item.itemTimeline.returnApprovedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
-                      </div>
-                    <% } %>
-                    <button class="btn-mark-returned" onclick="markItemReturned('<%= order._id %>', '<%= item._id %>')">
-                      <i class="bi bi-box-seam"></i>
-                      Mark as Returned
+                <div class="return-actions">
+                  <div class="admin-note-input">
+                    <label for="adminNote_<%= item._id %>">Admin Note (Optional)</label>
+                    <textarea id="adminNote_<%= item._id %>" class="form-textarea" rows="2" placeholder="Add a note for approval/rejection..."></textarea>
+                  </div>
+                  <div class="return-buttons">
+                    <button class="btn-reject" onclick="handleReturn('<%= order._id %>', '<%= item._id %>', 'reject')">
+                      <i class="bi bi-x-circle"></i>
+                      Reject
+                    </button>
+                    <button class="btn-approve" onclick="handleReturn('<%= order._id %>', '<%= item._id %>', 'approve')">
+                      <i class="bi bi-check-circle"></i>
+                      Approve
                     </button>
                   </div>
-                <% } %>
+                </div>
+              </div>
+              <% } %>
 
-                <!-- Cancelled Item Info -->
-                <% if (item.itemStatus === 'Cancelled' && item.reason) { %>
-                  <div class="cancelled-section">
-                    <div class="cancelled-header">
-                      <i class="bi bi-x-circle-fill"></i>
-                      <strong>Cancelled by Customer</strong>
-                    </div>
-                    <div class="cancelled-reason">
-                      <label>Reason:</label>
-                      <p><%= item.reason %></p>
-                    </div>
-                    <% if (item.itemTimeline?.cancelledAt) { %>
-                      <div class="cancelled-date">
-                        Cancelled: <%= new Date(item.itemTimeline.cancelledAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
-                      </div>
-                    <% } %>
-                  </div>
+              <!-- Approved Return Section -->
+              <% if (item.itemStatus === 'ReturnApproved') { %>
+              <div class="approved-return-section">
+                <div class="approved-header">
+                  <i class="bi bi-check-circle-fill"></i>
+                  <strong>Return Approved</strong>
+                </div>
+                <% if (item.reason) { %>
+                <div class="approved-reason">
+                  <label>Reason:</label>
+                  <p><%= item.reason %></p>
+                </div>
                 <% } %>
-
-                <!-- Returned Item Info -->
-                <% if (item.itemStatus === 'Returned' && item.reason) { %>
-                  <div class="returned-section">
-                    <div class="returned-header">
-                      <i class="bi bi-arrow-return-left"></i>
-                      <strong>Item Returned</strong>
-                    </div>
-                    <div class="returned-reason">
-                      <label>Reason:</label>
-                      <p><%= item.reason %></p>
-                    </div>
-                    <% if (item.itemTimeline?.returnedAt) { %>
-                      <div class="returned-date">
-                        Returned: <%= new Date(item.itemTimeline.returnedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
-                      </div>
-                    <% } %>
-                  </div>
+                <% if (item.itemTimeline?.returnApprovedAt) { %>
+                <div class="approved-date">
+                  Approved: <%= new Date(item.itemTimeline.returnApprovedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
+                </div>
                 <% } %>
+                <button class="btn-mark-returned" onclick="markItemReturned('<%= order._id %>', '<%= item._id %>')">
+                  <i class="bi bi-box-seam"></i>
+                  Mark as Returned
+                </button>
+              </div>
+              <% } %>
 
-                <!-- Rejected Return Info -->
-                <% if (item.itemStatus === 'ReturnRejected' && item.reason) { %>
-                  <div class="rejected-section">
-                    <div class="rejected-header">
-                      <i class="bi bi-x-circle-fill"></i>
-                      <strong>Return Rejected</strong>
-                    </div>
-                    <div class="rejected-reason">
-                      <label>Reason:</label>
-                      <p><%= item.reason %></p>
-                    </div>
-                    <% if (item.itemTimeline?.returnRejectedAt) { %>
-                      <div class="rejected-date">
-                        Rejected: <%= new Date(item.itemTimeline.returnRejectedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
-                      </div>
-                    <% } %>
-                  </div>
+              <!-- Cancelled Item Info -->
+              <% if (item.itemStatus === 'Cancelled' && item.reason) { %>
+              <div class="cancelled-section">
+                <div class="cancelled-header">
+                  <i class="bi bi-x-circle-fill"></i>
+                  <strong>Cancelled by Customer</strong>
+                </div>
+                <div class="cancelled-reason">
+                  <label>Reason:</label>
+                  <p><%= item.reason %></p>
+                </div>
+                <% if (item.itemTimeline?.cancelledAt) { %>
+                <div class="cancelled-date">
+                  Cancelled: <%= new Date(item.itemTimeline.cancelledAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
+                </div>
                 <% } %>
               </div>
+              <% } %>
+
+              <!-- Returned Item Info -->
+              <% if (item.itemStatus === 'Returned' && item.reason) { %>
+              <div class="returned-section">
+                <div class="returned-header">
+                  <i class="bi bi-arrow-return-left"></i>
+                  <strong>Item Returned</strong>
+                </div>
+                <div class="returned-reason">
+                  <label>Reason:</label>
+                  <p><%= item.reason %></p>
+                </div>
+                <% if (item.itemTimeline?.returnedAt) { %>
+                <div class="returned-date">
+                  Returned: <%= new Date(item.itemTimeline.returnedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
+                </div>
+                <% } %>
+              </div>
+              <% } %>
+
+              <!-- Rejected Return Info -->
+              <% if (item.itemStatus === 'ReturnRejected' && item.reason) { %>
+              <div class="rejected-section">
+                <div class="rejected-header">
+                  <i class="bi bi-x-circle-fill"></i>
+                  <strong>Return Rejected</strong>
+                </div>
+                <div class="rejected-reason">
+                  <label>Reason:</label>
+                  <p><%= item.reason %></p>
+                </div>
+                <% if (item.itemTimeline?.returnRejectedAt) { %>
+                <div class="rejected-date">
+                  Rejected: <%= new Date(item.itemTimeline.returnRejectedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
+                </div>
+                <% } %>
+              </div>
+              <% } %>
+            </div>
             <% }); %>
           </div>
         </div>
@@ -391,7 +391,7 @@
         <div class="card-header">
           <h3>Shipping Address</h3>
           <% if (order.shippingAddress?.addressType) { %>
-            <span class="address-type-badge"><%= order.shippingAddress.addressType %></span>
+          <span class="address-type-badge"><%= order.shippingAddress.addressType %></span>
           <% } %>
         </div>
         <div class="card-body">
@@ -400,11 +400,11 @@
             <div class="address-phone"><%= order.shippingAddress?.phone || 'N/A' %></div>
             <div class="address-line"><%= order.shippingAddress?.address1 || '' %></div>
             <% if (order.shippingAddress?.address2) { %>
-              <div class="address-line"><%= order.shippingAddress.address2 %></div>
+            <div class="address-line"><%= order.shippingAddress.address2 %></div>
             <% } %>
             <div class="address-line">
-              <%= order.shippingAddress?.city || '' %>, 
-              <%= order.shippingAddress?.state || '' %> - 
+              <%= order.shippingAddress?.city || '' %>,
+              <%= order.shippingAddress?.state || '' %> -
               <%= order.shippingAddress?.pincode || '' %>
             </div>
             <div class="address-line"><%= order.shippingAddress?.country || '' %></div>
@@ -422,11 +422,11 @@
             <span class="info-label">Payment Method</span>
             <span class="info-value payment-method">
               <% if (order.paymentMethod === 'razorpay') { %>
-                <i class="bi bi-credit-card"></i> Razorpay
+              <i class="bi bi-credit-card"></i> Razorpay
               <% } else if (order.paymentMethod === 'cod') { %>
-                <i class="bi bi-cash"></i> Cash on Delivery
+              <i class="bi bi-cash"></i> Cash on Delivery
               <% } else if (order.paymentMethod === 'wallet') { %>
-                <i class="bi bi-wallet2"></i> Wallet
+              <i class="bi bi-wallet2"></i> Wallet
               <% } %>
             </span>
           </div>
@@ -460,22 +460,22 @@
           </div>
 
           <% if (order.paymentInfo?.razorpayPaymentId) { %>
-            <div class="info-row">
-              <span class="info-label">Payment ID</span>
-              <span class="info-value payment-id"><%= order.paymentInfo.razorpayPaymentId %></span>
-            </div>
+          <div class="info-row">
+            <span class="info-label">Payment ID</span>
+            <span class="info-value payment-id"><%= order.paymentInfo.razorpayPaymentId %></span>
+          </div>
           <% } %>
           <% if (order.paymentInfo?.razorpayOrderId) { %>
-            <div class="info-row">
-              <span class="info-label">Razorpay Order ID</span>
-              <span class="info-value payment-id"><%= order.paymentInfo.razorpayOrderId %></span>
-            </div>
+          <div class="info-row">
+            <span class="info-label">Razorpay Order ID</span>
+            <span class="info-value payment-id"><%= order.paymentInfo.razorpayOrderId %></span>
+          </div>
           <% } %>
           <% if (order.paymentInfo?.walletTransactionId) { %>
-            <div class="info-row">
-              <span class="info-label">Transaction ID</span>
-              <span class="info-value payment-id"><%= order.paymentInfo.walletTransactionId %></span>
-            </div>
+          <div class="info-row">
+            <span class="info-label">Transaction ID</span>
+            <span class="info-value payment-id"><%= order.paymentInfo.walletTransactionId %></span>
+          </div>
           <% } %>
         </div>
       </div>
@@ -491,18 +491,18 @@
             <span>₹<%= order.subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
           </div>
           <% if (order.discount > 0) { %>
-            <div class="summary-row discount">
-              <span>Discount</span>
-              <span>-₹<%= order.discount.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
-            </div>
+          <div class="summary-row discount">
+            <span>Discount</span>
+            <span>-₹<%= order.discount.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
+          </div>
           <% } %>
           <div class="summary-row">
             <span>Delivery Charge</span>
             <span>
               <% if (order.deliveryCharge === 0) { %>
-                <span class="free-delivery">FREE</span>
+              <span class="free-delivery">FREE</span>
               <% } else { %>
-                ₹<%= order.deliveryCharge.toLocaleString('en-IN', {minimumFractionDigits: 2}) %>
+              ₹<%= order.deliveryCharge.toLocaleString('en-IN', {minimumFractionDigits: 2}) %>
               <% } %>
             </span>
           </div>
@@ -516,25 +516,25 @@
 
       <!-- Delivery Information -->
       <% if (order.expectedDelivery || order.deliveredDate) { %>
-        <div class="card">
-          <div class="card-header">
-            <h3>Delivery Information</h3>
-          </div>
-          <div class="card-body">
-            <% if (order.expectedDelivery) { %>
-              <div class="info-row">
-                <span class="info-label">Expected Delivery</span>
-                <span class="info-value"><%= new Date(order.expectedDelivery).toLocaleDateString('en-IN', { dateStyle: 'long' }) %></span>
-              </div>
-            <% } %>
-            <% if (order.deliveredDate) { %>
-              <div class="info-row">
-                <span class="info-label">Delivered On</span>
-                <span class="info-value"><%= new Date(order.deliveredDate).toLocaleDateString('en-IN', { dateStyle: 'long' }) %></span>
-              </div>
-            <% } %>
-          </div>
+      <div class="card">
+        <div class="card-header">
+          <h3>Delivery Information</h3>
         </div>
+        <div class="card-body">
+          <% if (order.expectedDelivery) { %>
+          <div class="info-row">
+            <span class="info-label">Expected Delivery</span>
+            <span class="info-value"><%= new Date(order.expectedDelivery).toLocaleDateString('en-IN', { dateStyle: 'long' }) %></span>
+          </div>
+          <% } %>
+          <% if (order.deliveredDate) { %>
+          <div class="info-row">
+            <span class="info-label">Delivered On</span>
+            <span class="info-value"><%= new Date(order.deliveredDate).toLocaleDateString('en-IN', { dateStyle: 'long' }) %></span>
+          </div>
+          <% } %>
+        </div>
+      </div>
       <% } %>
     </div>
   </div>
