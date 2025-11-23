@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice - <%= order.orderId %></title>
+
+  <link rel="stylesheet" href="/css/user/invoice.css">
+</head>
+
+<body>
+
+  <button class="btn-print" onclick="window.print()">Download Invoice</button>
+
+  <div class="invoice-container">
+
+    <img src="/images/logo+name.png" alt="Logo" style="height:40px;">
+
+    <div class="header">
+      <h1>INVOICE</h1>
+      <div class="subheader">
+        <p><strong>Order ID:</strong> <%= order.orderId %></p>
+        <p>Date: <%= new Date(order.createdAt).toLocaleDateString('en-IN') %></p>
+      </div>
+    </div>
+
+    <div class="info">
+      <div>
+        <h3>Billing Details</h3>
+        <p><strong>Name:</strong> <%= order.shippingAddress.fullName %></p>
+        <p><strong>Phone:</strong> <%= order.shippingAddress.phone %></p>
+        <p><strong>Address:</strong><br>
+          <%= order.shippingAddress.address1 %><br>
+          <% if (order.shippingAddress.address2) { %>
+            <%= order.shippingAddress.address2 %><br>
+          <% } %>
+          <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %><br>
+          <%= order.shippingAddress.country %>
+        </p>
+      </div>
+
+      <div>
+        <h3>Payment Info</h3>
+        <p><strong>Payment Method:</strong> 
+          <%= order.paymentMethod === "cod" ? "Cash on Delivery" : order.paymentMethod.toUpperCase() %>
+        </p>
+        <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
+        <p><strong>Order Status:</strong> <%= order.orderStatus %></p>
+      </div>
+    </div>
+
+    <h3>Products</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Variant</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% order.orderedItems.forEach(item => { %>
+          <tr>
+            <td><%= item.productId.name %></td>
+
+            <td>
+              <% if (item.variantId.colour) { %> Colour: <%= item.variantId.colour %><br> <% } %>
+              <% if (item.variantId.ram) { %> RAM: <%= item.variantId.ram %><br> <% } %>
+              <% if (item.variantId.storage) { %> Storage: <%= item.variantId.storage %><br> <% } %>
+            </td>
+
+            <td><%= item.quantity %></td>
+
+            <td>₹<%= item.price.toLocaleString('en-IN') %></td>
+
+            <td>₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
+          </tr>
+        <% }) %>
+
+        <!-- Totals -->
+        <tr class="total-row">
+          <td colspan="4" style="text-align:right;">Subtotal</td>
+          <td>₹<%= order.subtotal.toLocaleString('en-IN') %></td>
+        </tr>
+
+        <tr class="total-row">
+          <td colspan="4" style="text-align:right;">Discount</td>
+          <td>- ₹<%= order.discount.toLocaleString('en-IN') %></td>
+        </tr>
+
+        <tr class="total-row">
+          <td colspan="4" style="text-align:right;">Delivery Charge</td>
+          <td>₹<%= order.deliveryCharge.toLocaleString('en-IN') %></td>
+        </tr>
+
+        <tr class="total-row">
+          <td colspan="4" style="text-align:right; font-size:16px;">Final Amount</td>
+          <td style="font-size:16px;">₹<%= order.finalAmount.toLocaleString('en-IN') %></td>
+        </tr>
+
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p>Thank you for shopping with us!</p>
+    </div>
+
+  </div>
+
+</body>
+</html>
