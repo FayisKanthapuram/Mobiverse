@@ -1,8 +1,11 @@
-import brandModel from "../../models/brandModel.js";
 import Order from "../../models/orderModel.js";
+import productModel from "../../models/productModel.js";
+import variantModel from "../../models/variantModel.js";
 
 export const loadOrders = async (req, res) => {
-  const orders = await Order.find().sort({createdAt:-1}).populate("userId", "username email");
+  const orders = await Order.find()
+    .sort({ createdAt: -1 })
+    .populate("userId", "username email");
   const pageData = {
     sortFilter: "recent",
     pageTitle: "orders",
@@ -343,14 +346,22 @@ export const markItemReturned = async (req, res) => {
     }
 
     // Find item
-    const item = order.orderedItems.id
-      ? order.orderedItems.id(itemId)
-      : order.orderedItems.find((i) => i._id.toString() === itemId);
+    const item = order.orderedItems.find((i) => i._id.toString() === itemId);
+    console.log(item);
     if (!item) {
       return res
         .status(404)
         .json({ success: false, message: "Ordered item not found" });
     }
+
+    const variant = await variantModel.findById(item.variantId);
+    const product = await productModel.findById(item.productId);
+
+    product.totalStock += item.quantity;
+    variant.stock += item.quantity;
+
+    await product.save();
+    await variant.save();
 
     // Only allowed if item was approved for return
     if (item.itemStatus === "Returned") {
@@ -387,12 +398,10 @@ export const markItemReturned = async (req, res) => {
     return res.json({ success: true, message: "Item marked returned", order });
   } catch (error) {
     console.error("Error marking item returned:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        message: "Server error while marking item returned",
-      });
+    return res.status(500).json({
+      success: false,
+      message: "Server error while marking item returned",
+    });
   }
 };
 

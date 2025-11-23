@@ -39,6 +39,14 @@
             </button>
           </div>
 
+          <!-- Add this after the Filter Tabs section, before the Orders List -->
+          <div class="mb-6">
+            <div class="relative">
+              <input type="text" id="orderSearch" placeholder="Search by Order ID, Product Name, or Status..." class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" onkeyup="searchOrders()">
+              <i class="bi bi-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
+            </div>
+          </div>
+
           <!-- Orders List -->
           <div id="ordersList" class="space-y-6">
             <% if (orders && orders.length > 0) { %>
@@ -157,7 +165,7 @@
                 </a>
 
                 <% if (order.orderStatus === 'Delivered' || order.orderStatus === 'Partially Delivered') { %>
-                <button onclick="downloadInvoice('<%= order._id %>')" class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                <button onclick="downloadInvoice('<%= order.orderId %>')" class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm">
                   <i class="bi bi-download"></i> Download Invoice
                 </button>
                 <% } %>

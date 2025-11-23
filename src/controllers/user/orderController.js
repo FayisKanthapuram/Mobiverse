@@ -11,6 +11,9 @@ import {
   orderValidation,
 } from "../../validators/OrderValidator.js";
 import userModel from "../../models/userModel.js";
+import variantModel from "../../models/variantModel.js";
+import productModel from "../../models/productModel.js";
+import PDFDocument from "pdfkit";
 
 export const placeOrder = async (req, res) => {
   try {
@@ -35,7 +38,6 @@ export const placeOrder = async (req, res) => {
     }
 
     const items = await getCartItems(userId);
-    console.log(items);
     if (!items.length) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -44,6 +46,15 @@ export const placeOrder = async (req, res) => {
     }
 
     const cartTotals = await calculateCartTotals(items);
+
+    items.forEach(async (item) => {
+      const variant = await variantModel.findById(item.variantId._id);
+      const product = await productModel.findById(item.productId._id);
+      product.totalStock = product.totalStock - item.quantity;
+      variant.stock = variant.stock - item.quantity;
+      await product.save();
+      await variant.save();
+    });
 
     const orderedItems = items.map((item) => ({
       productId: item.productId._id,
@@ -144,17 +155,28 @@ export const cancelOrderItems = async (req, res) => {
     const order = await Order.findById(id);
 
     let isAllReturned = true;
-    order.orderedItems.forEach((item) => {
-      console.log(item._id);
-      console.log(itemIds.includes(item._id));
+    for (const item of order.orderedItems) {
       if (itemIds.includes(item._id.toString())) {
+        const variant = await variantModel.findById(item.variantId);
+        const product = await productModel.findById(item.productId);
+
+        // Increase stock back
+        product.totalStock += item.quantity;
+        variant.stock += item.quantity;
+
+        await product.save();
+        await variant.save();
+
+        // Update item fields
         item.itemStatus = "Cancelled";
         item.reason = `${reason}, ${comments}`;
       }
+
+      // Check remaining non-cancelled items
       if (item.itemStatus !== "Cancelled") {
         isAllReturned = false;
       }
-    });
+    }
 
     if (isAllReturned) {
       order.orderStatus = "Cancelled";
@@ -192,8 +214,6 @@ export const returnOrderItems = async (req, res) => {
     const order = await Order.findById(id);
 
     order.orderedItems.forEach((item) => {
-      console.log(item._id);
-      console.log(itemIds.includes(item._id));
       if (itemIds.includes(item._id.toString())) {
         item.itemStatus = "ReturnRequested";
         item.reason = `${reason}, ${comments}`;
@@ -231,4 +251,100 @@ export const loadOrderDetails = async (req, res) => {
     .populate("orderedItems.productId")
     .populate("orderedItems.variantId");
   res.render("user/orderDetails", { pageTitle: "My Orders", order });
+};
+
+export const downloadInvoice = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findOne({orderId})
+      .populate("orderedItems.productId")
+      .populate("orderedItems.variantId");
+
+    if (!order) return res.status(404).send("Order not found");
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=invoice_${order.orderId}.pdf`
+    );
+
+    const doc = new PDFDocument({ margin: 40 });
+    doc.pipe(res);
+
+    // --- Header ---
+    doc.fontSize(22).text("INVOICE", { align: "center" });
+    doc.moveDown(1);
+
+    // --- Order Info ---
+    doc.fontSize(12);
+    doc.text(`Order ID: ${order.orderId}`);
+    doc.text(`Order Date: ${order.createdAt.toDateString()}`);
+    doc.text(`Payment Method: ${order.paymentMethod}`);
+    doc.text(`Payment Status: ${order.paymentStatus}`);
+    doc.moveDown();
+
+    // --- Shipping Address ---
+    doc.fontSize(14).text("Shipping Address", { underline: true });
+    doc.moveDown(0.5);
+
+    const A = order.shippingAddress;
+
+    doc.fontSize(12).text(`${A.fullName}`);
+    doc.text(`${A.address1}${A.address2 ? ", " + A.address2 : ""}`);
+    doc.text(`${A.city}, ${A.state} - ${A.pincode}`);
+    doc.text(`${A.country}`);
+    doc.text(`Phone: ${A.phone}`);
+    doc.moveDown(1);
+
+    // --- Items List ---
+    doc.fontSize(14).text("Order Items", { underline: true });
+    doc.moveDown(0.5);
+
+    order.orderedItems.forEach((item, i) => {
+      doc.fontSize(12).text(`${i + 1}. ${item.productId.name}`);
+
+      // Variant fields (if available)
+      let variants = [];
+      if (item.variantId.colour) variants.push(`Colour: ${item.variantId.colour}`);
+      if (item.variantId.ram) variants.push(`RAM: ${item.variantId.ram}`);
+      if (item.variantId.storage) variants.push(`Storage: ${item.variantId.storage}`);
+
+      doc.text(variants.join(" | "));
+
+      doc.text(`Qty: ${item.quantity}`);
+      doc.text(`Price: ₹${item.price}`);
+      doc.text(`Total: ₹${item.price * item.quantity}`);
+
+      // Item Status
+      doc.text(`Status: ${item.itemStatus}`);
+
+      // Reason
+      if (item.reason) doc.text(`Reason: ${item.reason}`);
+
+      // Admin Note
+      if (item.adminNote) doc.text(`Admin Note: ${item.adminNote}`);
+
+      doc.moveDown();
+    });
+
+    // --- Price Breakdown ---
+    doc.moveDown(1);
+    doc.fontSize(14).text("Price Summary", { underline: true });
+    doc.moveDown(0.5);
+
+    doc.fontSize(12).text(`Subtotal: ₹${order.subtotal}`);
+    doc.text(`Discount: -₹${order.discount}`);
+    doc.text(`Delivery Charge: ₹${order.deliveryCharge}`);
+    doc.moveDown();
+
+    doc.fontSize(16).text(`Final Amount: ₹${order.finalAmount}`, {
+      align: "right",
+    });
+
+    doc.end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to generate invoice");
+  }
 };

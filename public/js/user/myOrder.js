@@ -410,5 +410,5 @@ function trackOrder(orderId) {
 
 // Download Invoice
 function downloadInvoice(orderId) {
-  window.open(`/api/order/invoice/${orderId}`, "_blank");
+  window.open(`/order/invoice/${orderId}`, "_blank");
 }
