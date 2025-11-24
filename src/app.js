@@ -11,7 +11,7 @@ import { connectDB } from "./config/db.js";
 import passport from "./config/passport.js";
 import { logger } from "./middlewares/logger.js";
 import { setUser } from "./middlewares/setUser.js";
-import { errorHandler, notFound } from "./middlewares/errorMiddlewares.js";
+import { errorHandler, notFound, staticFile404 } from "./middlewares/errorMiddlewares.js";
 
 const app = express();
 
@@ -43,6 +43,7 @@ app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
 
 // Error Handler
+app.use(staticFile404)
 app.use(notFound);
 app.use(errorHandler);
 

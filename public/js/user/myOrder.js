@@ -206,27 +206,41 @@ document
 // Filter Orders
 function filterOrders(status) {
   const url = new URL(window.location);
-  url.searchParams.set("status", status);
+  if(status){
+    url.searchParams.set("status", status);
+  }else{
+    url.searchParams.delete('status');
+  }
+  url.searchParams.set('page',1);
   window.location.href = url.href;
 }
 
 let searchTimeoutOrder;
 function debounceSearchOrder() {
-  console.log('hi')
   clearTimeout(searchTimeoutOrder);
   searchTimeoutOrder = setTimeout(handleSearchOrder, 1000);
 }
 
 function handleSearchOrder() {
-  console.log('hi')
   const searchValue = document.getElementById("orderSearch").value;
   const url = new URL(window.location);
   if (searchValue) {
-    url.searchParams.set("search", searchValue);
+    url.searchParams.set("searchOrder", searchValue);
   } else {
-    url.searchParams.delete("search");
+    url.searchParams.delete("searchOrder");
   }
+  url.searchParams.set('page',1);
   window.location.href = url.href;
+}
+
+function changeOrderPage(page){
+  const url=new URL(window.location);
+  if(page){
+    url.searchParams.set('page',page);
+  }else{
+    url.searchParams.delete('page');
+  }
+  window.location.href=url.href;
 }
 
 

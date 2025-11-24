@@ -131,7 +131,10 @@ export const loadOrderSuccess = async (req, res, next) => {
 export const laodMyOrders = async (req, res, next) => {
   try {
     const status = req.query.status || "";
-    const search = req.query.search || "";
+    const search = req.query.searchOrder || "";
+    const currentPage = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (currentPage - 1) * limit;
 
     let query = { userId: req.session.user };
 
@@ -145,10 +148,8 @@ export const laodMyOrders = async (req, res, next) => {
       .sort({ createdAt: -1 })
       .populate("orderedItems.productId")
       .populate("orderedItems.variantId");
-
     if (search) {
       const s = search.toLowerCase();
-
       orders = orders.filter(
         (order) =>
           order.orderId?.toLowerCase().includes(s) ||
@@ -157,6 +158,9 @@ export const laodMyOrders = async (req, res, next) => {
           )
       );
     }
+    const totalDocuments = orders.length;
+    orders = orders.slice(skip, skip + limit);
+    const totalPages = Math.ceil(totalDocuments / limit);
 
     res.render("user/myOrders", {
       pageTitle: "My Orders",
@@ -164,6 +168,10 @@ export const laodMyOrders = async (req, res, next) => {
       user,
       orders,
       query: req.query,
+      currentPage,
+      totalDocuments,
+      limit,
+      totalPages,
     });
   } catch (error) {
     next(error);
@@ -279,7 +287,7 @@ export const loadTrackOrder = async (req, res, next) => {
   }
 };
 
-export const loadOrderDetails = async (req, res,next) => {
+export const loadOrderDetails = async (req, res, next) => {
   try {
     const id = req.params.id;
     const order = await Order.findById(id)
@@ -291,7 +299,7 @@ export const loadOrderDetails = async (req, res,next) => {
   }
 };
 
-export const downloadInvoice = async (req, res ,next) => {
+export const downloadInvoice = async (req, res, next) => {
   try {
     const orderId = req.params.orderId;
 

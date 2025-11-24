@@ -50,16 +50,12 @@ export const loadOrders = async (req, res) => {
   const cancelledOrders = await Order.countDocuments({
     orderStatus: "Cancelled",
   });
-  const totalOrders=await Order.countDocuments(query);
 
   const limit = 5;
   const skip = (currentPage - 1) * limit;
-  const totalPages=Math.ceil(totalOrders/limit);
 
   let orders = await Order.find(query)
     .sort(sort)
-    .skip(skip)
-    .limit(limit)
     .populate("userId", "username email");
   
 
@@ -71,6 +67,9 @@ export const loadOrders = async (req, res) => {
       order.userId?.email?.toLowerCase().includes(s)
     )
   }
+  const totalOrders = orders.length;
+  orders = orders.slice(skip, skip + limit);
+  const totalPages = Math.ceil(totalOrders / limit);
   
   const pageData = {
     pageTitle: "Orders",

@@ -123,14 +123,12 @@ export const loadHome = async (req, res,next) => {
     ]);
 
     const brands = await brandModel.find({ isListed: true }).limit(6);
-
     // Render the index page and pass the data
-    res.render("user/home", {
+    return res.render("user/home", {
       heroData,
       latestProducts,
       featuredProducts,
       pageTitle: "Home",
-      pageCss: "home",
       pageJs: "home",
       brands,
       // You can also pass bestSellers, reviews, etc.

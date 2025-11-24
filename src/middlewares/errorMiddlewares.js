@@ -1,3 +1,16 @@
+// STATIC FILE 404 HANDLER (before global 404)
+export function staticFile404(req, res, next) {
+  if (
+    req.originalUrl.startsWith("/uploads") ||
+    req.originalUrl.startsWith("/images") ||
+    req.originalUrl.startsWith("/css") ||
+    req.originalUrl.startsWith("/js")
+  ) {
+    console.log(`${req.path} is missing`)
+    return res.status(404).send("File missing"); // or send default image
+  }
+  next();
+}
 // GLOBAL 404 HANDLER (for routes not found)
 export function notFound(req, res, next) {
   const error = new Error("Page not found");

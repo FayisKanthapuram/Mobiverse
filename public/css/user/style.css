@@ -1090,6 +1090,10 @@ video {
   min-width: 0px;
 }
 
+.min-w-\[36px\] {
+  min-width: 36px;
+}
+
 .max-w-2xl {
   max-width: 42rem;
 }
@@ -2139,6 +2143,10 @@ video {
   opacity: 0;
 }
 
+.opacity-40 {
+  opacity: 0.4;
+}
+
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -2597,6 +2605,10 @@ input[type="number"] {
 
   .md\:items-center {
     align-items: center;
+  }
+
+  .md\:justify-between {
+    justify-content: space-between;
   }
 
   .md\:p-20 {
