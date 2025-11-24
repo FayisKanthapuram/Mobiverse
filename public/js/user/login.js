@@ -8,7 +8,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     const response = await axios.post("/login", { email, password });
     console.log(response);
     if (response.data.success) {
-      window.location.href = '/home?message=login-success';
+      window.location.href = "/home?message=login-success";
     }
   } catch (error) {
     Toastify({
@@ -38,7 +38,7 @@ if (error === "blocked") {
   }).showToast();
 }
 
-if(error=== "login"){
+if (error === "login") {
   Toastify({
     text: "You need to log in to continue",
     duration: 4000,
@@ -50,7 +50,7 @@ if(error=== "login"){
   }).showToast();
 }
 
-if(error=== "logout"){
+if (error === "logout") {
   Toastify({
     text: "Logged out successfully.",
     duration: 4000,
@@ -60,4 +60,20 @@ if(error=== "logout"){
     close: true,
     stopOnFocus: true,
   }).showToast();
+}
+
+function toggleUserPassword() {
+  const input = document.getElementById("password");
+  const eyeOpen = document.getElementById("eyeOpenUser");
+  const eyeClosed = document.getElementById("eyeClosedUser");
+
+  if (input.type === "password") {
+    input.type = "text";
+    eyeOpen.classList.add("hidden");
+    eyeClosed.classList.remove("hidden");
+  } else {
+    input.type = "password";
+    eyeOpen.classList.remove("hidden");
+    eyeClosed.classList.add("hidden");
+  }
 }

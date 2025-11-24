@@ -54,23 +54,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.getElementById("terms-modal-overlay");
 
   if (openBtn && closeBtn && overlay) {
-    // Open modal
-    openBtn.addEventListener("click", (e) => {
-      e.preventDefault(); // Stop form from submitting
-      overlay.classList.add("active");
+
+    // Open
+    openBtn.addEventListener("click", () => {
+      overlay.classList.remove("opacity-0", "invisible");
+      overlay.children[0].classList.remove("scale-90");
+      overlay.children[0].classList.add("scale-100");
     });
 
-    // Close modal via 'X' button
-    closeBtn.addEventListener("click", () => {
-      overlay.classList.remove("active");
-    });
+    // Close
+    const closeModal = () => {
+      overlay.classList.add("opacity-0", "invisible");
+      overlay.children[0].classList.add("scale-90");
+    };
 
-    // Close modal by clicking background
+    closeBtn.addEventListener("click", closeModal);
     overlay.addEventListener("click", (e) => {
-      // Only close if the click is on the overlay itself
-      if (e.target === overlay) {
-        overlay.classList.remove("active");
-      }
+      if (e.target === overlay) closeModal();
     });
   }
 });
+
+function toggleSignupPassword(inputId, eyeOpenId, eyeClosedId) {
+    const input = document.getElementById(inputId);
+    const eyeOpen = document.getElementById(eyeOpenId);
+    const eyeClosed = document.getElementById(eyeClosedId);
+
+    if (input.type === "password") {
+        input.type = "text";
+        eyeOpen.classList.add("hidden");
+        eyeClosed.classList.remove("hidden");
+    } else {
+        input.type = "password";
+        eyeOpen.classList.remove("hidden");
+        eyeClosed.classList.add("hidden");
+    }
+}

@@ -117,25 +117,57 @@ export const placeOrder = async (req, res) => {
   }
 };
 
-export const loadOrderSuccess = async (req, res) => {
-  const order = await Order.find({ orderId: req.params.id })
-    .populate("orderedItems.productId")
-    .populate("orderedItems.variantId");
-  res.render("user/orderSuccess", { pageTitle: "Success", order: order[0] });
+export const loadOrderSuccess = async (req, res, next) => {
+  try {
+    const order = await Order.find({ orderId: req.params.id })
+      .populate("orderedItems.productId")
+      .populate("orderedItems.variantId");
+    res.render("user/orderSuccess", { pageTitle: "Success", order: order[0] });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const laodMyOrders = async (req, res) => {
-  const user = await userModel.findById(req.session.user);
-  const orders = await Order.find()
-    .sort({ createdAt: -1 })
-    .populate("orderedItems.productId")
-    .populate("orderedItems.variantId");
-  res.render("user/myOrders", {
-    pageTitle: "My Orders",
-    pageJs: "myOrder",
-    user,
-    orders,
-  });
+export const laodMyOrders = async (req, res, next) => {
+  try {
+    const status = req.query.status || "";
+    const search = req.query.search || "";
+
+    let query = { userId: req.session.user };
+
+    if (status) {
+      query.orderStatus = status;
+    }
+
+    const user = await userModel.findById(req.session.user);
+
+    let orders = await Order.find(query)
+      .sort({ createdAt: -1 })
+      .populate("orderedItems.productId")
+      .populate("orderedItems.variantId");
+
+    if (search) {
+      const s = search.toLowerCase();
+
+      orders = orders.filter(
+        (order) =>
+          order.orderId?.toLowerCase().includes(s) ||
+          order.orderedItems.some((item) =>
+            item.productId?.name?.toLowerCase().includes(s)
+          )
+      );
+    }
+
+    res.render("user/myOrders", {
+      pageTitle: "My Orders",
+      pageJs: "myOrder",
+      user,
+      orders,
+      query: req.query,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const cancelOrderItems = async (req, res) => {
@@ -235,27 +267,35 @@ export const returnOrderItems = async (req, res) => {
   }
 };
 
-export const loadTrackOrder = async (req, res) => {
-  const id = req.params.id;
-  const order = await Order.findById(id)
-    .populate("orderedItems.productId")
-    .populate("orderedItems.variantId");
-  res.render("user/trackOrder", { pageTitle: "My Orders", order });
+export const loadTrackOrder = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const order = await Order.findById(id)
+      .populate("orderedItems.productId")
+      .populate("orderedItems.variantId");
+    res.render("user/trackOrder", { pageTitle: "My Orders", order });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const loadOrderDetails = async (req, res) => {
-  const id = req.params.id;
-  const order = await Order.findById(id)
-    .populate("orderedItems.productId")
-    .populate("orderedItems.variantId");
-  res.render("user/orderDetails", { pageTitle: "My Orders", order });
+export const loadOrderDetails = async (req, res,next) => {
+  try {
+    const id = req.params.id;
+    const order = await Order.findById(id)
+      .populate("orderedItems.productId")
+      .populate("orderedItems.variantId");
+    res.render("user/orderDetails", { pageTitle: "My Orders", order });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const downloadInvoice = async (req, res) => {
+export const downloadInvoice = async (req, res ,next) => {
   try {
     const orderId = req.params.orderId;
 
-    const order = await Order.findOne({orderId})
+    const order = await Order.findOne({ orderId })
       .populate("orderedItems.productId")
       .populate("orderedItems.variantId")
       .populate("userId");
@@ -265,12 +305,11 @@ export const downloadInvoice = async (req, res) => {
     }
 
     res.render("user/invoice", {
-      layout:false,
+      layout: false,
       order,
       user: order.userId,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Server Error");
+    next(error);
   }
 };

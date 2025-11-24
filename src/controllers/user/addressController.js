@@ -2,7 +2,7 @@ import addressModel from "../../models/addressModel.js";
 import userModel from "../../models/userModel.js";
 import { addressSchema } from "../../validators/addressValidator.js";
 
-export const loadManageAddress = async (req, res) => {
+export const loadManageAddress = async (req, res,next) => {
   try {
     const user = await userModel.findById(req.session.user);
     const addresses = await addressModel
@@ -15,7 +15,7 @@ export const loadManageAddress = async (req, res) => {
       addresses,
     });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 

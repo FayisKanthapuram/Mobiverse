@@ -3,41 +3,102 @@ import productModel from "../../models/productModel.js";
 import variantModel from "../../models/variantModel.js";
 
 export const loadOrders = async (req, res) => {
-  const orders = await Order.find()
-    .sort({ createdAt: -1 })
+  const currentPage = parseInt(req.query.page) || 1;
+  const statusFilter=req.query.status||'';
+  const paymentStatusFilter=req.query.paymentStatus||'';
+  const sortFilter=req.query.sort||'recent';
+  const searchQuery=req.query.search||'';
+
+  const query={};
+  if(statusFilter){
+    query.orderStatus=statusFilter;
+  }
+  if(paymentStatusFilter){
+    query.paymentStatus=paymentStatusFilter;
+  }
+  const sort={};
+  if(sortFilter==='recent'){
+    sort.createdAt=-1;
+  }else if(sortFilter==='oldest'){
+    sort.createdAt=1;
+  }else if(sortFilter==='amount-high'){
+    sort.finalAmount=-1;
+  }else if(sortFilter==='amount-low'){
+    sort.finalAmount=1;
+  }
+
+  const totalRevenue = await Order.aggregate([
+    {
+      $match: {
+        orderStatus: { $nin: ["Cancelled", "Returned"] },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: "$finalAmount" },
+      },
+    },
+  ]);
+  const totalOrdersAnalitics = await Order.countDocuments();
+  const activeOrders = await Order.countDocuments({
+    orderStatus: { $nin: ["Cancelled", "Returned"] },
+  });
+  const returnedOrders = await Order.countDocuments({
+    orderStatus: "Returned",
+  });
+  const cancelledOrders = await Order.countDocuments({
+    orderStatus: "Cancelled",
+  });
+  const totalOrders=await Order.countDocuments(query);
+
+  const limit = 5;
+  const skip = (currentPage - 1) * limit;
+  const totalPages=Math.ceil(totalOrders/limit);
+
+  let orders = await Order.find(query)
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
     .populate("userId", "username email");
+  
+
+  if(searchQuery){
+    const s=searchQuery.toLowerCase();
+    orders=orders.filter(order=>
+      order.orderId?.toLowerCase().includes(s)||
+      order.userId?.username?.toLowerCase().includes(s)||
+      order.userId?.email?.toLowerCase().includes(s)
+    )
+  }
+  
   const pageData = {
-    sortFilter: "recent",
-    pageTitle: "orders",
+    pageTitle: "Orders",
+    pageCss:'orders',
+    pageJs:'orders',
     // Analytics data
     analytics: {
-      totalOrders: 1247,
-      totalOrdersChange: 12.5, // Percentage change (can be negative)
-      activeOrders: 324, // Orders that are not Delivered, Cancelled, or Returned
-      activeOrdersChange: 8.2,
-      returnedOrders: 18,
-      returnedOrdersChange: -3.1, // Negative is good for returns
-      cancelledOrders: 45,
-      cancelledOrdersChange: 2.4,
-      totalRevenue: 845230.5,
-      totalRevenueChange: 15.8,
+      totalOrders:totalOrdersAnalitics,
+      activeOrders,
+      returnedOrders,
+      cancelledOrders,
+      totalRevenue: totalRevenue[0].total,
     },
-
+    
     // Orders array with populated user data
     orders,
-
+    
     // Pagination data
-    currentPage: 1,
-    totalPages: 50,
-    limit: 20, // Orders per page
-    totalOrders: 1000,
-
+    currentPage,
+    totalPages,
+    limit,
+    totalOrders,
+    
     // Current filters (for maintaining state)
-    statusFilter: "", // Current order status filter (empty string or one of the statuses)
-    paymentStatusFilter: "", // Current payment status filter
-    paymentMethodFilter: "", // Current payment method filter
-    dateFilter: "", // Current date filter (YYYY-MM-DD format)
-    searchQuery: "", // Current search query
+    sortFilter,
+    statusFilter, 
+    paymentStatusFilter,
+    searchQuery, // Current search query
   };
 
   res.render("admin/orders", pageData);

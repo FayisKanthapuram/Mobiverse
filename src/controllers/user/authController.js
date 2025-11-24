@@ -3,58 +3,32 @@ import User from "../../models/userModel.js";
 import Joi from "joi";
 import { generateOtp } from "../../helpers/otp.js";
 import { sendVerificationEmail } from "../../helpers/gmail.js";
+import { resetPasswordSchema, userLoginSchema, userRegisterSchema } from "../../validators/authUserValidator.js";
 
-export const loadSignUp = (req, res) => {
-  res.render("user/signUp", {
-    pageTitle: "Sign Up",
-    pageCss: "auth",
-    pageJs: "signUp",
-  });
+export const loadSignUp = (req, res,next) => {
+  try {
+    res.render("user/signUp", {
+      pageTitle: "Sign Up",
+      pageJs: "signUp",
+    });
+  } catch (error) {
+    next(error)
+  }
 };
 
-export const loadLogin = (req, res) => {
-  res.render("user/login", {
-    pageTitle: "login",
-    pageCss: "auth",
-    pageJs: "login",
-  });
+export const loadLogin = (req, res,next) => {
+  try {
+    res.render("user/login", {
+      pageTitle: "login",
+      pageJs: "login",
+    });
+  } catch (error) {
+    next(error)
+  }
 };
 
 export const registerUser = async (req, res) => {
   try {
-    const userRegisterSchema = Joi.object({
-      username: Joi.string().min(3).max(30).required().messages({
-        "string.empty": "Username is required",
-        "string.min": "Username must be at least 3 characters",
-        "string.max": "Username cannot be more than 30 characters",
-      }),
-
-      email: Joi.string().email().required().messages({
-        "string.email": "Please enter a valid email",
-        "string.empty": "Email is required",
-      }),
-
-      password: Joi.string()
-        .pattern(
-          new RegExp(
-            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$"
-          )
-        )
-        .required()
-        .messages({
-          "string.empty": "Password is required",
-          "string.pattern.base":
-            "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character",
-        }),
-
-      confirmPassword: Joi.string()
-        .valid(Joi.ref("password"))
-        .required()
-        .messages({
-          "any.only": "Passwords do not match",
-          "string.empty": "Confirm password is required",
-        }),
-    });
     const { error } = userRegisterSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
@@ -97,12 +71,15 @@ export const registerUser = async (req, res) => {
   }
 };
 
-export const loadVerifyOtp = (req, res) => {
-  res.render("user/verifyOtp", {
-    pageTitle: "Verify Otp",
-    pageCss: "auth",
-    pageJs: "verifyOtp",
-  });
+export const loadVerifyOtp = (req, res,next) => {
+  try {
+    res.render("user/verifyOtp", {
+      pageTitle: "Verify Otp",
+      pageJs: "verifyOtp",
+    });
+  } catch (error) {
+    next(error)
+  }
 };
 
 export const verifyOtp = async (req, res) => {
@@ -223,17 +200,7 @@ export const googleLogin = (req, res) => {
 
 export const loginUser = async (req, res) => {
   try {
-    const schema = Joi.object({
-      email: Joi.string().email().required().messages({
-        "string.email": "Please enter a valid email",
-        "string.empty": "Email is required",
-      }),
-      password: Joi.string().min(4).required().messages({
-        "string.empty": "Password is required",
-        "string.min": "Password must be at least 4 characters",
-      }),
-    });
-    const { error } = schema.validate(req.body);
+    const { error } = userLoginSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
         success: false,
@@ -273,118 +240,122 @@ export const loginUser = async (req, res) => {
 };
 
 //forgot password
-export const loadForgotPassword = (req, res) => {
-  res.render("user/forgotPassword", {
-    pageTitle: "Forgot Password",
-    pageCss: "auth",
-    pageJs: "forgotPassword",
-  });
+export const loadForgotPassword = (req, res,next) => {
+  try {
+    res.render("user/forgotPassword", {
+      pageTitle: "Forgot Password",
+      pageJs: "forgotPassword",
+    });
+  } catch (error) {
+    next(error)
+  }
 };
 
 export const sendRecoverOtp = async (req, res) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.json({ success: false, message: "email is required" });
-  }
-  const user = await User.findOne({ email });
-  if (!user) {
-    console.log;
-    return res.status(400).json({
-      success: false,
-      message: "No account found with this email",
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.json({ success: false, message: "email is required" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.log;
+      return res.status(400).json({
+        success: false,
+        message: "No account found with this email",
+      });
+    }
+    if (!user.password) {
+      console.log("user.password");
+      return res.status(400).json({
+        success: false,
+        message: "Password change is not available for Google users",
+      });
+    }
+    const otp = generateOtp();
+    const sentEmail = await sendVerificationEmail(email, otp);
+    if (!sentEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to send OTP,try again later.",
+      });
+    }
+    req.session.recoveryOtp = otp;
+    req.session.recoveryOtpExpiry = Date.now() + 1 * 60 * 1000;
+    req.session.recoverEmail = email;
+    console.log(otp);
+    return res.json({
+      success: true,
+      redirect: "/verifyRecoverOtp",
+      message: "Check your inbox! We’ve sent a 6-digit OTP to your email.",
     });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
-  if (!user.password) {
-    console.log("user.password");
-    return res.status(400).json({
-      success: false,
-      message: "Password change is not available for Google users",
-    });
-  }
-  const otp = generateOtp();
-  const sentEmail = await sendVerificationEmail(email, otp);
-  if (!sentEmail) {
-    return res.status(400).json({
-      success: false,
-      message: "Failed to send OTP,try again later.",
-    });
-  }
-  req.session.recoveryOtp = otp;
-  req.session.recoveryOtpExpiry = Date.now() + 1 * 60 * 1000;
-  req.session.recoverEmail = email;
-  console.log(otp);
-  return res.json({
-    success: true,
-    redirect: "/verifyRecoverOtp",
-    message: "Check your inbox! We’ve sent a 6-digit OTP to your email.",
-  });
 };
 
-export const loadRecoverOtp = (req, res) => {
-  res.render("user/verifyOtp", {
-    pageTitle: "Verify Otp",
-    pageCss: "auth",
-    pageJs: "recoverOtp",
-  });
+export const loadRecoverOtp = (req, res,next) => {
+  try {
+    res.render("user/verifyOtp", {
+      pageTitle: "Verify Otp",
+      pageJs: "recoverOtp",
+    });
+  } catch (error) {
+    next(error)
+  }
 };
 
 export const verifyRecoverOtp = async (req, res) => {
-  const { otp } = req.body;
-  console.log(otp, "registered");
-  if (!req.session.recoveryOtp || !req.session.recoveryOtpExpiry) {
-    return res.status(401).json({
-      success: false,
-      message: "OTP not found. Please signup again.",
-    });
-  }
-  if (Date.now() > req.session.recoveryOtpExpiry) {
+  try {
+    const { otp } = req.body;
+    console.log(otp, "registered");
+    if (!req.session.recoveryOtp || !req.session.recoveryOtpExpiry) {
+      return res.status(401).json({
+        success: false,
+        message: "OTP not found. Please signup again.",
+      });
+    }
+    if (Date.now() > req.session.recoveryOtpExpiry) {
+      req.session.recoveryOtp = null;
+      req.session.recoveryOtpExpiry = null;
+      return res.status(401).json({
+        success: false,
+        message: "OTP expired. Please resend OTP.",
+      });
+    }
+    if (otp !== req.session.recoveryOtp) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Incorrect OTP. Try again." });
+    }
     req.session.recoveryOtp = null;
     req.session.recoveryOtpExpiry = null;
-    return res.status(401).json({
-      success: false,
-      message: "OTP expired. Please resend OTP.",
+    req.session.resetPass = true;
+    return res.json({
+      success: true,
+      message: "OTP verified successfully!",
+      redirect: "/resetPassword",
     });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ success: false, message: error.message });
   }
-  if (otp !== req.session.recoveryOtp) {
-    return res
-      .status(401)
-      .json({ success: false, message: "Incorrect OTP. Try again." });
-  }
-  req.session.recoveryOtp = null;
-  req.session.recoveryOtpExpiry = null;
-  req.session.resetPass = true;
-  return res.json({
-    success: true,
-    message: "OTP verified successfully!",
-    redirect: "/resetPassword",
-  });
 };
 
-export const loadResetPassword = (req, res) => {
-  res.render("user/resetPassword", {
-    pageTitle: "Reset Password",
-    pageCss: "auth",
-    pageJs: "resetPassword",
-  });
+export const loadResetPassword = (req, res,next) => {
+  try {
+    res.render("user/resetPassword", {
+      pageTitle: "Reset Password",
+      pageJs: "resetPassword",
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const saveNewPassword = async (req, res) => {
   try {
-    const userRegisterSchema = Joi.object({
-      password: Joi.string().min(6).required().messages({
-        "string.empty": "Password is required",
-        "string.min": "Password must be at least 6 characters long",
-      }),
-
-      confirmPassword: Joi.string()
-        .valid(Joi.ref("password"))
-        .required()
-        .messages({
-          "any.only": "Passwords do not match",
-          "string.empty": "Confirm password is required",
-        }),
-    });
-    const { error } = userRegisterSchema.validate(req.body);
+    const { error } = resetPasswordSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
         success: false,
@@ -412,15 +383,15 @@ export const saveNewPassword = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const logOutUser=(req,res)=>{
+export const logOutUser=(req,res,next)=>{
   try {
     req.session.destroy();
     res.redirect('/login');
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 }

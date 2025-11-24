@@ -7,7 +7,7 @@ import variantModel from "../../models/variantModel.js";
 import { addToCartSchema } from "../../validators/cartValidator.js";
 import { calculateCartTotals, getCartItems } from "../../services/cartServices.js";
 
-export const loadCart = async (req, res) => {
+export const loadCart = async (req, res,next) => {
   try {
     const relatedProducts = await productModel.aggregate([
       {
@@ -71,8 +71,7 @@ export const loadCart = async (req, res) => {
       relatedProducts,
     });
   } catch (error) {
-    console.log("Cart Load Error:", error);
-    return res.status(500).send("Internal Server Error");
+    next(error)
   }
 };
 

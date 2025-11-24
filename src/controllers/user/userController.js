@@ -6,7 +6,7 @@ import userModel from "../../models/userModel.js";
 import variantModel from "../../models/variantModel.js";
 import Joi from "joi";
 
-export const loadHome = async (req, res) => {
+export const loadHome = async (req, res,next) => {
   try {
     // --- This is placeholder data ---
     // You would fetch this from your database
@@ -136,12 +136,11 @@ export const loadHome = async (req, res) => {
       // You can also pass bestSellers, reviews, etc.
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Something went wrong");
+    next(error);
   }
 };
 
-export const loadShop = async (req, res) => {
+export const loadShop = async (req, res,next) => {
   try {
     const search = req.query.search || "";
     const brand = req.query.brand || "all";
@@ -269,11 +268,11 @@ export const loadShop = async (req, res) => {
       pageJs: "shop",
     });
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 };
 
-export const loadProductDetails = async (req, res) => {
+export const loadProductDetails = async (req, res,next) => {
   try {
     const { variantId } = req.params;
     const color = req.query.color;
@@ -309,7 +308,9 @@ export const loadProductDetails = async (req, res) => {
     ]);
 
     if (!productData.length) {
-      return res.status(404).send("Product not found");
+      const error = new Error("Product not found");
+      error.status = 404;
+      return next(error);
     }
 
     const product = productData[0];
@@ -423,7 +424,7 @@ export const loadProductDetails = async (req, res) => {
       selectedVariant,
       colorGroups,
       pageTitle: product.name,
-      pageJs:'productDetails',
+      pageJs: "productDetails",
       relatedProducts,
       reviews,
       breadcrumbs: [
@@ -440,6 +441,6 @@ export const loadProductDetails = async (req, res) => {
       ],
     });
   } catch (error) {
-    console.log(error);
+    next(error)
   }
 };

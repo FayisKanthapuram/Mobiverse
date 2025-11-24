@@ -1,73 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mobiverse Admin Login</title>
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
-    />
-    <link rel="stylesheet" href="/css/admin/login.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div class="login-container">
-      <div class="logo">
-        <img src="/images/logo.png" alt="Mobiverse Icon" class="logo-icon" />
-        <h1>Mobiverse</h1>
-      </div>
-      <div class="admin-header">
-        <h2>Admin Login</h2>
-        <p>Access the Mobiverse Management Panel</p>
-      </div>
 
-      <form class="login-form" id="loginForm">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            type="text"
-            id="email"
-            name="email"
-            placeholder="Enter your email"
-          />
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobiverse Admin Login</title>
 
-        <div class="form-group">
-          <div class="password-label-row">
-            <label for="password">Password</label>
-            <a href="/forgot-password" class="forgot-password"
-              >Forgot Password?</a
-            >
-          </div>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Enter your password"
-          />
-        </div>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        <button type="submit" class="btn-login">Login</button>
-      </form>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
 
-      <button onclick="window.location.href='/user/home'" class="btn-back">
-        Back to Website
-      </button>
+<body class="font-inter bg-gray-100 flex flex-col justify-center items-center min-h-screen text-gray-800">
+
+  <!-- Login Card -->
+  <div class="bg-white shadow-lg p-10 rounded-xl w-full max-w-sm">
+
+    <!-- Logo -->
+    <div class="flex items-center justify-center gap-2 mb-2">
+      <img src="/images/logo.png" alt="Mobiverse Icon" class="w-7" />
+      <h1 class="text-xl font-semibold">Mobiverse</h1>
     </div>
 
-    <footer class="footer-text">
-      &copy; 2025 Mobiverse Admin Portal. All Rights Reserved.
-    </footer>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/toastify-js"
-    ></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="/js/admin/login.js"></script>
-  </body>
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <h2 class="text-2xl font-bold mb-1">Admin Login</h2>
+      <p class="text-gray-500 text-sm">Access the Mobiverse Management Panel</p>
+    </div>
+
+    <!-- Form -->
+    <form id="loginForm" class="space-y-5">
+
+      <!-- Email -->
+      <div>
+        <label for="email" class="block font-semibold text-sm mb-1">Email</label>
+        <input type="text" id="email" name="email" placeholder="Enter your email" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 outline-none" />
+      </div>
+
+      <!-- Password -->
+      <!-- Password -->
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label for="password" class="font-semibold text-sm">Password</label>
+          <a href="/forgot-password" class="text-blue-500 text-sm hover:underline">Forgot Password?</a>
+        </div>
+
+        <div class="relative">
+          <input type="password" id="password" name="password" placeholder="Enter your password" class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 outline-none" />
+
+          <!-- Eye Icon Button -->
+          <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700">
+            <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 
+                 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+
+            <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 
+                 0-8.268-2.943-9.542-7a9.97 9.97 0 012.423-4.568M6.18 
+                 6.18A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 
+                 9.542 7a9.97 9.97 0 01-1.448 2.71M9.88 9.88a3 3 0 
+                 104.24 4.24" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+
+      <!-- Login Button -->
+      <button type="submit" class="w-full bg-blue-500 text-white py-3 rounded-md font-semibold hover:bg-blue-600 transition">
+        Login
+      </button>
+    </form>
+
+    <!-- Back Button -->
+    <button onclick="window.location.href='/user/home'" class="w-full bg-gray-200 text-gray-700 py-3 rounded-md font-semibold mt-4 hover:bg-gray-300 transition">
+      Back to Website
+    </button>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-6 text-gray-500 text-xs text-center">
+    &copy; 2025 Mobiverse Admin Portal. All Rights Reserved.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="/js/admin/login.js"></script>
+</body>
+
 </html>

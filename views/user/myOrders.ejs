@@ -16,36 +16,34 @@
 
           <!-- Filter Tabs -->
           <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
-            <button onclick="filterOrders('all')" class="filter-tab active px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('')" class="<%=!query.status? "active" : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               All Orders
             </button>
-            <button onclick="filterOrders('Pending')" class="filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Pending')" class="<%= query.status === 'Pending' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Pending
             </button>
-            <button onclick="filterOrders('Processing')" class="filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Processing')" class="<%= query.status === 'Processing' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Processing
             </button>
-            <button onclick="filterOrders('Shipped')" class="filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Shipped')" class="<%= query.status === 'Shipped' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Shipped
             </button>
-            <button onclick="filterOrders('Delivered')" class="filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Delivered')" class="<%= query.status === 'Delivered' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Delivered
             </button>
-            <button onclick="filterOrders('Cancelled')" class="filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Cancelled')" class="<%= query.status === 'Cancelled' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Cancelled
             </button>
-            <button onclick="filterOrders('Returned')" class="filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Returned')" class="<%= query.status === 'Returned' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Returned
             </button>
           </div>
 
-          <!-- Add this after the Filter Tabs section, before the Orders List -->
+          <!-- Search Orders -->
           <div class="mb-6">
-            <div class="relative">
-              <input type="text" id="orderSearch" placeholder="Search by Order ID, Product Name, or Status..." class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" onkeyup="searchOrders()">
-              <i class="bi bi-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
-            </div>
+            <input type="text" id="orderSearch" value="<%= typeof query.search !== 'undefined' ? query.search : '' %>" placeholder="Search orders by ID, product name..." onkeyup="debounceSearchOrder()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
           </div>
+
 
           <!-- Orders List -->
           <div id="ordersList" class="space-y-6">

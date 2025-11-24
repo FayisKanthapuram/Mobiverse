@@ -2,12 +2,12 @@ import { sendVerificationEmail } from "../../helpers/gmail.js";
 import { generateOtp } from "../../helpers/otp.js";
 import { passwordSchema } from "../../validators/changePasswordValidator.js";
 import userModel from "../../models/userModel.js";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 import { usernameValidator } from "../../validators/usernameValidator.js";
 import { emailSchema } from "../../validators/editEmailValidator.js";
 import { otpSchema } from "../../validators/sendOtpToemailValidator.js";
 
-export const loadPersonalInfo = async (req, res) => {
+export const loadPersonalInfo = async (req, res, next) => {
   try {
     const user = await userModel.findById(req.session.user);
     res.render("user/personalInfo", {
@@ -15,15 +15,11 @@ export const loadPersonalInfo = async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error("Error Personal Info:", error);
-    res.status(500).render("error", {
-      message: "Unable to load personal info",
-      pageTitle: "Error - Mobiverse",
-    });
+    next(error);
   }
 };
 
-export const loadEditInfo = async (req, res) => {
+export const loadEditInfo = async (req, res, next) => {
   try {
     const user = await userModel.findById(req.session.user);
     res.render("user/editInfo", {
@@ -32,15 +28,9 @@ export const loadEditInfo = async (req, res) => {
       pageJs: "editInfo",
     });
   } catch (error) {
-    console.error("Error fetching edit info", error);
-    res.status(500).render("error", {
-      message: "Unable to load edit info",
-      pageTitle: "Error - Mobiverse",
-    });
+    next(error);
   }
 };
-
-
 
 export const editInfo = async (req, res) => {
   try {
@@ -81,16 +71,17 @@ export const editInfo = async (req, res) => {
   }
 };
 
-export const loadEditEmail = async (req, res) => {
+export const loadEditEmail = async (req, res, next) => {
   try {
     const user = await userModel.findById(req.session.user);
-    res.render("user/editEmail", { pageTitle: "Personal Information", user ,pageJs:'editEmail'});
+    res.render("user/editEmail", {
+      pageTitle: "Personal Information",
+      user,
+      pageJs: "editEmail",
+    });
   } catch (error) {
     console.error("Error fetching edit Email", error);
-    res.status(500).render("error", {
-      message: "Unable to load edit Email",
-      pageTitle: "Error - Mobiverse",
-    });
+    next(error);
   }
 };
 
@@ -131,12 +122,12 @@ export const editEmail = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ success: false, message: "server error" });
   }
 };
 
 export const sendOtpToEditEmail = async (req, res) => {
   try {
-    
     const { error } = otpSchema.validate(req.body);
     const { otp } = req.body;
     if (error) {
@@ -179,7 +170,7 @@ export const sendOtpToEditEmail = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(404).json({ success: false, message: "server error" });
+    return res.status(500).json({ success: false, message: "server error" });
   }
 };
 
@@ -236,7 +227,7 @@ export const reSendOtpToEditEmail = async (req, res) => {
   }
 };
 
-export const loadChangePassword = async (req, res) => {
+export const loadChangePassword = async (req, res, next) => {
   try {
     const user = await userModel.findById(req.session.user);
     res.render("user/changePasswod", {
@@ -245,11 +236,7 @@ export const loadChangePassword = async (req, res) => {
       pageJs: "changePassword",
     });
   } catch (error) {
-    console.error("Error fetching edit Email", error);
-    res.status(500).render("error", {
-      message: "Unable to load edit Email",
-      pageTitle: "Error - Mobiverse",
-    });
+    next(error);
   }
 };
 
@@ -262,17 +249,17 @@ export const updatePassword = async (req, res) => {
         message: error.details[0].message,
       });
     }
-    const {currentPassword,newPassword,userId}=req.body;
-    const user=await userModel.findById(userId);
-    const isMatch=await bcrypt.compare(currentPassword,user.password);
+    const { currentPassword, newPassword, userId } = req.body;
+    const user = await userModel.findById(userId);
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return res
         .status(401)
         .json({ success: false, message: "Current password does not match." });
     }
 
-    const hashedPassword=await bcrypt.hash(newPassword,10);
-    user.password=hashedPassword;
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
     await user.save();
 
     res.status(200).json({

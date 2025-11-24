@@ -41,3 +41,20 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     }
   }
 });
+
+
+function toggleResetPassword(inputId, eyeOpenId, eyeClosedId) {
+  const input = document.getElementById(inputId);
+  const eyeOpen = document.getElementById(eyeOpenId);
+  const eyeClosed = document.getElementById(eyeClosedId);
+
+  if (input.type === "password") {
+    input.type = "text";
+    eyeOpen.classList.add("hidden");
+    eyeClosed.classList.remove("hidden");
+  } else {
+    input.type = "password";
+    eyeOpen.classList.remove("hidden");
+    eyeClosed.classList.add("hidden");
+  }
+}

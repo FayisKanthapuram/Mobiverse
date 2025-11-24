@@ -11,6 +11,7 @@ import { connectDB } from "./config/db.js";
 import passport from "./config/passport.js";
 import { logger } from "./middlewares/logger.js";
 import { setUser } from "./middlewares/setUser.js";
+import { errorHandler, notFound } from "./middlewares/errorMiddlewares.js";
 
 const app = express();
 
@@ -40,6 +41,10 @@ app.set("views", path.join(__dirname, "../views"));
 // Routes
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
+
+// Error Handler
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 

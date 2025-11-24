@@ -12,7 +12,7 @@ export const loadBrands = async (req, res) => {
   let query = {};
 
   if (search) {
-    query.brandName = { $regex: search.trim(), $options: "i" };
+    query.brandName = { $regex: search, $options: "i" };
   }
 
   if (filter === "listed") {
