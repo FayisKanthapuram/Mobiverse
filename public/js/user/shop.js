@@ -86,3 +86,37 @@ async function addToCart(variantId) {
     }).showToast();
   }
 }
+
+// Clear all filters and redirect to base shop page
+function clearAllFilters() {
+  // Get current search query if it exists
+  const url = new URL(window.location.href);
+  const searchQuery = url.searchParams.get('search');
+  
+  // Redirect to shop with only search parameter if it exists
+  if (searchQuery) {
+    window.location.href = `/shop?search=${encodeURIComponent(searchQuery)}`;
+  } else {
+    window.location.href = '/shop';
+  }
+}
+
+// Remove individual filters
+function removeBrandFilter() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('brand');
+  window.location.href = url.toString();
+}
+
+function removePriceFilter() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('min');
+  url.searchParams.delete('max');
+  window.location.href = url.toString();
+}
+
+function removeSortFilter() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete('sort');
+  window.location.href = url.toString();
+}

@@ -1,5 +1,17 @@
 let currentOrderData = null;
 
+// DOM Content Loaded - Initialize event listeners
+document.addEventListener("DOMContentLoaded", () => {
+  // Show/Hide Clear Button on Input
+  const orderSearchInput = document.getElementById("orderSearch");
+  if (orderSearchInput) {
+    orderSearchInput.addEventListener("input", toggleOrderClearButton);
+  }
+
+  // Initial check for clear button visibility
+  toggleOrderClearButton();
+});
+
 // Open Cancel Order Modal with item selection
 function openCancelOrderModal(order) {
   currentOrderData = order;
@@ -206,12 +218,12 @@ document
 // Filter Orders
 function filterOrders(status) {
   const url = new URL(window.location);
-  if(status){
+  if (status) {
     url.searchParams.set("status", status);
-  }else{
+  } else {
     url.searchParams.delete('status');
   }
-  url.searchParams.set('page',1);
+  url.searchParams.set('page', 1);
   window.location.href = url.href;
 }
 
@@ -229,20 +241,50 @@ function handleSearchOrder() {
   } else {
     url.searchParams.delete("searchOrder");
   }
-  url.searchParams.set('page',1);
+  url.searchParams.set('page', 1);
   window.location.href = url.href;
 }
 
-function changeOrderPage(page){
-  const url=new URL(window.location);
-  if(page){
-    url.searchParams.set('page',page);
-  }else{
-    url.searchParams.delete('page');
+// Clear Order Search
+function clearOrderSearch() {
+  const orderSearchInput = document.getElementById("orderSearch");
+  if (orderSearchInput) {
+    orderSearchInput.value = "";
   }
-  window.location.href=url.href;
+
+  // Hide clear button
+  toggleOrderClearButton();
+
+  // Redirect to remove search parameter
+  const url = new URL(window.location);
+  url.searchParams.delete("searchOrder");
+  url.searchParams.set('page', 1);
+  window.location.href = url.href;
 }
 
+// Toggle Clear Button Visibility
+function toggleOrderClearButton() {
+  const orderSearchInput = document.getElementById("orderSearch");
+  const clearBtn = document.getElementById("clear-order-search-btn");
+
+  if (orderSearchInput && clearBtn) {
+    if (orderSearchInput.value.trim()) {
+      clearBtn.classList.remove("hidden");
+    } else {
+      clearBtn.classList.add("hidden");
+    }
+  }
+}
+
+function changeOrderPage(page) {
+  const url = new URL(window.location);
+  if (page) {
+    url.searchParams.set('page', page);
+  } else {
+    url.searchParams.delete('page');
+  }
+  window.location.href = url.href;
+}
 
 // Track Order
 function trackOrder(orderId) {
