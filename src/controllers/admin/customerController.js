@@ -1,18 +1,45 @@
 import userModel from "../../models/userModel.js";
 
 export const loadCustomers = async (req, res) => {
-  const currentPage=parseInt(req.query.page)||1;
+  const currentPage = parseInt(req.query.page) || 1;
+  const searchQuery = req.query.search || "";
+  const statusFilter = req.query.status || "";
+  const sortBy = req.query.sort || "recent";
+
+  const query = {};
+  if (statusFilter) {
+    query.isBlocked = statusFilter !== "active";
+  }
+  if (searchQuery) {
+    query.$or = [
+      { username: { $regex: searchQuery, $options: "i" } },
+      { email: { $regex: searchQuery, $options: "i" } },
+    ];
+  }
+
+  const sort = {};
+  if (sortBy === "recent") {
+    sort.createdAt = 1;
+  } else {
+    sort.createdAt = -1;
+  }
 
   const totalCustomersCound = await userModel.countDocuments().lean();
   const blockedCustomerCount = await userModel
     .countDocuments({ isBlocked: true })
     .lean();
 
-  const limit=3;
-  const skip=(currentPage-1)*limit;
-  const totalPages=Math.ceil(totalCustomersCound/limit);
+  const limit = 3;
+  const skip = (currentPage - 1) * limit;
 
-  const customers = await userModel.find().skip(skip).limit(limit).lean();
+  const customers = await userModel
+    .find(query)
+    .skip(skip)
+    .limit(limit)
+    .sort(sort)
+    .lean();
+  const totalCustomersFiltered = await userModel.countDocuments(query).lean();
+  const totalPages = Math.ceil(totalCustomersFiltered / limit);
 
   res.render("admin/customers", {
     pageTitle: "Customers",
@@ -23,7 +50,10 @@ export const loadCustomers = async (req, res) => {
     blockedCustomerCount,
     currentPage,
     limit,
-    totalDocuments:totalCustomersCound,
+    searchQuery,
+    statusFilter,
+    sortBy,
+    totalDocuments: totalCustomersFiltered,
     totalPages,
   });
 };
