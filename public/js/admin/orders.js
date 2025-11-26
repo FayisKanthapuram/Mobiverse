@@ -51,6 +51,39 @@ function handleSearch() {
   }, 500);
 }
 
+// Clear search only
+function clearSearch() {
+  const url = new URL(window.location);
+  url.searchParams.delete("search");
+  window.location.href = url.toString();
+}
+
+// Clear all filters but keep search
+function clearAllFilters() {
+  const url = new URL(window.location);
+  const searchQuery = url.searchParams.get('search');
+  
+  url.searchParams.delete('status');
+  url.searchParams.delete('paymentStatus');
+  url.searchParams.delete('sort');
+  url.searchParams.set('page', 1);
+  
+  window.location.href = url.toString();
+}
+
+// Clear everything (filters + search)
+function clearAllFiltersAndSearch() {
+  window.location.href = window.location.pathname;
+}
+
+// Remove individual filter
+function removeFilter(filterType) {
+  const url = new URL(window.location);
+  url.searchParams.delete(filterType);
+  url.searchParams.set('page', 1);
+  window.location.href = url.toString();
+}
+
 function exportOrders() {
   window.location.href = "/admin/orders/export";
 }

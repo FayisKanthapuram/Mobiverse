@@ -76,6 +76,11 @@
         value="<%= searchQuery || '' %>"
         onkeyup="handleSearch()"
       />
+      <% if (searchQuery) { %>
+      <button class="clear-search-btn" onclick="clearSearch()" title="Clear search">
+        <i class="bi bi-x-circle-fill"></i>
+      </button>
+      <% } %>
     </div>
 
     <div class="filter-group">
@@ -113,7 +118,51 @@
         <option value="amount-low" <%= sortFilter === 'amount-low' ? 'selected' : '' %>>Amount (Low to High)</option>
       </select>
     </div>
+
+    <% const hasActiveFilters = statusFilter || paymentStatusFilter || (sortFilter && sortFilter !== 'recent'); %>
   </div>
+
+  <!-- Active Filters Display -->
+  <% if (searchQuery || hasActiveFilters) { %>
+  <div class="active-filters-bar">
+    <span class="filter-label">Active Filters:</span>
+    <div class="filter-tags">
+      <% if (searchQuery) { %>
+      <span class="filter-tag">
+        Search: "<%= searchQuery %>"
+        <button onclick="clearSearch()" class="tag-remove">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+      <% } %>
+      <% if (statusFilter) { %>
+      <span class="filter-tag">
+        Status: <%= statusFilter %>
+        <button onclick="removeFilter('status')" class="tag-remove">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+      <% } %>
+      <% if (paymentStatusFilter) { %>
+      <span class="filter-tag">
+        Payment: <%= paymentStatusFilter %>
+        <button onclick="removeFilter('paymentStatus')" class="tag-remove">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+      <% } %>
+      <% if (sortFilter && sortFilter !== 'recent') { %>
+      <span class="filter-tag">
+        Sort: <%= sortFilter.replace('-', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+        <button onclick="removeFilter('sort')" class="tag-remove">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+      <% } %>
+    </div>
+    <button class="clear-all-link" onclick="clearAllFiltersAndSearch()">Clear All</button>
+  </div>
+  <% } %>
 
   <!-- Orders Table -->
   <div class="table-wrapper">
@@ -185,6 +234,11 @@
               <div class="empty-state">
                 <i class="bi bi-inbox"></i>
                 <p>No orders found</p>
+                <% if (searchQuery || hasActiveFilters) { %>
+                <button class="btn-primary" onclick="clearAllFiltersAndSearch()" style="margin-top: 16px;">
+                  Clear All Filters
+                </button>
+                <% } %>
               </div>
             </td>
           </tr>
@@ -261,4 +315,3 @@
     </div>
   </div>
 </div>
-
