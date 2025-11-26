@@ -387,11 +387,14 @@ export const saveNewPassword = async (req, res) => {
   }
 };
 
-export const logOutUser=(req,res,next)=>{
-  try {
-    req.session.destroy();
-    res.redirect('/login');
-  } catch (error) {
-    next(error);
-  }
-}
+
+export const logOutUser = (req, res, next) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return next(err);
+    }
+    res.clearCookie("user.sid");
+
+    res.redirect("/login?error=logout");
+  });
+};

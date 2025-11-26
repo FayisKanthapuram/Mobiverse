@@ -132,6 +132,6 @@ router.get('/order/invoice/:orderId',requireLogin,downloadInvoice);
 
 
 //logout
-router.post("/logout", logOutUser);
+router.get("/logout", logOutUser);
 
 export default router;

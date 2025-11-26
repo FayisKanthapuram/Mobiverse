@@ -1,12 +1,7 @@
 <aside class="w-80 bg-white rounded-lg shadow-sm p-6">
   <!-- User Profile Header -->
   <div class="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200">
-      <img
-        src="<%= user.avatar %>"
-        alt="<%= user.username %>"
-        class="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-        onerror="this.onerror=null; this.src='/images/user-avatar.svg';"
-      />
+    <img src="<%= user.avatar %>" alt="<%= user.username %>" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200" onerror="this.onerror=null; this.src='/images/user-avatar.svg';" />
     <div>
       <h3 class="font-semibold text-gray-900"><%= user.username %></h3>
       <p class="text-sm text-gray-600"><%= user.email %></p>
@@ -70,20 +65,10 @@
 </aside>
 
 <script>
-document.getElementById("logout-button").addEventListener("click", async function () {
-  const confirmed = confirm("Are you sure you want to logout?");
-  if (!confirmed) return;
+  document.getElementById("logout-button").addEventListener("click", async function() {
+    const confirmed = confirm("Are you sure you want to logout?");
+    if (!confirmed) return;
 
-  try {
-    const response = await axios.post("/logout");
-
-    if (response.status === 200) {
-      // Successfully logged out
-      window.location.href = "/login?error=logout"; // or wherever you want to redirect
-    }
-  } catch (error) {
-    console.error("Logout failed:", error);
-    alert("Something went wrong while logging out. Please try again.");
-  }
-});
+    window.location.href = "/logout"; 
+  });
 </script>
