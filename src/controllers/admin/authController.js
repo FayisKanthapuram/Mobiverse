@@ -1,20 +1,33 @@
-import bcrypt from "bcrypt";
-import Admin from "../../models/adminModel.js";
-import Joi from "joi";
+import {
+  registerAdminService,
+  loginAdminService,
+  logoutAdminService,
+} from "../../services/adminAuthService.js";
+import {
+  adminRegisterSchema,
+  adminLoginSchema,
+} from "../../validators/adminAuthValidator.js";
 
 export const registerAdmin = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const admin = await Admin.create({
-      username,
-      email,
-      password: hashedPassword,
-    });
+    const { error } = adminRegisterSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
+
+    const admin = await registerAdminService(req.body);
     res.status(201).json({ success: true, admin: admin });
   } catch (error) {
     console.log(error);
-    res.status(404).json({ success: false, error: error.error });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: error.message || "Registration failed",
+      });
   }
 };
 
@@ -24,17 +37,7 @@ export const loadLogin = (req, res) => {
 
 export const loginAdmin = async (req, res) => {
   try {
-    const schema = Joi.object({
-      email: Joi.string().email().required().messages({
-        "string.email": "Please enter a valid email",
-        "string.empty": "Email is required",
-      }),
-      password: Joi.string().min(4).required().messages({
-        "string.empty": "Password is required",
-        "string.min": "Password must be at least 4 characters",
-      }),
-    });
-    const { error } = schema.validate(req.body);
+    const { error } = adminLoginSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
         success: false,
@@ -43,25 +46,24 @@ export const loginAdmin = async (req, res) => {
     }
 
     const { email, password } = req.body;
-    const admin = await Admin.findOne({ email });
-    if (!admin) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Admin is not found" });
-    }
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid Password" });
-    }
+    const admin = await loginAdminService(email, password);
+
     req.session.admin = {
-      id: admin._id
+      id: admin._id,
     };
-    res.json({ success: true , message:"Admin log in successfully", redirect: "/admin/dashboard" });
+
+    res.json({
+      success: true,
+      message: "Admin logged in successfully",
+      redirect: "/admin/dashboard",
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.log(error.message);
+
+    return res.status(error.status || 500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
   }
 };
 
@@ -72,14 +74,15 @@ export const loadDashboard = (req, res) => {
 export const logoutAdmin = (req, res) => {
   try {
     req.session.destroy();
+    const result = logoutAdminService();
     res.json({
-      success: true,
-      message: "Admin logged out successfully",
+      success: result.success,
+      message: result.message,
       redirect: "/admin/login",
     });
   } catch (error) {
     console.log(error);
-    res.json({
+    res.status(500).json({
       success: false,
       message: "Logout failed",
     });

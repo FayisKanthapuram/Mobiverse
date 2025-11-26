@@ -1,0 +1,38 @@
+import Joi from "joi";
+
+export const adminRegisterSchema = Joi.object({
+  username: Joi.string().min(3).max(30).required().messages({
+    "string.empty": "Username is required",
+    "string.min": "Username must be at least 3 characters",
+    "string.max": "Username cannot be more than 30 characters",
+  }),
+
+  email: Joi.string().email().required().messages({
+    "string.email": "Please enter a valid email",
+    "string.empty": "Email is required",
+  }),
+
+  password: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$"
+      )
+    )
+    .required()
+    .messages({
+      "string.empty": "Password is required",
+      "string.pattern.base":
+        "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character",
+    }),
+});
+
+export const adminLoginSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.email": "Please enter a valid email",
+    "string.empty": "Email is required",
+  }),
+  password: Joi.string().min(4).required().messages({
+    "string.empty": "Password is required",
+    "string.min": "Password must be at least 4 characters",
+  }),
+});
