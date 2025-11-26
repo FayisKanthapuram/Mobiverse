@@ -8,15 +8,8 @@ export const isLogin = (req, res, next) => {
   }
 };
 
-export const requireLogin = (req, res, next) => {
-  if (!req.session.user) {
-    return res.redirect("/login?error=login");
-  }
-  next();
-};
 
-
-export const isBlocked = async (req, res, next) => {
+export const requireLogin = async (req, res, next) => {
   try {
     const user = await userModel.findById(req.session.user);
 
@@ -30,7 +23,9 @@ export const isBlocked = async (req, res, next) => {
         return res.redirect("/login?error=blocked");
       });
     }
-
+    if (!user) {
+      return res.redirect("/login?error=login");
+    }
     next();
   } catch (err) {
     console.log(err);

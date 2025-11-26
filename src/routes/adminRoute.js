@@ -1,86 +1,22 @@
 import express from "express";
-const router = express.Router();
 import setLayout from "../middlewares/setLayout.js";
 
-import {
-  loadLogin,
-  loadDashboard,
-  registerAdmin,
-  loginAdmin,
-  logoutAdmin,
-} from "../controllers/admin/authController.js";
-import {
-  addBrand,
-  editBrand,
-  getBrandById,
-  listBrand,
-  loadBrands,
-} from "../controllers/admin/brandController.js";
-import {
-  addProduct,
-  editProduct,
-  getProductById,
-  listProduct,
-  loadProducts,
-} from "../controllers/admin/productController.js";
-import {
-  blockCustomer,
-  loadCustomers,
-} from "../controllers/admin/customerController.js";
-import {
-  laodOrderDetails,
-  loadOrders,
-  updateOrderStatus,
-  handleReturnRequest,
-  markItemReturned,
-} from "../controllers/admin/orderController.js";
-import { loadCoupons } from "../controllers/admin/couponController.js";
-import { loadReferrals } from "../controllers/admin/referralController.js";
-import { loadBanners } from "../controllers/admin/bannerController.js";
-import { loadOffers } from "../controllers/admin/offerController.js";
-import { isLogin, verifyAdmin } from "../middlewares/adminAuth.js";
-import upload from "../middlewares/upload.js";
+import authRoutes from "./admin/authRoutes.js";
+import brandRoutes from "./admin/brandRoutes.js";
+import productRoutes from "./admin/productRoutes.js";
+import customerRoutes from "./admin/customerRoutes.js";
+import orderRoutes from "./admin/orderRoutes.js";
+import miscRoutes from "./admin/miscRoutes.js";
+
+const router = express.Router();
 
 router.use(setLayout("admin"));
 
-//auth
-router.get("/login", isLogin, loadLogin);
-router.post("/register", registerAdmin);
-router.post("/login", loginAdmin);
-
-//dash
-router.get("/dashboard", verifyAdmin, loadDashboard);
-
-//brands
-router.get("/brands", verifyAdmin, loadBrands);
-router.post("/brands/add", upload.brand.single("brandLogo"), addBrand);
-router.patch("/brands/edit", upload.brand.single("brandLogo"), editBrand);
-router.patch("/brands/list/:brandId", listBrand);
-router.get("/api/brands/:id", verifyAdmin, getBrandById);
-
-//products
-router.get("/products", verifyAdmin, loadProducts);
-router.post("/products/add", upload.product.any(), addProduct);
-router.patch("/products/list/:productId", listProduct);
-router.get("/api/product/:productId", getProductById);
-router.patch("/products/edit/:productId", upload.product.any(), editProduct);
-
-//customers
-router.get("/customers", verifyAdmin, loadCustomers);
-router.patch("/customer/block/:id", blockCustomer);
-
-//orders
-router.get("/orders", verifyAdmin, loadOrders);
-router.get("/orders/:id", laodOrderDetails);
-router.patch("/orders/:id/status", updateOrderStatus);
-router.patch("/orders/:id/return-request", handleReturnRequest);
-router.patch("/orders/:id/mark-returned", markItemReturned);
-
-router.get("/banners", verifyAdmin, loadBanners);
-router.get("/coupons", verifyAdmin, loadCoupons);
-router.get("/referrals", verifyAdmin, loadReferrals);
-router.get("/banners", verifyAdmin, loadBanners);
-router.get("/offers", verifyAdmin, loadOffers);
-router.post("/logout", logoutAdmin);
+router.use(authRoutes);
+router.use(brandRoutes);
+router.use(productRoutes);
+router.use(customerRoutes);
+router.use(orderRoutes);
+router.use(miscRoutes);
 
 export default router;

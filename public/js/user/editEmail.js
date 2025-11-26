@@ -11,7 +11,7 @@ document.getElementById("emailForm").addEventListener("submit", async (e) => {
   submitButton.disabled = true;
   submitButton.textContent = "Sending....";
   try {
-    const oldEmail = "<%= user.email %>";
+    const oldEmail = document.getElementById('oldemail').value;
     const response = await axios.post("/edit-email", {
       newEmail,
       oldEmail,

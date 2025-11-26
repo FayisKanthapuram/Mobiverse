@@ -87,6 +87,7 @@ export const loadEditEmail = async (req, res, next) => {
 
 export const editEmail = async (req, res) => {
   try {
+    console.log(req.body)
     const { error } = emailSchema.validate(req.body);
     if (error) {
       return res
