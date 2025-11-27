@@ -161,7 +161,6 @@ export const toggleProduct = async (req, res) => {
 export const getProducts=async (req,res)=>{
   const search=req.query.q||'';
   const products=await getProductsBySearch(search);
-  console.log(products)
   res.json({success:true,products});
 }
 

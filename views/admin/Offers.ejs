@@ -98,8 +98,8 @@
       <select id="sortFilter" class="filter-select" onchange="applyFilters()">
         <option value="recent" <%= sortFilter === 'recent' ? 'selected' : '' %>>Recent</option>
         <option value="oldest" <%= sortFilter === 'oldest' ? 'selected' : '' %>>Oldest</option>
-        <option value="discount-high" <%= sortFilter === 'discount-high' ? 'selected' : '' %>>Discount (High to Low)</option>
-        <option value="discount-low" <%= sortFilter === 'discount-low' ? 'selected' : '' %>>Discount (Low to High)</option>
+        <option value="value-high" <%= sortFilter === 'value-high' ? 'selected' : '' %>>Discount (High to Low)</option>
+        <option value="value-low" <%= sortFilter === 'value-low' ? 'selected' : '' %>>Discount (Low to High)</option>
       </select>
     </div>
   </div>
@@ -153,9 +153,15 @@
               </td>
               <td><strong><%= offer.offerName %></strong></td>
               <td>
-                <span class="discount-badge">
-                  <%= offer.discountPercentage %>% OFF
-                </span>
+                <% if (offer.discountType === 'percentage') { %>
+                  <span class="discount-badge discount-percentage">
+                    <%= offer.discountValue %>% OFF
+                  </span>
+                <% } else { %>
+                  <span class="discount-badge discount-fixed">
+                    ₹<%= offer.discountValue %> OFF
+                  </span>
+                <% } %>
               </td>
               <td><%= new Date(offer.startDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
               <td><%= new Date(offer.endDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
@@ -208,10 +214,6 @@
               <div class="empty-state">
                 <i class="bi bi-percent"></i>
                 <p>No offers found</p>
-                <button class="btn-primary" onclick="openAddOfferModal()" style="margin-top: 16px;">
-                  <i class="bi bi-plus-circle"></i>
-                  Create Your First Offer
-                </button>
               </div>
             </td>
           </tr>
@@ -363,28 +365,28 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="discountPercentage">Discount Percentage <span class="required">*</span></label>
-          <div class="input-with-icon">
-            <input 
-              type="number" 
-              id="discountPercentage" 
-              name="discountPercentage" 
-              placeholder="e.g., 20" 
-              min="1" 
-              max="90" 
-              required
-            >
-            <span class="input-icon">%</span>
-          </div>
-          <small class="form-help">Enter discount between 1% and 90%</small>
+          <label for="discountType">Discount Type <span class="required">*</span></label>
+          <select id="discountType" name="discountType" required onchange="handleDiscountTypeChange()">
+            <option value="">Select Discount Type</option>
+            <option value="percentage">Percentage (%)</option>
+            <option value="fixed">Fixed Amount (₹)</option>
+          </select>
         </div>
 
         <div class="form-group">
-          <label for="isActive">Status</label>
-          <select id="isActive" name="isActive">
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
-          </select>
+          <label for="discountValue">Discount Value <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <input 
+              type="number" 
+              id="discountValue" 
+              name="discountValue" 
+              placeholder="Enter value" 
+              min="1"
+              required
+            >
+            <span class="input-icon" id="discountIcon">%</span>
+          </div>
+          <small class="form-help" id="discountHelp">Enter discount percentage (1-90%)</small>
         </div>
       </div>
 
@@ -401,13 +403,11 @@
       </div>
 
       <div class="form-group">
-        <label for="description">Description (Optional)</label>
-        <textarea 
-          id="description" 
-          name="description" 
-          rows="3" 
-          placeholder="Add a description for this offer..."
-        ></textarea>
+        <label for="isActive">Status</label>
+        <select id="isActive" name="isActive">
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
       </div>
 
       <div class="modal-footer">

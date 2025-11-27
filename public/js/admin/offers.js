@@ -62,6 +62,31 @@ document.addEventListener('click', function(event) {
   }
 });
 
+// Handle Discount Type Change
+function handleDiscountTypeChange() {
+  const discountType = document.getElementById('discountType').value;
+  const discountValue = document.getElementById('discountValue');
+  const discountIcon = document.getElementById('discountIcon');
+  const discountHelp = document.getElementById('discountHelp');
+  
+  if (discountType === 'percentage') {
+    discountIcon.textContent = '%';
+    discountHelp.textContent = 'Enter discount percentage (1-90%)';
+    discountValue.placeholder = 'e.g., 20';
+    discountValue.max = '90';
+    discountValue.min = '1';
+  } else if (discountType === 'fixed') {
+    discountIcon.textContent = '₹';
+    discountHelp.textContent = 'Enter fixed discount amount';
+    discountValue.placeholder = 'e.g., 500';
+    discountValue.removeAttribute('max');
+    discountValue.min = '1';
+  }
+  
+  // Clear the value when switching types
+  discountValue.value = '';
+}
+
 // Handle Offer Type Change
 function handleOfferTypeChange() {
   const offerType = document.getElementById('offerTypeSelect').value;
@@ -245,10 +270,10 @@ document.getElementById('offerForm').addEventListener('submit', async (e) => {
   const productIDs = document.getElementById('productIDs').value;
   const brandID = document.getElementById('brandID').value;
   const offerName = document.getElementById('offerName').value.trim();
-  const discountPercentage = parseInt(document.getElementById('discountPercentage').value);
+  const discountType = document.getElementById('discountType').value;
+  const discountValue = parseInt(document.getElementById('discountValue').value);
   const startDate = document.getElementById('startDate').value;
   const endDate = document.getElementById('endDate').value;
-  const description = document.getElementById('description').value.trim();
   const isActive = document.getElementById('isActive').value === 'true';
   
   // Validation
@@ -267,8 +292,18 @@ document.getElementById('offerForm').addEventListener('submit', async (e) => {
     return;
   }
   
-  if (discountPercentage < 1 || discountPercentage > 90) {
-    showToast('Discount must be between 1% and 90%', 'error');
+  if (!discountType) {
+    showToast('Please select a discount type', 'error');
+    return;
+  }
+  
+  if (!discountValue || discountValue < 1) {
+    showToast('Please enter a valid discount value', 'error');
+    return;
+  }
+  
+  if (discountType === 'percentage' && (discountValue < 1 || discountValue > 90)) {
+    showToast('Percentage discount must be between 1% and 90%', 'error');
     return;
   }
   
@@ -281,15 +316,15 @@ document.getElementById('offerForm').addEventListener('submit', async (e) => {
   const offerData = {
     offerType,
     offerName,
-    discountPercentage,
+    discountType,
+    discountValue,
     startDate,
     endDate,
-    description,
     isActive
   };
   
   if (offerType === 'product') {
-    offerData.productIDs = productIDs.split(','); // Send as array
+    offerData.productID = productIDs.split(','); // Send as array
   } else {
     offerData.brandID = brandID;
   }
@@ -347,11 +382,13 @@ async function editOffer(offerId) {
       document.getElementById('offerId').value = offer._id;
       document.getElementById('offerTypeSelect').value = offer.offerType;
       document.getElementById('offerName').value = offer.offerName;
-      document.getElementById('discountPercentage').value = offer.discountPercentage;
+      document.getElementById('discountType').value = offer.discountType;
+      handleDiscountTypeChange();
+      document.getElementById('discountValue').value = offer.discountValue;
       document.getElementById('startDate').value = new Date(offer.startDate).toISOString().split('T')[0];
       document.getElementById('endDate').value = new Date(offer.endDate).toISOString().split('T')[0];
-      document.getElementById('description').value = offer.description || '';
       document.getElementById('isActive').value = offer.isActive.toString();
+      
       
       // Handle offer type specific fields
       handleOfferTypeChange();
