@@ -4,8 +4,9 @@ import {
   addProduct,
   editProduct,
   getProductById,
-  listProduct,
+  toggleProduct,
   loadProducts,
+  getProducts,
 } from "../../controllers/admin/productController.js";
 import { verifyAdmin } from "../../middlewares/adminAuth.js";
 
@@ -13,8 +14,10 @@ const router = express.Router();
 
 router.get("/products", verifyAdmin, loadProducts);
 router.post("/products/add", upload.product.any(), addProduct);
-router.patch("/products/list/:productId", listProduct);
+router.patch("/products/list/:productId", toggleProduct);
 router.get("/api/product/:productId", getProductById);
 router.patch("/products/edit/:productId", upload.product.any(), editProduct);
+
+router.get('/products/search',verifyAdmin,getProducts)
 
 export default router;

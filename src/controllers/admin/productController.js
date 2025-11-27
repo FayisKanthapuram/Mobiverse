@@ -3,59 +3,41 @@ import productModel from "../../models/productModel.js";
 import { productValidationSchema } from "../../validators/productValidator.js";
 import variantModel from "../../models/variantModel.js";
 import mongoose from "mongoose";
+import { getFilteredProducts, getProductsBySearch } from "../../services/productService.js";
 
-export const loadProducts = async (req, res) => {
-  const search = req.query.search || "";
-  const status = req.query.status || "All";
-  const brand = req.query.brand || "";
-  const currentPage = parseInt(req.query.page) || 1;
+export const loadProducts = async (req, res, next) => {
+  try {
+    const search = req.query.search || "";
+    const status = req.query.status || "All";
+    const brand = req.query.brand || "";
+    const currentPage = parseInt(req.query.page) || 1;
 
-  const limit = 5;
-  const skip = (currentPage - 1) * limit;
+    const result = await getFilteredProducts({
+      search,
+      status,
+      brand,
+      page: currentPage,
+    });
 
-  let query = {};
+    res.render("admin/products", {
+      pageTitle: "Products",
+      pageCss: "products",
+      pageJs: "products",
 
-  if (search) {
-    query.name = { $regex: search.trim(), $options: "i" };
+      products: result.products,
+      brands: result.brands,
+      totalDocuments: result.totalDocuments,
+      limit: result.limit,
+      totalPages: result.totalPages,
+
+      currentPage,
+      query: req.query,
+    });
+  } catch (error) {
+    next(error);
   }
-
-  if (status === "listed") {
-    query.isListed = true;
-  } else if (status === "unlisted") {
-    query.isListed = false;
-  }
-
-  if (brand && mongoose.Types.ObjectId.isValid(brand)) {
-    query.brandID = new mongoose.Types.ObjectId(brand);
-  } else if (brand && brand !== "All") {
-    console.warn("Invalid brand ID in query:", brand);
-  }
-
-  const totalDocuments = await productModel.find(query).countDocuments();
-  let totalPages = Math.ceil(totalDocuments / limit);
-
-  const brands = await brandModel
-    .find({ isListed: true }, { brandName: 1 })
-    .lean();
-  const products = await productModel
-    .find(query)
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    .populate("brandID");
-  res.render("admin/products", {
-    pageTitle: "Products",
-    pageCss: "products",
-    pageJs: "products",
-    products,
-    brands,
-    currentPage,
-    limit,
-    totalDocuments,
-    totalPages,
-    query: req.query,
-  });
 };
+
 
 export const addProduct = async (req, res) => {
   try {
@@ -166,7 +148,7 @@ export const addProduct = async (req, res) => {
   }
 };
 
-export const listProduct = async (req, res) => {
+export const toggleProduct = async (req, res) => {
   const { productId } = req.params;
   const product = await productModel.findById(productId);
   if (!product)
@@ -175,6 +157,13 @@ export const listProduct = async (req, res) => {
   await product.save();
   res.status(200).json({ success: true });
 };
+
+export const getProducts=async (req,res)=>{
+  const search=req.query.q||'';
+  const products=await getProductsBySearch(search);
+  console.log(products)
+  res.json({success:true,products});
+}
 
 export const getProductById = async (req, res) => {
   try {
