@@ -18,3 +18,10 @@ export const decrementVariantStock = async (variantId, qty) => {
     { $inc: { stock: -qty } }
   );
 };
+
+export const incrementVariantStock = (variantId, qty) => {
+  return variantModel.updateOne(
+    { _id: variantId },
+    { $inc: { stock: qty } }
+  );
+};

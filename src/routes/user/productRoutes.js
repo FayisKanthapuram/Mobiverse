@@ -3,7 +3,7 @@ import {
   loadShop,
   loadHome,
   loadProductDetails,
-} from "../../controllers/user/userController.js";
+} from "../../controllers/user/user.controller.js";
 
 const router = express.Router();
 

@@ -2,7 +2,7 @@ import {HttpStatus} from "../constants/statusCode.js";
 import {orderValidation} from "../validators/OrderValidator.js";
 
 import { findAddressById } from "../repositories/address.repo.js";
-import { createOrder } from "../repositories/order.repo.js";
+import { createOrder, findOrderByOrderId } from "../repositories/order.repo.js";
 import { decrementProductStock } from "../repositories/product.repo.js";
 import { decrementVariantStock } from "../repositories/variant.repo.js";
 import { deleteUserCart, fetchCartItems } from "../repositories/cart.repo.js";
@@ -127,4 +127,16 @@ export const placeOrderService = async (userId, body) => {
     message: "Order placed successfully",
     orderId: order.orderId,
   };
+};
+
+export const loadOrderSuccessService = async (orderId) => {
+  const order = await findOrderByOrderId(orderId);
+
+  if (!order) {
+    const err = new Error("Order not found");
+    err.status = 404;
+    throw err;
+  }
+
+  return order;
 };

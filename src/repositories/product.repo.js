@@ -352,3 +352,10 @@ export const decrementProductStock = async (productId, qty) => {
     { $inc: { totalStock: -qty } }
   );
 };
+
+export const incrementProductStock = (productId, qty) => {
+  return productModel.updateOne(
+    { _id: productId },
+    { $inc: { totalStock: qty } }
+  );
+};

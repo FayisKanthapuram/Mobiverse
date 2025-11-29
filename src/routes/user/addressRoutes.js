@@ -5,7 +5,7 @@ import {
   editAddress,
   loadManageAddress,
   setDefaultAddress,
-} from "../../controllers/user/addressController.js";
+} from "../../controllers/user/address.controller.js";
 import { requireLogin } from "../../middlewares/userAuth.js";
 
 const router = express.Router();

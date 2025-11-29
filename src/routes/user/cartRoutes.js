@@ -4,7 +4,7 @@ import {
   deleteCartItem,
   loadCart,
   updateCartItem,
-} from "../../controllers/user/cartController.js";
+} from "../../controllers/user/cart.controller.js";
 import { requireLogin } from "../../middlewares/userAuth.js";
 
 const router = express.Router();

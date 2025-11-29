@@ -1,6 +1,5 @@
 import express from "express";
 import passport from "passport";
-import upload from "../../middlewares/upload.js";
 import {
   loadSignUp,
   registerUser,
@@ -17,13 +16,12 @@ import {
   loadRecoverOtp,
   saveNewPassword,
   logOutUser,
-} from "../../controllers/user/authController.js";
+} from "../../controllers/user/auth.controller.js";
 import {
   isLogin,
   isResetPass,
   isVerifyOtp,
   isVerifyRecoveryOtp,
-  requireLogin,
 } from "../../middlewares/userAuth.js";
 
 const router = express.Router();

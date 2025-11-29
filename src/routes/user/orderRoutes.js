@@ -1,19 +1,14 @@
 import express from "express";
 import {
-  cancelOrderItems,
-  downloadInvoice,
-  laodMyOrders,
-  loadOrderDetails,
   loadOrderSuccess,
-  loadTrackOrder,
   placeOrder,
-  returnOrderItems,
-} from "../../controllers/user/orderController.js";
+} from "../../controllers/user/order.controller.js";
 import { requireLogin } from "../../middlewares/userAuth.js";
+import { cancelOrderItems, downloadInvoice, loadMyOrders, loadOrderDetails, loadTrackOrder, returnOrderItems } from "../../controllers/user/myOrder.controller.js";
 
 const router = express.Router();
 
-router.get("/orders", requireLogin, laodMyOrders);
+router.get("/orders", requireLogin, loadMyOrders);
 router.post("/order/place", placeOrder);
 router.get("/order/success/:id", requireLogin, loadOrderSuccess);
 router.post("/order/:id/cancel-items", cancelOrderItems);
