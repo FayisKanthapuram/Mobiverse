@@ -1,6 +1,22 @@
 <div class="h-full">
   <a href="/product/<%= product?.variants?._id %>" class="block group h-full">
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-blue-200 relative">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden 
+                h-[520px] flex flex-col transition-all duration-300 
+                hover:shadow-lg hover:-translate-y-1 hover:border-blue-200 relative">
+
+      <% 
+        // --- PRICING LOGIC START ---
+        const regularPrice = product?.variants?.regularPrice || 0;
+        const salePrice = product?.variants?.salePrice || 0;
+        const offerAmount = product?.offer || 0; 
+        const currentPrice = salePrice - offerAmount;
+
+        let discountPercent = 0;
+        if (regularPrice > currentPrice) {
+          discountPercent = Math.round(((regularPrice - currentPrice) / regularPrice) * 100);
+        }
+        // --- PRICING LOGIC END ---
+      %>
 
       <!-- Product Image -->
       <div class="relative bg-gray-50 flex items-center justify-center h-60 overflow-hidden">
@@ -19,9 +35,7 @@
         </button>
 
         <!-- Discount Badge -->
-        <% if (product?.variants?.regularPrice && product?.variants?.salePrice < product?.variants?.regularPrice) { 
-          const discountPercent = Math.round(((product.variants.regularPrice - product.variants.salePrice) / product.variants.regularPrice) * 100);
-        %>
+        <% if (discountPercent > 0) { %>
           <div class="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
             <%= discountPercent %>% OFF
           </div>
@@ -29,14 +43,14 @@
       </div>
 
       <!-- Product Info -->
-      <div class="p-4 flex flex-col h-[280px]">
+      <div class="p-4 flex flex-col flex-grow">
 
         <!-- Product Name -->
         <h3 class="text-base font-medium text-gray-800 line-clamp-2 leading-snug mb-2 min-h-[2.5rem]">
           <%= product.name %>
         </h3>
 
-        <!-- Variants (Color, RAM, Storage) -->
+        <!-- Variants -->
         <div class="flex flex-wrap gap-1.5 mb-3">
           <% if (product?.variants?.colour) { %>
             <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
@@ -78,22 +92,27 @@
         <div class="mb-3">
           <div class="flex items-center gap-2 flex-wrap">
             <p class="text-xl font-bold text-gray-900">
-              ₹<%= product?.variants?.salePrice?.toLocaleString('en-IN') %>
+              ₹<%= currentPrice.toLocaleString('en-IN') %>
             </p>
-            <% if (product?.variants?.regularPrice && product?.variants?.salePrice < product?.variants?.regularPrice) { %>
+            <% if (regularPrice > currentPrice) { %>
               <del class="text-gray-400 text-sm">
-                ₹<%= product?.variants?.regularPrice?.toLocaleString('en-IN') %>
+                ₹<%= regularPrice.toLocaleString('en-IN') %>
               </del>
             <% } %>
           </div>
+          
+          <% if (offerAmount > 0) { %>
+            <p class="text-green-600 text-xs font-semibold mt-1">
+              Save ₹<%= offerAmount.toLocaleString('en-IN') %> with offers
+            </p>
+          <% } %>
         </div>
 
-        <!-- Spacer to push button to bottom -->
+        <!-- Spacer ensures button stays bottom -->
         <div class="flex-grow"></div>
 
-        <!-- Stock Status / Button Container -->
+        <!-- Stock + Add to Cart -->
         <div class="mt-auto">
-          <!-- Stock Status -->
           <% if (product?.variants?.stock > 0 && product?.variants?.stock < 10) { %>
             <div class="mb-2">
               <span class="text-xs text-orange-600 font-semibold">
@@ -108,11 +127,12 @@
             </div>
           <% } %>
 
-          <!-- Add to Cart Button -->
           <% if (product?.variants?.stock > 0) { %>
             <button 
               type="button" 
-              class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-2.5 rounded-lg text-sm shadow-md hover:from-blue-700 hover:to-blue-600 active:scale-[0.98] transition-all"
+              class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold 
+                     py-2.5 rounded-lg text-sm shadow-md hover:from-blue-700 hover:to-blue-600 
+                     active:scale-[0.98] transition-all"
               onclick="event.preventDefault(); addToCart('<%= product?.variants?._id %>')">
               <i class="bi bi-cart-plus"></i> Add to Cart
             </button>
@@ -125,6 +145,7 @@
             </button>
           <% } %>
         </div>
+
       </div>
     </div>
   </a>

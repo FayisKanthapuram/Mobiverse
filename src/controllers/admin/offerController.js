@@ -1,6 +1,4 @@
 // controllers/offerController.js
-
-import offerModal from "../../models/offerModal.js";
 import {
   addOfferService,
   deleteOfferStatusService,
@@ -8,7 +6,7 @@ import {
   getOfferByIdService,
   getOfferPageDataService,
   toggleOfferStatusService,
-} from "../../services/offerServices.js";
+} from "../../services/offer.service.js";
 import { offerSchema } from "../../validators/offerValidator.js";
 
 export const loadOffers = async (req, res, next) => {

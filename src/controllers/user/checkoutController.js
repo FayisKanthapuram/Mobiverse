@@ -1,23 +1,15 @@
-import addressModel from "../../models/addressModel.js";
-import userModel from "../../models/userModel.js";
-import {
-  calculateCartTotals,
-  getCartItems,
-} from "../../services/cartServices.js";
+import { loadCheckoutService } from "../../services/checkout.service.js";
+
 
 export const laodCheckOut = async (req, res, next) => {
   try {
-    const user = await userModel.findById(req.session.user);
-    const addresses = await addressModel.find({ userId: req.session.user });
-
-    const items = await getCartItems(req.session.user);
-    const cartTotals = await calculateCartTotals(items);
+    const data = await loadCheckoutService(req.session.user);
 
     res.render("user/checkout", {
       pageTitle: "check out",
-      addresses,
-      user,
-      cart: cartTotals,
+      addresses:data.addresses,
+      user:data.user,
+      cart: data.cartTotals,
       availableCoupons: [],
       appliedCoupon: null,
     });

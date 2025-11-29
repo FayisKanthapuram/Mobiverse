@@ -1,77 +1,22 @@
-import mongoose from "mongoose";
 import { HttpStatus } from "../../constants/statusCode.js";
 import brandModel from "../../models/brandModel.js";
 import cartModel from "../../models/cartModel.js";
-import productModel from "../../models/productModel.js";
 import variantModel from "../../models/variantModel.js";
+import { loadCartService } from "../../services/cart.service.js";
 import { addToCartSchema } from "../../validators/cartValidator.js";
-import { calculateCartTotals, getCartItems } from "../../services/cartServices.js";
 
-export const loadCart = async (req, res,next) => {
+export const loadCart = async (req, res, next) => {
   try {
-    const relatedProducts = await productModel.aggregate([
-      {
-        $lookup: {
-          from: "brands",
-          foreignField: "_id",
-          localField: "brandID",
-          as: "brands",
-        },
-      },
-      {
-        $unwind: "$brands",
-      },
-      {
-        $match: {
-          "brands.isListed": true,
-          isListed: true,
-        },
-      },
-      {
-        $lookup: {
-          from: "variants",
-          let: { productId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$productId", "$$productId"] },
-                    { $eq: ["$isListed", true] },
-                    { $gte: ["$stock", 1] },
-                  ],
-                },
-              },
-            },
-            {
-              $sort: { salePrice: 1 },
-            },
-            {
-              $limit: 1,
-            },
-          ],
-          as: "variants",
-        },
-      },
-      {
-        $unwind: "$variants",
-      },
-      {
-        $limit: 5,
-      },
-    ]);
-    const items = await getCartItems(req.session.user);
+    const data = await loadCartService(req.session.user);
 
-    const cartTotals = await calculateCartTotals(items);
-
-    res.render("user/cart", {
+    return res.render("user/cart", {
       pageTitle: "Cart",
       pageJs: "cart",
-      cart: cartTotals,
-      relatedProducts,
+      cart: data.cart,
+      relatedProducts: data.relatedProducts,
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 

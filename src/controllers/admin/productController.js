@@ -3,7 +3,7 @@ import productModel from "../../models/productModel.js";
 import { productValidationSchema } from "../../validators/productValidator.js";
 import variantModel from "../../models/variantModel.js";
 import mongoose from "mongoose";
-import { getFilteredProducts, getProductsBySearch } from "../../services/productService.js";
+import { getFilteredProducts, getProductsBySearch } from "../../services/product.service.js";
 
 export const loadProducts = async (req, res, next) => {
   try {
