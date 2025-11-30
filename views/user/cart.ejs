@@ -86,9 +86,21 @@
 
                     <!-- Price -->
                     <div class="text-right">
+                      <% if (item.offer) { %>
+                      <p id="offprice-<%= item._id %>" class="text-xl font-bold text-green-600">
+                        ₹<%= ((item.variantId.salePrice - item.offer) * item.quantity).toLocaleString('en-IN') %>
+                      </p>
+
+                      <!-- Optional: show original price with strike-through -->
+                      <p id="price-<%= item._id %>" class="text-sm text-gray-500 line-through">
+                        ₹<%= (item.variantId.salePrice * item.quantity).toLocaleString('en-IN') %>
+                      </p>
+                      <% } else { %>
                       <p id="price-<%= item._id %>" class="text-xl font-bold text-gray-900">
                         ₹<%= (item.variantId.salePrice * item.quantity).toLocaleString('en-IN') %>
                       </p>
+                      <% } %>
+
 
                       <% if (item.variantId.regularPrice > item.variantId.salePrice) { %>
                       <p id="regPrice-<%= item._id %>" class="text-sm text-gray-500">

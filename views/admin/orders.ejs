@@ -194,7 +194,41 @@
               </td>
               <td><%= new Date(order.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
               <td><%= order.orderedItems.length %></td>
-              <td><strong class="amount">₹<%= order.finalAmount.toLocaleString('en-IN') %></strong></td>
+              <td>
+                <% 
+                  const mrpTotal = (order.orderedItems || []).reduce((sum, it) => {
+                    const mrp = it.regularPrice || it.price;
+                    return sum + (mrp * it.quantity);
+                  }, 0);
+
+                  const sellingTotal = (order.orderedItems || []).reduce((sum, it) => {
+                    const sale = it.price || 0;
+                    const offer = it.offer || 0;
+                    const effective = sale - offer;
+                    return sum + (effective * it.quantity);
+                  }, 0);
+
+                  const savings = mrpTotal - sellingTotal;
+                %>
+
+                <!-- Selling Price Total -->
+                <strong class="amount text-gray-900">
+                  ₹<%= sellingTotal.toLocaleString('en-IN') %>
+                </strong>
+
+                <!-- MRP Total -->
+                <div class="text-xs text-gray-500">
+                  MRP: ₹<%= mrpTotal.toLocaleString('en-IN') %>
+                </div>
+
+                <!-- Savings -->
+                <% if (savings > 0) { %>
+                  <div class="text-xs text-green-600 font-semibold">
+                    Discount: ₹<%= savings.toLocaleString('en-IN') %>
+                  </div>
+                <% } %>
+              </td>
+
               <td>
                 <% 
                   let paymentClass = '';

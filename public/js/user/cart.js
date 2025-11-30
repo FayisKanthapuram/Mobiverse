@@ -21,9 +21,12 @@ async function updateQuantity(itemId, newQuantity) {
     const cartTotals = response.data.cartTotals;
 
     document.querySelector(`#qty-${itemId}`).innerText = updated.quantity;
-
+    if(cartTotals.offer){
+      document.querySelector(`#offprice-${itemId}`).innerText =
+      "₹" + ((updated.salePrice-cartTotals.offer) * updated.quantity).toLocaleString("en-IN");
+    }
     document.querySelector(`#price-${itemId}`).innerText =
-      "₹" + (updated.salePrice * updated.quantity).toLocaleString("en-IN");
+      "₹" + ((updated.salePrice) * updated.quantity).toLocaleString("en-IN");
     if (document.querySelector(`#regPrice-${itemId}`).innerText) {
       document.querySelector(`#regPrice-${itemId}`).innerHTML = `<del>₹${(
         updated.regularPrice * updated.quantity
@@ -34,11 +37,11 @@ async function updateQuantity(itemId, newQuantity) {
       "₹" + cartTotals.subtotal.toLocaleString("en-IN");
 
     document.querySelector("#total").innerText =
-      "₹" + cartTotals.subtotal.toLocaleString("en-IN");
-
+      "₹" + (cartTotals.subtotal-cartTotals.discount).toLocaleString("en-IN");
+    console.log(cartTotals)
     if (cartTotals.discount > 0) {
       document.querySelector("#savings").innerText =
-        "₹" + cartTotals.discount.toLocaleString("en-IN");
+        cartTotals.discount.toLocaleString("en-IN");
       document.querySelector("#discount").innerText =
         "-₹" + cartTotals.discount.toLocaleString("en-IN");
     }
@@ -165,6 +168,8 @@ if (message === "cart-add") {
   text="Item successfully removed from the cart."
 }else if(message==='cart-inc'){
   text="Product already existed in cart, quantity incremented"
+}else if(message==='adjested'){
+  text="Cart quantity was adjusted due to stock limits. Please review your cart."
 }
 
 if (message) {

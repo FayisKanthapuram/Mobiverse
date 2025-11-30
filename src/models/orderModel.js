@@ -17,6 +17,8 @@ const orderedItemSchema = new mongoose.Schema({
   },
 
   quantity: { type: Number, required: true, min: 1 },
+  regularPrice: { type: Number },
+  offer: { type: Number },
   price: { type: Number, required: true }, // sale price at time of purchase
 
   // Item-level status

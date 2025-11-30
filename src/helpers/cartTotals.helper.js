@@ -8,7 +8,7 @@ export const calculateCartTotals = async (items) => {
 
   for (let item of items) {
     // Auto-adjust invalid quantities
-    if (item.quantity > item.variantId.stock && item.variantId.stock !== 0) {
+    if (item.quantity > item.variantId.stock) {
       item.quantity = 1;
       item.adjusted = true;
 
@@ -23,7 +23,7 @@ export const calculateCartTotals = async (items) => {
     subtotal += item.variantId.regularPrice * item.quantity;
 
     discount +=
-      (item.variantId.regularPrice - item.variantId.salePrice) *
+      (item.variantId.regularPrice - (item.variantId.salePrice -item.offer)) *
       item.quantity;
   }
 
@@ -34,4 +34,27 @@ export const calculateCartTotals = async (items) => {
     deliveryCharge,
     items,
   };
+};
+
+export const calculateBasicCartTotals = (items,itemId) => {
+  let subtotal = 0;
+  let discount = 0;
+  let offer=0;
+  for (const item of items) {
+    if(String(item._id)==String(itemId)){
+      offer=item.offer;
+    }
+    subtotal += item.variantId.regularPrice * item.quantity;
+
+    if (item.variantId.regularPrice) {
+      discount +=
+        (item.variantId.regularPrice - (item.variantId.salePrice)) *
+        item.quantity;
+    }
+    if(item.offer){
+      discount+=item.offer*item.quantity;
+    }
+  }
+
+  return { subtotal, discount ,offer};
 };

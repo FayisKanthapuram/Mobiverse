@@ -8,7 +8,7 @@ import {
   getLatestProductsAgg,
 } from "../repositories/product.repo.js";
 
-import { groupVariantsByColor } from "../helpers/groupVariantsByColor.js";
+import { getAppliedOffer, groupVariantsByColor } from "../helpers/product.helper.js";
 
 export const loadProductDetailsService = async (params, query) => {
 
@@ -29,6 +29,7 @@ export const loadProductDetailsService = async (params, query) => {
 
   // 2. Fetch product with variants
   const productData = await getSingleProductAgg(selectedVariant.productId);
+  // console.log(productData)
 
   if (!productData.length) {
     const error = new Error("Product not found");
@@ -38,11 +39,13 @@ export const loadProductDetailsService = async (params, query) => {
 
   const product = productData[0];
 
+  const offer=getAppliedOffer(product,selectedVariant.salePrice);
+
   // 3. Group variants by color
   const colorGroups = groupVariantsByColor(product.variants);
 
   // 4. Get Related Products
-  const relatedProducts = await getLatestProductsAgg(product._id);
+  const relatedProducts = await getLatestProductsAgg(6);
 
   // 5. Static reviews (temporary)
   const reviews = [
@@ -84,10 +87,8 @@ export const loadProductDetailsService = async (params, query) => {
   ];
 
   return {
-    product: {
-      ...product,
-      offers: ["Gujarat Applies", "MOBILO ✓"],
-    },
+    offer,
+    product,
     selectedVariant,
     colorGroups,
     relatedProducts,

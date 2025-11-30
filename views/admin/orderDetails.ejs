@@ -234,10 +234,47 @@
                   <% } %>
                 </div>
                 <div class="item-price">
-                  <div class="price-label">Price</div>
-                  <div class="price-value">₹<%= (item.price * item.quantity).toLocaleString('en-IN', {minimumFractionDigits: 2}) %></div>
-                  <div class="price-per-unit">₹<%= item.price.toLocaleString('en-IN') %> each</div>
+
+                  <% 
+                    // MRP per unit
+                    const mrp = item.regularPrice || item.price;
+
+                    // Effective selling price per unit
+                    const sale = item.price || 0;
+                    const offer = item.offer || 0;
+                    const selling = sale - offer;
+
+                    const mrpTotal = mrp * item.quantity;
+                    const sellingTotal = selling * item.quantity;
+                  %>
+
+                  <!-- Selling total (final price admin charged) -->
+                  <div class="price-value font-bold text-gray-900 text-lg">
+                    ₹<%= sellingTotal.toLocaleString('en-IN') %>
+                  </div>
+
+                  <!-- MRP total if different -->
+                  <% if (mrpTotal !== sellingTotal) { %>
+                  <div class="text-sm text-gray-500 line-through">
+                    MRP: ₹<%= mrpTotal.toLocaleString('en-IN') %>
+                  </div>
+                  <% } %>
+
+                  <!-- Per-unit pricing -->
+                  <div class="price-per-unit text-xs text-gray-600 mt-1">
+                    <% if (offer > 0) { %>
+                    <span class="text-gray-900 font-semibold">
+                      ₹<%= selling.toLocaleString('en-IN') %>
+                    </span> each
+                    <% } else { %>
+                    <span class="text-gray-900 font-semibold">
+                      ₹<%= selling.toLocaleString('en-IN') %>
+                    </span> each
+                    <% } %>
+                  </div>
+
                 </div>
+
               </div>
 
               <!-- Return Request Section -->

@@ -25,3 +25,7 @@ export const incrementVariantStock = (variantId, qty) => {
     { $inc: { stock: qty } }
   );
 };
+
+export const findVariantByIdWithProduct = (variantId) => {
+  return variantModel.findById(variantId).populate("productId");
+};

@@ -1,6 +1,6 @@
 import productModel from "../models/productModel.js";
 
-export const getLatestProductsAgg = (limit=5) => {
+export const getLatestProductsAgg = (limit = 5) => {
   return productModel.aggregate([
     {
       $lookup: {
@@ -333,6 +333,56 @@ export const getSingleProductAgg = (productId) => {
         localField: "_id",
         foreignField: "productId",
         as: "variants",
+      },
+    },
+    {
+      $lookup: {
+        from: "offers",
+        let: {
+          productId: "$_id",
+          today: new Date(),
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$offerType", "product"] },
+                  { $in: ["$$productId", "$productID"] },
+                  { $lte: ["$startDate", "$$today"] },
+                  { $gte: ["$endDate", "$$today"] },
+                  { $eq: ["$isActive", true] },
+                ],
+              },
+            },
+          },
+        ],
+        as:'productOffer',
+      },
+    },
+    {
+      $lookup: {
+        from: "offers",
+        let: {
+          brandID: "$brandID",
+          today: new Date(),
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$offerType", "brand"] },
+                  { $eq: ["$$brandID", "$brandID"] },
+                  { $lte: ["$startDate", "$$today"] },
+                  { $gte: ["$endDate", "$$today"] },
+                  { $eq: ["$isActive", true] },
+                ],
+              },
+            },
+          },
+        ],
+        as:'brandOffer',
       },
     },
   ]);

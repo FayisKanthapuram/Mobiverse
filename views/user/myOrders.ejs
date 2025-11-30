@@ -113,7 +113,36 @@
                     </div>
                     <div class="flex justify-between items-center mt-2">
                       <span class="text-sm text-gray-600">Qty: <%= item.quantity %></span>
-                      <span class="font-bold text-gray-900">₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></span>
+<div class="text-right leading-tight">
+
+  <% 
+    const qty = item.quantity;
+    const sale = item.price;               // sale price snapshot
+    const regular = item.regularPrice;     // actual MRP snapshot
+    const offer = item.offer;              // offer snapshot
+    const finalPrice = offer ? (sale - offer) : sale;
+  %>
+
+  <!-- Final Price -->
+  <p class="font-bold <%= offer ? 'text-green-600' : 'text-gray-900' %>">
+    ₹<%= (finalPrice * qty).toLocaleString('en-IN') %>
+  </p>
+
+  <!-- Show sale price strike if offer exists -->
+  <% if (offer) { %>
+    <p class="text-xs text-gray-500 line-through">
+      ₹<%= (sale * qty).toLocaleString('en-IN') %>
+    </p>
+  <% } %>
+
+  <!-- Show regular price strike if higher than sale -->
+  <% if (regular > sale) { %>
+    <p class="text-xs text-gray-500 line-through">
+      ₹<%= (regular * qty).toLocaleString('en-IN') %>
+    </p>
+  <% } %>
+
+</div>
                     </div>
                     <!-- Item Cancel/Return Reason -->
                     <% if (item.reason && ['Cancelled', 'ReturnRequested', 'Returned'].includes(item.itemStatus)) { %>

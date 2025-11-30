@@ -111,7 +111,7 @@
 
           <% if (offerAmount > 0) { %>
              <p class="text-green-600 text-xs font-semibold mt-1">
-                Save ₹<%= offerAmount.toLocaleString('en-IN') %> with offers
+                Save ₹<%= (regularPrice-currentPrice).toLocaleString('en-IN') %> with offers
              </p>
           <% } %>
         </div>

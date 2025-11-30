@@ -1,5 +1,3 @@
-import productModel from "../../models/productModel.js";
-import variantModel from "../../models/variantModel.js";
 import { loadHomeService } from "../../services/home.service.js";
 import { loadProductDetailsService } from "../../services/product.details.service.js";
 import { loadShopService } from "../../services/shop.service.js";
@@ -45,11 +43,9 @@ export const loadShop = async (req, res, next) => {
   }
 };
 
-
 export const loadProductDetails = async (req, res, next) => {
   try {
     const data = await loadProductDetailsService(req.params, req.query);
-
     return res.render("user/productDetails", {
       ...data,
       pageTitle: data.product.name,
@@ -71,4 +67,3 @@ export const loadProductDetails = async (req, res, next) => {
     next(error);
   }
 };
-

@@ -9,13 +9,16 @@ export const loadCheckoutService = async (userId) => {
   const addresses=await findUserAddresses(userId);
   // Fetch cart items for this user
   const items = await fetchCartItems(userId);
-
+  
   // Calculate totals + fix invalid quantity
   const cartTotals = await calculateCartTotals(items);
 
+  let hasAdjustedItem=items.some(item=>item.adjusted);
+  
   return {
     user,
     addresses,
-    cartTotals
+    cartTotals,
+    hasAdjustedItem
   };
 };

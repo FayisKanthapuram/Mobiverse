@@ -1,8 +1,9 @@
-<div class="h-full">
+<div class="h-[540px]">
   <a href="/product/<%= product?.variants?._id %>" class="block group h-full">
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden 
-                h-[520px] flex flex-col transition-all duration-300 
-                hover:shadow-lg hover:-translate-y-1 hover:border-blue-200 relative">
+                flex flex-col transition-all duration-300 
+                hover:shadow-lg hover:-translate-y-1 hover:border-blue-200 relative h-full">
+```
 
       <% 
         // --- PRICING LOGIC START ---
@@ -103,7 +104,7 @@
           
           <% if (offerAmount > 0) { %>
             <p class="text-green-600 text-xs font-semibold mt-1">
-              Save ₹<%= offerAmount.toLocaleString('en-IN') %> with offers
+              Save ₹<%= (regularPrice-currentPrice).toLocaleString('en-IN') %> with offers
             </p>
           <% } %>
         </div>

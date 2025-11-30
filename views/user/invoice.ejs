@@ -4,25 +4,106 @@
   <meta charset="UTF-8">
   <title>Invoice - <%= order.orderId %></title>
 
-  <link rel="stylesheet" href="/css/user/invoice.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      color: #000;
+      margin: 0;
+      padding: 20px;
+      font-size: 14px;
+    }
+
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 25px;
+      border: 1px solid #ddd;
+      background: #fff;
+    }
+
+    h1, h2, h3 {
+      font-weight: 600;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      margin-top: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #000;
+    }
+
+    .info {
+      margin: 25px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table th, table td {
+      border: 1px solid #999;
+      padding: 8px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    table th {
+      background: #efefef;
+      font-weight: bold;
+    }
+
+    .total-row td {
+      font-weight: 600;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 13px;
+    }
+
+    @media print {
+      .btn-print {
+        display: none;
+      }
+    }
+
+    .btn-print {
+      padding: 10px 15px;
+      background: #000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 
 <body>
 
+  <!-- Print Button -->
   <button class="btn-print" onclick="window.print()">Download Invoice</button>
 
   <div class="invoice-container">
 
+    <!-- Logo -->
     <img src="/images/logo+name.png" alt="Logo" style="height:40px;">
 
+    <!-- Header -->
     <div class="header">
       <h1>INVOICE</h1>
-      <div class="subheader">
-        <p><strong>Order ID:</strong> <%= order.orderId %></p>
-        <p>Date: <%= new Date(order.createdAt).toLocaleDateString('en-IN') %></p>
-      </div>
+      <p><strong>Order ID:</strong> <%= order.orderId %></p>
+      <p><strong>Date:</strong> <%= new Date(order.createdAt).toLocaleDateString('en-IN') %></p>
     </div>
 
+    <!-- Billing / Payment -->
     <div class="info">
       <div>
         <h3>Billing Details</h3>
@@ -40,7 +121,7 @@
 
       <div>
         <h3>Payment Info</h3>
-        <p><strong>Payment Method:</strong> 
+        <p><strong>Payment Method:</strong>
           <%= order.paymentMethod === "cod" ? "Cash on Delivery" : order.paymentMethod.toUpperCase() %>
         </p>
         <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
@@ -48,36 +129,44 @@
       </div>
     </div>
 
-    <h3>Products</h3>
+    <h3>Order Items</h3>
 
+    <!-- Product Table -->
     <table>
       <thead>
         <tr>
           <th>Product</th>
           <th>Variant</th>
           <th>Qty</th>
-          <th>Unit Price</th>
+          <th>Unit Price (MRP)</th>
           <th>Total</th>
         </tr>
       </thead>
 
       <tbody>
-        <% order.orderedItems.forEach(item => { %>
-          <tr>
-            <td><%= item.productId.name %></td>
 
-            <td>
-              <% if (item.variantId.colour) { %> Colour: <%= item.variantId.colour %><br> <% } %>
-              <% if (item.variantId.ram) { %> RAM: <%= item.variantId.ram %><br> <% } %>
-              <% if (item.variantId.storage) { %> Storage: <%= item.variantId.storage %><br> <% } %>
-            </td>
+        <% order.orderedItems.forEach(item => { 
+            const unit = item.regularPrice ? item.regularPrice : item.price;
+        %>
 
-            <td><%= item.quantity %></td>
+        <tr>
+          <td><%= item.productId.name %></td>
 
-            <td>₹<%= item.price.toLocaleString('en-IN') %></td>
+          <td>
+            <% if (item.variantId.colour) { %> Colour: <%= item.variantId.colour %><br> <% } %>
+            <% if (item.variantId.ram) { %> RAM: <%= item.variantId.ram %><br> <% } %>
+            <% if (item.variantId.storage) { %> Storage: <%= item.variantId.storage %><br> <% } %>
+          </td>
 
-            <td>₹<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
-          </tr>
+          <td><%= item.quantity %></td>
+
+          <!-- UNIT PRICE (MRP or fallback) -->
+          <td>₹<%= unit.toLocaleString('en-IN') %></td>
+
+          <!-- LINE TOTAL -->
+          <td>₹<%= (unit * item.quantity).toLocaleString('en-IN') %></td>
+        </tr>
+
         <% }) %>
 
         <!-- Totals -->
@@ -97,13 +186,14 @@
         </tr>
 
         <tr class="total-row">
-          <td colspan="4" style="text-align:right; font-size:16px;">Final Amount</td>
-          <td style="font-size:16px;">₹<%= order.finalAmount.toLocaleString('en-IN') %></td>
+          <td colspan="4" style="text-align:right; font-size:15px;">Final Amount</td>
+          <td style="font-size:15px;">₹<%= order.finalAmount.toLocaleString('en-IN') %></td>
         </tr>
 
       </tbody>
     </table>
 
+    <!-- Footer -->
     <div class="footer">
       <p>Thank you for shopping with us!</p>
     </div>

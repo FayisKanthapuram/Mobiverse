@@ -186,9 +186,42 @@
                   <% } %>
                 </div>
                 <div class="flex justify-between items-center mt-2">
-                  <span class="text-sm text-gray-600">Qty: <%= item.quantity %></span>
-                  <span class="font-bold text-gray-900">₹<%= (item.variantId.salePrice * item.quantity).toLocaleString('en-IN') %></span>
+
+                  <% 
+                    const qty = item.quantity;
+                    const sale = item.variantId.salePrice;
+                    const regular = item.variantId.regularPrice;
+                    const offer = item.offer; 
+                    const finalPrice = offer ? (sale - offer) : sale;
+                  %>
+
+                  <span class="text-sm text-gray-600">Qty: <%= qty %></span>
+
+                  <div class="text-right leading-tight">
+
+                    <!-- Final price -->
+                    <p class="font-bold text-gray-900 <%= offer ? 'text-green-600' : '' %>">
+                      ₹<%= (finalPrice * qty).toLocaleString('en-IN') %>
+                    </p>
+
+                    <!-- Sale Price (strike-through only if offer exists) -->
+                    <% if (offer) { %>
+                    <p class="text-xs text-gray-500 line-through">
+                      ₹<%= (sale * qty).toLocaleString('en-IN') %>
+                    </p>
+                    <% } %>
+
+                    <!-- Regular Price (strike-through only if higher than sale price) -->
+                    <% if (regular > sale) { %>
+                    <p class="text-xs text-gray-500 line-through">
+                      ₹<%= (regular * qty).toLocaleString('en-IN') %>
+                    </p>
+                    <% } %>
+
+                  </div>
+
                 </div>
+
               </div>
             </div>
             <% }); %>

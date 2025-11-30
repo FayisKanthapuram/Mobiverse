@@ -1,5 +1,5 @@
-import {HttpStatus} from "../constants/statusCode.js";
-import {orderValidation} from "../validators/OrderValidator.js";
+import { HttpStatus } from "../constants/statusCode.js";
+import { orderValidation } from "../validators/OrderValidator.js";
 
 import { findAddressById } from "../repositories/address.repo.js";
 import { createOrder, findOrderByOrderId } from "../repositories/order.repo.js";
@@ -7,7 +7,6 @@ import { decrementProductStock } from "../repositories/product.repo.js";
 import { decrementVariantStock } from "../repositories/variant.repo.js";
 import { deleteUserCart, fetchCartItems } from "../repositories/cart.repo.js";
 import { calculateCartTotals } from "../helpers/cartTotals.helper.js";
-
 
 export const placeOrderService = async (userId, body) => {
   // -------------------------------
@@ -65,7 +64,12 @@ export const placeOrderService = async (userId, body) => {
     productId: item.productId._id,
     variantId: item.variantId._id,
     quantity: item.quantity,
-    price: item.variantId.salePrice,
+
+    regularPrice: item.variantId?.regularPrice ?? 0,
+
+    offer: item.offer ?? 0,
+
+    price: item.variantId?.salePrice ?? 0,
   }));
 
   // -------------------------------

@@ -46,30 +46,56 @@
         <span class="text-gray-600">(<%= selectedVariant.rating?.toFixed(1) %> / 5)</span>
       </div>
 
-      <!-- Price -->
-      <div class="flex flex-wrap items-center space-x-4">
-        <span class="text-3xl font-bold text-gray-900">₹<%= selectedVariant.salePrice.toLocaleString('en-IN') %></span>
+      <!-- Price Section -->
+<div class="space-y-2">
 
-        <% if (selectedVariant.regularPrice && selectedVariant.regularPrice > selectedVariant.salePrice) { %>
-        <span class="text-xl text-gray-400 line-through">₹<%= selectedVariant.regularPrice.toLocaleString('en-IN') %></span>
-        <span class="bg-red-100 text-red-600 px-3 py-1 rounded text-sm font-medium">
-          SAVE ₹<%= (selectedVariant.regularPrice - selectedVariant.salePrice).toLocaleString('en-IN') %>
-          (<%= Math.round(((selectedVariant.regularPrice - selectedVariant.salePrice)/selectedVariant.regularPrice)*100) %>% OFF)
-        </span>
-        <% } %>
-      </div>
+  <% 
+    const finalPrice = selectedVariant.salePrice - (offer || 0);
+    const hasOffer = offer && offer > 0;
+    const regular = selectedVariant.regularPrice || selectedVariant.salePrice;
+    const totalDiscount = regular - finalPrice;
+    const discountPercentage = Math.round((totalDiscount / regular) * 100);
+  %>
 
-      <!-- Offers -->
-      <div class="flex flex-wrap gap-2">
-        <% product.offers.forEach(offer => { %>
-          <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm flex items-center">
-            <%= offer %>
-            <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-            </svg>
-          </span>
-        <% }); %>
-      </div>
+  <!-- MAIN PRICE + DISCOUNT -->
+  <div class="flex items-center space-x-4">
+
+    <!-- Final Price -->
+    <span class="text-4xl font-extrabold text-gray-900">
+      ₹<%= finalPrice.toLocaleString('en-IN') %>
+    </span>
+
+    <!-- Crossed Old Price -->
+    <% if (totalDiscount > 0) { %>
+    <span class="text-xl text-gray-400 line-through">
+      ₹<%= regular.toLocaleString('en-IN') %>
+    </span>
+    <% } %>
+
+    <!-- Total Percentage Off -->
+    <% if (totalDiscount > 0) { %>
+    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-semibold">
+      <%= discountPercentage %>% OFF
+    </span>
+    <% } %>
+
+  </div>
+
+  <!-- BADGES BELOW PRICE -->
+  <% if (hasOffer) { %>
+  <div class="flex items-center space-x-3">      
+    <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-lg text-xs font-semibold">
+      Special Offer Applied
+    </span>
+
+    <span class="text-sm text-gray-600">
+      You save ₹<%= totalDiscount.toLocaleString('en-IN') %>
+    </span>
+  </div>
+  <% } %>
+
+</div>
+
 
       <!-- Color Section -->
       <div>
@@ -97,7 +123,7 @@
           hover:border-blue-600 transition">
             <span class="font-medium"><%= v.storage %> / <%= v.ram %></span>
             <span class="text-xs block mt-1 <%= v._id.toString() === selectedVariant._id.toString() ? 'text-blue-100' : 'text-gray-500' %>">
-              ₹<%= v.salePrice.toLocaleString('en-IN') %>
+              ₹<%= (v.salePrice-offer).toLocaleString('en-IN') %>
             </span>
           </button>
           <% }); %>

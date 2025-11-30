@@ -7,3 +7,7 @@ export const getHomeBrands = () => {
 export const getAllListedBrands = () => {
   return brandModel.find({ isListed: true });
 };
+
+export const findBrandById = (brandId) => {
+  return brandModel.findById(brandId);
+};
