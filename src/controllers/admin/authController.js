@@ -2,7 +2,7 @@ import {
   registerAdminService,
   loginAdminService,
   logoutAdminService,
-} from "../../services/admin.service.js";
+} from "../../services/admin.auth.service.js";
 import {
   adminRegisterSchema,
   adminLoginSchema,
