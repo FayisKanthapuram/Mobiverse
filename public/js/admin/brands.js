@@ -137,6 +137,12 @@ document
   .getElementById("add-brand-form")
   .addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const submitBtn = e.target.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Saving...";
+    e.target.classList.add("disabled-form");
+
     const formData = new FormData(e.target);
 
     try {
@@ -152,6 +158,7 @@ document
           position: "right",
           style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
         }).showToast();
+
         setTimeout(() => window.location.reload(), 1200);
       }
     } catch (error) {
@@ -162,6 +169,9 @@ document
         position: "right",
         style: { background: "#e74c3c" },
       }).showToast();
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Save";
     }
   });
 
@@ -307,7 +317,14 @@ changeImageBtnEdit.addEventListener("click", () => {
 // --------------------------------------
 editForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  const submitBtn = e.target.querySelector("button[type='submit']");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Saving...";
+  e.target.classList.add("disabled-form");
+
   const formData = new FormData(e.target);
+
   try {
     const response = await axios.patch(`/admin/brands/edit`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -321,6 +338,7 @@ editForm.addEventListener("submit", async (e) => {
         position: "right",
         style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
       }).showToast();
+
       setTimeout(() => window.location.reload(), 1200);
     }
   } catch (error) {
@@ -331,8 +349,12 @@ editForm.addEventListener("submit", async (e) => {
       position: "right",
       style: { background: "#e74c3c" },
     }).showToast();
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Save Changes";
   }
 });
+
 
 // --------------------------------------
 //  List / Unlist Brand
@@ -383,7 +405,7 @@ document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
         }).showToast();
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       Toastify({
         text: "Something went wrong",
         duration: 2000,
@@ -398,7 +420,6 @@ document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
 // --------------------------------------
 //  Search(Debouncing)+pagination+filter
 // --------------------------------------
-
 
 function changePage(page) {
   const url = new URL(window.location);
@@ -424,21 +445,20 @@ function handleSearch() {
   window.location.href = url.href;
 }
 
-function clearSearch(){
+function clearSearch() {
   const url = new URL(window.location);
-  url.searchParams.delete('search');
-  window.location.href=url.href; 
+  url.searchParams.delete("search");
+  window.location.href = url.href;
 }
 
-function applyFilter(){
+function applyFilter() {
+  const filter = document.getElementById("brand-filter-select").value;
 
-  const filter= document.getElementById('brand-filter-select').value;
-
-  const url=new URL(window.location);
-  if(filter){
-    url.searchParams.set('filter',filter);
-  }else{
-    url.searchParams.delete('filter');
+  const url = new URL(window.location);
+  if (filter) {
+    url.searchParams.set("filter", filter);
+  } else {
+    url.searchParams.delete("filter");
   }
   url.searchParams.set("page", 1);
   window.location.href = url.href;

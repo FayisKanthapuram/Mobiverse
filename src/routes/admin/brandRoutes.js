@@ -12,8 +12,8 @@ import { verifyAdmin } from "../../middlewares/adminAuth.js";
 const router = express.Router();
 
 router.get("/brands", verifyAdmin, loadBrands);
-router.post("/brands/add", upload.brand.single("brandLogo"), addBrand);
-router.patch("/brands/edit", upload.brand.single("brandLogo"), editBrand);
+router.post("/brands/add", upload.brand, addBrand);
+router.patch("/brands/edit", upload.brand, editBrand);
 router.patch("/brands/list/:brandId", listBrand);
 router.get("/api/brands/:id", verifyAdmin, getBrandById);
 

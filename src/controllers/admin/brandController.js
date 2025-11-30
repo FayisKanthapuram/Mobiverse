@@ -1,3 +1,5 @@
+import { cloudinaryUpload } from "../../middlewares/upload.js";
+import cloudinary from "../../config/cloudinary.js";
 import brandModel from "../../models/brandModel.js";
 import Joi from "joi";
 
@@ -52,90 +54,126 @@ const brandValidation = Joi.object({
 
 export const addBrand = async (req, res) => {
   try {
+    // Validate Inputs
     const { error } = brandValidation.validate(req.body);
     if (error) {
-      // Remove uploaded file if validation fails
-      if (req.file) {
-        const fs = await import("fs");
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(400).json({
         success: false,
         message: error.details[0].message,
       });
     }
 
-    // Save data in MongoDB
     const { brandName } = req.body;
-    const logoPath = req.file ? `/uploads/brands/${req.file.filename}` : null;
 
+    // Check for existing brand
     const existingBrand = await brandModel.findOne({ brandName });
     if (existingBrand) {
-      if (req.file) {
-        const fs = await import("fs");
-        fs.unlinkSync(req.file.path);
-      }
       return res
         .status(400)
         .json({ success: false, message: "Brand name already exists" });
     }
 
-    const newBrand = new brandModel({ brandName, logo: logoPath });
+    // Upload brand logo to Cloudinary
+    let cloudinaryLogo = null;
+    if (req.file) {
+      const uploadResult = await cloudinaryUpload(
+        req.file.buffer,
+        "brands"
+      );
+      cloudinaryLogo = uploadResult.secure_url;
+    }
+
+    // Save to MongoDB
+    const newBrand = new brandModel({
+      brandName,
+      logo: cloudinaryLogo,
+    });
+
     await newBrand.save();
 
     res.json({
       success: true,
-      message: " Brand added successfully",
+      message: "Brand added successfully",
+      brand: newBrand,
     });
+
   } catch (error) {
-    console.error(error);
+    console.error("Add Brand Error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
 export const editBrand = async (req, res) => {
-  const { error } = brandValidation.validate(req.body);
-  if (error) {
-    // Remove uploaded file if validation fails
-    if (req.file) {
-      const fs = await import("fs");
-      fs.unlinkSync(req.file.path);
+  try {
+    // Validate body
+    const { error } = brandValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message,
+      });
     }
-    return res.status(400).json({
+
+    const { brandName, brandId } = req.body;
+
+    // Find brand
+    const brand = await brandModel.findById(brandId);
+    if (!brand) {
+      return res.status(404).json({ success: false, message: "Brand not found" });
+    }
+
+    // Check if brand name was changed
+    if (brand.brandName !== brandName) {
+      const existingBrand = await brandModel.findOne({ brandName });
+      if (existingBrand) {
+        return res.status(400).json({
+          success: false,
+          message: "Brand name already exists",
+        });
+      }
+    }
+
+    let newLogoUrl = brand.logo; // default is old logo
+
+    // If new image uploaded → replace on Cloudinary
+    if (req.file) {
+      // 1️⃣ Upload the new logo
+      const uploadResult = await cloudinaryUpload(req.file.buffer, "brands");
+
+      newLogoUrl = uploadResult.secure_url;
+
+      // 2️⃣ Delete old logo from Cloudinary (if exists)
+      if (brand.logo) {
+        // Extract Cloudinary public_id from brand.logo URL
+        const publicId = brand.logo
+          .split("/")
+          .pop()
+          .split(".")[0]; // 'abc123' from URL
+
+        await cloudinary.uploader.destroy(`ecommerce/brands/${publicId}`);
+      }
+    }
+
+    // Update DB
+    brand.brandName = brandName;
+    brand.logo = newLogoUrl;
+
+    await brand.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Brand updated successfully!",
+      brand,
+    });
+  } catch (error) {
+    console.error("Edit Brand Error:", error);
+    res.status(500).json({
       success: false,
-      message: error.details[0].message,
+      message: "Server error",
     });
   }
-
-  const { brandName, brandId } = req.body;
-  const brand = await brandModel.findOne({ _id: brandId });
-  const logoPath = req.file
-    ? `/uploads/brands/${req.file.filename}`
-    : brand.logo;
-
-  console.log(brand.brandName, brandName);
-  if (brand.brandName !== brandName) {
-    const existingBrand = await brandModel.findOne({ brandName });
-    console.log(existingBrand);
-    if (existingBrand) {
-      if (req.file) {
-        const fs = await import("fs");
-        fs.unlinkSync(req.file.path);
-      }
-      return res
-        .status(400)
-        .json({ success: false, message: "Brand name already exists" });
-    }
-  }
-  console.log(logoPath);
-  brand.brandName = brandName;
-  brand.logo = logoPath;
-
-  await brand.save();
-  res
-    .status(200)
-    .json({ success: true, message: "Brand updated successfully!" });
 };
+
 
 export const listBrand = async (req, res) => {
   const { brandId } = req.params;

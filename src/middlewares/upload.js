@@ -1,29 +1,11 @@
-// middlewares/upload.js
 import multer from "multer";
+import cloudinary from "../config/cloudinary.js";
 import path from "path";
-import fs from "fs";
 
-// ✅ Reusable function to create storage for any folder
-const createStorage = (folderName) => {
-  const uploadDir = path.join("public", "uploads", folderName);
+// Multer memory storage
+const storage = multer.memoryStorage();
 
-  // Make sure folder exists
-  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-  return multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => {
-      const baseName = path.basename(file.originalname, path.extname(file.originalname));
-      const ext = path.extname(file.originalname).toLowerCase();
-
-      // Keep .svg as is
-      if (ext === ".svg") cb(null, `${Date.now()}-${baseName}.svg`);
-      else cb(null, `${Date.now()}-${baseName}.png`);
-    },
-  });
-};
-
-// ✅ File filter for images
+// Allowed file types
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
   const allowed = /jpeg|jpg|png|webp|svg/;
@@ -31,13 +13,33 @@ const fileFilter = (req, file, cb) => {
   else cb(new Error("Only image files are allowed"));
 };
 
-// ✅ Export different upload middlewares
+const uploadFile = multer({ storage, fileFilter });
+
+// 🔥 Cloudinary uploader (buffer-based)
+export const cloudinaryUpload = (fileBuffer, folder) => {
+  return new Promise((resolve, reject) => {
+    const upload = cloudinary.uploader.upload_stream(
+      {
+        folder: `ecommerce/${folder}`,
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+
+    upload.end(fileBuffer);
+  });
+};
+
+// Export different upload types
 const upload = {
-  brand: multer({ storage: createStorage("brands"), fileFilter }),
-  product: multer({ storage: createStorage("products"), fileFilter }),
-  customer: multer({ storage: createStorage("customers"), fileFilter }),
-  banner: multer({ storage: createStorage("banners"), fileFilter }),
-  user: multer({ storage: createStorage("user"), fileFilter }),
+  brand: uploadFile.single("brandLogo"),   // brand
+  product: uploadFile.array("images", 5),  // product multiple images
+  customer: uploadFile.single("image"),
+  banner: uploadFile.single("image"),
+  user: uploadFile.single("image"),
 };
 
 export default upload;

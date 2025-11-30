@@ -689,3 +689,8 @@ input:checked + .slider-toggle:before {
   opacity: 1;
   visibility: visible;
 }
+
+.disabled-form {
+  pointer-events: none;
+  opacity: 0.6;
+}

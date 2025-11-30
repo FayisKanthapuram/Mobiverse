@@ -17,7 +17,7 @@ const router = express.Router();
 
 router.get("/personal-info", requireLogin, loadPersonalInfo);
 router.get("/edit-info", requireLogin, loadEditInfo);
-router.patch("/edit-info", upload.user.single("profilePicture"), editInfo);
+// router.patch("/edit-info", upload.user.single("profilePicture"), editInfo);
 router.get("/edit-email", requireLogin, loadEditEmail);
 router.post("/edit-email", editEmail);
 router.post("/edit-email/otp", sendOtpToEditEmail);
