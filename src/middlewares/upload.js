@@ -36,7 +36,7 @@ export const cloudinaryUpload = (fileBuffer, folder) => {
 // Export different upload types
 const upload = {
   brand: uploadFile.single("brandLogo"),   // brand
-  product: uploadFile.array("images", 5),  // product multiple images
+  product: uploadFile.any(),  // product multiple images
   customer: uploadFile.single("image"),
   banner: uploadFile.single("image"),
   user: uploadFile.single("image"),

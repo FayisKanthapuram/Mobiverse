@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
       variant.colour || "";
     newVariant.querySelector('input[name="stockQuantity"]').value =
       variant.stock || 0;
-    newVariant.querySelector('#varient-status').checked=variant.isListed;
+    newVariant.querySelector("#varient-status").checked = variant.isListed;
 
     // 🖼️ Populate existing images
     const fileInput = newVariant.querySelector(".variant-image-upload-input");
@@ -363,6 +363,14 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    const oldText = submitBtn.textContent;
+    submitBtn.textContent = "Processing...";
+
+    // Disable whole form
+    form.classList.add("disabled-form");
+
     const formData = new FormData();
 
     formData.append(
@@ -392,11 +400,13 @@ document.addEventListener("DOMContentLoaded", () => {
         colour: section.querySelector('input[name="colour"]').value.trim(),
         stockQuantity: section.querySelector('input[name="stockQuantity"]')
           .value,
-        isListed: section.querySelector('input[name="isListed"]').checked,
+        isListed:
+          section.querySelector('input[name="isListed"]')?.checked ?? true,
       };
 
       const input = section.querySelector(".variant-image-upload-input");
       const images = variantImagesMap.get(input) || [];
+
       images.forEach((entry, idx) => {
         if (entry.file)
           formData.append(`variantImages_${index}_${idx}`, entry.file);
@@ -411,18 +421,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await axios.post("/admin/products/add", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
       if (response.data.success) {
         Toastify({
           text: response.data.message,
-          duration: 1000,
+          duration: 1200,
           gravity: "top",
           position: "right",
           style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
         }).showToast();
-        setTimeout(() => window.location.reload(), 1200);
+
+        setTimeout(() => window.location.reload(), 1300);
       }
     } catch (err) {
-      console.error(err);
       Toastify({
         text: err.response?.data?.message || "Failed to add product",
         duration: 2000,
@@ -430,6 +441,11 @@ document.addEventListener("DOMContentLoaded", () => {
         position: "right",
         style: { background: "#e74c3c" },
       }).showToast();
+    } finally {
+      // Restore form
+      form.classList.remove("disabled-form");
+      submitBtn.disabled = false;
+      submitBtn.textContent = oldText;
     }
   });
 
@@ -504,106 +520,92 @@ document.addEventListener("DOMContentLoaded", () => {
   const editForm = document.getElementById("edit-product-form");
 
   editForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const formData = new FormData();
+  const submitBtn = editForm.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  const oldText = submitBtn.textContent;
+  submitBtn.textContent = "Processing...";
 
-    // 🆔 Get product ID
-    const productId = document.getElementById("edit-product-id").value;
+  // Disable entire form
+  editForm.classList.add("disabled-form");
 
-    // 🧾 Collect product details
-    const productName = document
-      .getElementById("edit-product-name")
-      .value.trim();
-    const brand = document.getElementById("edit-brand").value;
-    const description = document
-      .getElementById("edit-description")
-      .value.trim();
+  const formData = new FormData();
+  const productId = document.getElementById("edit-product-id").value;
 
-    formData.append("productName", productName);
-    formData.append("brand", brand);
-    formData.append("description", description);
-    formData.append(
-      "isFeatured",
-      document.getElementById("edit-featured").checked
-    );
-    formData.append("isListed", document.getElementById("edit-status").checked);
+  formData.append("productName", document.getElementById("edit-product-name").value.trim());
+  formData.append("brand", document.getElementById("edit-brand").value);
+  formData.append("description", document.getElementById("edit-description").value.trim());
+  formData.append("isFeatured", document.getElementById("edit-featured").checked);
+  formData.append("isListed", document.getElementById("edit-status").checked);
 
-    // 🧩 Collect variant data
-    const variantSections = editForm.querySelectorAll(".variant-form-section");
-    const variants = [];
+  const variantSections = editForm.querySelectorAll(".variant-form-section");
+  const variants = [];
 
-    variantSections.forEach((section, index) => {
-      const variantData = {
-        _id: section.dataset.variantId || null, // Include variantId if editing existing one
-        regularPrice: section.querySelector('input[name="regularPrice"]').value,
-        salePrice: section.querySelector('input[name="salePrice"]').value,
-        ram: section.querySelector('select[name="ram"]').value,
-        storage: section.querySelector('select[name="storage"]').value,
-        colour: section.querySelector('input[name="colour"]').value.trim(),
-        stockQuantity: section.querySelector('input[name="stockQuantity"]')
-          .value,
-        isListed: section.querySelector('input[name="isListed"]').checked,
-      };
+  variantSections.forEach((section, index) => {
+    const variantData = {
+      _id: section.dataset.variantId || null,
+      regularPrice: section.querySelector('input[name="regularPrice"]').value,
+      salePrice: section.querySelector('input[name="salePrice"]').value,
+      ram: section.querySelector('select[name="ram"]').value,
+      storage: section.querySelector('select[name="storage"]').value,
+      colour: section.querySelector('input[name="colour"]').value.trim(),
+      stockQuantity: section.querySelector('input[name="stockQuantity"]').value,
+      isListed: section.querySelector('input[name="isListed"]')?.checked ?? true,
+    };
 
-      // 📸 Handle variant images
-      const input = section.querySelector(".variant-image-upload-input");
-      const images = variantImagesMap.get(input) || [];
+    const input = section.querySelector(".variant-image-upload-input");
+    const images = variantImagesMap.get(input) || [];
 
-      const existingImageUrls = [];
+    const existingImageUrls = [];
 
-      // Separate existing & new images
-      images.forEach((entry, idx) => {
-        if (entry.file instanceof File) {
-          formData.append(`variantImages_${index}_${idx}`, entry.file);
-        } else if (entry.isExisting && entry.url) {
-          existingImageUrls.push(entry.url);
-        }
-      });
-
-      // Add existing image URLs to variantData
-      variantData.existingImages = existingImageUrls;
-
-      variants.push(variantData);
+    images.forEach((entry, idx) => {
+      if (entry.file instanceof File) {
+        formData.append(`variantImages_${index}_${idx}`, entry.file);
+      } else if (entry.isExisting) {
+        existingImageUrls.push(entry.url);
+      }
     });
 
-    formData.append("variants", JSON.stringify(variants));
+    variantData.existingImages = existingImageUrls;
 
-    // 🧠 Send request
-    try {
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-      const response = await axios.patch(
-        `/admin/products/edit/${productId}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+    variants.push(variantData);
+  });
 
-      if (response.data.success) {
-        Toastify({
-          text: response.data.message || "Product updated successfully!",
-          duration: 1000,
-          gravity: "top",
-          position: "right",
-          style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
-        }).showToast();
+  formData.append("variants", JSON.stringify(variants));
 
-        setTimeout(() => window.location.reload(), 1200);
-      }
-    } catch (err) {
-      console.error(err);
+  try {
+    const response = await axios.patch(`/admin/products/edit/${productId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    if (response.data.success) {
       Toastify({
-        text: err.response?.data?.message || "Failed to update product",
-        duration: 2000,
+        text: response.data.message || "Product updated successfully!",
+        duration: 1200,
         gravity: "top",
         position: "right",
-        style: { background: "#e74c3c" },
+        style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
       }).showToast();
+
+      setTimeout(() => window.location.reload(), 1300);
     }
-  });
+  } catch (err) {
+    Toastify({
+      text: err.response?.data?.message || "Failed to update product",
+      duration: 2000,
+      gravity: "top",
+      position: "right",
+      style: { background: "#e74c3c" },
+    }).showToast();
+  } finally {
+    // Restore form
+    editForm.classList.remove("disabled-form");
+    submitBtn.disabled = false;
+    submitBtn.textContent = oldText;
+  }
+});
+
 });
 
 // --------------------------------------

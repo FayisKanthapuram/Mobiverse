@@ -689,3 +689,8 @@ input:checked + .slider:before {
   pointer-events: none;
   border-color: #e9ecef;
 }
+
+.disabled-form {
+  pointer-events: none;
+  opacity: 0.6;
+}

@@ -13,10 +13,10 @@ import { verifyAdmin } from "../../middlewares/adminAuth.js";
 const router = express.Router();
 
 router.get("/products", verifyAdmin, loadProducts);
-// router.post("/products/add", upload.product.any(), addProduct);
+router.post("/products/add", upload.product, addProduct);
 router.patch("/products/list/:productId", toggleProduct);
 router.get("/api/product/:productId", getProductById);
-// router.patch("/products/edit/:productId", upload.product.any(), editProduct);
+router.patch("/products/edit/:productId", upload.product, editProduct);
 
 router.get('/products/search',verifyAdmin,getProducts)
 

@@ -3,7 +3,12 @@ import productModel from "../../models/productModel.js";
 import { productValidationSchema } from "../../validators/productValidator.js";
 import variantModel from "../../models/variantModel.js";
 import mongoose from "mongoose";
-import { getFilteredProducts, getProductsBySearch } from "../../services/product.service.js";
+import cloudinary from "../../config/cloudinary.js";
+import {
+  getFilteredProducts,
+  getProductsBySearch,
+} from "../../services/product.service.js";
+import { cloudinaryUpload } from "../../middlewares/upload.js";
 
 export const loadProducts = async (req, res, next) => {
   try {
@@ -38,17 +43,19 @@ export const loadProducts = async (req, res, next) => {
   }
 };
 
-
 export const addProduct = async (req, res) => {
+  const uploadedImages = []; // 🔥 store public_ids to delete if needed
+
   try {
     // Validate text fields
     const { error } = productValidationSchema.validate(req.body);
     if (error) {
+      await rollbackCloudinary(uploadedImages);
       return res.status(400).json({ success: false, message: error.message });
     }
 
+    // Parse variants JSON
     const variants = JSON.parse(req.body.variants);
-    const imagesByVariant = {};
 
     if (!req.files || req.files.length === 0) {
       return res
@@ -56,97 +63,130 @@ export const addProduct = async (req, res) => {
         .json({ success: false, message: "No images uploaded" });
     }
 
-    //  Group uploaded images by variant index
-    req.files.forEach((file) => {
+    const imagesByVariant = {};
+
+    // Upload images to Cloudinary
+    for (const file of req.files) {
       const match = file.fieldname.match(/variantImages_(\d+)_\d+/);
       if (match) {
         const variantIndex = match[1];
+
+        // Upload
+        const uploadResult = await cloudinaryUpload(file.buffer, "products");
+
+        // Save uploaded image public_id for rollback
+        uploadedImages.push(uploadResult.public_id);
+
         if (!imagesByVariant[variantIndex]) imagesByVariant[variantIndex] = [];
-        imagesByVariant[variantIndex].push(
-          `/uploads/products/${file.filename}`
-        );
+        imagesByVariant[variantIndex].push(uploadResult.secure_url);
       }
-    });
+    }
 
     // Validate minimum 3 images per variant
     for (let i = 0; i < variants.length; i++) {
-      const imageCount = imagesByVariant[i]?.length || 0;
-      if (imageCount < 3) {
+      if (!imagesByVariant[i] || imagesByVariant[i].length < 3) {
+        await rollbackCloudinary(uploadedImages);
         return res.status(400).json({
           success: false,
-          message: `Variant ${i + 1} must have at least 3 images.`,
+          message: `Variant ${i + 1} must have at least 3 images`,
         });
       }
     }
 
+    // Attach Cloudinary images
     const finalVariants = variants.map((variant, index) => ({
       ...variant,
       images: imagesByVariant[index] || [],
     }));
 
-    const { productName, brand, description, isFeatured } = req.body;
-    let isListed = req.body.isListed;
-    const checkName = await productModel.findOne({ name: productName });
-    if (checkName) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Product name already exists" });
-    }
+    // Product name validation
+    const existingProduct = await productModel.findOne({
+      name: req.body.productName,
+    });
 
-    const checkBrand = await brandModel.findById(brand);
-    if (!checkBrand) {
+    if (existingProduct) {
+      // ❗ DELETE cloud images because validation FAILED
+      await rollbackCloudinary(uploadedImages);
+
       return res.status(400).json({
         success: false,
-        message: "Invalid brand ID — brand not found in the database",
+        message: "Product name already exists",
       });
     }
 
+    // Validate brand ID
+    const brand = await brandModel.findById(req.body.brand);
+    if (!brand) {
+      await rollbackCloudinary(uploadedImages);
+      return res.status(400).json({
+        success: false,
+        message: "Invalid brand ID",
+      });
+    }
+
+    // Calculate min/max and stock
     let minPrice = Infinity;
     let maxPrice = -Infinity;
     let totalStock = 0;
-    for (let variant of finalVariants) {
-      minPrice = Math.min(minPrice, variant.salePrice);
-      maxPrice = Math.max(maxPrice, variant.salePrice);
-      totalStock += Number(variant.stockQuantity);
+
+    for (const v of finalVariants) {
+      minPrice = Math.min(minPrice, v.salePrice);
+      maxPrice = Math.max(maxPrice, v.salePrice);
+      totalStock += Number(v.stockQuantity);
     }
 
+    // Save product
     const product = await productModel.create({
-      name: productName,
+      name: req.body.productName,
       image: imagesByVariant["0"][0],
-      brandID: checkBrand._id,
-      description,
-      isFeatured,
-      isListed,
+      brandID: brand._id,
+      description: req.body.description,
+      isFeatured: req.body.isFeatured,
+      isListed: req.body.isListed,
       minPrice,
       maxPrice,
       totalStock,
     });
 
+    // Save variants
     await Promise.all(
       finalVariants.map((variant) =>
         variantModel.create({
           productId: product._id,
-          regularPrice: variant.regularPrice ? Number(variant.regularPrice) : 0,
+          regularPrice: variant.regularPrice || 0,
           salePrice: Number(variant.salePrice),
           ram: variant.ram,
           storage: variant.storage,
           colour: variant.colour.toLowerCase(),
           stock: Number(variant.stockQuantity),
           images: variant.images,
-          isListed:variant.isListed,
+          isListed: variant.isListed,
         })
       )
     );
 
-    // Proceed to save product in DB
-    res.json({ success: true, message: "Product validated successfully" });
+    res.json({ success: true, message: "Product added successfully" });
   } catch (err) {
-    console.error("Error adding product", err.message);
+    console.error("Add Product Error:", err.message);
+
+    await rollbackCloudinary(uploadedImages);
+
     res
       .status(500)
       .json({ success: false, message: err.message || "Server error" });
   }
 };
+
+// 🔥 DELETE all uploaded images if something fails
+async function rollbackCloudinary(images) {
+  for (const id of images) {
+    try {
+      await cloudinary.uploader.destroy(id);
+    } catch (err) {
+      console.log("Failed to delete:", id);
+    }
+  }
+}
 
 export const toggleProduct = async (req, res) => {
   const { productId } = req.params;
@@ -158,11 +198,11 @@ export const toggleProduct = async (req, res) => {
   res.status(200).json({ success: true });
 };
 
-export const getProducts=async (req,res)=>{
-  const search=req.query.q||'';
-  const products=await getProductsBySearch(search);
-  res.json({success:true,products});
-}
+export const getProducts = async (req, res) => {
+  const search = req.query.q || "";
+  const products = await getProductsBySearch(search);
+  res.json({ success: true, products });
+};
 
 export const getProductById = async (req, res) => {
   try {
@@ -190,151 +230,138 @@ export const getProductById = async (req, res) => {
 };
 
 export const editProduct = async (req, res) => {
+  const uploadedImages = []; // track newly added Cloudinary uploads
+
   try {
     const { productId } = req.params;
+
+    // Validate body
     const { error } = productValidationSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ success: false, message: error.message });
     }
 
     const variants = JSON.parse(req.body.variants);
-    // console.log(variants);
 
-    const imagesByVariant = {};
+    // Fetch existing variants from DB
+    const dbVariants = await variantModel.find({ productId });
 
-    // console.log(req.files);
-    if (req.files.length !== 0) {
-      const imageFieldName = {};
-      req.files.forEach((file) => {
+    const newImagesMapping = {}; // new Cloudinary uploads
+
+    // Upload new images
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
         const match = file.fieldname.match(/variantImages_(\d+)_\d+/);
         if (match) {
-          // console.log(match);
           const variantIndex = match[1];
-          if (!imagesByVariant[variantIndex])
-            imagesByVariant[variantIndex] = [];
-          if (!imageFieldName[variantIndex]) imageFieldName[variantIndex] = [];
-          imagesByVariant[variantIndex].push(
-            `/uploads/products/${file.filename}`
-          );
-          imageFieldName[variantIndex].push(file.fieldname);
-        }
-      });
-      for (let index in imageFieldName) {
-        const isThreeImage = imageFieldName[index]
-          .map((x) => Number(x.split("_")[2]))
-          .some((x) => x >= 2);
-        if (!isThreeImage) {
-          return res.status(400).json({
-            success: false,
-            message: `Variant ${
-              Number(index) + 1
-            } must have at least 3 images.`,
-          });
-        }
-      }
-    } else {
-      for (let i = 0; i < variants.length; i++) {
-        if (variants[i].existingImages.length < 3) {
-          return res.status(400).json({
-            success: false,
-            message: `Variant ${i + 1} must have at least 3 images.`,
-          });
+
+          const uploadResult = await cloudinaryUpload(file.buffer, "products");
+          uploadedImages.push(uploadResult.public_id);
+
+          if (!newImagesMapping[variantIndex])
+            newImagesMapping[variantIndex] = [];
+
+          newImagesMapping[variantIndex].push(uploadResult.secure_url);
         }
       }
     }
 
-    let minPrice = Infinity;
-    let maxPrice = -Infinity;
-    let totalStock = 0;
-    for (let variant of variants) {
-      minPrice = Math.min(minPrice, variant.salePrice);
-      maxPrice = Math.max(maxPrice, variant.salePrice);
-      totalStock += Number(variant.stockQuantity);
-    }
-
-    for (let index in imagesByVariant) {
-      variants[Number(index)].existingImages.push(...imagesByVariant[index]);
-    }
-
-    let updatedMainImagePath = null;
+    // Merge new images into variants
     for (let i = 0; i < variants.length; i++) {
-      if (variants[i].existingImages?.length > 0) {
-        updatedMainImagePath = variants[i].existingImages[0];
-        break;
-      } else if (imagesByVariant[i]?.length > 0) {
-        updatedMainImagePath = imagesByVariant[i.toString()][0];
-        break;
+      if (!variants[i].existingImages) variants[i].existingImages = [];
+
+      if (newImagesMapping[i]) {
+        variants[i].existingImages.push(...newImagesMapping[i]);
       }
     }
 
-    const name = req.body.productName;
-    const product = await productModel.findOne({ _id: productId });
-    if (product.name !== name) {
-      const existingProduct = await productModel.findOne({ name });
-      if (existingProduct) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Product name already exists" });
+    // DELETE IMAGES REMOVED BY USER
+    for (let i = 0; i < variants.length; i++) {
+      const oldVariant = dbVariants[i];
+      if (!oldVariant) continue;
+
+      const oldImages = oldVariant.images; // from DB
+      const newImages = variants[i].existingImages; // after edit
+
+      const removedImages = oldImages.filter((img) => !newImages.includes(img));
+
+      for (const url of removedImages) {
+        const publicId = getPublicIdFromUrl(url);
+        try {
+          await cloudinary.uploader.destroy(publicId);
+          console.log("Deleted old:", publicId);
+        } catch (e) {
+          console.log("Failed to delete:", publicId);
+        }
       }
     }
 
-    await productModel.findByIdAndUpdate(
-      productId,
-      {
-        name,
-        brandID: req.body.brand,
-        description: req.body.description,
-        isFeatured: req.body.isFeatured,
-        isListed: req.body.isListed,
-        minPrice,
-        maxPrice,
-        totalStock,
-        image: updatedMainImagePath,
-      },
-      { new: true, runValidators: true }
-    );
+    // Validate minimum 3 images
+    for (let i = 0; i < variants.length; i++) {
+      if (variants[i].existingImages.length < 3) {
+        return res.status(400).json({
+          success: false,
+          message: `Variant ${i + 1} must have at least 3 images.`,
+        });
+      }
+    }
 
+    // Update product record
+    let mainImage = variants.find((v) => v.existingImages.length > 0)
+      ?.existingImages[0];
+
+    await productModel.findByIdAndUpdate(productId, {
+      name: req.body.productName,
+      brandID: req.body.brand,
+      description: req.body.description,
+      isFeatured: req.body.isFeatured,
+      isListed: req.body.isListed,
+      image: mainImage,
+    });
+
+    // Update or create variants in DB
     await Promise.all(
-      variants.map((variant) => {
-        if (variant._id === null) {
+      variants.map(async (variant, index) => {
+        if (!variant._id) {
           return variantModel.create({
-            productId: product._id,
-            regularPrice: variant.regularPrice
-              ? Number(variant.regularPrice)
-              : 0,
-            salePrice: Number(variant.salePrice),
+            productId,
+            images: variant.existingImages,
+            regularPrice: variant.regularPrice,
+            salePrice: variant.salePrice,
             ram: variant.ram,
             storage: variant.storage,
             colour: variant.colour.toLowerCase(),
-            stock: Number(variant.stockQuantity),
-            images: variant.existingImages,
-            isListed:variant.isListed,
+            stock: variant.stockQuantity,
+            isListed: variant.isListed,
           });
         } else {
-          return variantModel.findByIdAndUpdate(
-            variant._id,
-            {
-              regularPrice: variant.regularPrice
-                ? Number(variant.regularPrice)
-                : 0,
-              salePrice: Number(variant.salePrice),
-              ram: variant.ram,
-              storage: variant.storage,
-              colour: variant.colour.toLowerCase(),
-              stock: Number(variant.stockQuantity),
-              images: variant.existingImages,
-              isListed:variant.isListed,
-            },
-            { new: true }
-          );
+          return variantModel.findByIdAndUpdate(variant._id, {
+            images: variant.existingImages,
+            regularPrice: variant.regularPrice,
+            salePrice: variant.salePrice,
+            ram: variant.ram,
+            storage: variant.storage,
+            colour: variant.colour.toLowerCase(),
+            stock: variant.stockQuantity,
+            isListed: variant.isListed,
+          });
         }
       })
     );
 
-    res
-      .status(200)
-      .json({ message: "product edited successfully", success: true });
+    res.json({
+      success: true,
+      message: "Product updated successfully",
+    });
   } catch (error) {
-    console.log(error);
+    console.log("Edit Product Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+function getPublicIdFromUrl(url) {
+  const parts = url.split("/");
+  const filename = parts.pop(); // e.g. vvl40tvnqs1qioshgxzf.png
+  const folder = parts.slice(parts.indexOf("upload") + 1).join("/");
+  return folder.replace(/^v\d+\//, "") + "/" + filename.split(".")[0];
+}
