@@ -40,3 +40,5 @@ export const toggleBrandListing = (brand) => {
   brand.isListed = !brand.isListed;
   return brand.save();
 };
+
+export const findAllListedBrands = () => brandModel.find({ isListed: true });

@@ -1,4 +1,5 @@
 import productModel from "../models/productModel.js";
+import mongoose from "mongoose";
 
 export const getLatestProductsAgg = (limit = 5) => {
   return productModel.aggregate([
@@ -409,3 +410,30 @@ export const incrementProductStock = (productId, qty) => {
     { $inc: { totalStock: qty } }
   );
 };
+
+export const findProducts = (query, sort = { name: 1 }, skip = 0, limit = 10) =>
+  productModel.find(query).sort(sort).skip(skip).limit(limit);
+
+export const countProducts = (query) => productModel.countDocuments(query);
+
+export const findProductById = (productId) =>
+  productModel.findById(productId);
+
+export const createProduct = (data) => productModel.create(data);
+
+export const updateProductById = (productId, update) =>
+  productModel.findByIdAndUpdate(productId, update, { new: true });
+
+export const aggregateProductById = (productId) =>
+  productModel.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(productId) } },
+    {
+      $lookup: {
+        from: "variants",
+        foreignField: "productId",
+        localField: "_id",
+        as: "variants",
+      },
+    },
+  ]);
+
