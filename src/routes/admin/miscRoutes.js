@@ -1,8 +1,8 @@
 import express from "express";
-import { loadCoupons } from "../../controllers/admin/couponController.js";
 import { loadReferrals } from "../../controllers/admin/referralController.js";
 import { loadBanners } from "../../controllers/admin/bannerController.js";
 import { verifyAdmin } from "../../middlewares/adminAuth.js";
+import { loadCoupons } from "../../controllers/admin/coupon.controller.js";
 
 const router = express.Router();
 

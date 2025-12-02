@@ -1,6 +1,6 @@
 import express from "express";
 import { verifyAdmin } from "../../middlewares/adminAuth.js";
-import { addOffer, deleteOffer, editOffer, getOfferById, loadOffers, toggleOfferStatus } from "../../controllers/admin/offerController.js";
+import { addOffer, deleteOffer, editOffer, getOfferById, loadOffers, toggleOfferStatus } from "../../controllers/admin/offer.controller.js";
 
 const router = express.Router();
 router.get("/offers", verifyAdmin, loadOffers);

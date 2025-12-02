@@ -358,7 +358,7 @@ export const getSingleProductAgg = (productId) => {
             },
           },
         ],
-        as:'productOffer',
+        as: "productOffer",
       },
     },
     {
@@ -383,7 +383,7 @@ export const getSingleProductAgg = (productId) => {
             },
           },
         ],
-        as:'brandOffer',
+        as: "brandOffer",
       },
     },
   ]);
@@ -416,8 +416,7 @@ export const findProducts = (query, sort = { name: 1 }, skip = 0, limit = 10) =>
 
 export const countProducts = (query) => productModel.countDocuments(query);
 
-export const findProductById = (productId) =>
-  productModel.findById(productId);
+export const findProductById = (productId) => productModel.findById(productId);
 
 export const createProduct = (data) => productModel.create(data);
 
@@ -437,3 +436,6 @@ export const aggregateProductById = (productId) =>
     },
   ]);
 
+export const saveProduct = (product) => {
+  return product.save();
+};

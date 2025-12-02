@@ -24,9 +24,6 @@ export function getPublicIdFromUrl(url) {
   return `${folder.replace(/^v\d+\//, "")}/${name}`;
 }
 
-/**
- * Delete cloudinary public ids (array of public_id or derived from url)
- */
 export async function deleteCloudinaryPublicIds(publicIds = []) {
   for (const id of publicIds) {
     try {
@@ -37,18 +34,10 @@ export async function deleteCloudinaryPublicIds(publicIds = []) {
   }
 }
 
-/**
- * Rollback uploaded public_ids stored during an operation.
- * uploadRecords should be array of public_id strings.
- */
 export async function rollbackCloudinary(uploadedPublicIds = []) {
   await deleteCloudinaryPublicIds(uploadedPublicIds);
 }
 
-/**
- * Utility: calculate minPrice, maxPrice, totalStock from variants array.
- * Each variant should have salePrice and stockQuantity (or stock).
- */
 export function calcMinMaxStock(variants = []) {
   let minPrice = Infinity;
   let maxPrice = -Infinity;

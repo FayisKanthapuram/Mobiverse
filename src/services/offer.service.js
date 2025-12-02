@@ -1,6 +1,14 @@
 // services/offerService.js
-import brandModel from "../models/brandModel.js";
-import offerModal from "../models/offerModal.js";
+import { findAllListedBrands } from "../repositories/brand.repo.js";
+import {
+  createOffer,
+  deleteOfferById,
+  findAllOffers,
+  findOfferById,
+  findOfferByNameAndType,
+  toggleOfferStatus,
+  updateOfferById,
+} from "../repositories/offer.repo.js";
 
 export const getOfferPageDataService = async (
   offerType,
@@ -9,11 +17,8 @@ export const getOfferPageDataService = async (
   sortFilter,
   currentPage
 ) => {
-  const brands = await brandModel.find({ isListed: true });
-  const offers = await offerModal
-    .find({ offerType })
-    .populate("productID")
-    .populate("brandID");
+  const brands = await findAllListedBrands();
+  const offers = await findAllOffers({ offerType });
 
   return {
     brands,
@@ -32,10 +37,10 @@ export const getOfferPageDataService = async (
 
 export const addOfferService = async (offerData) => {
   try {
-    const existing = await offerModal.findOne({
-      name: offerData.offerName,
-      offerType: offerData.offerType,
-    });
+    const existing = await findOfferByNameAndType(
+      offerData.offerName,
+      offerData.offerType
+    );
 
     if (existing) {
       const error = new Error("Offer already exists");
@@ -44,7 +49,7 @@ export const addOfferService = async (offerData) => {
     }
 
     // Create new offer
-    await offerModal.create(offerData);
+    await createOffer(offerData);
     return;
   } catch (error) {
     throw error;
@@ -52,80 +57,61 @@ export const addOfferService = async (offerData) => {
 };
 
 export const editOfferService = async (id, offerData) => {
-  try {
-    const offer = await offerModal.findById(id);
-    if (offer.offerName !== offerData.offerName) {
-      console.log(offer.offerName, offerData.offerName);
-      const existing = await offerModal.findOne({
-        offerName: offerData.offerName,
-        offerType: offerData.offerType,
-      });
+  const offer = await findOfferById(id);
 
-      if (existing) {
-        const error = new Error("Offer already exists");
-        error.status = 400;
-        throw error;
-      }
-    }
-    await offerModal.findByIdAndUpdate(id, offerData);
-
-    return;
-  } catch (error) {
-    throw error;
+  if (!offer) {
+    const err = new Error("Offer not found");
+    err.status = 404;
+    throw err;
   }
+
+  if (offer.offerName !== offerData.offerName) {
+    const existing = await findOfferByNameAndType(
+      offerData.offerName,
+      offerData.offerType
+    );
+
+    if (existing) {
+      const err = new Error("Offer already exists");
+      err.status = 400;
+      throw err;
+    }
+  }
+
+  await updateOfferById(id, offerData);
 };
 
 export const getOfferByIdService = async (id) => {
-  try {
-    const offer = await offerModal
-      .findById(id)
-      .populate({
-        path:'productID',
-        populate:{
-          path:"brandID",
-        }
-      })
-      .populate('brandID')
-    console.log(offer)
-    if (!offer) {
-      const error = new Error("Offer not found");
-      error.status = 404;
-      throw error;
-    }
+  const offer = await findOfferById(id);
 
-    return offer;
-  } catch (error) {
-    throw error;
+  if (!offer) {
+    const err = new Error("Offer not found");
+    err.status = 404;
+    throw err;
+  }
+
+  return offer;
+};
+
+
+export const toggleOfferStatusService = async (id) => {
+  const offer = await toggleOfferStatus(id);
+
+  if (!offer) {
+    const err = new Error("Offer not found");
+    err.status = 404;
+    throw err;
   }
 };
 
-export const toggleOfferStatusService=async(id)=>{
-  try {
-    const offer=await offerModal.findById(id);
-    if (!offer) {
-      const error = new Error("Offer not found");
-      error.status = 404;
-      throw error;
-    }
-    offer.isActive=!offer.isActive;
-    await offer.save();
-    return;
-  } catch (error) {
-    throw error;
-  }
-}
+export const deleteOfferStatusService = async (id) => {
+  const offer = await findOfferById(id);
 
-export const deleteOfferStatusService=async(id)=>{
-  try {
-    const offer=await offerModal.findById(id);
-    if (!offer) {
-      const error = new Error("Offer not found");
-      error.status = 404;
-      throw error;
-    }
-    await offerModal.deleteOne({_id:id});
-    return;
-  } catch (error) {
-    throw error;
+  if (!offer) {
+    const err = new Error("Offer not found");
+    err.status = 404;
+    throw err;
   }
-}
+
+  await deleteOfferById(id);
+};

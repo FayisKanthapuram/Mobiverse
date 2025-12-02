@@ -1,7 +1,7 @@
 import variantModel from "../models/variantModel.js";
 
 export const findVariantById = (variantId) => {
-  return variantModel.findById(variantId).lean();
+  return variantModel.findById(variantId);
 };
 
 export const findVariantByColor = (color) => {
@@ -30,3 +30,7 @@ export const updateVariantById = (id, update) =>
   variantModel.findByIdAndUpdate(id, update, { new: true });
 
 export const deleteVariantById = (id) => variantModel.findByIdAndDelete(id);
+
+export const saveVariant = (variant) => {
+  return variant.save();
+};
