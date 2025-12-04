@@ -1,11 +1,84 @@
+import mongoose from "mongoose";
 import variantModel from "../models/variantModel.js";
 
-export const findVariantById = (variantId) => {
-  return variantModel.findById(variantId);
+export const findVariantById = (variantId, userId) => {
+  return variantModel.aggregate([
+    {
+      $match: { _id: new mongoose.Types.ObjectId(variantId) },
+    },
+    //is in cart
+    {
+      $lookup: {
+        from: "carts",
+        let: {
+          variantId: "$_id",
+          userId: userId ? new mongoose.Types.ObjectId(userId) : null,
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$$variantId", "$variantId"] },
+                  { $eq: ["$$userId", "$userId"] },
+                ],
+              },
+            },
+          },
+          {
+            $project: { _id: 1 },
+          },
+        ],
+        as: "cart",
+      },
+    },
+    {
+      $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $addFields: { cart: "$cart._id" },
+    },
+  ]);
 };
 
-export const findVariantByColor = (color) => {
-  return variantModel.findOne({ colour: color }).lean();
+export const findVariantByColor = (colour,userId) => {
+  return variantModel.aggregate([
+    {
+      $match: { colour },
+    },
+    //is in cart
+    {
+      $lookup: {
+        from: "carts",
+        let: {
+          variantId: "$_id",
+          userId: userId ? new mongoose.Types.ObjectId(userId) : null,
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$$variantId", "$variantId"] },
+                  { $eq: ["$$userId", "$userId"] },
+                ],
+              },
+            },
+          },
+          {
+            $project: { _id: 1 },
+          },
+        ],
+        as: "cart",
+      },
+    },
+    {
+      $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $addFields: { cart: "$cart._id" },
+    },
+  ]);
 };
 
 export const findVariantsByProduct = (productId) => {

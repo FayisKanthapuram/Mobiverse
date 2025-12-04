@@ -1,3 +1,5 @@
+<!-- Updated Product Grid Card with Wishlist Integration -->
+
 <div class="h-[540px]">
   <a href="/product/<%= product?.variants?._id %>" class="block group h-full">
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden 
@@ -14,30 +16,32 @@
         if (regularPrice > currentPrice) {
           discountPercent = Math.round(((regularPrice - currentPrice) / regularPrice) * 100);
         }
+
+        // Check if product is in cart
+        const isInCart = product?.cart ? true : false;
         // --- PRICING LOGIC END ---
       %>
 
       <!-- Product Image -->
       <div class="relative bg-gray-50 flex items-center justify-center h-60 overflow-hidden">
-        <img 
-          src="<%= product?.variants?.images[0] %>" 
-          alt="<%= product.name %>" 
-          class="h-52 w-auto object-contain transition-transform duration-500 group-hover:scale-110" 
-        />
+        <img src="<%= product?.variants?.images[0] %>" alt="<%= product.name %>" class="h-52 w-auto object-contain transition-transform duration-500 group-hover:scale-110" />
 
         <!-- Wishlist Button -->
-        <button 
-          type="button" 
-          class="absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-sm transition-colors"
-          onclick="event.stopPropagation(); event.preventDefault(); addToWishlist('<%= product?.variants?._id %>')">
+        <% if (typeof user !== 'undefined' && user && !isInCart) { %>
+        <button type="button" class="wishlist-btn absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-sm transition-all hover:scale-110" data-variant-id="<%= product?.variants?._id %>" onclick="event.stopPropagation(); event.preventDefault(); toggleWishlist('<%= product?.variants?._id %>', event)">
+          <i class="bi bi-heart text-lg wishlist-icon"></i>
+        </button>
+        <% } else if(!isInCart){ %>
+        <button type="button" class="absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-sm transition-all hover:scale-110" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='/login'">
           <i class="bi bi-heart text-lg"></i>
         </button>
+        <% } %>
 
         <!-- Discount Badge -->
         <% if (discountPercent > 0) { %>
-          <div class="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
-            <%= discountPercent %>% OFF
-          </div>
+        <div class="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
+          <%= discountPercent %>% OFF
+        </div>
         <% } %>
       </div>
 
@@ -52,19 +56,19 @@
         <!-- Variants -->
         <div class="flex flex-wrap gap-1.5 mb-3">
           <% if (product?.variants?.colour) { %>
-            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
-              <i class="bi bi-palette"></i> <%= product.variants.colour %>
-            </span>
+          <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+            <i class="bi bi-palette"></i> <%= product.variants.colour %>
+          </span>
           <% } %>
           <% if (product?.variants?.ram) { %>
-            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
-              <i class="bi bi-memory"></i> <%= product.variants.ram %>
-            </span>
+          <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+            <i class="bi bi-memory"></i> <%= product.variants.ram %>
+          </span>
           <% } %>
           <% if (product?.variants?.storage) { %>
-            <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
-              <i class="bi bi-device-hdd"></i> <%= product.variants.storage %>
-            </span>
+          <span class="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
+            <i class="bi bi-device-hdd"></i> <%= product.variants.storage %>
+          </span>
           <% } %>
         </div>
 
@@ -76,13 +80,13 @@
             const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
           %>
           <% for(let i = 0; i < fullStars; i++) { %>
-            <i class="bi bi-star-fill text-yellow-400 text-sm"></i>
+          <i class="bi bi-star-fill text-yellow-400 text-sm"></i>
           <% } %>
           <% if(halfStar) { %>
-            <i class="bi bi-star-half text-yellow-400 text-sm"></i>
+          <i class="bi bi-star-half text-yellow-400 text-sm"></i>
           <% } %>
           <% for(let i = 0; i < emptyStars; i++) { %>
-            <i class="bi bi-star text-yellow-400 text-sm"></i>
+          <i class="bi bi-star text-yellow-400 text-sm"></i>
           <% } %>
           <span class="text-xs text-gray-500 ml-1">(<%= product?.variants?.rating?.toFixed(1) || '0.0' %>)</span>
         </div>
@@ -94,54 +98,62 @@
               ₹<%= currentPrice.toLocaleString('en-IN') %>
             </p>
             <% if (regularPrice > currentPrice) { %>
-              <del class="text-gray-400 text-sm">
-                ₹<%= regularPrice.toLocaleString('en-IN') %>
-              </del>
+            <del class="text-gray-400 text-sm">
+              ₹<%= regularPrice.toLocaleString('en-IN') %>
+            </del>
             <% } %>
           </div>
-          
+
           <% if (offerAmount > 0) { %>
-            <p class="text-green-600 text-xs font-semibold mt-1">
-              Save ₹<%= (regularPrice-currentPrice).toLocaleString('en-IN') %> with offers
-            </p>
+          <p class="text-green-600 text-xs font-semibold mt-1">
+            Save ₹<%= (regularPrice-currentPrice).toLocaleString('en-IN') %> with offers
+          </p>
           <% } %>
         </div>
 
         <!-- Spacer ensures button stays bottom -->
         <div class="flex-grow"></div>
 
-        <!-- Stock + Add to Cart -->
+        <!-- Stock + Add to Cart / Go to Cart -->
         <div class="mt-auto">
           <% if (product?.variants?.stock > 0 && product?.variants?.stock < 10) { %>
-            <div class="mb-2">
-              <span class="text-xs text-orange-600 font-semibold">
-                <i class="bi bi-exclamation-triangle"></i> Only <%= product.variants.stock %> left!
-              </span>
-            </div>
+          <div class="mb-2">
+            <span class="text-xs text-orange-600 font-semibold">
+              <i class="bi bi-exclamation-triangle"></i> Only <%= product.variants.stock %> left!
+            </span>
+          </div>
           <% } else if (product?.variants?.stock <= 0) { %>
-            <div class="mb-2">
-              <span class="text-xs text-red-600 font-semibold">
-                <i class="bi bi-exclamation-circle"></i> Out of Stock
-              </span>
-            </div>
+          <div class="mb-2">
+            <span class="text-xs text-red-600 font-semibold">
+              <i class="bi bi-exclamation-circle"></i> Out of Stock
+            </span>
+          </div>
           <% } %>
 
           <% if (product?.variants?.stock > 0) { %>
-            <button 
-              type="button" 
-              class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold 
-                     py-2.5 rounded-lg text-sm shadow-md hover:from-blue-700 hover:to-blue-600 
-                     active:scale-[0.98] transition-all"
-              onclick="event.preventDefault(); addToCart('<%= product?.variants?._id %>')">
-              <i class="bi bi-cart-plus"></i> Add to Cart
-            </button>
+          <% if (isInCart) { %>
+          <button type="button" class="w-full bg-white text-blue-600 border border-blue-600 font-semibold 
+                      py-2.5 rounded-full text-sm shadow-sm hover:bg-blue-600 hover:text-white 
+                      active:scale-[0.97] transition-all flex items-center justify-center gap-2" onclick="event.preventDefault(); event.stopPropagation(); window.location.href='/cart'">
+            <i class="bi bi-arrow-right-circle"></i>
+            Go to Cart
+          </button>
+
+
           <% } else { %>
-            <button 
-              type="button" 
-              class="w-full bg-gray-300 text-gray-600 font-semibold py-2.5 rounded-lg text-sm cursor-not-allowed"
-              disabled>
-              <i class="bi bi-x-circle"></i> Out of Stock
-            </button>
+          <!-- Add to Cart Button -->
+          <button type="button" data-cart-variant-id="<%= product?.variants?._id %>" class="w-full bg-blue-600 text-white font-semibold 
+         py-2.5 rounded-full text-sm shadow-md hover:bg-blue-700 
+         active:scale-[0.97] transition-all flex items-center justify-center gap-2" onclick="event.preventDefault(); event.stopPropagation(); addToCart('<%= product?.variants?._id %>')">
+            <i class="bi bi-bag-plus"></i>
+            Add to Cart
+          </button>
+
+          <% } %>
+          <% } else { %>
+          <button type="button" class="w-full bg-gray-300 text-gray-600 font-semibold py-2.5 rounded-lg text-sm cursor-not-allowed" disabled>
+            <i class="bi bi-x-circle"></i> Out of Stock
+          </button>
           <% } %>
         </div>
 
@@ -149,3 +161,135 @@
     </div>
   </a>
 </div>
+
+<!-- JavaScript for Wishlist Functionality -->
+<script>
+  // Toggle wishlist (add/remove)
+  async function toggleWishlist(variantId, event) {
+    // Prevent navigation
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    try {
+      const response = await axios.post('/wishlist/toggle', {
+        variantId
+      });
+
+      if (response.data.success) {
+        const isAdded = response.data.action === 'added';
+
+        Toastify({
+          text: response.data.message,
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: isAdded ? "#10b981" : "#ef4444",
+          close: true,
+        }).showToast();
+
+        // Update button appearance
+        updateWishlistButton(variantId, isAdded);
+
+        // Update navbar badge
+        updateWishlistBadge(response.data.itemCount);
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+
+      if (error.response?.status === 401) {
+        Toastify({
+          text: "Please login to add items to wishlist",
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: "#ef4444",
+          close: true,
+        }).showToast();
+
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
+      } else {
+        Toastify({
+          text: error.response?.data?.message || "Failed to update wishlist",
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: "#ef4444",
+        }).showToast();
+      }
+    }
+  }
+
+  // Update wishlist button appearance
+  function updateWishlistButton(variantId, inWishlist) {
+    // Find all buttons for this variant
+    const buttons = document.querySelectorAll(`[data-variant-id="${variantId}"]`);
+
+    buttons.forEach(btn => {
+      const icon = btn.querySelector('.wishlist-icon');
+      if (icon) {
+        if (inWishlist) {
+          icon.classList.remove('bi-heart');
+          icon.classList.add('bi-heart-fill', 'text-red-500');
+          btn.classList.add('text-red-500');
+        } else {
+          icon.classList.remove('bi-heart-fill', 'text-red-500');
+          icon.classList.add('bi-heart');
+          btn.classList.remove('text-red-500');
+        }
+      }
+    });
+  }
+
+  // Update navbar wishlist badge
+  function updateWishlistBadge(count) {
+    const badge = document.querySelector('a[href="/wishlist"] span');
+
+    if (badge) {
+      badge.textContent = count;
+      if (count > 0) {
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+  }
+
+  // Check wishlist status for all products on page load
+  async function checkAllWishlistStatuses() {
+    const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+
+    if (wishlistButtons.length === 0) return;
+
+    try {
+      // Get all variant IDs
+      const variantIds = Array.from(wishlistButtons).map(btn =>
+        btn.getAttribute('data-variant-id')
+      ).filter(Boolean);
+
+      if (variantIds.length === 0) return;
+
+      // Check each variant (you might want to create a batch endpoint for better performance)
+      for (const variantId of variantIds) {
+        try {
+          const response = await axios.get(`/wishlist/check/${variantId}`);
+          if (response.data.success && response.data.inWishlist) {
+            updateWishlistButton(variantId, true);
+          }
+        } catch (error) {
+          console.error(`Error checking wishlist for ${variantId}:`, error);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking wishlist statuses:', error);
+    }
+  }
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check wishlist status for all products
+    checkAllWishlistStatuses();
+  });
+</script>

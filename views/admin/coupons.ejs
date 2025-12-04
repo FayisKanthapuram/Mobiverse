@@ -95,7 +95,6 @@
         <option value="">All</option>
         <option value="percentage" <%= typeFilter === 'percentage' ? 'selected' : '' %>>Percentage</option>
         <option value="fixed" <%= typeFilter === 'fixed' ? 'selected' : '' %>>Fixed Amount</option>
-        <option value="free_shipping" <%= typeFilter === 'free_shipping' ? 'selected' : '' %>>Free Shipping</option>
       </select>
     </div>
 
@@ -181,10 +180,8 @@
                   <% if (coupon.maxDiscount) { %>
                     <div class="meta-text">Max: ₹<%= coupon.maxDiscount %></div>
                   <% } %>
-                <% } else if (coupon.type === 'fixed') { %>
-                  <strong>₹<%= coupon.discountValue %></strong>
                 <% } else { %>
-                  <strong class="text-success">FREE</strong>
+                  <strong>₹<%= coupon.discountValue %></strong>
                 <% } %>
               </td>
               <td>₹<%= coupon.minPurchaseAmount.toLocaleString('en-IN') %></td>
@@ -253,7 +250,10 @@
               <div class="empty-state">
                 <i class="bi bi-ticket-perforated"></i>
                 <p>No coupons found</p>
-                
+                <button class="btn-primary" onclick="openAddCouponModal()" style="margin-top: 16px;">
+                  <i class="bi bi-plus-circle"></i>
+                  Create Your First Coupon
+                </button>
               </div>
             </td>
           </tr>
@@ -396,7 +396,6 @@
               <option value="">Select Type</option>
               <option value="percentage">Percentage (%)</option>
               <option value="fixed">Fixed Amount (₹)</option>
-              <option value="free_shipping">Free Shipping</option>
             </select>
           </div>
 

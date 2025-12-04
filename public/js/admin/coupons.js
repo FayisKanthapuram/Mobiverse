@@ -78,11 +78,6 @@ function handleTypeChange() {
     discountValue.removeAttribute('max');
     discountValue.min = '1';
     discountValue.required = true;
-  } else if (type === 'free_shipping') {
-    discountValueGroup.style.display = 'none';
-    maxDiscountGroup.style.display = 'none';
-    discountValue.required = false;
-    discountValue.value = '0';
   }
 }
 
@@ -148,7 +143,7 @@ function searchUsers(query) {
   
   searchTimeout = setTimeout(async () => {
     try {
-      const response = await axios.get(`/admin/users/search?q=${encodeURIComponent(query)}`);
+      const response = await axios.get(`/admin/customers/search?q=${encodeURIComponent(query)}`);
       
       if (response.data.success && response.data.users) {
         displayUserResults(response.data.users);
@@ -287,58 +282,14 @@ document.getElementById('couponForm').addEventListener('submit', async (e) => {
   const endDate = document.getElementById('endDate').value;
   const isActive = document.getElementById('isActive').value === 'true';
   
-  // Validation
-  if (!code || code.length < 3) {
-    showToast('Coupon code must be at least 3 characters', 'error');
-    return;
-  }
   
-  if (!/^[A-Z0-9_]+$/.test(code)) {
-    showToast('Coupon code can only contain letters, numbers, and underscores', 'error');
-    return;
-  }
-  
-  if (!type) {
-    showToast('Please select a discount type', 'error');
-    return;
-  }
-  
-  if (type !== 'free_shipping' && (!discountValue || discountValue < 1)) {
-    showToast('Please enter a valid discount value', 'error');
-    return;
-  }
-  
-  if (type === 'percentage' && (discountValue < 1 || discountValue > 90)) {
-    showToast('Percentage discount must be between 1% and 90%', 'error');
-    return;
-  }
-  
-  if (type === 'percentage' && maxDiscount > 0 && maxDiscount < discountValue) {
-    showToast('Maximum discount should be greater than discount percentage', 'error');
-    return;
-  }
-  
-  if (minPurchaseAmount < 0) {
-    showToast('Minimum purchase amount cannot be negative', 'error');
-    return;
-  }
-  
-  if (userEligibility === 'specific' && (!specificUsers || selectedUsers.length === 0)) {
-    showToast('Please select at least one user', 'error');
-    return;
-  }
-  
-  if (new Date(startDate) >= new Date(endDate)) {
-    showToast('End date must be after start date', 'error');
-    return;
-  }
   
   const couponData = {
     code,
     name,
     description,
     type,
-    discountValue: type === 'free_shipping' ? 0 : discountValue,
+    discountValue,
     maxDiscount: type === 'percentage' ? maxDiscount : 0,
     minPurchaseAmount,
     usageLimitPerUser,
@@ -474,8 +425,7 @@ document.getElementById('code')?.addEventListener('input', function() {
   this.value = this.value.toUpperCase().replace(/[^A-Z0-9_]/g, '');
 });
 
-
-////////////CRUD
+//cred
 
 // Coupons Management JavaScript - Part 2 (CRUD Operations)
 
@@ -564,10 +514,8 @@ async function viewCouponDetails(couponId) {
       if (coupon.type === 'percentage') {
         discountDisplay = `${coupon.discountValue}%`;
         if (coupon.maxDiscount) discountDisplay += ` (Max: ₹${coupon.maxDiscount})`;
-      } else if (coupon.type === 'fixed') {
-        discountDisplay = `₹${coupon.discountValue}`;
       } else {
-        discountDisplay = 'Free Shipping';
+        discountDisplay = `₹${coupon.discountValue}`;
       }
       
       let eligibilityDisplay = 'All Users';

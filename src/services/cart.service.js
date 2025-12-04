@@ -5,10 +5,11 @@ import { addToCartSchema } from "../validators/cartValidator.js";
 import { findVariantByIdWithProduct } from "../repositories/variant.repo.js";
 import { findBrandById } from "../repositories/brand.repo.js";
 import { HttpStatus } from "../constants/statusCode.js";
+import { checkInWishlist, removeWishlistItem } from "../repositories/wishlist.repo.js";
 
 export const loadCartService = async (userId) => {
   // Related products recommendation
-  const relatedProducts = await getLatestProductsAgg(5);
+  const relatedProducts = await getLatestProductsAgg(5,userId);
 
   // Fetch cart items for this user
   const items = await fetchCartItems(userId);
@@ -64,9 +65,15 @@ export const addToCartService = async (userId, body) => {
     };
   }
 
+  const inWishlist=await checkInWishlist(userId,variant.productId._id,variant._id);
+  if(inWishlist){
+    await removeWishlistItem(userId,variant.productId._id,variant._id);
+  }
+
   // Check existing cart item
   const existing = await findCartItem(userId, variant._id);
   if (existing) {
+    console.log(existing)
     // Keep original behaviour: increment by 1 (you can change to +quantity if desired)
     if (existing.quantity + 1 > variant.stock) {
       return {
@@ -98,7 +105,6 @@ export const addToCartService = async (userId, body) => {
   return {
     status: HttpStatus.CREATED,
     success: true,
-    message: "Product added to cart",
   };
 };
 

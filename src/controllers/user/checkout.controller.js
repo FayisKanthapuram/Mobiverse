@@ -14,7 +14,7 @@ export const laodCheckOut = async (req, res, next) => {
       addresses:data.addresses,
       user:data.user,
       cart: data.cartTotals,
-      availableCoupons: [],
+      availableCoupons: data.availableCoupons,
       appliedCoupon: null,
     });
   } catch (error) {

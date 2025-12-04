@@ -113,7 +113,6 @@ async function removeFromCart(itemId) {
 async function addToCart(variantId) {
   try {
     const response = await axios.post("/cart/add", { variantId, quantity: 1 });
-    console.log(response.data.success);
     if (response.data.success&&response.data.message) {
       window.location.href = "/cart?message=cart-inc";
     }else if (response.data.success) {
@@ -133,31 +132,6 @@ async function addToCart(variantId) {
   }
 }
 
-// Add to Wishlist (for related products)
-function addToWishlist(variantId) {
-  // TODO: Make API call to add to wishlist
-  fetch("/api/wishlist/add", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      variantId: variantId,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        alert("Added to wishlist!");
-      } else {
-        alert(data.message || "Failed to add to wishlist");
-      }
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-      alert("Failed to add to wishlist");
-    });
-}
 
 const urlParams = new URLSearchParams(window.location.search);
 const message = urlParams.get("message");

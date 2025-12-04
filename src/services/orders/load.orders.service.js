@@ -14,9 +14,6 @@ export const loadOrdersService = async (queryParams) => {
   const sortFilter = queryParams.sort || "recent";
   const searchQuery = queryParams.search || "";
 
-  // -------------------------
-  // BUILD QUERY
-  // -------------------------
   const query = {};
 
   if (statusFilter) query.orderStatus = statusFilter;

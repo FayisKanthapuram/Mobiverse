@@ -3,8 +3,9 @@ import {
   countShopProductsAgg,
 } from "../repositories/product.repo.js";
 import { getAllListedBrands } from "../repositories/brand.repo.js";
+import mongoose from "mongoose";
 
-export const loadShopService = async (query) => {
+export const loadShopService = async (query, userId) => {
   const search = query.search || "";
   const brand = query.brand || "all";
   const sort = query.sort || "";
@@ -211,11 +212,47 @@ export const loadShopService = async (query) => {
 
   const totalPages = Math.ceil(totalDocuments / limit);
 
+  // Add cart status only if user logged in
+  if (userId) {
+    basePipeline.push(
+      {
+        $lookup: {
+          from: "carts",
+          let: {
+            productId: "$_id",
+            userId: userId,
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$productId", "$$productId"] },
+                    { $eq: ["$userId", { $toObjectId: "$$userId" }] },
+                  ],
+                },
+              },
+            },
+            { $project: { _id: 1 } },
+          ],
+          as: "cart",
+        },
+      },
+      {
+        $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $addFields: { cart: "$cart._id" },
+      }
+    );
+  }
   // PAGINATED DATA
   const productPipeline = structuredClone(basePipeline);
   productPipeline.push({ $skip: skip }, { $limit: limit });
 
   const products = await getShopProductsAgg(productPipeline);
+  console.log(userId);
+  console.log(products[0].cart);
 
   // BRANDS
   const brands = await getAllListedBrands();

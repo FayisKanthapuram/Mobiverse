@@ -4,7 +4,7 @@ import { loadShopService } from "../../services/shop.service.js";
 
 export const loadHome = async (req, res, next) => {
   try {
-    const data = await loadHomeService();
+    const data = await loadHomeService(req.session.user);
 
     return res.render("user/home", {
       ...data,
@@ -18,7 +18,7 @@ export const loadHome = async (req, res, next) => {
 
 export const loadShop = async (req, res, next) => {
   try {
-    const data = await loadShopService(req.query);
+    const data = await loadShopService(req.query,req.session.user);
 
     return res.render("user/shop", {
       query: req.query,
@@ -45,7 +45,7 @@ export const loadShop = async (req, res, next) => {
 
 export const loadProductDetails = async (req, res, next) => {
   try {
-    const data = await loadProductDetailsService(req.params, req.query);
+    const data = await loadProductDetailsService(req.params, req.query,req.session.user);
     return res.render("user/productDetails", {
       ...data,
       pageTitle: data.product.name,

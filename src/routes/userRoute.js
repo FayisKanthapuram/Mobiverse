@@ -8,6 +8,7 @@ import addressRoutes from "./user/addressRoutes.js";
 import cartRoutes from "./user/cartRoutes.js";
 import checkoutRoutes from "./user/checkoutRoutes.js";
 import orderRoutes from "./user/orderRoutes.js";
+import wishlistRoutes from "./user/wishlistRoutes.js"
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.use(authRoutes);
 router.use(productRoutes);
 router.use(profileRoutes);
 router.use(addressRoutes);
+router.use(wishlistRoutes);
 router.use(cartRoutes);
 router.use(checkoutRoutes);
 router.use(orderRoutes);

@@ -1,7 +1,7 @@
 import productModel from "../models/productModel.js";
 import mongoose from "mongoose";
 
-export const getLatestProductsAgg = (limit = 5) => {
+export const getLatestProductsAgg = (limit = 5, userId = null) => {
   return productModel.aggregate([
     {
       $lookup: {
@@ -156,10 +156,43 @@ export const getLatestProductsAgg = (limit = 5) => {
         },
       },
     },
+
+    //is in cart
+    {
+      $lookup: {
+        from: "carts",
+        let: {
+          productId: "$_id",
+          userId: userId ? new mongoose.Types.ObjectId(userId) : null,
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$$productId", "$productId"] },
+                  { $eq: ["$$userId", "$userId"] },
+                ],
+              },
+            },
+          },
+          {
+            $project: { _id: 1 },
+          },
+        ],
+        as: "cart",
+      },
+    },
+    {
+      $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $addFields: { cart: "$cart._id" },
+    },
   ]);
 };
 
-export const getFeaturedProductsAgg = () => {
+export const getFeaturedProductsAgg = (userId=null) => {
   return productModel.aggregate([
     {
       $lookup: {
@@ -312,6 +345,39 @@ export const getFeaturedProductsAgg = () => {
         },
       },
     },
+
+    //is in cart
+    {
+      $lookup: {
+        from: "carts",
+        let: {
+          productId: "$_id",
+          userId: userId ? new mongoose.Types.ObjectId(userId) : null,
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$$productId", "$productId"] },
+                  { $eq: ["$$userId", "$userId"] },
+                ],
+              },
+            },
+          },
+          {
+            $project: { _id: 1 },
+          },
+        ],
+        as: "cart",
+      },
+    },
+    {
+      $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
+    },
+    {
+      $addFields: { cart: "$cart._id" },
+    },
   ]);
 };
 
@@ -336,6 +402,7 @@ export const getSingleProductAgg = (productId) => {
         as: "variants",
       },
     },
+    //product offer
     {
       $lookup: {
         from: "offers",
@@ -361,6 +428,7 @@ export const getSingleProductAgg = (productId) => {
         as: "productOffer",
       },
     },
+    //brand offer
     {
       $lookup: {
         from: "offers",

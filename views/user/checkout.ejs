@@ -405,28 +405,90 @@
       <% availableCoupons.forEach(function(coupon) { %>
       <div class="border-2 border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
         <div class="flex justify-between items-start mb-2">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
               <span class="px-3 py-1 bg-blue-100 text-blue-700 font-bold rounded text-sm"><%= coupon.code %></span>
-              <span class="text-green-600 font-semibold"><%= coupon.discountType === 'percentage' ? coupon.discountValue + '% OFF' : '₹' + coupon.discountValue + ' OFF' %></span>
-            </div>
-            <p class="text-sm text-gray-600"><%= coupon.description %></p>
-            <p class="text-xs text-gray-500 mt-1">
-              Min. order: ₹<%= coupon.minOrderValue?.toLocaleString('en-IN') || 0 %>
-              <% if (coupon.maxDiscount) { %>
-              | Max discount: ₹<%= coupon.maxDiscount.toLocaleString('en-IN') %>
+              <span class="text-green-600 font-semibold">
+                <%= coupon.type === 'percentage' ? coupon.discountValue + '% OFF' : '₹' + coupon.discountValue + ' OFF' %>
+              </span>
+              <% if (!coupon.isActive) { %>
+              <span class="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded">Inactive</span>
               <% } %>
-            </p>
-            <p class="text-xs text-gray-500">Valid till: <%= new Date(coupon.validTill).toLocaleDateString('en-IN') %></p>
+            </div>
+            
+            <h4 class="font-semibold text-gray-900 mb-1"><%= coupon.name %></h4>
+            <% if (coupon.description) { %>
+            <p class="text-sm text-gray-600 mb-2"><%= coupon.description %></p>
+            <% } %>
+            
+            <div class="text-xs text-gray-500 space-y-1">
+              <p>
+                <i class="bi bi-cart-check"></i> Min. order: ₹<%= coupon.minPurchaseAmount?.toLocaleString('en-IN') || 0 %>
+                <% if (coupon.type === 'percentage' && coupon.maxDiscount > 0) { %>
+                | Max discount: ₹<%= coupon.maxDiscount.toLocaleString('en-IN') %>
+                <% } %>
+              </p>
+              
+              <p>
+                <i class="bi bi-calendar-check"></i> 
+                Valid: <%= new Date(coupon.startDate).toLocaleDateString('en-IN') %> - <%= new Date(coupon.endDate).toLocaleDateString('en-IN') %>
+              </p>
+              
+              <% if (coupon.usageLimitPerUser > 0) { %>
+              <p>
+                <i class="bi bi-person"></i> Usage limit per user: <%= coupon.usageLimitPerUser %> time(s)
+              </p>
+              <% } %>
+              
+              <% if (coupon.totalUsageLimit > 0) { %>
+              <p>
+                <i class="bi bi-people"></i> Total available: <%= coupon.totalUsageLimit - coupon.currentUsageCount %> / <%= coupon.totalUsageLimit %>
+              </p>
+              <% } %>
+              
+              <% if (coupon.userEligibility === 'new_users') { %>
+              <p class="text-orange-600 font-medium">
+                <i class="bi bi-star"></i> For new users only
+              </p>
+              <% } else if (coupon.userEligibility === 'specific') { %>
+              <p class="text-purple-600 font-medium">
+                <i class="bi bi-award"></i> Exclusive coupon
+              </p>
+              <% } %>
+            </div>
           </div>
-          <button onclick="applyCouponCode('<%= coupon.code %>')" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+          
+          <% 
+            const now = new Date();
+            const isExpired = new Date(coupon.endDate) < now;
+            const notStarted = new Date(coupon.startDate) > now;
+            const isExhausted = coupon.totalUsageLimit > 0 && coupon.currentUsageCount >= coupon.totalUsageLimit;
+            const canApply = coupon.isActive && !isExpired && !notStarted && !isExhausted;
+          %>
+          
+          <% if (canApply) { %>
+          <button onclick="applyCouponCode('<%= coupon.code %>')" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap ml-3">
             Apply
           </button>
+          <% } else { %>
+          <button disabled class="px-4 py-2 bg-gray-300 text-gray-500 text-sm font-semibold rounded-lg cursor-not-allowed whitespace-nowrap ml-3">
+            <% if (isExpired) { %>
+            Expired
+            <% } else if (notStarted) { %>
+            Upcoming
+            <% } else if (isExhausted) { %>
+            Exhausted
+            <% } else { %>
+            Inactive
+            <% } %>
+          </button>
+          <% } %>
         </div>
       </div>
       <% }); %>
       <% } else { %>
       <div class="text-center py-8">
+        <i class="bi bi-tag text-6xl text-gray-300 mb-3"></i>
         <p class="text-gray-600">No coupons available at the moment.</p>
       </div>
       <% } %>

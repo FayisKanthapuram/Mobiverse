@@ -4,7 +4,7 @@ import {
 } from "../repositories/product.repo.js";
 import { getHomeBrands } from "../repositories/brand.repo.js";
 
-export const loadHomeService = async () => {
+export const loadHomeService = async (userId=null) => {
   // Static banner data
   const heroData = {
     title: "SAMSUNG GALAXY S23 ULTRA 5G",
@@ -13,8 +13,8 @@ export const loadHomeService = async () => {
     image: "/images/s23-ultra-hero.png",
   };
 
-  const latestProducts = await getLatestProductsAgg();
-  const featuredProducts = await getFeaturedProductsAgg();
+  const latestProducts = await getLatestProductsAgg(5,userId);
+  const featuredProducts = await getFeaturedProductsAgg(userId);
   const brands = await getHomeBrands();
 
   return {

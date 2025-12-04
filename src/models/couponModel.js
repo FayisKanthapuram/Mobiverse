@@ -22,19 +22,16 @@ const couponSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['percentage', 'fixed', 'free_shipping'],
+      enum: ['percentage', 'fixed'],
       required: true
     },
     discountValue: {
       type: Number,
       required: true,
-      min: 0,
+      min: 1,
       validate: {
         validator: function(v) {
           if (this.type === 'percentage' && v > 90) {
-            return false;
-          }
-          if (this.type === 'free_shipping' && v !== 0) {
             return false;
           }
           return true;
@@ -75,7 +72,7 @@ const couponSchema = new mongoose.Schema(
     },
     specificUsers: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'user'
+      ref: 'User'
     }],
     startDate: {
       type: Date,

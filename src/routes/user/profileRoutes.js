@@ -17,12 +17,12 @@ const router = express.Router();
 
 router.get("/personal-info", requireLogin, loadPersonalInfo);
 router.get("/edit-info", requireLogin, loadEditInfo);
-// router.patch("/edit-info", upload.user.single("profilePicture"), editInfo);
+// router.patch("/edit-info",requireLogin, upload.user.single("profilePicture"), editInfo);
 router.get("/edit-email", requireLogin, loadEditEmail);
-router.post("/edit-email", editEmail);
-router.post("/edit-email/otp", sendOtpToEditEmail);
-router.post("/edit-email/resend-otp", reSendOtpToEditEmail);
+router.post("/edit-email",requireLogin, editEmail);
+router.post("/edit-email/otp",requireLogin, sendOtpToEditEmail);
+router.post("/edit-email/resend-otp",requireLogin, reSendOtpToEditEmail);
 router.get("/change-password", requireLogin, loadChangePassword);
-router.post("/update-password", updatePassword);
+router.post("/update-password",requireLogin, updatePassword);
 
 export default router;

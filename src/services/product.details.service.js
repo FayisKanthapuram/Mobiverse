@@ -10,16 +10,17 @@ import {
 
 import { getAppliedOffer, groupVariantsByColor } from "../helpers/product.helper.js";
 
-export const loadProductDetailsService = async (params, query) => {
+export const loadProductDetailsService = async (params, query,userId=null) => {
 
   // 1. Determine selected variant
   let selectedVariant;
 
   if (query.color) {
-    selectedVariant = await findVariantByColor(query.color);
+    selectedVariant = await findVariantByColor(query.color,userId);
   } else {
-    selectedVariant = await findVariantById(params.variantId);
+    selectedVariant = await findVariantById(params.variantId,userId);
   }
+  selectedVariant=selectedVariant[0]
 
   if (!selectedVariant) {
     const error = new Error("Variant not found");
@@ -28,9 +29,7 @@ export const loadProductDetailsService = async (params, query) => {
   }
 
   // 2. Fetch product with variants
-  const productData = await getSingleProductAgg(selectedVariant.productId);
-  // console.log(productData)
-
+  const productData = await getSingleProductAgg(selectedVariant.productId,userId);
   if (!productData.length) {
     const error = new Error("Product not found");
     error.status = 404;
@@ -45,7 +44,7 @@ export const loadProductDetailsService = async (params, query) => {
   const colorGroups = groupVariantsByColor(product.variants);
 
   // 4. Get Related Products
-  const relatedProducts = await getLatestProductsAgg(6);
+  const relatedProducts = await getLatestProductsAgg(6,userId);
 
   // 5. Static reviews (temporary)
   const reviews = [
