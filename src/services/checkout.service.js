@@ -15,8 +15,8 @@ export const loadCheckoutService = async (userId) => {
   const cartTotals = await calculateCartTotals(items);
 
   let hasAdjustedItem=items.some(item=>item.adjusted);
-  
-  const availableCoupons=await getAvailableCoupon()
+  const now=new Date()
+  const availableCoupons=await getAvailableCoupon(userId,now)
   
   return {
     user,

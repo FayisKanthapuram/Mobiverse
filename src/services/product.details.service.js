@@ -1,6 +1,6 @@
 import {
-  findVariantById,
   findVariantByColor,
+  findVariantByIdAgg,
 } from "../repositories/variant.repo.js";
 
 import {
@@ -18,7 +18,7 @@ export const loadProductDetailsService = async (params, query,userId=null) => {
   if (query.color) {
     selectedVariant = await findVariantByColor(query.color,userId);
   } else {
-    selectedVariant = await findVariantById(params.variantId,userId);
+    selectedVariant = await findVariantByIdAgg(params.variantId,userId);
   }
   selectedVariant=selectedVariant[0]
 

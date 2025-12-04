@@ -415,12 +415,12 @@
               <span class="px-2 py-0.5 bg-red-100 text-red-700 text-xs font-medium rounded">Inactive</span>
               <% } %>
             </div>
-            
+
             <h4 class="font-semibold text-gray-900 mb-1"><%= coupon.name %></h4>
             <% if (coupon.description) { %>
             <p class="text-sm text-gray-600 mb-2"><%= coupon.description %></p>
             <% } %>
-            
+
             <div class="text-xs text-gray-500 space-y-1">
               <p>
                 <i class="bi bi-cart-check"></i> Min. order: ₹<%= coupon.minPurchaseAmount?.toLocaleString('en-IN') || 0 %>
@@ -428,24 +428,24 @@
                 | Max discount: ₹<%= coupon.maxDiscount.toLocaleString('en-IN') %>
                 <% } %>
               </p>
-              
+
               <p>
-                <i class="bi bi-calendar-check"></i> 
+                <i class="bi bi-calendar-check"></i>
                 Valid: <%= new Date(coupon.startDate).toLocaleDateString('en-IN') %> - <%= new Date(coupon.endDate).toLocaleDateString('en-IN') %>
               </p>
-              
+
               <% if (coupon.usageLimitPerUser > 0) { %>
               <p>
                 <i class="bi bi-person"></i> Usage limit per user: <%= coupon.usageLimitPerUser %> time(s)
               </p>
               <% } %>
-              
+
               <% if (coupon.totalUsageLimit > 0) { %>
               <p>
                 <i class="bi bi-people"></i> Total available: <%= coupon.totalUsageLimit - coupon.currentUsageCount %> / <%= coupon.totalUsageLimit %>
               </p>
               <% } %>
-              
+
               <% if (coupon.userEligibility === 'new_users') { %>
               <p class="text-orange-600 font-medium">
                 <i class="bi bi-star"></i> For new users only
@@ -457,7 +457,7 @@
               <% } %>
             </div>
           </div>
-          
+
           <% 
             const now = new Date();
             const isExpired = new Date(coupon.endDate) < now;
@@ -465,7 +465,7 @@
             const isExhausted = coupon.totalUsageLimit > 0 && coupon.currentUsageCount >= coupon.totalUsageLimit;
             const canApply = coupon.isActive && !isExpired && !notStarted && !isExhausted;
           %>
-          
+
           <% if (canApply) { %>
           <button onclick="applyCouponCode('<%= coupon.code %>')" class="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap ml-3">
             Apply
@@ -572,35 +572,30 @@
   }
 
   // Apply Coupon
-  function applyCoupon() {
+  async function applyCoupon() {
     const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
     if (!couponCode) {
       alert('Please enter a coupon code');
       return;
     }
-
-    // TODO: API call to apply coupon
-    fetch('/api/cart/apply-coupon', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          couponCode: couponCode
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          window.location.reload();
-        } else {
-          alert(data.message || 'Invalid coupon code');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to apply coupon');
+    try {
+      const response = await axios.post("/checkout/apply-coupon", {
+        couponCode
       });
+      if (response.data.success) {
+        window.location.href = "/checkout?message=coupon-add";
+      }
+    } catch (error) {
+      Toastify({
+        text: error.response?.data?.message || "add coupon failed",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: {
+          background: "#e74c3c",
+        },
+      }).showToast();
+    }
   }
 
   function applyCouponCode(code) {

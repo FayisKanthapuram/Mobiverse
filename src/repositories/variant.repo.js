@@ -1,7 +1,11 @@
 import mongoose from "mongoose";
 import variantModel from "../models/variantModel.js";
 
-export const findVariantById = (variantId, userId) => {
+export const findVariantById=(variantId)=>{
+  return variantModel.findById(variantId);
+}
+
+export const findVariantByIdAgg = (variantId, userId) => {
   return variantModel.aggregate([
     {
       $match: { _id: new mongoose.Types.ObjectId(variantId) },
