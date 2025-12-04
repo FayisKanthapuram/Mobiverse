@@ -47,6 +47,27 @@ export const createCoupon=(data)=>{
   return Coupon.create(data);
 }
 
+export const findAndUpdateCoupon=(id,data)=>{
+  return Coupon.findByIdAndUpdate(id, data, { new: true });
+}
+
 export const getAvailableCoupon=()=>{
   return Coupon.find()
+}
+
+export const findCouponById=(id)=>{
+  return Coupon.findById(id);
+}
+
+export const toggleCouponStatus = async (id) => {
+  const coupon = await Coupon.findById(id);
+  if (!coupon) return null;
+
+  coupon.isActive = !coupon.isActive;
+  await coupon.save();
+  return coupon;
+};
+
+export const deleteCoupon=(id)=>{
+  return Coupon.deleteOne({_id:id});
 }

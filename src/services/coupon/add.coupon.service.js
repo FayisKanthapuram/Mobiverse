@@ -4,7 +4,6 @@ export const addCouponService = async (data) => {
   try {
     //exist
     const existing = await findCouponByCode(data.code);
-    console.log(existing)
     if (existing.length!==0) {
       const error = new Error("Coupon code already in use");
       error.status = 400;
