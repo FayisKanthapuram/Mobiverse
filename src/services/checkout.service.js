@@ -26,3 +26,7 @@ export const loadCheckoutService = async (userId) => {
     availableCoupons
   };
 };
+
+export const applyCouponService=async(code)=>{
+  
+}

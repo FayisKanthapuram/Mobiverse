@@ -27,6 +27,15 @@
             <div class="space-y-4">
               <% wishlist.items.forEach(function(item) { 
                 const outOfStock = item.variantId.stock <= 0;
+                const regularPrice = item.variantId.regularPrice || 0;
+                const salePrice = item.variantId.salePrice || 0;
+                const offerAmount = item.productId.offer || 0; // same as product grid
+                const currentPrice = salePrice - offerAmount;
+
+                let discountPercent = 0;
+                if (regularPrice > currentPrice) {
+                  discountPercent = Math.round(((regularPrice - currentPrice) / regularPrice) * 100);
+                }
               %>
               <div class="wishlist-item border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all <%= outOfStock ? 'opacity-75' : '' %>">
                 <div class="flex gap-4">
@@ -80,16 +89,16 @@
                         <!-- Price -->
                         <div class="flex items-center gap-3 mb-2">
                           <span class="text-2xl font-bold text-gray-900">
-                            ₹<%= item.variantId.salePrice.toLocaleString('en-IN') %>
+                            ₹<%= currentPrice.toLocaleString('en-IN') %>
                           </span>
-                          <% if (item.variantId.regularPrice > item.variantId.salePrice) { %>
-                          <span class="text-sm text-gray-500 line-through">
-                            ₹<%= item.variantId.regularPrice.toLocaleString('en-IN') %>
-                          </span>
-                          <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">
-                            <% const discount = Math.round(((item.variantId.regularPrice - item.variantId.salePrice) / item.variantId.regularPrice) * 100); %>
-                            <%= discount %>% OFF
-                          </span>
+                          <% if (regularPrice > currentPrice) { %>
+                            <span class="text-sm text-gray-500 line-through">
+                              ₹<%= regularPrice.toLocaleString('en-IN') %>
+                            </span>
+
+                            <span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">
+                              <%= discountPercent %>% OFF
+                            </span>
                           <% } %>
                         </div>
 
