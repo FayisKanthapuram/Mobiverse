@@ -1,4 +1,4 @@
-import { createCartItem, fetchCartItems, findCartItem, findCartItemById, findUserCartItems, saveCartItem } from "../repositories/cart.repo.js";
+import { createCartItem, fetchCartItems, findCartItem, findCartItemById, saveCartItem } from "../repositories/cart.repo.js";
 import { calculateBasicCartTotals, calculateCartTotals } from "../helpers/cartTotals.helper.js";
 import { getLatestProductsAgg } from "../repositories/product.repo.js";
 import { addToCartSchema } from "../validators/cartValidator.js";
@@ -126,7 +126,7 @@ export const updateCartItemService = async (itemId, userId, body) => {
   await saveCartItem(item);
 
   // 3. Recalculate totals for this user
-  const items = await findUserCartItems(userId);
+  const items = await fetchCartItems(userId);
   const totals = calculateBasicCartTotals(items,item._id);
 
   return {
