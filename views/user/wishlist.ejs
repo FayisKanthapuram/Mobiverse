@@ -29,7 +29,7 @@
                 const outOfStock = item.variantId.stock <= 0;
                 const regularPrice = item.variantId.regularPrice || 0;
                 const salePrice = item.variantId.salePrice || 0;
-                const offerAmount = item.productId.offer || 0; // same as product grid
+                const offerAmount = item.offer || 0; // same as product grid
                 const currentPrice = salePrice - offerAmount;
 
                 let discountPercent = 0;

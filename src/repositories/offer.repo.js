@@ -38,3 +38,21 @@ export const toggleOfferStatus = async (id) => {
   await offer.save();
   return offer;
 };
+
+export const getAvailableProductOffers=async (now)=>{
+  return offerModel.find({
+    offerType:'product',
+    startDate:{$lte:now},
+    endDate:{$gte:now},
+    isActive:true,
+  })
+}
+
+export const getAvailableBrandOffers=async (now)=>{
+  return offerModel.find({
+    offerType:'brand',
+    startDate:{$lte:now},
+    endDate:{$gte:now},
+    isActive:true,
+  })
+}

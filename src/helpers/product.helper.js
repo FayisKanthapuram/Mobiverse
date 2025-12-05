@@ -38,5 +38,5 @@ export const getAppliedOffer=(data,salePrice)=>{
       offer=Math.max(x,offer);
     }
   }
-  return offer;
+  return Math.ceil(offer);
 }

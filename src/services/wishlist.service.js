@@ -1,6 +1,11 @@
 import { HttpStatus } from "../constants/statusCode.js";
+import { getAppliedOffer } from "../helpers/product.helper.js";
 import { findBrandById } from "../repositories/brand.repo.js";
 import { findCartItem } from "../repositories/cart.repo.js";
+import {
+  getAvailableBrandOffers,
+  getAvailableProductOffers,
+} from "../repositories/offer.repo.js";
 import { findUserById } from "../repositories/user.repo.js";
 import { findVariantByIdWithProduct } from "../repositories/variant.repo.js";
 import {
@@ -20,7 +25,26 @@ export const loadWishlistService = async (userId, queryParams) => {
   const skip = (currentPage - 1) * limit;
   const totalPages = Math.ceil(totalDocuments / limit);
   const wishlist = await fetchWishlistItems(userId, limit, skip);
-  console.log(wishlist[0].items);
+  const now = new Date();
+  const productOffers = await getAvailableProductOffers(now);
+  const brandOffers = await getAvailableBrandOffers(now);
+  wishlist[0].items = wishlist[0].items.map((item) => {
+    const brandOffer =
+      brandOffers.filter(
+        (offer) => offer.brandID.toString() === item.brandId._id.toString()
+      ) || null;
+    const productOffer = productOffers.filter((offer) =>
+      offer.productID
+        .map((id) => id.toString())
+        .includes(item.productId._id.toString())
+    );
+    let offer = getAppliedOffer({ productOffer ,brandOffer}, item.variantId.salePrice);
+    return {
+      ...item,
+      offer,
+    };
+  });
+
   const user = await findUserById(userId);
   return {
     wishlist,

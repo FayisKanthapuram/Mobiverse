@@ -34,6 +34,17 @@ export const fetchWishlistItems = (userId, limit, skip) => {
       },
     },
     {
+      $lookup: {
+        from: "brands",
+        let: { brandIds: "$products.brandID" },
+        pipeline: [
+          { $match: { $expr: { $in: ["$_id", "$$brandIds"] } } },
+          { $match: { isListed: true } }
+        ],
+        as: "brands"
+      }
+    },
+    {
       $addFields: {
         items: {
           $map: {
@@ -68,7 +79,33 @@ export const fetchWishlistItems = (userId, limit, skip) => {
         },
       },
     },
-    { $project: { products: 0, variants: 0 } },
+    {
+      $addFields:{
+        items:{
+          $map:{
+            input:'$items',
+            as:'i',
+            in:{
+              $mergeObjects:[
+                "$$i",
+                {
+                  brandId:{
+                    $first:{
+                      $filter:{
+                        input:'$brands',
+                        as:'brand',
+                        cond:{$eq:['$$brand._id','$$i.productId.brandID']}
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+    },
+    { $project: { products: 0, variants: 0 ,brands:0} },
   ]);
 };
 
