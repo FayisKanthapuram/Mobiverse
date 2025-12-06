@@ -7,8 +7,10 @@ import { decrementProductStock } from "../repositories/product.repo.js";
 import { decrementVariantStock } from "../repositories/variant.repo.js";
 import { deleteUserCart, fetchCartItems } from "../repositories/cart.repo.js";
 import { calculateCartTotals } from "../helpers/cartTotals.helper.js";
+import { couponUsageCreate } from "../repositories/coupon.usage.repo.js";
+import { findCouponIncrementCount } from "../repositories/coupon.repo.js";
 
-export const placeOrderService = async (userId, body) => {
+export const placeOrderService = async (userId, body,appliedCoupon) => {
   // -------------------------------
   // 1. Validate Input
   // -------------------------------
@@ -95,6 +97,11 @@ export const placeOrderService = async (userId, body) => {
     paymentStatus = "Paid";
   }
 
+  if(appliedCoupon){
+    cartTotals.couponDiscount=appliedCoupon.discount||0;
+    cartTotals.couponId=appliedCoupon.couponId;
+  }
+
   // -------------------------------
   // 8. Create Order
   // -------------------------------
@@ -110,12 +117,15 @@ export const placeOrderService = async (userId, body) => {
     deliveryCharge: cartTotals.deliveryCharge,
     tax: cartTotals.tax,
     discount: cartTotals.discount,
+    couponDiscount:cartTotals.couponDiscount,
+    couponId:cartTotals.couponId,
 
     finalAmount:
       cartTotals.subtotal -
       cartTotals.discount +
       cartTotals.deliveryCharge +
-      cartTotals.tax,
+      cartTotals.tax-
+      cartTotals.couponDiscount,
 
     expectedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
   });
@@ -125,6 +135,10 @@ export const placeOrderService = async (userId, body) => {
   // -------------------------------
   await deleteUserCart(userId);
 
+  if(appliedCoupon){
+    await couponUsageCreate(appliedCoupon.couponId,userId,order._id,appliedCoupon.discount);
+    const inc=await findCouponIncrementCount(appliedCoupon.couponId);
+  }
   return {
     status: HttpStatus.OK,
     success: true,

@@ -30,6 +30,14 @@ const couponUsageSchema = new mongoose.Schema(
 );
 
 couponUsageSchema.index({ couponId: 1, userId: 1 });
+couponUsageSchema.index({ couponId: 1 });
 couponUsageSchema.index({ userId: 1 });
+couponUsageSchema.index({ orderId: 1 });
+
+couponUsageSchema.index(//to prevent using one code in a single order
+  { couponId: 1, userId: 1, orderId: 1 },
+  { unique: true }
+);
+
 
 export default mongoose.model("couponUsage", couponUsageSchema);

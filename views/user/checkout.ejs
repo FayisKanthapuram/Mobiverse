@@ -236,6 +236,8 @@
           <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
 
           <div class="space-y-4 mb-6">
+
+            <!-- Subtotal -->
             <div class="flex justify-between text-gray-700">
               <span>Subtotal (<%= cart.items.length %> items)</span>
               <span class="font-semibold">₹<%= cart.subtotal.toLocaleString('en-IN') %></span>
@@ -248,6 +250,15 @@
             </div>
             <% } %>
 
+            <!-- Coupon Discount Row -->
+            <% if (appliedCoupon && appliedCoupon.discount > 0) { %>
+            <div class="flex justify-between text-green-600">
+              <span>Coupon Applied (<%= appliedCoupon.code %>)</span>
+              <span class="font-semibold">-₹<%= appliedCoupon.discount.toLocaleString('en-IN') %></span>
+            </div>
+            <% } %>
+
+            <!-- Delivery Charges -->
             <div class="flex justify-between text-gray-700">
               <span>Delivery Charges</span>
               <% if (cart.deliveryCharge === 0) { %>
@@ -257,6 +268,7 @@
               <% } %>
             </div>
 
+            <!-- Tax -->
             <% if (cart.tax > 0) { %>
             <div class="flex justify-between text-gray-700">
               <span>Tax</span>
@@ -264,18 +276,30 @@
             </div>
             <% } %>
 
+            <!-- Total -->
             <div class="pt-4 border-t border-gray-200">
               <div class="flex justify-between text-gray-900">
                 <span class="text-lg font-bold">Total Amount</span>
-                <span class="text-2xl font-bold">₹<%= (cart?.subtotal+cart?.tax+cart?.deliveryCharge-cart?.discount).toLocaleString('en-IN') %></span>
+
+                <% const totalAmount = appliedCoupon 
+                ? appliedCoupon.finalAmount 
+                : (cart.subtotal + cart.tax + cart.deliveryCharge - cart.discount); %>
+
+                <span class="text-2xl font-bold">
+                  ₹<%= totalAmount.toLocaleString('en-IN') %>
+                </span>
               </div>
             </div>
           </div>
 
-          <% if (cart.discount > 0) { %>
+          <!-- Savings Message -->
+          <% if (appliedCoupon && appliedCoupon.discount > 0) { %>
+          <% const totalCoupon = appliedCoupon 
+                ? appliedCoupon.discount+ cart.discount
+                : cart.discount %>
           <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-6">
             <p class="text-green-700 text-sm font-medium text-center">
-              <i class="bi bi-tag-fill"></i> You're saving ₹ <%= cart.discount.toLocaleString('en-IN') %> on this order!
+              <i class="bi bi-tag-fill"></i> You're saving ₹ <%= totalCoupon.toLocaleString('en-IN') %> on this order!
             </p>
           </div>
           <% } %>
@@ -289,6 +313,7 @@
           </a>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -573,7 +598,7 @@
 
   // Apply Coupon
   async function applyCoupon() {
-    const totalAmount='<%= cart?.subtotal+cart?.tax+cart?.deliveryCharge-cart?.discount %>'
+    const totalAmount = '<%= cart?.subtotal+cart?.tax+cart?.deliveryCharge-cart?.discount %>'
     const code = document.getElementById('couponCode').value.trim().toUpperCase();
     if (!code) {
       alert('Please enter a coupon code');
@@ -607,28 +632,24 @@
   }
 
   // Remove Coupon
-  function removeCoupon() {
+  async function removeCoupon() {
     if (!confirm('Remove applied coupon?')) return;
-
-    // TODO: API call to remove coupon
-    fetch('/api/cart/remove-coupon', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          window.location.reload();
-        } else {
-          alert(data.message || 'Failed to remove coupon');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to remove coupon');
-      });
+    try {
+      const response = await axios.post("/checkout/remove-coupon");
+      if (response.data.success) {
+        window.location.href = "/checkout?message=coupon-remove";
+      }
+    } catch (error) {
+      Toastify({
+        text: error.response?.data?.message || "remove coupon failed",
+        duration: 2000,
+        gravity: "top",
+        position: "right",
+        style: {
+          background: "#e74c3c",
+        },
+      }).showToast();
+    }
   }
 
   // Place Order

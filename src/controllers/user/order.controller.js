@@ -8,7 +8,10 @@ export const placeOrder = async (req, res) => {
     const userId = req.session.user;
     const body = req.body;
 
-    const result = await placeOrderService(userId, body);
+    const appliedCoupon = req.session.appliedCoupon || null;
+
+    const result = await placeOrderService(userId, body, appliedCoupon);
+    req.session.appliedCoupon = null;
 
     return res.status(result.status).json(result);
   } catch (err) {

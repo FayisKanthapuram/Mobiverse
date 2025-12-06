@@ -3,7 +3,7 @@ import { handleReturnRequestService, loadOrderDetailsService, loadOrdersService,
 export const loadOrders = async (req, res, next) => {
   try {
     const data = await loadOrdersService(req.query);
-
+    console.log(data)
     res.render("admin/orders", {
       pageTitle: "Orders",
       pageCss: "orders",

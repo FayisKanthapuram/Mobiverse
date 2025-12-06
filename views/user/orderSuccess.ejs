@@ -38,10 +38,10 @@
               <h2 class="text-sm text-gray-600 mb-1">Expected Delivery</h2>
               <p class="text-lg font-semibold text-green-600">
                 <%= new Date(order.expectedDelivery).toLocaleDateString('en-IN', { 
-        day: 'numeric', 
-        month: 'short', 
-        year: 'numeric' 
-      }) %>
+                  day: 'numeric', 
+                  month: 'short', 
+                  year: 'numeric' 
+                }) %>
               </p>
             </div>
           </div>
@@ -69,6 +69,13 @@
             <div class="flex justify-between text-green-600">
               <span>Discount</span>
               <span class="font-semibold">-₹<%= order.discount?.toLocaleString('en-IN') %></span>
+            </div>
+            <% } %>
+
+            <% if (order.couponDiscount > 0) { %>
+            <div class="flex justify-between text-green-600">
+              <span>Coupon Applied</span>
+              <span class="font-semibold">-₹<%= order.couponDiscount?.toLocaleString('en-IN') %></span>
             </div>
             <% } %>
 

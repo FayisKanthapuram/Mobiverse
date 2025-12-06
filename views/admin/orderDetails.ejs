@@ -533,6 +533,12 @@
             <span>-₹<%= order.discount.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
           </div>
           <% } %>
+          <% if (order.couponDiscount > 0) { %>
+          <div class="summary-row discount">
+            <span>Coupon Applied</span>
+            <span>-₹<%= order.couponDiscount.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
+          </div>
+          <% } %>
           <div class="summary-row">
             <span>Delivery Charge</span>
             <span>

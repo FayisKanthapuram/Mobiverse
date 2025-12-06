@@ -206,7 +206,7 @@
                     const offer = it.offer || 0;
                     const effective = sale - offer;
                     return sum + (effective * it.quantity);
-                  }, 0);
+                  }, 0)-order.couponDiscount;
 
                   const savings = mrpTotal - sellingTotal;
                 %>

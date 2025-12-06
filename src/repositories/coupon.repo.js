@@ -104,3 +104,7 @@ export const toggleCouponStatus = async (id) => {
 export const deleteCoupon = (id) => {
   return Coupon.deleteOne({ _id: id });
 };
+
+export const findCouponIncrementCount=(_id)=>{
+  return Coupon.findOneAndUpdate({_id,totalUsageLimit:{$ne:0}},{$inc:{currentUsageCount:1}},{new:true})
+}

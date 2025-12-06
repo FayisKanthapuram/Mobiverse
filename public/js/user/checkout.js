@@ -4,8 +4,10 @@ let text = "";
 
 if (message === "coupon-add") {
   text = "Coupon applied successfully";
-}else if(message==='address-add'){
-  text="New address added successfully."
+} else if (message === "address-add") {
+  text = "New address added successfully.";
+} else if (message === "coupon-remove") {
+  text = "Coupon removed successfully";
 }
 
 if (message) {
