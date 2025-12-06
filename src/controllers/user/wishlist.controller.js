@@ -33,6 +33,11 @@ export const loadWishlist = async (req, res, next) => {
 
 export const toggleWishlist = async (req, res) => {
   try {
+    if (!req.session.user) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+      });
+    }
     const result = await toggleWishlistService(req.session.user,req.body);
     return res.status(result.status).json(result);
   } catch (error) {

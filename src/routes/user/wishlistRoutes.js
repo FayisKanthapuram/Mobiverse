@@ -6,7 +6,7 @@ import { toggleWishlist, checkWishlist, loadWishlist, clearWishlist } from "../.
 const router = express.Router();
 
 router.get('/wishlist',requireLogin,loadWishlist);
-router.post('/wishlist/toggle',requireLogin,toggleWishlist);
+router.post('/wishlist/toggle',toggleWishlist);
 router.get('/wishlist/check/:variantId',requireLogin,checkWishlist);
 router.delete('/wishlist/clear',requireLogin,clearWishlist);
 

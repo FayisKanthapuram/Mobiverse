@@ -9,6 +9,7 @@ import cartRoutes from "./user/cartRoutes.js";
 import checkoutRoutes from "./user/checkoutRoutes.js";
 import orderRoutes from "./user/orderRoutes.js";
 import wishlistRoutes from "./user/wishlistRoutes.js"
+import walletRoutes from "./user/walletRoutes.js"
 
 const router = express.Router();
 
@@ -19,9 +20,10 @@ router.use(authRoutes);
 router.use(productRoutes);
 router.use(profileRoutes);
 router.use(addressRoutes);
+router.use(orderRoutes);
+router.use(walletRoutes);
 router.use(wishlistRoutes);
 router.use(cartRoutes);
 router.use(checkoutRoutes);
-router.use(orderRoutes);
 
 export default router;

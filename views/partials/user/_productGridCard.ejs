@@ -27,13 +27,9 @@
         <img src="<%= product?.variants?.images[0] %>" alt="<%= product.name %>" class="h-52 w-auto object-contain transition-transform duration-500 group-hover:scale-110" />
 
         <!-- Wishlist Button -->
-        <% if (typeof user !== 'undefined' && user && !isInCart) { %>
+        <% if (!isInCart) { %>
         <button type="button" class="wishlist-btn absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-sm transition-all hover:scale-110" data-variant-id="<%= product?.variants?._id %>" onclick="event.stopPropagation(); event.preventDefault(); toggleWishlist('<%= product?.variants?._id %>', event)">
           <i class="bi bi-heart text-lg wishlist-icon"></i>
-        </button>
-        <% } else if(!isInCart){ %>
-        <button type="button" class="absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-sm transition-all hover:scale-110" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='/login'">
-          <i class="bi bi-heart text-lg"></i>
         </button>
         <% } %>
 
@@ -289,7 +285,9 @@
   }
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', function() {
-    // Check wishlist status for all products
-    checkAllWishlistStatuses();
+    let user="<%= user %>"
+    if(user){
+      checkAllWishlistStatuses();
+    }
   });
 </script>

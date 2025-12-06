@@ -41,7 +41,7 @@ export const getTotalDiscountGiven = async () => {
 };
 
 export const findCouponByCode = (code) => {
-  return Coupon.find({ code });
+  return Coupon.findOne({ code });
 };
 
 export const createCoupon = (data) => {

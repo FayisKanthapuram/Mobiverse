@@ -4,6 +4,7 @@ import Joi from "joi";
 import { generateOtp } from "../../helpers/otp.js";
 import { sendVerificationEmail } from "../../helpers/gmail.js";
 import { resetPasswordSchema, userLoginSchema, userRegisterSchema } from "../../validators/authUserValidator.js";
+import walletModel from "../../models/walletModel.js";
 
 export const loadSignUp = (req, res,next) => {
   try {
@@ -105,7 +106,11 @@ export const verifyOtp = async (req, res) => {
         .json({ success: false, message: "Incorrect OTP. Try again." });
     }
 
-    await User.create(req.session.tempUser);
+    const user=await User.create(req.session.tempUser);
+    console.log(user);
+    if(user){
+      await walletModel.create({userId:user._id});
+    }
 
     req.session.tempUser = null;
     req.session.otp = null;

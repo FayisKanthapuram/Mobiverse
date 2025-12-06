@@ -573,14 +573,16 @@
 
   // Apply Coupon
   async function applyCoupon() {
-    const couponCode = document.getElementById('couponCode').value.trim().toUpperCase();
-    if (!couponCode) {
+    const totalAmount='<%= cart?.subtotal+cart?.tax+cart?.deliveryCharge-cart?.discount %>'
+    const code = document.getElementById('couponCode').value.trim().toUpperCase();
+    if (!code) {
       alert('Please enter a coupon code');
       return;
     }
     try {
       const response = await axios.post("/checkout/apply-coupon", {
-        couponCode
+        code,
+        totalAmount
       });
       if (response.data.success) {
         window.location.href = "/checkout?message=coupon-add";

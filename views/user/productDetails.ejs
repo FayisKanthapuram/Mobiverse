@@ -102,12 +102,24 @@
         <h3 class="text-sm font-medium text-gray-900 mb-3">Color</h3>
         <div class="flex flex-wrap gap-2">
           <% Object.keys(colorGroups).forEach(color => { %>
-          <button onclick="showConfigurations('<%= color %>')" class="px-4 py-2 rounded-lg border-2 
-               <%= color === selectedVariant.colour ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300 text-gray-700' %>
-               hover:border-blue-600 transition">
+
+          <% 
+            // Get variantId for this color
+            const variantId = colorGroups[color][0]; 
+          %>
+
+          <button onclick="showConfigurations('<%= color %>', '<%= variantId._id %>')" class="px-4 py-2 rounded-lg border-2 
+            <%= color === selectedVariant.colour 
+                ? 'border-blue-600 bg-blue-600 text-white' 
+                : 'border-gray-300 text-gray-700' 
+            %>
+            hover:border-blue-600 transition">
+
             <%= color %>
           </button>
+
           <% }); %>
+
         </div>
       </div>
 
@@ -379,11 +391,10 @@
     window.location.href = '/product/' + variantId;
   }
 
-  function showConfigurations(color) {
+  function showConfigurations(color, variantId) {
     // reload to show that color’s variants
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set("color", color);
-    window.location.href = currentUrl.href;
+    console.log(variantId)
+    window.location.href=`/product/${variantId}?color=${color}`
   }
 
   async function toggleWishlist(variantId, event) {
@@ -506,11 +517,11 @@
       <i class="bi bi-arrow-right-circle"></i> Go to Cart
     </button>
   `;
-  const btnCard = document.querySelector(`[data-cart-variant-id="${variantId}"]`);
-  if (!btnCard) return;
+    const btnCard = document.querySelector(`[data-cart-variant-id="${variantId}"]`);
+    if (!btnCard) return;
 
-  // Replace button HTML with "Go to Cart"
-  btnCard.outerHTML = `
+    // Replace button HTML with "Go to Cart"
+    btnCard.outerHTML = `
       <button type="button" 
         class="w-full bg-white text-blue-600 border border-blue-600 font-semibold 
                py-2.5 rounded-full text-sm shadow-sm hover:bg-blue-600 hover:text-white 
@@ -525,11 +536,11 @@
   // Remove wishlist button after adding to cart
   function removeDetailWishlistButton(variantId) {
     const btn = document.querySelectorAll(`[data-variant-id="${variantId}"]`);
-    if (btn.length>0){
-      btn.forEach(b=>{
+    if (btn.length > 0) {
+      btn.forEach(b => {
         b.remove();
       })
-    } 
+    }
   }
 
   // ----------------------------

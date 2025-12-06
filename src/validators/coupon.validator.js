@@ -81,3 +81,26 @@ export const couponSchema = Joi.object({
   }
   return data;
 }, "Date range validation");
+
+export const applyCouponSchema = Joi.object({
+  code: Joi.string()
+    .trim()
+    .min(3)
+    .max(20)
+    .required()
+    .messages({
+      "string.empty": "Coupon code is required",
+      "any.required": "Coupon code is required",
+      "string.min": "Coupon code must be at least 3 characters",
+      "string.max": "Coupon code must be less than 20 characters",
+    }),
+
+  totalAmount: Joi.number()
+    .positive()
+    .required()
+    .messages({
+      "number.base": "Total amount must be a number",
+      "number.positive": "Total amount must be positive",
+      "any.required": "Total amount is required",
+    }),
+});

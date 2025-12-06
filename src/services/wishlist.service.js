@@ -28,22 +28,24 @@ export const loadWishlistService = async (userId, queryParams) => {
   const now = new Date();
   const productOffers = await getAvailableProductOffers(now);
   const brandOffers = await getAvailableBrandOffers(now);
-  wishlist[0].items = wishlist[0].items.map((item) => {
-    const brandOffer =
-      brandOffers.filter(
-        (offer) => offer.brandID.toString() === item.brandId._id.toString()
-      ) || null;
-    const productOffer = productOffers.filter((offer) =>
-      offer.productID
-        .map((id) => id.toString())
-        .includes(item.productId._id.toString())
-    );
-    let offer = getAppliedOffer({ productOffer ,brandOffer}, item.variantId.salePrice);
-    return {
-      ...item,
-      offer,
-    };
-  });
+  if(wishlist.length>0){
+    wishlist[0].items = wishlist[0].items.map((item) => {
+      const brandOffer =
+        brandOffers.filter(
+          (offer) => offer.brandID.toString() === item.brandId._id.toString()
+        ) || null;
+      const productOffer = productOffers.filter((offer) =>
+        offer.productID
+          .map((id) => id.toString())
+          .includes(item.productId._id.toString())
+      );
+      let offer = getAppliedOffer({ productOffer ,brandOffer}, item.variantId.salePrice);
+      return {
+        ...item,
+        offer,
+      };
+    });
+  }
 
   const user = await findUserById(userId);
   return {

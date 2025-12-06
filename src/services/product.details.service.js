@@ -16,7 +16,7 @@ export const loadProductDetailsService = async (params, query,userId=null) => {
   let selectedVariant;
 
   if (query.color) {
-    selectedVariant = await findVariantByColor(query.color,userId);
+    selectedVariant = await findVariantByColor(query.color,params.variantId,userId);
   } else {
     selectedVariant = await findVariantByIdAgg(params.variantId,userId);
   }

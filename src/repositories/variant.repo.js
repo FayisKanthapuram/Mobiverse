@@ -45,10 +45,10 @@ export const findVariantByIdAgg = (variantId, userId) => {
   ]);
 };
 
-export const findVariantByColor = (colour,userId) => {
+export const findVariantByColor = (colour,variantId,userId) => {
   return variantModel.aggregate([
     {
-      $match: { colour },
+      $match: {_id: new mongoose.Types.ObjectId(variantId),colour:colour},
     },
     //is in cart
     {

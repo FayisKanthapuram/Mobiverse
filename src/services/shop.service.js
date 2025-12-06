@@ -3,7 +3,6 @@ import {
   countShopProductsAgg,
 } from "../repositories/product.repo.js";
 import { getAllListedBrands } from "../repositories/brand.repo.js";
-import mongoose from "mongoose";
 
 export const loadShopService = async (query, userId) => {
   const search = query.search || "";
@@ -251,8 +250,6 @@ export const loadShopService = async (query, userId) => {
   productPipeline.push({ $skip: skip }, { $limit: limit });
 
   const products = await getShopProductsAgg(productPipeline);
-  console.log(userId);
-  console.log(products[0].cart);
 
   // BRANDS
   const brands = await getAllListedBrands();

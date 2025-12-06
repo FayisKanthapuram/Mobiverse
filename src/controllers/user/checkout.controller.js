@@ -1,5 +1,5 @@
 import { HttpStatus } from "../../constants/statusCode.js";
-import { loadCheckoutService } from "../../services/checkout.service.js";
+import { applyCouponService, loadCheckoutService } from "../../services/checkout.service.js";
 
 export const laodCheckOut = async (req, res, next) => {
   try {
@@ -25,7 +25,7 @@ export const laodCheckOut = async (req, res, next) => {
 
 export const applyCoupon = async (req, res) => {
   try {
-    console.log(req.body.couponCode)
+    await applyCouponService(req.body)
 
     return res.status(HttpStatus.OK).json({success:true});
   } catch (error) {
