@@ -1,4 +1,4 @@
-import { countCoupon, findCoupons, getTotalCouponUsage, getTotalDiscountGiven } from "../../../modules/coupon/coupon.repo.js";
+import { countCoupon, findCoupons, getTotalCouponUsage, getTotalDiscountGiven } from "../repo/coupon.repo.js";
 
 export const loadCouponsService = async (queryParams) => {
   const currentPage = parseInt(queryParams.page) || 1;

@@ -1,5 +1,5 @@
 import express from "express";
-import upload from "../../middlewares/upload.js";
+import upload from "../../../middlewares/upload.js";
 import {
   addProduct,
   editProduct,
@@ -7,8 +7,8 @@ import {
   toggleProduct,
   loadProducts,
   getProducts,
-} from "./product.controller.js";
-import { verifyAdmin } from "../../middlewares/adminAuth.js";
+} from "../controllers/admin.product.controller.js";
+import { verifyAdmin } from "../../../middlewares/adminAuth.js";
 
 const router = express.Router();
 

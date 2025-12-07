@@ -1,6 +1,6 @@
 import {
   aggregateProductById,
-} from "../product.repo.js";
+} from "../../repo/product.repo.js";
 
 export const getProductByIdService = async (productId) => {
   const arr = await aggregateProductById(productId);

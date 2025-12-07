@@ -19,7 +19,9 @@ import {
 import couponRoutes from "./modules/coupon/coupon.routes.js";
 import brandRoutes from "./modules/brand/brand.routes.js";
 import offerRoutes from "./modules/offer/offer.routes.js";
-import productRoutes from "./modules/product/product.routes.js";
+import adminProductRoutes from "./modules/product/routes/admin.product.routes.js";
+import userProductRoutes from "./modules/product/routes/user.product.routes.js";
+import homeRoutes from "./modules/user/home/home.routes.js"
 
 dotenv.config();
 
@@ -52,7 +54,16 @@ app.use("/admin", adminRoutes);
 app.use("/admin/coupons", couponRoutes);
 app.use("/admin/brands", brandRoutes);
 app.use("/admin/offers", offerRoutes);
-app.use("/admin/products", productRoutes);
+app.use("/admin/products", adminProductRoutes);
+
+//home
+app.use('/',homeRoutes);
+app.use('/home',homeRoutes);
+
+//products
+app.use('/products',userProductRoutes);
+app.use('/shop',userProductRoutes);
+
 
 // Error Handlers
 app.use(staticFile404);

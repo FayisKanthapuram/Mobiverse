@@ -1,10 +1,10 @@
 import {
   findProducts,
   countProducts,
-} from "../product.repo.js";
+} from "../../repo/product.repo.js";
 import {
   findAllListedBrands,
-} from "../../brand/brand.repo.js";
+} from "../../../brand/brand.repo.js";
 
 /**
  * Get filtered products for admin listing

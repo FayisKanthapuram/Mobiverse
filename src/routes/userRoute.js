@@ -2,7 +2,6 @@ import express from "express";
 import setLayout from "../middlewares/setLayout.js";
 
 import authRoutes from "./user/authRoutes.js";
-import productRoutes from "./user/productRoutes.js";
 import profileRoutes from "./user/profileRoutes.js";
 import addressRoutes from "./user/addressRoutes.js";
 import cartRoutes from "./user/cartRoutes.js";
@@ -17,7 +16,6 @@ router.use(setLayout("user"));
 
 // mount modular user routes
 router.use(authRoutes);
-router.use(productRoutes);
 router.use(profileRoutes);
 router.use(addressRoutes);
 router.use(orderRoutes);

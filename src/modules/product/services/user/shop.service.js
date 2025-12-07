@@ -1,8 +1,8 @@
 import {
   getShopProductsAgg,
   countShopProductsAgg,
-} from "../modules/product/product.repo.js";
-import { getAllListedBrands } from "../modules/brand/brand.repo.js";
+} from "../../repo/product.repo.js";
+import { getAllListedBrands } from "../../../brand/brand.repo.js";
 
 export const loadShopService = async (query, userId) => {
   const search = query.search || "";

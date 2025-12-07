@@ -1,8 +1,8 @@
 import {
   getLatestProductsAgg,
   getFeaturedProductsAgg,
-} from "../modules/product/product.repo.js";
-import { getHomeBrands } from "../modules/brand/brand.repo.js";
+} from "../../product/repo/product.repo.js";
+import { getHomeBrands } from "../../brand/brand.repo.js";
 
 export const loadHomeService = async (userId=null) => {
   // Static banner data

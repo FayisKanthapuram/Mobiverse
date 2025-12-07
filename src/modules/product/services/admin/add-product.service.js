@@ -1,18 +1,18 @@
 import {
   findProducts,
   createProduct,
-} from "../product.repo.js";
+} from "../../repo/product.repo.js";
 import {
   createVariant,
-} from "../variant.repo.js";
+} from "../../repo/variant.repo.js";
 import {
   findBrandById,
-} from "../../brand/brand.repo.js";
-import { cloudinaryUpload } from "../../../middlewares/upload.js";
+} from "../../../brand/brand.repo.js";
+import { cloudinaryUpload } from "../../../../middlewares/upload.js";
 import {
   rollbackCloudinary,
   calcMinMaxStock,
-} from "../../../helpers/product.helpers.js";
+} from "../../product.helpers.js";
 
 export const addProductService = async (body, files) => {
   const uploadedPublicIds = [];

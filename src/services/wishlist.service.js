@@ -1,5 +1,5 @@
 import { HttpStatus } from "../constants/statusCode.js";
-import { getAppliedOffer } from "../helpers/product.helper.js";
+import { getAppliedOffer } from "../modules/product/product.helpers.js";
 import { findBrandById } from "../modules/brand/brand.repo.js";
 import { findCartItem } from "../repositories/cart.repo.js";
 import {
@@ -7,7 +7,7 @@ import {
   getAvailableProductOffers,
 } from "../modules/offer/offer.repo.js";
 import { findUserById } from "../repositories/user.repo.js";
-import { findVariantByIdWithProduct } from "../modules/product/variant.repo.js";
+import { findVariantByIdWithProduct } from "../modules/product/repo/variant.repo.js";
 import {
   checkInWishlist,
   createWishlistItem,

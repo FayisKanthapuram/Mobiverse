@@ -2,17 +2,17 @@ import {
   findVariantsByProduct,
   createVariant,
   updateVariantById,
-} from "../variant.repo.js";
+} from "../../repo/variant.repo.js";
 import {
   updateProductById,
-} from "../product.repo.js";
-import { cloudinaryUpload } from "../../../middlewares/upload.js";
+} from "../../repo/product.repo.js";
+import { cloudinaryUpload } from "../../../../middlewares/upload.js";
 import {
   rollbackCloudinary,
   getPublicIdFromUrl,
   calcMinMaxStock,
-} from "../../../helpers/product.helpers.js";
-import cloudinary from "../../../config/cloudinary.js";
+} from "../../product.helpers.js";
+import cloudinary from "../../../../config/cloudinary.js";
 
 export const editProductService = async (productId, body, files = []) => {
   const uploadedPublicIds = [];

@@ -1,4 +1,4 @@
-import couponUsageModel from "./couponUsageModel.js";
+import couponUsageModel from "../models/couponUsageModel.js";
 
 export const countCouponUsageByCouponId = (couponId) => {
   return couponUsageModel.countDocuments({ couponId });

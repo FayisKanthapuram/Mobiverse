@@ -1,4 +1,4 @@
-import { createCoupon, findCouponByCode } from "../../../modules/coupon/coupon.repo.js";
+import { createCoupon, findCouponByCode } from "../repo/coupon.repo.js";
 
 export const addCouponService = async (data) => {
   try {

@@ -1,26 +1,13 @@
 // src/helpers/product.helpers.js
-import cloudinary from "../config/cloudinary.js";
+import cloudinary from "../../config/cloudinary.js";
 
-/**
- * Upload a buffer to cloudinary using cloudinaryUpload middleware function
- * But we will assume cloudinaryUpload(buffer, folder) returns { secure_url, public_id }
- * If your middleware has different signature, adapt accordingly.
- */
-
-/**
- * Extract public id from cloudinary secure url (used for deletion)
- * Example secure_url: https://res.cloudinary.com/yourcloud/upload/v12345/ecommerce/products/abc123.png
- * Returns 'ecommerce/products/abc123' or the public_id used by your uploader.
- */
 export function getPublicIdFromUrl(url) {
   if (!url) return null;
   const parts = url.split("/");
-  const filename = parts.pop(); // e.g. abc123.png
-  // the folder path after 'upload'
+  const filename = parts.pop(); 
   const uploadIndex = parts.findIndex((p) => p === "upload");
   const folder = uploadIndex >= 0 ? parts.slice(uploadIndex + 1).join("/") : "";
   const name = filename.split(".")[0];
-  // return folder + '/' + name (without v123 prefix)
   return `${folder.replace(/^v\d+\//, "")}/${name}`;
 }
 
@@ -57,4 +44,47 @@ export function calcMinMaxStock(variants = []) {
   if (maxPrice === -Infinity) maxPrice = 0;
 
   return { minPrice, maxPrice, totalStock };
+}
+
+export const groupVariantsByColor = (variants) => {
+  const colorGroups = {};
+
+  variants.forEach((v) => {
+    if (!colorGroups[v.colour]) colorGroups[v.colour] = [];
+    colorGroups[v.colour].push(v);
+  });
+
+  // Sort by price inside each color group
+  for (const color in colorGroups) {
+    colorGroups[color].sort((a, b) => a.salePrice - b.salePrice);
+  }
+
+  return colorGroups;
+};
+
+export const getAppliedOffer=(data,salePrice)=>{
+  let offer=0;
+  if(data?.productOffer?.length>0){
+    for(let productOffer of data.productOffer){
+      let x=0
+      if(productOffer.discountType==='percentage'){
+        x=salePrice*productOffer.discountValue*0.01;
+      }else{
+        x=brandOffer.discountValue;
+      }
+      offer=Math.max(x,offer);
+    }
+  }
+  if(data?.brandOffer?.length>0){
+    for(let brandOffer of data.brandOffer){
+      let x=0
+      if(brandOffer.discountType==='percentage'){
+        x=salePrice*brandOffer.discountValue*0.01;
+      }else{
+        x=brandOffer.discountValue;
+      }
+      offer=Math.max(x,offer);
+    }
+  }
+  return Math.ceil(offer);
 }

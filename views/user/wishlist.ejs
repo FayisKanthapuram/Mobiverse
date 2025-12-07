@@ -41,7 +41,7 @@
                 <div class="flex gap-4">
                   <!-- Product Image -->
                   <div class="relative w-32 h-32 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    <a href="/product/<%= item.variantId._id %>">
+                    <a href="/products/<%= item.variantId._id %>">
                       <img src="<%= item.variantId.images[0] %>" alt="<%= item.productId.name %>" class="w-full h-full object-contain hover:scale-105 transition-transform" />
                     </a>
 
@@ -61,7 +61,7 @@
                   <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-start gap-4">
                       <div class="flex-1">
-                        <a href="/product/<%= item.variantId._id %>" class="block">
+                        <a href="/products/<%= item.variantId._id %>" class="block">
                           <h3 class="font-semibold text-lg text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 transition-colors">
                             <%= item.productId.name %>
                           </h3>
@@ -125,7 +125,7 @@
                         <i class="bi bi-x-circle"></i> Out of Stock
                       </button>
                       <% } %>
-                      <a href="/product/<%= item.variantId._id %>" class="px-6 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                      <a href="/products/<%= item.variantId._id %>" class="px-6 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm">
                         <i class="bi bi-eye"></i> View Details
                       </a>
                     </div>

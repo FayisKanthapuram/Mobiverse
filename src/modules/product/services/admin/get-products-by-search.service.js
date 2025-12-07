@@ -1,6 +1,6 @@
 import {
   findProducts,
-} from "../product.repo.js";
+} from "../../repo/product.repo.js";
 
 /**
  * Search products for select/search endpoints

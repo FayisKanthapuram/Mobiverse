@@ -1,14 +1,14 @@
 import {
   findVariantByColor,
   findVariantByIdAgg,
-} from "../modules/product/variant.repo.js";
+} from "../../repo/variant.repo.js";
 
 import {
   getSingleProductAgg,
   getLatestProductsAgg,
-} from "../modules/product/product.repo.js";
+} from "../../repo/product.repo.js";
 
-import { getAppliedOffer, groupVariantsByColor } from "../helpers/product.helper.js";
+import { getAppliedOffer, groupVariantsByColor } from "../../product.helpers.js";
 
 export const loadProductDetailsService = async (params, query,userId=null) => {
 

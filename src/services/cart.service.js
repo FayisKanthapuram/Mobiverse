@@ -1,8 +1,8 @@
 import { createCartItem, fetchCartItems, findCartItem, findCartItemById, saveCartItem } from "../repositories/cart.repo.js";
 import { calculateBasicCartTotals, calculateCartTotals } from "../helpers/cartTotals.helper.js";
-import { getLatestProductsAgg } from "../modules/product/product.repo.js";
+import { getLatestProductsAgg } from "../modules/product/repo/product.repo.js";
 import { addToCartSchema } from "../validators/cartValidator.js";
-import { findVariantByIdWithProduct } from "../modules/product/variant.repo.js";
+import { findVariantByIdWithProduct } from "../modules/product/repo/variant.repo.js";
 import { findBrandById } from "../modules/brand/brand.repo.js";
 import { HttpStatus } from "../constants/statusCode.js";
 import { checkInWishlist, removeWishlistItem } from "../repositories/wishlist.repo.js";

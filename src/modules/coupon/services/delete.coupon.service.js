@@ -1,7 +1,7 @@
 import {
   deleteCoupon,
   findCouponById,
-} from "../../../modules/coupon/coupon.repo.js";
+} from "../repo/coupon.repo.js";
 
 export const deleteCouponService = async (couponId) => {
   try {

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import variantModel from "./variant.model.js";
+import variantModel from "../models/variant.model.js";
 
 export const findVariantById=(variantId)=>{
   return variantModel.findById(variantId);

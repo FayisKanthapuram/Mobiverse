@@ -1,6 +1,6 @@
 import {
   findProductById,
-} from "../product.repo.js";
+} from "../../repo/product.repo.js";
 
 export const toggleProductService = async (productId) => {
   const product = await findProductById(productId);

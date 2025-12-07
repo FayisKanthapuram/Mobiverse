@@ -3,12 +3,12 @@ import { orderValidation } from "../validators/OrderValidator.js";
 
 import { findAddressById } from "../repositories/address.repo.js";
 import { createOrder, findOrderByOrderId } from "../repositories/order.repo.js";
-import { decrementProductStock } from "../modules/product/product.repo.js";
-import { decrementVariantStock } from "../modules/product/variant.repo.js";
+import { decrementProductStock } from "../modules/product/repo/product.repo.js";
+import { decrementVariantStock } from "../modules/product/repo/variant.repo.js";
 import { deleteUserCart, fetchCartItems } from "../repositories/cart.repo.js";
 import { calculateCartTotals } from "../helpers/cartTotals.helper.js";
-import { couponUsageCreate } from "../modules/coupon/coupon.usage.repo.js";
-import { findCouponIncrementCount } from "../modules/coupon/coupon.repo.js";
+import { couponUsageCreate } from "../modules/coupon/repo/coupon.usage.repo.js";
+import { findCouponIncrementCount } from "../modules/coupon/repo/coupon.repo.js";
 
 export const placeOrderService = async (userId, body,appliedCoupon) => {
   // -------------------------------

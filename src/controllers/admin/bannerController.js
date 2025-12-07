@@ -1,3 +1,3 @@
-export const loadBanners=(req,res)=>{
-    res.render("admin/banners",{pageTitle:"Banners"})
-}
+export const loadBanners = (req, res) => {
+  res.render("admin/banners", { pageTitle: "Banners" });
+};
