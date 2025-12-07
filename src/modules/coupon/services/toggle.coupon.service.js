@@ -1,4 +1,4 @@
-import { toggleCouponStatus } from "../../repositories/coupon.repo.js";
+import { toggleCouponStatus } from "../../../modules/coupon/coupon.repo.js";
 
 export const toggleCouponStatusService = async (couponId) => {
   try {

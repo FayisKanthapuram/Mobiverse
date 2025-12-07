@@ -7,8 +7,8 @@ import { decrementProductStock } from "../repositories/product.repo.js";
 import { decrementVariantStock } from "../repositories/variant.repo.js";
 import { deleteUserCart, fetchCartItems } from "../repositories/cart.repo.js";
 import { calculateCartTotals } from "../helpers/cartTotals.helper.js";
-import { couponUsageCreate } from "../repositories/coupon.usage.repo.js";
-import { findCouponIncrementCount } from "../repositories/coupon.repo.js";
+import { couponUsageCreate } from "../modules/coupon/coupon.usage.repo.js";
+import { findCouponIncrementCount } from "../modules/coupon/coupon.repo.js";
 
 export const placeOrderService = async (userId, body,appliedCoupon) => {
   // -------------------------------

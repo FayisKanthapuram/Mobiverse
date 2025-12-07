@@ -1,8 +1,7 @@
 import { HttpStatus } from "../../constants/statusCode.js";
 import { getCustomersBySearch } from "../../services/admin.customer.service.js";
-import { deleteCouponService } from "../../services/coupon/delete.coupon.service.js";
-import { addCouponService, editCouponService, getCouponService, loadCouponsService, toggleCouponStatusService } from "../../services/coupon/index.js";
-import { couponSchema } from "../../validators/coupon.validator.js";
+import { addCouponService, editCouponService, getCouponService, loadCouponsService, toggleCouponStatusService,deleteCouponService} from "./services/index.js";
+import { couponSchema } from "./coupon.validator.js";
 
 export const loadCoupons = async (req, res, next) => {
   try {

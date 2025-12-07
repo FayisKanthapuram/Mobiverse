@@ -5,11 +5,11 @@ import { findUserAddresses } from "../repositories/address.repo.js";
 import {
   findCouponByCode,
   getAvailableCoupon,
-} from "../repositories/coupon.repo.js";
-import { applyCouponSchema } from "../validators/coupon.validator.js";
+} from "../modules/coupon/coupon.repo.js";
+import { applyCouponSchema } from "../modules/coupon/coupon.validator.js";
 import { HttpStatus } from "../constants/statusCode.js";
 import couponUsageModel from "../models/couponUsageModel.js";
-import { countCouponUsageByCouponId, countCouponUsageByCouponIdAndUserId, countCouponUsageByUserId } from "../repositories/coupon.usage.repo.js";
+import { countCouponUsageByCouponId, countCouponUsageByCouponIdAndUserId, countCouponUsageByUserId } from "../modules/coupon/coupon.usage.repo.js";
 
 export const loadCheckoutService = async (userId) => {
   const user = await findUserById(userId);
