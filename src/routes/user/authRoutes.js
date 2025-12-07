@@ -16,7 +16,7 @@ import {
   loadRecoverOtp,
   saveNewPassword,
   logOutUser,
-} from "../../controllers/user/auth.controller.js";
+} from "../../modules/user-auth/auth.controller.js";
 import {
   isLogin,
   isResetPass,

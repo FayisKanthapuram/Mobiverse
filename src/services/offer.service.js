@@ -1,5 +1,5 @@
 // services/offerService.js
-import { findAllListedBrands } from "../modules/admin/brand/brand.repo.js";
+import { findAllListedBrands } from "../modules/brand/brand.repo.js";
 import {
   createOffer,
   deleteOfferById,

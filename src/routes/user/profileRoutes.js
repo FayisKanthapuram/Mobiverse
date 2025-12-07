@@ -10,7 +10,7 @@ import {
   sendOtpToEditEmail,
   reSendOtpToEditEmail,
   updatePassword,
-} from "../../controllers/user/profile.controller.js";
+} from "../../modules/user/user.controller.js";
 import { requireLogin } from "../../middlewares/userAuth.js";
 
 const router = express.Router();

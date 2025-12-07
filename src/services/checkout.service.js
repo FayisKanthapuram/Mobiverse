@@ -1,15 +1,15 @@
 import { fetchCartItems } from "../repositories/cart.repo.js";
 import { calculateCartTotals } from "../helpers/cartTotals.helper.js";
-import { findUserById } from "../modules/admin/user/user.repo.js";
 import { findUserAddresses } from "../repositories/address.repo.js";
 import {
   findCouponByCode,
   getAvailableCoupon,
-} from "../modules/admin/coupon/repo/coupon.repo.js";
-import { applyCouponSchema } from "../modules/admin/coupon/coupon.validator.js";
+} from "../modules/coupon/repo/coupon.repo.js";
+import { applyCouponSchema } from "../modules/coupon/coupon.validator.js";
 import { HttpStatus } from "../constants/statusCode.js";
-import couponUsageModel from "../modules/admin/coupon/models/couponUsageModel.js";
-import { countCouponUsageByCouponId, countCouponUsageByCouponIdAndUserId, countCouponUsageByUserId } from "../modules/admin/coupon/repo/coupon.usage.repo.js";
+import couponUsageModel from "../modules/coupon/models/couponUsageModel.js";
+import { countCouponUsageByCouponId, countCouponUsageByCouponIdAndUserId, countCouponUsageByUserId } from "../modules/coupon/repo/coupon.usage.repo.js";
+import { findUserById } from "../modules/user/user.repo.js";
 
 export const loadCheckoutService = async (userId) => {
   const user = await findUserById(userId);

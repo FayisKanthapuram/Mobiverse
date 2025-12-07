@@ -10,8 +10,8 @@ import orderRoutes from "./user/orderRoutes.js";
 import wishlistRoutes from "./user/wishlistRoutes.js"
 import walletRoutes from "./user/walletRoutes.js"
 
-import homeRoutes from "../modules/user/home/home.routes.js"
-import userProductRoutes from "../modules/user/product/product.routes.js";
+import homeRoutes from "../modules/home/home.routes.js"
+import userProductRoutes from "../modules/product/routes/user.product.routes.js";
 
 const router = express.Router();
 

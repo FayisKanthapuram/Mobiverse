@@ -1,5 +1,5 @@
 import addressModel from "../../models/addressModel.js";
-import userModel from "../../modules/admin/user/userModel.js";
+import userModel from "../../modules/user/user.model.js";
 import { addressSchema } from "../../validators/addressValidator.js";
 
 export const loadManageAddress = async (req, res,next) => {

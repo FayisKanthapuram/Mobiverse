@@ -4,12 +4,12 @@ import setLayout from "../middlewares/setLayout.js";
 import orderRoutes from "./admin/orderRoutes.js";
 import miscRoutes from "./admin/miscRoutes.js";
 
-import adminAuthRoutes from "../modules/admin/auth/admin.auth.routes.js"
-import usersRoutes from "../modules/admin/user/user.routes.js"
-import couponRoutes from "../modules/admin/coupon/coupon.routes.js";
-import brandRoutes from "../modules/admin/brand/brand.routes.js";
-import offerRoutes from "../modules/admin/offer/offer.routes.js";
-import adminProductRoutes from "../modules/admin/product/product.routes.js";
+import adminAuthRoutes from "../modules/admin-auth/admin.auth.routes.js"
+import usersRoutes from "../modules/user-management/user.managment.routes.js"
+import couponRoutes from "../modules/coupon/coupon.routes.js";
+import brandRoutes from "../modules/brand/brand.routes.js";
+import offerRoutes from "../modules/offer/offer.routes.js";
+import adminProductRoutes from "../modules/product/routes/admin.product.routes.js";
 
 const router = express.Router();
 
