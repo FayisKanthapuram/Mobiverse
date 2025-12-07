@@ -15,7 +15,7 @@ import {
 import {
   findBrandById,
   findAllListedBrands,
-} from "../repositories/brand.repo.js";
+} from "../modules/brand/brand.repo.js";
 import { cloudinaryUpload } from "../middlewares/upload.js";
 import {
   rollbackCloudinary,

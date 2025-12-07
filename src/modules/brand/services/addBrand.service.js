@@ -1,6 +1,6 @@
-import { findBrandByName, createBrand } from "../../repositories/brand.repo.js";
-import { cloudinaryUpload } from "../../middlewares/upload.js";
-import { brandValidation } from "../../validators/brand.validator.js";
+import { findBrandByName, createBrand } from "../brand.repo.js";
+import { cloudinaryUpload } from "../../../middlewares/upload.js";
+import { brandValidation } from "../brand.validator.js";
 
 export const addBrandService = async (body, file) => {
   // Validate inputs

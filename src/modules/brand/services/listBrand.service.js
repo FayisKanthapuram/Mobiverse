@@ -1,4 +1,4 @@
-import { findBrandById, saveBrand } from "../../repositories/brand.repo.js";
+import { findBrandById, saveBrand } from "../brand.repo.js";
 
 export const listBrandService = async (brandId) => {
   const brand = await findBrandById(brandId);

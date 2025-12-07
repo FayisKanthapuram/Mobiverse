@@ -3,7 +3,7 @@ import { calculateBasicCartTotals, calculateCartTotals } from "../helpers/cartTo
 import { getLatestProductsAgg } from "../repositories/product.repo.js";
 import { addToCartSchema } from "../validators/cartValidator.js";
 import { findVariantByIdWithProduct } from "../repositories/variant.repo.js";
-import { findBrandById } from "../repositories/brand.repo.js";
+import { findBrandById } from "../modules/brand/brand.repo.js";
 import { HttpStatus } from "../constants/statusCode.js";
 import { checkInWishlist, removeWishlistItem } from "../repositories/wishlist.repo.js";
 

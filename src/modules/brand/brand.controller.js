@@ -4,7 +4,7 @@ import {
   getBrandByIdService,
   listBrandService,
   loadBrandsService,
-} from "../../services/brand/index.js";
+} from "./services/index.js";
 
 export const loadBrands = async (req, res, next) => {
   try {

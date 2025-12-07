@@ -1,7 +1,7 @@
 import {
   findBrands,
   countBrands,
-} from "../../repositories/brand.repo.js";
+} from "../brand.repo.js";
 
 export const loadBrandsService = async (queryParams) => {
   const search = queryParams.search || "";

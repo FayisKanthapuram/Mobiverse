@@ -1,4 +1,4 @@
-import { findBrandById } from "../../repositories/brand.repo.js";
+import { findBrandById } from "../brand.repo.js";
 
 export const getBrandByIdService = async (brandId) => {
   const brand = await findBrandById(brandId).lean();

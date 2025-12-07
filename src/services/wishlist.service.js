@@ -1,6 +1,6 @@
 import { HttpStatus } from "../constants/statusCode.js";
 import { getAppliedOffer } from "../helpers/product.helper.js";
-import { findBrandById } from "../repositories/brand.repo.js";
+import { findBrandById } from "../modules/brand/brand.repo.js";
 import { findCartItem } from "../repositories/cart.repo.js";
 import {
   getAvailableBrandOffers,
