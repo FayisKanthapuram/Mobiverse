@@ -8,7 +8,7 @@ import customerRoutes from "./admin/customerRoutes.js";
 import orderRoutes from "./admin/orderRoutes.js";
 import offerRoutes from "./admin/offerRoutes.js";
 import miscRoutes from "./admin/miscRoutes.js";
-import couponRoutes from "./admin/couponRoutes.js"
+import couponRoutes from "../modules/coupon/coupon.routes.js"
 
 const router = express.Router();
 

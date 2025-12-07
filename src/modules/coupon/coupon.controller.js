@@ -39,7 +39,7 @@ export const loadCoupons = async (req, res, next) => {
   }
 };
 
-export const searchCustomer = async (req, res) => {
+export const searchUser = async (req, res) => {
   try {
     const search = req.query.q || "";
     const users = await getCustomersBySearch(search);
