@@ -13,6 +13,8 @@ import { setUser } from "./middlewares/setUser.js";
 import { errorHandler, notFound, staticFile404 } from "./middlewares/errorMiddlewares.js";
 
 import couponRoutes from "./modules/coupon/coupon.routes.js";
+import brandRoutes from "./modules/brand/brand.routes.js";
+
 
 
 dotenv.config();
@@ -44,6 +46,7 @@ app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
 
 app.use("/admin/coupons", couponRoutes);
+app.use('/admin/brands',brandRoutes);
 
 
 // Error Handlers

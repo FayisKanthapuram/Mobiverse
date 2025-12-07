@@ -170,6 +170,7 @@ document
         style: { background: "#e74c3c" },
       }).showToast();
     } finally {
+      e.target.classList.remove("disabled-form");
       submitBtn.disabled = false;
       submitBtn.textContent = "Save";
     }
@@ -192,7 +193,7 @@ document.querySelectorAll(".open-edit-modal-btn").forEach((btn) => {
   btn.addEventListener("click", async (e) => {
     const brandId = e.currentTarget.dataset.brandId;
     try {
-      const response = await axios.get(`/admin/api/brands/${brandId}`);
+      const response = await axios.get(`/admin/brands/${brandId}`);
       populateEditModal(response.data.brand);
       openModal(editModal);
     } catch (error) {
@@ -354,7 +355,6 @@ editForm.addEventListener("submit", async (e) => {
     submitBtn.textContent = "Save Changes";
   }
 });
-
 
 // --------------------------------------
 //  List / Unlist Brand

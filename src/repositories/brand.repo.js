@@ -1,4 +1,4 @@
-import brandModel from "../models/brandModel.js";
+import brandModel from "../modules/brand/brand.model.js";
 
 export const getHomeBrands = () => {
   return brandModel.find({ isListed: true }).limit(6);
