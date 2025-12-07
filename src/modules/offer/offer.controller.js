@@ -6,8 +6,8 @@ import {
   getOfferByIdService,
   getOfferPageDataService,
   toggleOfferStatusService,
-} from "../../services/offer.service.js";
-import { offerSchema } from "../../validators/offerValidator.js";
+} from "./services/index.js";
+import { offerSchema } from "./offerValidator.js";
 
 export const loadOffers = async (req, res, next) => {
   try {

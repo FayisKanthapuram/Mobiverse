@@ -1,4 +1,4 @@
-import offerModel from "../models/offerModel.js";
+import offerModel from "./offer.model.js";
 
 export const findAllOffers = (query = {}) => {
   return offerModel.find(query).populate("productID").populate("brandID");

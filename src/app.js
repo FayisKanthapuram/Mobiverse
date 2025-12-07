@@ -14,6 +14,7 @@ import { errorHandler, notFound, staticFile404 } from "./middlewares/errorMiddle
 
 import couponRoutes from "./modules/coupon/coupon.routes.js";
 import brandRoutes from "./modules/brand/brand.routes.js";
+import offerRoutes from "./modules/offer/offer.routes.js"
 
 
 
@@ -47,6 +48,7 @@ app.use("/admin", adminRoutes);
 
 app.use("/admin/coupons", couponRoutes);
 app.use('/admin/brands',brandRoutes);
+app.use('/admin/offers',offerRoutes)
 
 
 // Error Handlers

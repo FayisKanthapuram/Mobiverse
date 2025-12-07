@@ -8,7 +8,7 @@ import {
 } from "../modules/coupon/coupon.repo.js";
 import { applyCouponSchema } from "../modules/coupon/coupon.validator.js";
 import { HttpStatus } from "../constants/statusCode.js";
-import couponUsageModel from "../models/couponUsageModel.js";
+import couponUsageModel from "../modules/coupon/couponUsageModel.js";
 import { countCouponUsageByCouponId, countCouponUsageByCouponIdAndUserId, countCouponUsageByUserId } from "../modules/coupon/coupon.usage.repo.js";
 
 export const loadCheckoutService = async (userId) => {

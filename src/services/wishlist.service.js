@@ -5,7 +5,7 @@ import { findCartItem } from "../repositories/cart.repo.js";
 import {
   getAvailableBrandOffers,
   getAvailableProductOffers,
-} from "../repositories/offer.repo.js";
+} from "../modules/offer/offer.repo.js";
 import { findUserById } from "../repositories/user.repo.js";
 import { findVariantByIdWithProduct } from "../repositories/variant.repo.js";
 import {
