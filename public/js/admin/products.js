@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const productId = e.currentTarget.dataset.productId;
 
       try {
-        const response = await axios.get(`/admin/api/product/${productId}`);
+        const response = await axios.get(`/admin/products/${productId}`);
         console.log(response.data.products);
         populateEditModal(response.data.products);
         openModal(editModal);

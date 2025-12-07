@@ -7,7 +7,7 @@ import {
   getAvailableProductOffers,
 } from "../modules/offer/offer.repo.js";
 import { findUserById } from "../repositories/user.repo.js";
-import { findVariantByIdWithProduct } from "../repositories/variant.repo.js";
+import { findVariantByIdWithProduct } from "../modules/product/variant.repo.js";
 import {
   checkInWishlist,
   createWishlistItem,

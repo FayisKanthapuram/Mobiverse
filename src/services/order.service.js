@@ -3,8 +3,8 @@ import { orderValidation } from "../validators/OrderValidator.js";
 
 import { findAddressById } from "../repositories/address.repo.js";
 import { createOrder, findOrderByOrderId } from "../repositories/order.repo.js";
-import { decrementProductStock } from "../repositories/product.repo.js";
-import { decrementVariantStock } from "../repositories/variant.repo.js";
+import { decrementProductStock } from "../modules/product/product.repo.js";
+import { decrementVariantStock } from "../modules/product/variant.repo.js";
 import { deleteUserCart, fetchCartItems } from "../repositories/cart.repo.js";
 import { calculateCartTotals } from "../helpers/cartTotals.helper.js";
 import { couponUsageCreate } from "../modules/coupon/coupon.usage.repo.js";

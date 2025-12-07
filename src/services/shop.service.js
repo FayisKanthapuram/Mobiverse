@@ -1,7 +1,7 @@
 import {
   getShopProductsAgg,
   countShopProductsAgg,
-} from "../repositories/product.repo.js";
+} from "../modules/product/product.repo.js";
 import { getAllListedBrands } from "../modules/brand/brand.repo.js";
 
 export const loadShopService = async (query, userId) => {

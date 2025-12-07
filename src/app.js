@@ -10,13 +10,16 @@ import userRoutes from "./routes/userRoute.js";
 import passport from "./config/passport.js";
 import { logger } from "./middlewares/logger.js";
 import { setUser } from "./middlewares/setUser.js";
-import { errorHandler, notFound, staticFile404 } from "./middlewares/errorMiddlewares.js";
+import {
+  errorHandler,
+  notFound,
+  staticFile404,
+} from "./middlewares/errorMiddlewares.js";
 
 import couponRoutes from "./modules/coupon/coupon.routes.js";
 import brandRoutes from "./modules/brand/brand.routes.js";
-import offerRoutes from "./modules/offer/offer.routes.js"
-
-
+import offerRoutes from "./modules/offer/offer.routes.js";
+import productRoutes from "./modules/product/product.routes.js";
 
 dotenv.config();
 
@@ -47,9 +50,9 @@ app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
 
 app.use("/admin/coupons", couponRoutes);
-app.use('/admin/brands',brandRoutes);
-app.use('/admin/offers',offerRoutes)
-
+app.use("/admin/brands", brandRoutes);
+app.use("/admin/offers", offerRoutes);
+app.use("/admin/products", productRoutes);
 
 // Error Handlers
 app.use(staticFile404);

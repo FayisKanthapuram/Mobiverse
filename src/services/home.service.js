@@ -1,7 +1,7 @@
 import {
   getLatestProductsAgg,
   getFeaturedProductsAgg,
-} from "../repositories/product.repo.js";
+} from "../modules/product/product.repo.js";
 import { getHomeBrands } from "../modules/brand/brand.repo.js";
 
 export const loadHomeService = async (userId=null) => {

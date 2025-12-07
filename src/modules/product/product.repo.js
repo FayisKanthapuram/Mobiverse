@@ -1,4 +1,4 @@
-import productModel from "../models/productModel.js";
+import productModel from "./product.model.js";
 import mongoose from "mongoose";
 
 export const getLatestProductsAgg = (limit = 5, userId = null) => {

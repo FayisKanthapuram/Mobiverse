@@ -2,8 +2,8 @@ import { findOrderById, findOrderByIdWithItems, findOrderByOrderIdWithUser, find
 import { findUserById } from "../repositories/user.repo.js";
 import { HttpStatus } from "../constants/statusCode.js";
 import { OrderItemsSchema } from "../validators/OrderValidator.js";
-import { incrementVariantStock } from "../repositories/variant.repo.js";
-import { incrementProductStock } from "../repositories/product.repo.js";
+import { incrementVariantStock } from "../modules/product/variant.repo.js";
+import { incrementProductStock } from "../modules/product/product.repo.js";
 
 export const loadMyOrdersService = async (userId, queryParams) => {
   const status = queryParams.status || "";

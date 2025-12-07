@@ -6,8 +6,8 @@ import {
   toggleProductService,
   getProductsBySearch,
   getProductByIdService,
-} from "../../services/admin.product.service.js";
-import { productValidationSchema } from "../../validators/productValidator.js";
+} from "./services/index.js";
+import { productValidationSchema } from "./product.validator.js";
 
 export const loadProducts = async (req, res, next) => {
   try {

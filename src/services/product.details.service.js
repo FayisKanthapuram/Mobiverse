@@ -1,12 +1,12 @@
 import {
   findVariantByColor,
   findVariantByIdAgg,
-} from "../repositories/variant.repo.js";
+} from "../modules/product/variant.repo.js";
 
 import {
   getSingleProductAgg,
   getLatestProductsAgg,
-} from "../repositories/product.repo.js";
+} from "../modules/product/product.repo.js";
 
 import { getAppliedOffer, groupVariantsByColor } from "../helpers/product.helper.js";
 
