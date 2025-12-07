@@ -5,12 +5,12 @@ import { verifyAdmin } from "../../middlewares/adminAuth.js";
 
 const router = express.Router();
 
-router.get("/coupons", verifyAdmin, loadCoupons);
-router.post('/coupons',verifyAdmin,addCoupon);
-router.get('/coupons/:id',verifyAdmin,getCoupon);
-router.put('/coupons/:id',verifyAdmin,editCoupon);
-router.patch('/coupons/:id/toggle-status',verifyAdmin,toggleCouponStatus);
-router.delete('/coupons/:id',verifyAdmin,deleteCoupon);
+router.get("/", verifyAdmin, loadCoupons);
+router.post('/',verifyAdmin,addCoupon);
+router.get('/:id',verifyAdmin,getCoupon);
+router.put('/:id',verifyAdmin,editCoupon);
+router.patch('/:id/toggle-status',verifyAdmin,toggleCouponStatus);
+router.delete('/:id',verifyAdmin,deleteCoupon);
 router.get("/users/search",verifyAdmin,searchUser);
 
 export default router;

@@ -12,6 +12,9 @@ import { logger } from "./middlewares/logger.js";
 import { setUser } from "./middlewares/setUser.js";
 import { errorHandler, notFound, staticFile404 } from "./middlewares/errorMiddlewares.js";
 
+import couponRoutes from "./modules/coupon/coupon.routes.js";
+
+
 dotenv.config();
 
 const app = express();
@@ -39,6 +42,9 @@ app.set("views", path.join(__dirname, "../views"));
 // Routes
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
+
+app.use("/admin/coupons", couponRoutes);
+
 
 // Error Handlers
 app.use(staticFile404);
