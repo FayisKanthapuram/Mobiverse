@@ -91,7 +91,6 @@ const couponSchema = new mongoose.Schema(
 );
 
 // Indexes
-couponSchema.index({ code: 1 });
 couponSchema.index({ isActive: 1 });
 couponSchema.index({ startDate: 1, endDate: 1 });
 couponSchema.index({ type: 1 });

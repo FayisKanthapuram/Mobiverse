@@ -7,18 +7,16 @@ import { sessionConfig } from "./middlewares/session.js";
 import { fileURLToPath } from "url";
 import adminRoutes from "./routes/adminRoute.js";
 import userRoutes from "./routes/userRoute.js";
-import { connectDB } from "./config/db.js";
 import passport from "./config/passport.js";
 import { logger } from "./middlewares/logger.js";
 import { setUser } from "./middlewares/setUser.js";
 import { errorHandler, notFound, staticFile404 } from "./middlewares/errorMiddlewares.js";
 
-const app = express();
-
-// Environment variables
 dotenv.config();
 
-// ES module dirname fix
+const app = express();
+
+// Fix __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -27,7 +25,7 @@ app.use(logger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 sessionConfig(app);
-app.use(setUser)
+app.use(setUser);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(nocache());
@@ -42,16 +40,9 @@ app.set("views", path.join(__dirname, "../views"));
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
 
-// Error Handler
-app.use(staticFile404)
+// Error Handlers
+app.use(staticFile404);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT;
-
-// Start server after DB connect
-connectDB().then(() => {
-  app.listen(PORT, () =>
-    console.log(`🚀 Server running on http://localhost:${PORT}`)
-  );
-});
+export default app;
