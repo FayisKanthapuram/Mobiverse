@@ -1,6 +1,6 @@
 import { findOrderById, saveOrder } from "../../repositories/order.repo.js";
-import { findProductById, saveProduct } from "../../modules/product/repo/product.repo.js";
-import { findVariantById, saveVariant } from "../../modules/product/repo/variant.repo.js";
+import { findProductById, saveProduct } from "../../modules/admin/product/repo/product.repo.js";
+import { findVariantById, saveVariant } from "../../modules/admin/product/repo/variant.repo.js";
 
 export const markItemReturnedService = async (orderId, body) => {
   const { itemId } = body;

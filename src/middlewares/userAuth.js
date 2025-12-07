@@ -1,4 +1,4 @@
-import userModel from "../models/userModel.js";
+import userModel from "../modules/admin/user/userModel.js";
 
 export const isLogin = (req, res, next) => {
   if (req.session.user) {

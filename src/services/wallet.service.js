@@ -1,4 +1,4 @@
-import { findUserById } from "../repositories/user.repo.js";
+import { findUserById } from "../modules/admin/user/user.repo.js";
 import { findWalletByUserId } from "../repositories/wallet.repo.js";
 
 export const loadMyWalletService = async (userId) => {

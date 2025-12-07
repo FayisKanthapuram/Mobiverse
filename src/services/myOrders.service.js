@@ -1,9 +1,9 @@
 import { findOrderById, findOrderByIdWithItems, findOrderByOrderIdWithUser, findUserOrders, saveOrder } from "../repositories/order.repo.js";
-import { findUserById } from "../repositories/user.repo.js";
+import { findUserById } from "../modules/admin/user/user.repo.js";
 import { HttpStatus } from "../constants/statusCode.js";
 import { OrderItemsSchema } from "../validators/OrderValidator.js";
-import { incrementVariantStock } from "../modules/product/repo/variant.repo.js";
-import { incrementProductStock } from "../modules/product/repo/product.repo.js";
+import { incrementVariantStock } from "../modules/admin/product/repo/variant.repo.js";
+import { incrementProductStock } from "../modules/admin/product/repo/product.repo.js";
 
 export const loadMyOrdersService = async (userId, queryParams) => {
   const status = queryParams.status || "";

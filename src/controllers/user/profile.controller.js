@@ -1,7 +1,7 @@
 import { sendVerificationEmail } from "../../helpers/gmail.js";
 import { generateOtp } from "../../helpers/otp.js";
 import { passwordSchema } from "../../validators/changePasswordValidator.js";
-import userModel from "../../models/userModel.js";
+import userModel from "../../modules/admin/user/userModel.js";
 import bcrypt from "bcrypt";
 import { usernameValidator } from "../../validators/usernameValidator.js";
 import { emailSchema } from "../../validators/editEmailValidator.js";

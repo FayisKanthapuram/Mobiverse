@@ -20,7 +20,7 @@ export function notFound(req, res, next) {
 
 
 export function errorHandler(err, req, res, next) {
-  console.error("❌ ERROR:", err.message);
+  console.error("❌ ERROR:", err);
 
   const status = err.status || 500;
 

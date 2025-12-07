@@ -143,7 +143,7 @@ function searchUsers(query) {
   
   searchTimeout = setTimeout(async () => {
     try {
-      const response = await axios.get(`/admin/coupons/users/search?q=${encodeURIComponent(query)}`);
+      const response = await axios.get(`/admin/users/search?q=${encodeURIComponent(query)}`);
       
       if (response.data.success && response.data.users) {
         displayUserResults(response.data.users);

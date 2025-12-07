@@ -16,12 +16,16 @@ import {
   staticFile404,
 } from "./middlewares/errorMiddlewares.js";
 
-import couponRoutes from "./modules/coupon/coupon.routes.js";
-import brandRoutes from "./modules/brand/brand.routes.js";
-import offerRoutes from "./modules/offer/offer.routes.js";
-import adminProductRoutes from "./modules/product/routes/admin.product.routes.js";
-import userProductRoutes from "./modules/product/routes/user.product.routes.js";
+import usersRoutes from "./modules/admin/user/user.routes.js"
+import couponRoutes from "./modules/admin/coupon/coupon.routes.js";
+import brandRoutes from "./modules/admin/brand/brand.routes.js";
+import offerRoutes from "./modules/admin/offer/offer.routes.js";
+import adminProductRoutes from "./modules/admin/product/product.routes.js";
+
 import homeRoutes from "./modules/user/home/home.routes.js"
+import userProductRoutes from "./modules/user/product/product.routes.js";
+
+
 
 dotenv.config();
 
@@ -51,6 +55,7 @@ app.set("views", path.join(__dirname, "../views"));
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
 
+app.use('/admin/users',usersRoutes)
 app.use("/admin/coupons", couponRoutes);
 app.use("/admin/brands", brandRoutes);
 app.use("/admin/offers", offerRoutes);

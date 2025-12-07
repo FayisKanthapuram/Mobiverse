@@ -6,22 +6,22 @@ import {
   createProduct,
   updateProductById,
   aggregateProductById,
-} from "../modules/product/repo/product.repo.js";
+} from "../modules/admin/product/repo/product.repo.js";
 import {
   findVariantsByProduct,
   createVariant,
   updateVariantById,
-} from "../modules/product/repo/variant.repo.js";
+} from "../modules/admin/product/repo/variant.repo.js";
 import {
   findBrandById,
   findAllListedBrands,
-} from "../modules/brand/brand.repo.js";
+} from "../modules/admin/brand/brand.repo.js";
 import { cloudinaryUpload } from "../middlewares/upload.js";
 import {
   rollbackCloudinary,
   getPublicIdFromUrl,
   calcMinMaxStock,
-} from "../modules/product/product.helpers.js";
+} from "../modules/admin/product/product.helper.js";
 import cloudinary from "../config/cloudinary.js";
 
 /**

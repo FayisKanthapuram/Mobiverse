@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import User from "../../models/userModel.js";
+import User from "../../modules/admin/user/userModel.js";
 import Joi from "joi";
 import { generateOtp } from "../../helpers/otp.js";
 import { sendVerificationEmail } from "../../helpers/gmail.js";

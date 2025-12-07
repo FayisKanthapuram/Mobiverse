@@ -1,13 +1,13 @@
 import { HttpStatus } from "../constants/statusCode.js";
-import { getAppliedOffer } from "../modules/product/product.helpers.js";
-import { findBrandById } from "../modules/brand/brand.repo.js";
+import { getAppliedOffer } from "../modules/user/product/product.helper.js";
+import { findBrandById } from "../modules/admin/brand/brand.repo.js";
 import { findCartItem } from "../repositories/cart.repo.js";
 import {
   getAvailableBrandOffers,
   getAvailableProductOffers,
-} from "../modules/offer/offer.repo.js";
-import { findUserById } from "../repositories/user.repo.js";
-import { findVariantByIdWithProduct } from "../modules/product/repo/variant.repo.js";
+} from "../modules/admin/offer/offer.repo.js";
+import { findUserById } from "../modules/admin/user/user.repo.js";
+import { findVariantByIdWithProduct } from "../modules/admin/product/repo/variant.repo.js";
 import {
   checkInWishlist,
   createWishlistItem,
