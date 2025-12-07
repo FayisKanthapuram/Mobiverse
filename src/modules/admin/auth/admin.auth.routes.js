@@ -1,12 +1,12 @@
 import express from "express";
-import { isLogin, verifyAdmin } from "../../middlewares/adminAuth.js";
+import { isLogin, verifyAdmin } from "../../../middlewares/adminAuth.js";
 import {
   loadLogin,
   loadDashboard,
   registerAdmin,
   loginAdmin,
   logoutAdmin,
-} from "../../controllers/admin/authController.js";
+} from "./admin.auth.controller.js";
 
 const router = express.Router();
 

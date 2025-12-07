@@ -2,11 +2,11 @@ import {
   registerAdminService,
   loginAdminService,
   logoutAdminService,
-} from "../../services/admin.auth.service.js";
+} from "./admin.auth.service.js";
 import {
   adminRegisterSchema,
   adminLoginSchema,
-} from "../../validators/adminAuthValidator.js";
+} from "../../../validators/adminAuthValidator.js";
 
 export const registerAdmin = async (req, res) => {
   try {

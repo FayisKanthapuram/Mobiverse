@@ -1,12 +1,16 @@
 import bcrypt from "bcrypt";
-import Admin from "../models/adminModel.js";
+import {
+  createAdmin,
+  findAdminByEmail,
+} from "./admin.repo.js";
 
 // Register a new admin
 export const registerAdminService = async (adminData) => {
   const { username, email, password } = adminData;
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const admin = await Admin.create({
+  const admin = await createAdmin({
     username,
     email,
     password: hashedPassword,
@@ -17,7 +21,7 @@ export const registerAdminService = async (adminData) => {
 
 // Login admin
 export const loginAdminService = async (email, password) => {
-  const admin = await Admin.findOne({ email });
+  const admin = await findAdminByEmail(email);
 
   if (!admin) {
     const err = new Error("Admin not found");
@@ -36,8 +40,7 @@ export const loginAdminService = async (email, password) => {
   return admin;
 };
 
-
-// Logout admin (session handling)
+// Logout admin
 export const logoutAdminService = () => {
   return { success: true, message: "Admin logged out successfully" };
 };

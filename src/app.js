@@ -16,17 +16,6 @@ import {
   staticFile404,
 } from "./middlewares/errorMiddlewares.js";
 
-import usersRoutes from "./modules/admin/user/user.routes.js"
-import couponRoutes from "./modules/admin/coupon/coupon.routes.js";
-import brandRoutes from "./modules/admin/brand/brand.routes.js";
-import offerRoutes from "./modules/admin/offer/offer.routes.js";
-import adminProductRoutes from "./modules/admin/product/product.routes.js";
-
-import homeRoutes from "./modules/user/home/home.routes.js"
-import userProductRoutes from "./modules/user/product/product.routes.js";
-
-
-
 dotenv.config();
 
 const app = express();
@@ -55,19 +44,6 @@ app.set("views", path.join(__dirname, "../views"));
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
 
-app.use('/admin/users',usersRoutes)
-app.use("/admin/coupons", couponRoutes);
-app.use("/admin/brands", brandRoutes);
-app.use("/admin/offers", offerRoutes);
-app.use("/admin/products", adminProductRoutes);
-
-//home
-app.use('/',homeRoutes);
-app.use('/home',homeRoutes);
-
-//products
-app.use('/products',userProductRoutes);
-app.use('/shop',userProductRoutes);
 
 
 // Error Handlers
