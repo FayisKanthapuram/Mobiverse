@@ -1,14 +1,14 @@
 import express from "express";
 import setLayout from "../middlewares/setLayout.js";
 
-import authRoutes from "./user/authRoutes.js";
-import profileRoutes from "./user/profileRoutes.js";
-import addressRoutes from "./user/addressRoutes.js";
-import cartRoutes from "./user/cartRoutes.js";
-import checkoutRoutes from "./user/checkoutRoutes.js";
-import orderRoutes from "./user/orderRoutes.js";
-import wishlistRoutes from "./user/wishlistRoutes.js"
-import walletRoutes from "./user/walletRoutes.js"
+import authRoutes from "../modules/user-auth/auth.routes.js";
+import profileRoutes from "../modules/user/user.routes.js";
+import addressRoutes from "../modules/address/address.routes.js";
+import cartRoutes from "../modules/cart/cart.routes.js";
+import checkoutRoutes from "../modules/checkout/checkout.routes.js";
+import orderRoutes from "../modules/order/routes/user.order.routes.js";
+import wishlistRoutes from "../modules/wishlist/wishlist.routes.js"
+import walletRoutes from "../modules/wallet/wallet.routes.js"
 
 import homeRoutes from "../modules/home/home.routes.js"
 import userProductRoutes from "../modules/product/routes/user.product.routes.js";

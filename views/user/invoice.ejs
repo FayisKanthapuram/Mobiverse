@@ -180,6 +180,13 @@
           <td>- ₹<%= order.discount.toLocaleString('en-IN') %></td>
         </tr>
 
+        <% if (order.couponDiscount > 0) { %>
+          <tr class="total-row">
+            <td colspan="4" style="text-align:right;">Applied Coupon</td>
+            <td>- ₹<%= order.couponDiscount.toLocaleString('en-IN') %></td>
+          </tr>
+        <% } %>
+
         <tr class="total-row">
           <td colspan="4" style="text-align:right;">Delivery Charge</td>
           <td>₹<%= order.deliveryCharge.toLocaleString('en-IN') %></td>

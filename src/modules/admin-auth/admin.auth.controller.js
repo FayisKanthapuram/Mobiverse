@@ -6,7 +6,7 @@ import {
 import {
   adminRegisterSchema,
   adminLoginSchema,
-} from "../../validators/adminAuthValidator.js";
+} from "./admin.auth.validator.js";
 
 export const registerAdmin = async (req, res) => {
   try {

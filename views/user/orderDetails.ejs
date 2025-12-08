@@ -224,6 +224,13 @@
               </div>
               <% } %>
 
+              <% if (order.couponDiscount > 0) { %>
+              <div class="flex justify-between text-green-600">
+                <span>Coupon Applied</span>
+                <span class="font-semibold">-₹<%= order.couponDiscount.toLocaleString('en-IN') %></span>
+              </div>
+              <% } %>
+
               <div class="flex justify-between text-gray-700">
                 <span>Delivery Charges</span>
                 <% if (order.deliveryCharge === 0) { %>
