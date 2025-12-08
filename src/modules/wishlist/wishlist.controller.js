@@ -16,7 +16,7 @@ export const loadWishlist = async (req, res, next) => {
       limit,
       totalDocuments,
     } = await loadWishlistService(req.session.user, req.query);
-    res.render("user/wishlist", {
+    res.status(HttpStatus.OK).render("user/wishlist", {
       pageTitle: "My Wishlist",
       pageJs: "wishlist",
       wishlist: wishlist[0],

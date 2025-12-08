@@ -1,10 +1,11 @@
 import {loadProductDetailsService,loadShopService} from "../services/index.js"
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
 export const loadShop = async (req, res, next) => {
   try {
     const data = await loadShopService(req.query,req.session.user);
 
-    return res.render("user/products/shop", {
+    return res.status(HttpStatus.OK).render("user/products/shop", {
       query: req.query,
       products: data.products,
       brands: data.brands,
@@ -30,7 +31,7 @@ export const loadShop = async (req, res, next) => {
 export const loadProductDetails = async (req, res, next) => {
   try {
     const data = await loadProductDetailsService(req.params, req.query,req.session.user);
-    return res.render("user/products/productDetails", {
+    return res.status(HttpStatus.OK).render("user/products/productDetails", {
       ...data,
       pageTitle: data.product.name,
       pageJs: "productDetails",

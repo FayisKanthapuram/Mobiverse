@@ -1,11 +1,12 @@
 import { findBrandById } from "../brand.repo.js";
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
 export const getBrandByIdService = async (brandId) => {
   const brand = await findBrandById(brandId).lean();
 
   if (!brand) {
-    return { status: 404, success: false, message: "Brand not found" };
+    return { status: HttpStatus.NOT_FOUND, success: false, message: "Brand not found" };
   }
 
-  return { status: 200, success: true, brand };
+  return { status: HttpStatus.OK, success: true, brand };
 };

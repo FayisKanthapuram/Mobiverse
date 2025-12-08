@@ -5,12 +5,13 @@ import {
   listBrandService,
   loadBrandsService,
 } from "./services/index.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 
 export const loadBrands = async (req, res, next) => {
   try {
     const data = await loadBrandsService(req.query);
 
-    res.render("admin/brands", {
+    res.status(HttpStatus.OK).render("admin/brands", {
       pageTitle: "Brands",
       pageCss: "brands",
       pageJs: "brands",

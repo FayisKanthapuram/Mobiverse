@@ -17,7 +17,7 @@ export const loadCoupons = async (req, res, next) => {
       limit,
     } = await loadCouponsService(req.query);
 
-    res.render("admin/coupons", {
+    res.status(HttpStatus.OK).render("admin/coupons", {
       pageTitle: "Coupons",
       pageCss: "coupons",
       pageJs: "coupons",

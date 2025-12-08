@@ -1,4 +1,5 @@
 import fs from "fs";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 import {
   getUserProfileService,
   updateUserInfoService,
@@ -17,7 +18,7 @@ import { passwordSchema } from "./validators/change.password.validator.js";
 export const loadPersonalInfo = async (req, res, next) => {
   try {
     const user = await getUserProfileService(req.session.user);
-    res.render("user/user/personalInfo", { pageTitle: "Personal Information", user });
+    res.status(HttpStatus.OK).render("user/user/personalInfo", { pageTitle: "Personal Information", user });
   } catch (error) {
     next(error);
   }
@@ -26,7 +27,7 @@ export const loadPersonalInfo = async (req, res, next) => {
 export const loadEditInfo = async (req, res, next) => {
   try {
     const user = await getUserProfileService(req.session.user);
-    res.render("user/user/editInfo", { pageTitle: "Edit Info", user, pageJs: "editInfo" });
+    res.status(HttpStatus.OK).render("user/user/editInfo", { pageTitle: "Edit Info", user, pageJs: "editInfo" });
   } catch (error) {
     next(error);
   }
@@ -38,7 +39,7 @@ export const editInfo = async (req, res) => {
     const { error } = usernameValidator.validate(req.body);
     if (error) {
       if (req.file) fs.unlinkSync(req.file.path);
-      return res.status(400).json({ success: false, message: error.details[0].message });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
     }
 
     const avatar = req.file ? `/uploads/user/${req.file.filename}` : null;
@@ -50,7 +51,7 @@ export const editInfo = async (req, res) => {
       req.body.removePhoto
     );
 
-    res.json({ success: true, message: "Personal info updated!" });
+    res.status(HttpStatus.OK).json({ success: true, message: "Personal info updated!" });
   } catch {
     res.status(500).json({ success: false, message: "Server error" });
   }
@@ -60,7 +61,7 @@ export const editInfo = async (req, res) => {
 export const loadEditEmail = async (req, res, next) => {
   try {
     const user = await getUserProfileService(req.session.user);
-    res.render("user/user/editEmail", { pageTitle: "Edit Email", user, pageJs: "editEmail" });
+    res.status(HttpStatus.OK).render("user/user/editEmail", { pageTitle: "Edit Email", user, pageJs: "editEmail" });
   } catch (error) {
     next(error);
   }
@@ -70,11 +71,11 @@ export const loadEditEmail = async (req, res, next) => {
 export const editEmail = async (req, res) => {
   try {
     const { error } = emailSchema.validate(req.body);
-    if (error) return res.status(400).json({ success: false, message: error.details[0].message });
+    if (error) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
 
     await requestEmailChangeService(req.body.oldEmail, req.body.newEmail, req.session);
 
-    res.json({ success: true, message: "OTP sent to your email!" });
+    res.status(HttpStatus.OK).json({ success: true, message: "OTP sent to your email!" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -84,11 +85,11 @@ export const editEmail = async (req, res) => {
 export const sendOtpToEditEmail = async (req, res) => {
   try {
     const { error } = otpSchema.validate(req.body);
-    if (error) return res.status(400).json({ success: false, message: error.details[0].message });
+    if (error) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
 
     await verifyEmailOtpService(req.body.otp, req.session);
 
-    res.json({ success: true, message: "OTP verified!" });
+    res.status(HttpStatus.OK).json({ success: true, message: "OTP verified!" });
   } catch (error) {
     res.status(401).json({ success: false, message: error.message });
   }
@@ -98,7 +99,7 @@ export const sendOtpToEditEmail = async (req, res) => {
 export const reSendOtpToEditEmail = async (req, res) => {
   try {
     await resendEmailOtpService(req.session);
-    res.json({ success: true, message: "New OTP sent!" });
+    res.status(HttpStatus.OK).json({ success: true, message: "New OTP sent!" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
@@ -108,7 +109,7 @@ export const reSendOtpToEditEmail = async (req, res) => {
 export const loadChangePassword = async (req, res, next) => {
   try {
     const user = await getUserProfileService(req.session.user);
-    res.render("user/user/changePasswod", { pageTitle: "Change Password", user, pageJs: "changePassword" });
+    res.status(HttpStatus.OK).render("user/user/changePasswod", { pageTitle: "Change Password", user, pageJs: "changePassword" });
   } catch (error) {
     next(error);
   }
@@ -117,12 +118,12 @@ export const loadChangePassword = async (req, res, next) => {
 export const updatePassword = async (req, res) => {
   try {
     const { error } = passwordSchema.validate(req.body);
-    if (error) return res.status(400).json({ success: false, message: error.details[0].message });
+    if (error) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
 
     await updatePasswordService(req.body.userId, req.body.currentPassword, req.body.newPassword);
 
-    res.json({ success: true, message: "Password updated!" });
+    res.status(HttpStatus.OK).json({ success: true, message: "Password updated!" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.message });
   }
 };

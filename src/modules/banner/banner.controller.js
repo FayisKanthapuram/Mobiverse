@@ -1,3 +1,5 @@
+import { HttpStatus } from "../../shared/constants/statusCode.js";
+
 export const loadBanners = (req, res) => {
-  res.render("admin/banners", { pageTitle: "Banners" });
+  res.status(HttpStatus.OK).render("admin/banners", { pageTitle: "Banners" });
 };

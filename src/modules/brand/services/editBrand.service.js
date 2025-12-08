@@ -3,6 +3,7 @@ import {
   findBrandByName,
   saveBrand,
 } from "../brand.repo.js";
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import cloudinary from "../../../config/cloudinary.js";
 import { cloudinaryUpload } from "../../../shared/middlewares/upload.js";
 import { brandValidation } from "../brand.validator.js";
@@ -12,12 +13,12 @@ export const editBrandService = async (body, file) => {
 
   const { error } = brandValidation.validate(body);
   if (error) {
-    return { status: 400, success: false, message: error.details[0].message };
+    return { status: HttpStatus.BAD_REQUEST, success: false, message: error.details[0].message };
   }
 
   const brand = await findBrandById(brandId);
   if (!brand) {
-    return { status: 404, success: false, message: "Brand not found" };
+    return { status: HttpStatus.NOT_FOUND, success: false, message: "Brand not found" };
   }
 
   // If name changed, ensure unique
@@ -25,7 +26,7 @@ export const editBrandService = async (body, file) => {
     const exists = await findBrandByName(brandName);
     if (exists) {
       return {
-        status: 400,
+        status: HttpStatus.BAD_REQUEST,
         success: false,
         message: "Brand name already exists",
       };
@@ -52,7 +53,7 @@ export const editBrandService = async (body, file) => {
   await saveBrand(brand);
 
   return {
-    status: 200,
+    status: HttpStatus.OK,
     success: true,
     message: "Brand updated successfully",
     brand,

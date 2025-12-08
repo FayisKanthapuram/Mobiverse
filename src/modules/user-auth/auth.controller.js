@@ -8,6 +8,7 @@ import {
   resetPasswordService,
   googleLoginService,
 } from "./auth.service.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 
 import {
   userRegisterSchema,
@@ -17,44 +18,44 @@ import {
 
 // LOAD VIEWS
 export const loadSignUp = (req, res) =>
-  res.render("user/user/signUp", { pageTitle: "Sign Up", pageJs: "signUp" });
+  res.status(HttpStatus.OK).render("user/user/signUp", { pageTitle: "Sign Up", pageJs: "signUp" });
 
 export const loadLogin = (req, res) =>
-  res.render("user/user/login", { pageTitle: "Login", pageJs: "login" });
+  res.status(HttpStatus.OK).render("user/user/login", { pageTitle: "Login", pageJs: "login" });
 
 // SIGNUP
 export const registerUser = async (req, res) => {
   try {
     const { error } = userRegisterSchema.validate(req.body);
     if (error)
-      return res.status(400).json({ success: false, message: error.details[0].message });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
 
     await registerUserService(req.body, req.session);
 
-    res.json({
+    res.status(HttpStatus.OK).json({
       success: true,
       redirect: "/verifyOtp",
       message: "OTP sent to email",
     });
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err.message });
   }
 };
 
 export const loadVerifyOtp = (req, res) =>
-  res.render("user/user/verifyOtp", { pageTitle: "Verify Otp", pageJs: "verifyOtp" });
+  res.status(HttpStatus.OK).render("user/user/verifyOtp", { pageTitle: "Verify Otp", pageJs: "verifyOtp" });
 
 export const verifyOtp = async (req, res) => {
   try {
     await verifySignUpOtpService(req.body.otp, req.session);
 
-    res.json({
+    res.status(HttpStatus.OK).json({
       success: true,
       redirect: "/login",
       message: "OTP verified successfully!",
     });
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err.message });
   }
 };
 
@@ -63,9 +64,9 @@ export const resendOtp = async (req, res) => {
   try {
     await resendOtpService(req.session);
 
-    res.json({ success: true, message: "OTP resent successfully" });
+    res.status(HttpStatus.OK).json({ success: true, message: "OTP resent successfully" });
   } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err.message });
   }
 };
 
@@ -74,31 +75,31 @@ export const loginUser = async (req, res) => {
   try {
     const { error } = userLoginSchema.validate(req.body);
     if (error)
-      return res.status(400).json({ success: false, message: error.details[0].message });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
 
     const user = await loginUserService(req.body.email, req.body.password);
 
     req.session.user = user._id;
 
-    res.json({
+    res.status(HttpStatus.OK).json({
       success: true,
       redirect: "/home",
       message: "Logged in successfully",
     });
   } catch (err) {
-    res.status(401).json({ success: false, message: err.message });
+    res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: err.message });
   }
 };
 
 // FORGOT PASSWORD
 export const loadForgotPassword = (req, res) =>
-  res.render("user/user/forgotPassword", { pageTitle: "Forgot Password", pageJs: "forgotPassword" });
+  res.status(HttpStatus.OK).render("user/user/forgotPassword", { pageTitle: "Forgot Password", pageJs: "forgotPassword" });
 
 export const sendRecoverOtp = async (req, res) => {
   try {
     await sendRecoverOtpService(req.body.email, req.session);
 
-    res.json({
+    res.status(HttpStatus.OK).json({
       success: true,
       redirect: "/verifyRecoverOtp",
       message: "OTP sent to email",
@@ -110,13 +111,13 @@ export const sendRecoverOtp = async (req, res) => {
 
 // VERIFY RECOVERY OTP
 export const loadRecoverOtp = (req, res) =>
-  res.render("user/user/verifyOtp", { pageTitle: "Verify OTP", pageJs: "recoverOtp" });
+  res.status(HttpStatus.OK).render("user/user/verifyOtp", { pageTitle: "Verify OTP", pageJs: "recoverOtp" });
 
 export const verifyRecoverOtp = async (req, res) => {
   try {
     await verifyRecoveryOtpService(req.body.otp, req.session);
 
-    res.json({
+    res.status(HttpStatus.OK).json({
       success: true,
       redirect: "/resetPassword",
       message: "OTP verified successfully",
@@ -128,7 +129,7 @@ export const verifyRecoverOtp = async (req, res) => {
 
 // RESET PASSWORD
 export const loadResetPassword = (req, res) =>
-  res.render("user/user/resetPassword", { pageTitle: "Reset Password", pageJs: "resetPassword" });
+  res.status(HttpStatus.OK).render("user/user/resetPassword", { pageTitle: "Reset Password", pageJs: "resetPassword" });
 
 export const saveNewPassword = async (req, res) => {
   try {
@@ -138,7 +139,7 @@ export const saveNewPassword = async (req, res) => {
 
     await resetPasswordService(req.body.password, req.session);
 
-    res.json({
+    res.status(HttpStatus.OK).json({
       success: true,
       redirect: "/login",
       message: "Password reset successfully",

@@ -5,7 +5,7 @@ import { addToCartService, loadCartService, updateCartItemService } from "./cart
 export const loadCart = async (req, res, next) => {
   try {
     const data = await loadCartService(req.session.user);
-    return res.render("user/cart", {
+    return res.status(HttpStatus.OK).render("user/cart", {
       pageTitle: "Cart",
       pageJs: "cart",
       cart: data.cart,
@@ -48,7 +48,7 @@ export const updateCartItem = async (req, res) => {
   } catch (error) {
     console.error("Error while updating cart", error);
 
-    return res.status(500).json({
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message || "Something went wrong",
     });

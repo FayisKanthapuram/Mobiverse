@@ -1,9 +1,10 @@
 import { handleReturnRequestService, loadOrderDetailsService, loadOrdersService, markItemReturnedService, updateOrderStatusService } from "../services/index.js";
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
 export const loadOrders = async (req, res, next) => {
   try {
     const data = await loadOrdersService(req.query);
-    res.render("admin/orders/orders", {
+    res.status(HttpStatus.OK).render("admin/orders/orders", {
       pageTitle: "Orders",
       pageCss: "orders",
       pageJs: "orders",
@@ -35,7 +36,7 @@ export const loadOrderDetails = async (req, res, next) => {
 
     const order = await loadOrderDetailsService(orderId);
 
-    res.render("admin/orders/orderDetails", {
+    res.status(HttpStatus.OK).render("admin/orders/orderDetails", {
       pageTitle: "Order Details",
       pageJs: "orderDetails",
       pageCss: "orderDetails",
@@ -54,7 +55,7 @@ export const updateOrderStatus = async (req, res) => {
 
     const updatedOrder = await updateOrderStatusService(orderId, status);
 
-    res.json({
+    res.status(HttpStatus.OK).json({
       success: true,
       message: "Order status updated successfully",
       order: updatedOrder,
@@ -62,7 +63,7 @@ export const updateOrderStatus = async (req, res) => {
   } catch (error) {
     console.log("Order Status Update Error:", error);
 
-    res.status(error.status || 500).json({
+    res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message || "Server error while updating order status",
     });
@@ -76,7 +77,7 @@ export const handleReturnRequest = async (req, res) => {
 
     const updatedOrder = await handleReturnRequestService(orderId, req.body);
 
-    return res.json({
+    return res.status(HttpStatus.OK).json({
       success: true,
       message: `Return request ${req.body.action}d successfully`,
       order: updatedOrder,
@@ -85,7 +86,7 @@ export const handleReturnRequest = async (req, res) => {
   } catch (error) {
     console.error("Return Request Error:", error);
 
-    return res.status(error.status || 500).json({
+    return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message || "Server error while processing return request",
     });
@@ -100,7 +101,7 @@ export const markItemReturned = async (req, res) => {
 
     const updatedOrder = await markItemReturnedService(orderId, req.body);
 
-    return res.json({
+    return res.status(HttpStatus.OK).json({
       success: true,
       message: "Item marked returned",
       order: updatedOrder,
@@ -109,7 +110,7 @@ export const markItemReturned = async (req, res) => {
   } catch (error) {
     console.error("Mark Item Returned Error:", error);
 
-    return res.status(error.status || 500).json({
+    return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message || "Server error while marking item returned",
     });

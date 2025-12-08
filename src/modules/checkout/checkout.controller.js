@@ -13,7 +13,7 @@ export const laodCheckOut = async (req, res, next) => {
       return res.redirect("/cart?message=adjested");
     }
 
-    res.render("user/checkout", {
+    res.status(HttpStatus.OK).render("user/checkout", {
       pageTitle: "check out",
       pageJs: "checkout",
       addresses: data.addresses,
@@ -59,8 +59,8 @@ export const applyCoupon = async (req, res) => {
 
 export const removeCoupon = (req, res) => {
   req.session.appliedCoupon = null;
-  return res.json({
+  return res.status(HttpStatus.OK).json({
     success: true,
-    message: "Coupon removed"
+    message: "Coupon removed",
   });
 };

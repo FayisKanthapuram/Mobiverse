@@ -6,7 +6,7 @@ export const loadUsers = async (req, res, next) => {
   try {
     const data = await loadUsersService(req.query);
 
-    res.render("admin/users", {
+    res.status(HttpStatus.OK).render("admin/users", {
       pageTitle: "Users",
       pageCss: "users",
       pageJs: "users",
@@ -31,10 +31,10 @@ export const blockUsers = async (req, res, next) => {
     const user = await blockUserService(req.params.id);
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
     }
 
-    res.status(200).json({ success: true });
+    res.status(HttpStatus.OK).json({ success: true });
   } catch (err) {
     next(err);
   }

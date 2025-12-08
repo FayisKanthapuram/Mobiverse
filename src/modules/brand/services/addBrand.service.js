@@ -1,12 +1,13 @@
 import { findBrandByName, createBrand } from "../brand.repo.js";
 import { cloudinaryUpload } from "../../../shared/middlewares/upload.js";
 import { brandValidation } from "../brand.validator.js";
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
 export const addBrandService = async (body, file) => {
   // Validate inputs
   const { error } = brandValidation.validate(body);
   if (error) {
-    return { status: 400, success: false, message: error.details[0].message };
+    return { status: HttpStatus.BAD_REQUEST, success: false, message: error.details[0].message };
   }
 
   const { brandName } = body;
@@ -15,7 +16,7 @@ export const addBrandService = async (body, file) => {
   const existingBrand = await findBrandByName(brandName);
   if (existingBrand) {
     return {
-      status: 400,
+      status: HttpStatus.BAD_REQUEST,
       success: false,
       message: "Brand name already exists",
     };
@@ -35,7 +36,7 @@ export const addBrandService = async (body, file) => {
   });
 
   return {
-    status: 200,
+    status: HttpStatus.OK,
     success: true,
     message: "Brand added successfully",
     brand: newBrand,
