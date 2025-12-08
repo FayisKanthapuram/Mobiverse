@@ -28,19 +28,19 @@ export function errorHandler(err, req, res, next) {
     if (status === 404) {
       return res
         .status(404)
-        .render("admin/404", { pageTitle: `${status} Error` });
+        .render("admin/error/404", { pageTitle: `${status} Error` });
     }
-    return res.status(500).render("admin/error", {
+    return res.status(500).render("admin/error/error", {
       pageTitle: `${status} Error`,
       message: err.message,
     });
   }
 
   if (status === 404) {
-    return res.status(404).render("user/404", { pageTitle: `${status} Error` });
+    return res.status(404).render("user/error/404", { pageTitle: `${status} Error` });
   }
 
-  return res.status(500).render("user/error", {
+  return res.status(500).render("user/error/error", {
     pageTitle: `${status} Error`,
     message: err.message,
   });

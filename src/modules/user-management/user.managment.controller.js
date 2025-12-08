@@ -1,5 +1,5 @@
 // user.controller.js
-import { HttpStatus } from "../../constants/statusCode.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { loadUsersService, blockUserService, getCustomersBySearch } from "./user.managment.service.js";
 
 export const loadUsers = async (req, res, next) => {

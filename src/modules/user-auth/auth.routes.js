@@ -22,7 +22,7 @@ import {
   isResetPass,
   isVerifyOtp,
   isVerifyRecoveryOtp,
-} from "../../middlewares/userAuth.js";
+} from "../../shared/middlewares/userAuth.js";
 
 const router = express.Router();
 

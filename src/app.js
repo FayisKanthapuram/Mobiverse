@@ -3,18 +3,18 @@ import dotenv from "dotenv";
 import nocache from "nocache";
 import path from "path";
 import expressLayouts from "express-ejs-layouts";
-import { sessionConfig } from "./middlewares/session.js";
+import { sessionConfig } from "./shared/middlewares/session.js";
 import { fileURLToPath } from "url";
-import adminRoutes from "./routes/adminRoute.js";
-import userRoutes from "./routes/userRoute.js";
+import adminRoutes from "./shared/routes/adminRoute.js";
+import userRoutes from "./shared/routes/userRoute.js";
 import passport from "./config/passport.js";
-import { logger } from "./middlewares/logger.js";
-import { setUser } from "./middlewares/setUser.js";
+import { logger } from "./shared/middlewares/logger.js";
+import { setUser } from "./shared/middlewares/setUser.js";
 import {
   errorHandler,
   notFound,
   staticFile404,
-} from "./middlewares/errorMiddlewares.js";
+} from "./shared/middlewares/errorMiddlewares.js";
 
 dotenv.config();
 

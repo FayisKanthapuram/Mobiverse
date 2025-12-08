@@ -1,4 +1,4 @@
-import { HttpStatus } from "../../constants/statusCode.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 import cartModel from "./cart.model.js";
 import { addToCartService, loadCartService, updateCartItemService } from "./cart.service.js";
 

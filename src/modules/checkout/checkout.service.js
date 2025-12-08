@@ -6,7 +6,7 @@ import {
   getAvailableCoupon,
 } from "../coupon/repo/coupon.repo.js";
 import { applyCouponSchema } from "../coupon/coupon.validator.js";
-import { HttpStatus } from "../../constants/statusCode.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 import couponUsageModel from "../coupon/models/couponUsageModel.js";
 import { countCouponUsageByCouponId, countCouponUsageByCouponIdAndUserId, countCouponUsageByUserId } from "../coupon/repo/coupon.usage.repo.js";
 import { findUserById } from "../user/user.repo.js";

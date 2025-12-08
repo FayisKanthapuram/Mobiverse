@@ -1,4 +1,4 @@
-import { HttpStatus } from "../../constants/statusCode.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { addCouponService, editCouponService, getCouponService, loadCouponsService, toggleCouponStatusService,deleteCouponService} from "./services/index.js";
 import { couponSchema } from "./coupon.validator.js";
 

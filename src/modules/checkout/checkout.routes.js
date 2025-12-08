@@ -1,6 +1,6 @@
 import express from "express";
 import { applyCoupon, laodCheckOut, removeCoupon } from "./checkout.controller.js";
-import { requireLogin } from "../../middlewares/userAuth.js";
+import { requireLogin } from "../../shared/middlewares/userAuth.js";
 
 const router = express.Router();
 

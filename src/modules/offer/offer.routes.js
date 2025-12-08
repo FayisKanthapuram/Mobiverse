@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyAdmin } from "../../middlewares/adminAuth.js";
+import { verifyAdmin } from "../../shared/middlewares/adminAuth.js";
 import { addOffer, deleteOffer, editOffer, getOfferById, loadOffers, toggleOfferStatus } from "./offer.controller.js";
 
 const router = express.Router();

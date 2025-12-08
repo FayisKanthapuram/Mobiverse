@@ -17,10 +17,10 @@ import {
 
 // LOAD VIEWS
 export const loadSignUp = (req, res) =>
-  res.render("user/signUp", { pageTitle: "Sign Up", pageJs: "signUp" });
+  res.render("user/user/signUp", { pageTitle: "Sign Up", pageJs: "signUp" });
 
 export const loadLogin = (req, res) =>
-  res.render("user/login", { pageTitle: "Login", pageJs: "login" });
+  res.render("user/user/login", { pageTitle: "Login", pageJs: "login" });
 
 // SIGNUP
 export const registerUser = async (req, res) => {
@@ -42,7 +42,7 @@ export const registerUser = async (req, res) => {
 };
 
 export const loadVerifyOtp = (req, res) =>
-  res.render("user/verifyOtp", { pageTitle: "Verify Otp", pageJs: "verifyOtp" });
+  res.render("user/user/verifyOtp", { pageTitle: "Verify Otp", pageJs: "verifyOtp" });
 
 export const verifyOtp = async (req, res) => {
   try {
@@ -92,7 +92,7 @@ export const loginUser = async (req, res) => {
 
 // FORGOT PASSWORD
 export const loadForgotPassword = (req, res) =>
-  res.render("user/forgotPassword", { pageTitle: "Forgot Password", pageJs: "forgotPassword" });
+  res.render("user/user/forgotPassword", { pageTitle: "Forgot Password", pageJs: "forgotPassword" });
 
 export const sendRecoverOtp = async (req, res) => {
   try {
@@ -110,7 +110,7 @@ export const sendRecoverOtp = async (req, res) => {
 
 // VERIFY RECOVERY OTP
 export const loadRecoverOtp = (req, res) =>
-  res.render("user/verifyOtp", { pageTitle: "Verify OTP", pageJs: "recoverOtp" });
+  res.render("user/user/verifyOtp", { pageTitle: "Verify OTP", pageJs: "recoverOtp" });
 
 export const verifyRecoverOtp = async (req, res) => {
   try {
@@ -128,7 +128,7 @@ export const verifyRecoverOtp = async (req, res) => {
 
 // RESET PASSWORD
 export const loadResetPassword = (req, res) =>
-  res.render("user/resetPassword", { pageTitle: "Reset Password", pageJs: "resetPassword" });
+  res.render("user/user/resetPassword", { pageTitle: "Reset Password", pageJs: "resetPassword" });
 
 export const saveNewPassword = async (req, res) => {
   try {

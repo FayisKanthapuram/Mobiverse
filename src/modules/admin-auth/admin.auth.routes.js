@@ -1,5 +1,5 @@
 import express from "express";
-import { isLogin, verifyAdmin } from "../../middlewares/adminAuth.js";
+import { isLogin, verifyAdmin } from "../../shared/middlewares/adminAuth.js";
 import {
   loadLogin,
   loadDashboard,

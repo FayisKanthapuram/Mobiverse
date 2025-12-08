@@ -1,4 +1,4 @@
-import { HttpStatus } from "../../../../constants/statusCode.js";
+import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { orderValidation } from "../../order.validator.js";
 
 import { findAddressById } from "../../../address/address.repo.js";

@@ -1,5 +1,5 @@
 import express from "express";
-import { requireLogin } from "../../middlewares/userAuth.js";
+import { requireLogin } from "../../shared/middlewares/userAuth.js";
 import { loadMyWallet } from "./wallet.controller.js";
 
 const router = express.Router();

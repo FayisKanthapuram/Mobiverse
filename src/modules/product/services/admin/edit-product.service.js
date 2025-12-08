@@ -6,7 +6,7 @@ import {
 import {
   updateProductById,
 } from "../../repo/product.repo.js";
-import { cloudinaryUpload } from "../../../../middlewares/upload.js";
+import { cloudinaryUpload } from "../../../../shared/middlewares/upload.js";
 import {
   rollbackCloudinary,
   getPublicIdFromUrl,

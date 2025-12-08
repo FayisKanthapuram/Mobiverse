@@ -1,5 +1,5 @@
 import express from "express";
-import upload from "../../middlewares/upload.js";
+import upload from "../../shared/middlewares/upload.js";
 import {
   addBrand,
   editBrand,
@@ -7,7 +7,7 @@ import {
   listBrand,
   loadBrands,
 } from "./brand.controller.js";
-import { verifyAdmin } from "../../middlewares/adminAuth.js";
+import { verifyAdmin } from "../../shared/middlewares/adminAuth.js";
 
 const router = express.Router();
 

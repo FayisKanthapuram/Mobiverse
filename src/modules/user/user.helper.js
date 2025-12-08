@@ -1,5 +1,5 @@
-import { sendVerificationEmail } from "../../helpers/gmail.js";
-import { generateOtp } from "../../helpers/otp.js";
+import { sendVerificationEmail } from "../../shared/utils/gmail.js";
+import { generateOtp } from "../../shared/utils/otp.js";
 
 export const createOtpPayload = () => {
   const otp = generateOtp();

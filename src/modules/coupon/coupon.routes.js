@@ -1,7 +1,7 @@
 import express from "express";
 
 import { addCoupon, deleteCoupon, editCoupon, getCoupon, loadCoupons, toggleCouponStatus } from "./coupon.controller.js";
-import { verifyAdmin } from "../../middlewares/adminAuth.js";
+import { verifyAdmin } from "../../shared/middlewares/adminAuth.js";
 
 const router = express.Router();
 

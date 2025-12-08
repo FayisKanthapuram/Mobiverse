@@ -4,7 +4,7 @@ import { getLatestProductsAgg } from "../product/repo/product.repo.js";
 import { addToCartSchema } from "./cart.validator.js";
 import { findVariantByIdWithProduct } from "../product/repo/variant.repo.js";
 import { findBrandById } from "../brand/brand.repo.js";
-import { HttpStatus } from "../../constants/statusCode.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { checkInWishlist, removeWishlistItem } from "../wishlist/wishlist.repo.js";
 
 export const loadCartService = async (userId) => {

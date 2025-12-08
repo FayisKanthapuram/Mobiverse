@@ -1,6 +1,6 @@
 import express from "express";
 import { blockUsers, loadUsers, searchUser } from "./user.managment.controller.js";
-import { verifyAdmin } from "../../middlewares/adminAuth.js";
+import { verifyAdmin } from "../../shared/middlewares/adminAuth.js";
 
 
 const router = express.Router();

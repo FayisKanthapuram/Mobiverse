@@ -8,7 +8,7 @@ import {
 import {
   findBrandById,
 } from "../../../brand/brand.repo.js";
-import { cloudinaryUpload } from "../../../../middlewares/upload.js";
+import { cloudinaryUpload } from "../../../../shared/middlewares/upload.js";
 import {
   rollbackCloudinary,
   calcMinMaxStock,

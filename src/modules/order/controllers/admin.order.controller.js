@@ -3,7 +3,7 @@ import { handleReturnRequestService, loadOrderDetailsService, loadOrdersService,
 export const loadOrders = async (req, res, next) => {
   try {
     const data = await loadOrdersService(req.query);
-    res.render("admin/orders", {
+    res.render("admin/orders/orders", {
       pageTitle: "Orders",
       pageCss: "orders",
       pageJs: "orders",
@@ -35,7 +35,7 @@ export const loadOrderDetails = async (req, res, next) => {
 
     const order = await loadOrderDetailsService(orderId);
 
-    res.render("admin/orderDetails", {
+    res.render("admin/orders/orderDetails", {
       pageTitle: "Order Details",
       pageJs: "orderDetails",
       pageCss: "orderDetails",

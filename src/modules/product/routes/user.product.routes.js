@@ -6,7 +6,8 @@ import {
 
 const router = express.Router();
 
-router.get("/", loadShop);
-router.get("/:variantId", loadProductDetails);
+router.get("/shop", loadShop);
+router.get("/products", loadShop);
+router.get("/products/:variantId", loadProductDetails);
 
 export default router;

@@ -4,7 +4,7 @@ import {
   saveBrand,
 } from "../brand.repo.js";
 import cloudinary from "../../../config/cloudinary.js";
-import { cloudinaryUpload } from "../../../middlewares/upload.js";
+import { cloudinaryUpload } from "../../../shared/middlewares/upload.js";
 import { brandValidation } from "../brand.validator.js";
 
 export const editBrandService = async (body, file) => {

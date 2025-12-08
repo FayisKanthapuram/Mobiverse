@@ -17,7 +17,7 @@ import { passwordSchema } from "./validators/change.password.validator.js";
 export const loadPersonalInfo = async (req, res, next) => {
   try {
     const user = await getUserProfileService(req.session.user);
-    res.render("user/personalInfo", { pageTitle: "Personal Information", user });
+    res.render("user/user/personalInfo", { pageTitle: "Personal Information", user });
   } catch (error) {
     next(error);
   }
@@ -26,7 +26,7 @@ export const loadPersonalInfo = async (req, res, next) => {
 export const loadEditInfo = async (req, res, next) => {
   try {
     const user = await getUserProfileService(req.session.user);
-    res.render("user/editInfo", { pageTitle: "Edit Info", user, pageJs: "editInfo" });
+    res.render("user/user/editInfo", { pageTitle: "Edit Info", user, pageJs: "editInfo" });
   } catch (error) {
     next(error);
   }
@@ -60,7 +60,7 @@ export const editInfo = async (req, res) => {
 export const loadEditEmail = async (req, res, next) => {
   try {
     const user = await getUserProfileService(req.session.user);
-    res.render("user/editEmail", { pageTitle: "Edit Email", user, pageJs: "editEmail" });
+    res.render("user/user/editEmail", { pageTitle: "Edit Email", user, pageJs: "editEmail" });
   } catch (error) {
     next(error);
   }
@@ -108,7 +108,7 @@ export const reSendOtpToEditEmail = async (req, res) => {
 export const loadChangePassword = async (req, res, next) => {
   try {
     const user = await getUserProfileService(req.session.user);
-    res.render("user/changePasswod", { pageTitle: "Change Password", user, pageJs: "changePassword" });
+    res.render("user/user/changePasswod", { pageTitle: "Change Password", user, pageJs: "changePassword" });
   } catch (error) {
     next(error);
   }

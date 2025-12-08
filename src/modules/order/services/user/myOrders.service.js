@@ -1,5 +1,5 @@
 import { findOrderById, findOrderByIdWithItems, findOrderByOrderIdWithUser, findUserOrders, saveOrder } from "../../order.repo.js";
-import { HttpStatus } from "../../../../constants/statusCode.js";
+import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderItemsSchema } from "../../order.validator.js";
 import { incrementVariantStock } from "../../../product/repo/variant.repo.js";
 import { incrementProductStock } from "../../../product/repo/product.repo.js";

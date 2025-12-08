@@ -1,4 +1,4 @@
-import { HttpStatus } from "../../constants/statusCode.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 import { findBrandById } from "../brand/brand.repo.js";
 import { findCartItem } from "../cart/cart.repo.js";

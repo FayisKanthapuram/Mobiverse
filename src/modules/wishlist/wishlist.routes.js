@@ -1,5 +1,5 @@
 import express from "express";
-import { requireLogin } from "../../middlewares/userAuth.js";
+import { requireLogin } from "../../shared/middlewares/userAuth.js";
 import { toggleWishlist, checkWishlist, loadWishlist, clearWishlist } from "./wishlist.controller.js";
 
 

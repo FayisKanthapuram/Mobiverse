@@ -22,7 +22,7 @@ export const getAppliedOffer=(data,salePrice)=>{
       if(productOffer.discountType==='percentage'){
         x=salePrice*productOffer.discountValue*0.01;
       }else{
-        x=brandOffer.discountValue;
+        x=productOffer.discountValue;
       }
       offer=Math.max(x,offer);
     }

@@ -31,7 +31,7 @@ export const loadOrderSuccess = async (req, res, next) => {
 
     const order = await loadOrderSuccessService(orderId);
 
-    res.render("user/orderSuccess", {
+    res.render("user/orders/orderSuccess", {
       pageTitle: "Success",
       order,
     });
@@ -46,7 +46,7 @@ export const loadMyOrders = async (req, res, next) => {
 
     const data = await loadMyOrdersService(userId, req.query);
 
-    return res.render("user/myOrders", {
+    return res.render("user/orders/myOrders", {
       pageTitle: "My Orders",
       pageJs: "myOrder",
       user: data.user,
@@ -108,7 +108,7 @@ export const loadTrackOrder = async (req, res, next) => {
 
     const order = await loadOrderDetailsService(orderId);
 
-    return res.render("user/trackOrder", {
+    return res.render("user/orders/trackOrder", {
       pageTitle: "My Orders",
       order,
     });
@@ -124,7 +124,7 @@ export const loadOrderDetails = async (req, res, next) => {
 
     const order = await loadOrderDetailsService(orderId);
 
-    return res.render("user/orderDetails", {
+    return res.render("user/orders/orderDetails", {
       pageTitle: "My Orders",
       order,
     });
@@ -141,7 +141,7 @@ export const downloadInvoice = async (req, res, next) => {
     const { order, user } = await loadInvoiceService(orderId);
 
     // Render invoice HTML (layout: false so it is a clean document)
-    return res.render("user/invoice", {
+    return res.render("user/orders/invoice", {
       layout: false,
       order,
       user,
