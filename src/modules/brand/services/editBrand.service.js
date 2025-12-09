@@ -1,8 +1,4 @@
-import {
-  findBrandById,
-  findBrandByName,
-  saveBrand,
-} from "../brand.repo.js";
+import { findBrandById, findBrandByName, saveBrand } from "../brand.repo.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import cloudinary from "../../../config/cloudinary.js";
 import { cloudinaryUpload } from "../../../shared/middlewares/upload.js";
@@ -13,12 +9,20 @@ export const editBrandService = async (body, file) => {
 
   const { error } = brandValidation.validate(body);
   if (error) {
-    return { status: HttpStatus.BAD_REQUEST, success: false, message: error.details[0].message };
+    return {
+      status: HttpStatus.BAD_REQUEST,
+      success: false,
+      message: error.details[0].message,
+    };
   }
 
   const brand = await findBrandById(brandId);
   if (!brand) {
-    return { status: HttpStatus.NOT_FOUND, success: false, message: "Brand not found" };
+    return {
+      status: HttpStatus.NOT_FOUND,
+      success: false,
+      message: "Brand not found",
+    };
   }
 
   // If name changed, ensure unique

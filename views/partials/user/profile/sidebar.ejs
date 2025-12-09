@@ -1,7 +1,7 @@
 <aside class="w-80 bg-white rounded-lg shadow-sm p-6">
   <!-- User Profile Header -->
   <div class="flex items-center gap-4 mb-8 pb-6 border-b border-gray-200">
-    <img src="<%= user.avatar %>" alt="<%= user.username %>" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200" onerror="this.onerror=null; this.src='/images/user-avatar.svg';" />
+    <img src="<%= user.avatar %>" alt="<%= user.username %>" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200" onerror="this.onerror=null; this.src='<%= defaultAvatar %>';" />
     <div>
       <h3 class="font-semibold text-gray-900"><%= user.username %></h3>
       <p class="text-sm text-gray-600"><%= user.email %></p>

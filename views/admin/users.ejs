@@ -110,7 +110,7 @@
       <% if (typeof customers !== 'undefined' && customers.length > 0) { %>
       <% customers.forEach(customer => { %>
       <tr>
-        <td> <img src="<%= customer.avatar %>" alt="<%= customer.username %>" onerror="this.onerror=null; this.src='/images/user-avatar.svg';" class="customer-avatar" /> </td>
+        <td> <img src="<%= customer.avatar %>" alt="<%= customer.username %>" onerror="this.onerror=null; this.src='<%= defaultAvatar %>';" class="customer-avatar" /> </td>
         <td>
           <div class="customer-info">
             <span><%= customer.username %></span>

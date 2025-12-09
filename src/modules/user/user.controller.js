@@ -1,4 +1,3 @@
-import fs from "fs";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import {
   getUserProfileService,
@@ -38,11 +37,10 @@ export const editInfo = async (req, res) => {
   try {
     const { error } = usernameValidator.validate(req.body);
     if (error) {
-      if (req.file) fs.unlinkSync(req.file.path);
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
     }
 
-    const avatar = req.file ? `/uploads/user/${req.file.filename}` : null;
+    const avatar = req.file ? req.file.buffer : null;
 
     await updateUserInfoService(
       req.session.user,

@@ -18,10 +18,10 @@ import {
 
 // LOAD VIEWS
 export const loadSignUp = (req, res) =>
-  res.status(HttpStatus.OK).render("user/user/signUp", { pageTitle: "Sign Up", pageJs: "signUp" });
+  res.status(HttpStatus.OK).render("user/auth/signUp", { pageTitle: "Sign Up", pageJs: "signUp" });
 
 export const loadLogin = (req, res) =>
-  res.status(HttpStatus.OK).render("user/user/login", { pageTitle: "Login", pageJs: "login" });
+  res.status(HttpStatus.OK).render("user/auth/login", { pageTitle: "Login", pageJs: "login" });
 
 // SIGNUP
 export const registerUser = async (req, res) => {
@@ -43,7 +43,7 @@ export const registerUser = async (req, res) => {
 };
 
 export const loadVerifyOtp = (req, res) =>
-  res.status(HttpStatus.OK).render("user/user/verifyOtp", { pageTitle: "Verify Otp", pageJs: "verifyOtp" });
+  res.status(HttpStatus.OK).render("user/auth/verifyOtp", { pageTitle: "Verify Otp", pageJs: "verifyOtp" });
 
 export const verifyOtp = async (req, res) => {
   try {
@@ -93,7 +93,7 @@ export const loginUser = async (req, res) => {
 
 // FORGOT PASSWORD
 export const loadForgotPassword = (req, res) =>
-  res.status(HttpStatus.OK).render("user/user/forgotPassword", { pageTitle: "Forgot Password", pageJs: "forgotPassword" });
+  res.status(HttpStatus.OK).render("user/auth/forgotPassword", { pageTitle: "Forgot Password", pageJs: "forgotPassword" });
 
 export const sendRecoverOtp = async (req, res) => {
   try {
@@ -111,7 +111,7 @@ export const sendRecoverOtp = async (req, res) => {
 
 // VERIFY RECOVERY OTP
 export const loadRecoverOtp = (req, res) =>
-  res.status(HttpStatus.OK).render("user/user/verifyOtp", { pageTitle: "Verify OTP", pageJs: "recoverOtp" });
+  res.status(HttpStatus.OK).render("user/auth/verifyOtp", { pageTitle: "Verify OTP", pageJs: "recoverOtp" });
 
 export const verifyRecoverOtp = async (req, res) => {
   try {
@@ -129,7 +129,7 @@ export const verifyRecoverOtp = async (req, res) => {
 
 // RESET PASSWORD
 export const loadResetPassword = (req, res) =>
-  res.status(HttpStatus.OK).render("user/user/resetPassword", { pageTitle: "Reset Password", pageJs: "resetPassword" });
+  res.status(HttpStatus.OK).render("user/auth/resetPassword", { pageTitle: "Reset Password", pageJs: "resetPassword" });
 
 export const saveNewPassword = async (req, res) => {
   try {

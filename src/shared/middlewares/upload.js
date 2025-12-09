@@ -39,7 +39,7 @@ const upload = {
   product: uploadFile.any(),  // product multiple images
   customer: uploadFile.single("image"),
   banner: uploadFile.single("image"),
-  user: uploadFile.single("image"),
+  user: uploadFile.single("profilePicture"),
 };
 
 export default upload;

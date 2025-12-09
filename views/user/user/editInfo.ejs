@@ -2,7 +2,7 @@
   <div class="container mx-auto px-4 py-8">
     <div class="flex gap-6">
       <!-- Sidebar -->
-      <%- include('../partials/user/profile/sidebar', { pageTitle: pageTitle, user: user }) %>
+      <%- include('../../partials/user/profile/sidebar', { pageTitle: pageTitle, user: user }) %>
 
       <!-- Main Content -->
       <div class="flex-1 bg-white rounded-lg shadow-sm p-8">
@@ -17,7 +17,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-4">Profile Picture</label>
             <div class="flex items-start gap-6">
               <div class="relative">
-                <img src="<%= user.avatar %>" alt="<%= user.username %>" id="profilePreview" class="w-32 h-32 rounded-full object-cover border-4 border-gray-200" onerror="this.onerror=null; this.src='/images/user-avatar.svg';">
+                <img src="<%= user.avatar %>" alt="<%= user.username %>" id="profilePreview" class="w-32 h-32 rounded-full object-cover border-4 border-gray-200" onerror="this.onerror=null; this.src='<%= defaultAvatar %>';">
               </div>
               <div>
                 <input type="file" id="profilePictureInput" name="profilePicture" accept="image/*" class="hidden">

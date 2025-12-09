@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { DEFAULT_USER_AVATAR } from "../../config/cloudinaryDefaults.js";
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,7 +23,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
-    avatar: { type: String,default:'/images/user-avatar.svg'},
+    avatar: { type: String,default:DEFAULT_USER_AVATAR},
     isBlocked: {
       type: Boolean,
       default: false,

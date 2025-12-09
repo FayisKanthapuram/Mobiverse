@@ -1,18 +1,35 @@
 import bcrypt from "bcrypt";
 import { findUserByEmail, findUserById, saveUser } from "./user.repo.js";
 import { createOtpPayload, sendOtpEmail } from "./user.helper.js";
+import { cloudinaryUpload } from "../../shared/middlewares/upload.js";
+import cloudinary from "../../config/cloudinary.js";
+import { DEFAULT_USER_AVATAR } from "../../config/cloudinaryDefaults.js";
 
 export const getUserProfileService = async (userId) => {
   return await findUserById(userId);
 };
 
-export const updateUserInfoService = async (userId, username, avatar, remove) => {
+export const updateUserInfoService = async (
+  userId,
+  username,
+  avatar,
+  remove
+) => {
   const user = await findUserById(userId);
 
   if (remove && !avatar) {
-    user.avatar = "/images/user-avatar.svg";
+    if (user.avatar) {
+      const publicId = user.avatar.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`ecommerce/user/${publicId}`);
+    }
+    user.avatar = DEFAULT_USER_AVATAR;
   } else if (avatar) {
-    user.avatar = avatar;
+    if (user.avatar) {
+      const publicId = user.avatar.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`ecommerce/user/${publicId}`);
+    }
+    const result = await cloudinaryUpload(avatar, "user");
+    user.avatar = result.secure_url;
   }
 
   user.username = username;
@@ -20,7 +37,11 @@ export const updateUserInfoService = async (userId, username, avatar, remove) =>
   return true;
 };
 
-export const requestEmailChangeService = async (oldEmail, newEmail, session) => {
+export const requestEmailChangeService = async (
+  oldEmail,
+  newEmail,
+  session
+) => {
   const existUser = await findUserByEmail(newEmail);
   if (existUser) {
     throw new Error("User already exist with this email");
@@ -72,7 +93,11 @@ export const resendEmailOtpService = async (session) => {
   return true;
 };
 
-export const updatePasswordService = async (userId, currentPassword, newPassword) => {
+export const updatePasswordService = async (
+  userId,
+  currentPassword,
+  newPassword
+) => {
   const user = await findUserById(userId);
   const isMatch = await bcrypt.compare(currentPassword, user.password);
   if (!isMatch) throw new Error("Current password does not match");

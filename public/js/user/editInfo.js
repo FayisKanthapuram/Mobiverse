@@ -98,6 +98,7 @@ function closeCropperModal() {
 document.getElementById('closeCropperBtn').addEventListener('click', closeCropperModal);
 document.getElementById('cancelCropBtn').addEventListener('click', closeCropperModal);
 
+const DEFAULT_AVATAR = "https://res.cloudinary.com/dlqronc2z/image/upload/v1765254735/user-avatar_wyifzm.jpg"
 // Remove Photo Button
 document.getElementById('removePhotoBtn').addEventListener('click', function() {
   if (confirm('Are you sure you want to remove your profile picture?')) {
@@ -106,7 +107,7 @@ document.getElementById('removePhotoBtn').addEventListener('click', function() {
     
     // Reset preview to default avatar
     const preview = document.getElementById('profilePreview');
-    preview.src = '/images/user-avatar.svg';
+    preview.src = DEFAULT_AVATAR;
     
     // Add hidden input to indicate photo removal
     let removeInput = document.querySelector('input[name="removePhoto"]');
