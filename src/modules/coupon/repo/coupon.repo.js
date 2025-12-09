@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Coupon from "../models/coupon.model.js";
-import couponUsage from "../models/couponUsageModel.js";
+import couponUsage from "../models/coupon.usage.model.js";
 
 export const findCoupons = (query, sortOption, skip, limit) => {
   return Coupon.find(query)

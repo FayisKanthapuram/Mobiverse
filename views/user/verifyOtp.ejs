@@ -1,0 +1,50 @@
+<main class="flex justify-center items-center py-16 px-4 min-h-[70vh]">
+  <div class="bg-white border border-gray-200 rounded-2xl shadow-lg px-10 py-12 w-full max-w-md">
+
+    <h2 class="text-center text-2xl font-bold text-gray-900">Verify Your Account</h2>
+    <p class="text-center text-gray-500 mt-1 mb-8 text-sm">
+      Enter the 6-digit OTP sent to your email.
+    </p>
+
+    <form class="flex flex-col gap-6" id="loginForm">
+      
+      <!-- OTP Inputs -->
+      <div class="flex justify-between gap-3">
+        <input type="text" maxlength="1"
+          class="otp-input w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+        <input type="text" maxlength="1"
+          class="otp-input w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+        <input type="text" maxlength="1"
+          class="otp-input w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+        <input type="text" maxlength="1"
+          class="otp-input w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+        <input type="text" maxlength="1"
+          class="otp-input w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+        <input type="text" maxlength="1"
+          class="otp-input w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+      </div>
+
+      <!-- Verify Button -->
+      <button 
+        type="submit"
+        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition"
+      >
+        Verify & Continue
+      </button>
+    </form>
+
+    <!-- Resend -->
+    <p class="text-center text-gray-600 text-sm mt-6">
+      Didn't get the OTP? 
+      <a class="text-blue-600 font-semibold cursor-pointer hover:underline" id="resend-otp-link">
+        Resend OTP
+      </a>
+    </p>
+  </div>
+</main>
+<style>
+  .disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+</style>

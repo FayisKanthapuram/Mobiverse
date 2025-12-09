@@ -1,0 +1,351 @@
+<!-- Orders Management Page -->
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Orders Management</h1>
+      <p class="subtitle">Manage and monitor all orders in your marketplace.</p>
+    </div>
+    <button class="btn-primary" onclick="exportOrders()">
+      <i class="bi bi-download"></i>
+      Export Orders
+    </button>
+  </div>
+
+  <!-- Analytics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card stat-blue">
+      <div class="stat-icon">
+        <i class="bi bi-cart3"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value"><%= analytics.totalOrders || 0 %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-green">
+      <div class="stat-icon">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Active Orders</div>
+        <div class="stat-value"><%= analytics.activeOrders || 0 %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-orange">
+      <div class="stat-icon">
+        <i class="bi bi-arrow-return-left"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Returned Orders</div>
+        <div class="stat-value"><%= analytics.returnedOrders || 0 %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-red">
+      <div class="stat-icon">
+        <i class="bi bi-x-circle"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Cancelled Orders</div>
+        <div class="stat-value"><%= analytics.cancelledOrders || 0 %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-purple">
+      <div class="stat-icon">
+        <i class="bi bi-currency-rupee"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">₹<%= (analytics.totalRevenue || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-container">
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search order ID, customer name or email..."
+        value="<%= searchQuery || '' %>"
+        onkeyup="handleSearch()"
+      />
+      <% if (searchQuery) { %>
+      <button class="clear-search-btn" onclick="clearSearch()" title="Clear search">
+        <i class="bi bi-x-circle-fill"></i>
+      </button>
+      <% } %>
+    </div>
+
+    <div class="filter-group">
+      <label>Status:</label>
+      <select id="statusFilter" class="filter-select" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="Pending" <%= statusFilter === 'Pending' ? 'selected' : '' %>>Pending</option>
+        <option value="Confirmed" <%= statusFilter === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+        <option value="Processing" <%= statusFilter === 'Processing' ? 'selected' : '' %>>Processing</option>
+        <option value="Shipped" <%= statusFilter === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+        <option value="Out for Delivery" <%= statusFilter === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
+        <option value="Delivered" <%= statusFilter === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+        <option value="Cancelled" <%= statusFilter === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+        <option value="Returned" <%= statusFilter === 'Returned' ? 'selected' : '' %>>Returned</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Payment:</label>
+      <select id="paymentStatusFilter" class="filter-select" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="Pending" <%= paymentStatusFilter === 'Pending' ? 'selected' : '' %>>Pending</option>
+        <option value="Paid" <%= paymentStatusFilter === 'Paid' ? 'selected' : '' %>>Paid</option>
+        <option value="Failed" <%= paymentStatusFilter === 'Failed' ? 'selected' : '' %>>Failed</option>
+        <option value="Refunded" <%= paymentStatusFilter === 'Refunded' ? 'selected' : '' %>>Refunded</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Sort By:</label>
+      <select id="sortFilter" class="filter-select" onchange="applyFilters()">
+        <option value="recent" <%= sortFilter === 'recent' ? 'selected' : '' %>>Recent</option>
+        <option value="oldest" <%= sortFilter === 'oldest' ? 'selected' : '' %>>Oldest</option>
+        <option value="amount-high" <%= sortFilter === 'amount-high' ? 'selected' : '' %>>Amount (High to Low)</option>
+        <option value="amount-low" <%= sortFilter === 'amount-low' ? 'selected' : '' %>>Amount (Low to High)</option>
+      </select>
+    </div>
+
+    <% const hasActiveFilters = statusFilter || paymentStatusFilter || (sortFilter && sortFilter !== 'recent'); %>
+  </div>
+
+  <!-- Active Filters Display -->
+  <% if (searchQuery || hasActiveFilters) { %>
+  <div class="active-filters-bar">
+    <span class="filter-label">Active Filters:</span>
+    <div class="filter-tags">
+      <% if (searchQuery) { %>
+      <span class="filter-tag">
+        Search: "<%= searchQuery %>"
+        <button onclick="clearSearch()" class="tag-remove">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+      <% } %>
+      <% if (statusFilter) { %>
+      <span class="filter-tag">
+        Status: <%= statusFilter %>
+        <button onclick="removeFilter('status')" class="tag-remove">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+      <% } %>
+      <% if (paymentStatusFilter) { %>
+      <span class="filter-tag">
+        Payment: <%= paymentStatusFilter %>
+        <button onclick="removeFilter('paymentStatus')" class="tag-remove">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+      <% } %>
+      <% if (sortFilter && sortFilter !== 'recent') { %>
+      <span class="filter-tag">
+        Sort: <%= sortFilter.replace('-', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
+        <button onclick="removeFilter('sort')" class="tag-remove">
+          <i class="bi bi-x"></i>
+        </button>
+      </span>
+      <% } %>
+    </div>
+    <button class="clear-all-link" onclick="clearAllFiltersAndSearch()">Clear All</button>
+  </div>
+  <% } %>
+
+  <!-- Orders Table -->
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Items</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (orders && orders.length > 0) { %>
+          <% orders.forEach(order => { %>
+            <tr>
+              <td>
+                <strong class="order-id">#<%= order.orderId %></strong>
+              </td>
+              <td>
+                <div class="customer-info">
+                  <div class="customer-name"><%= order.userId.username || 'N/A' %></div>
+                  <div class="customer-email"><%= order.userId.email || '' %></div>
+                </div>
+              </td>
+              <td><%= new Date(order.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+              <td><%= order.orderedItems.length %></td>
+              <td>
+                <% 
+                  const mrpTotal = (order.orderedItems || []).reduce((sum, it) => {
+                    const mrp = it.regularPrice || it.price;
+                    return sum + (mrp * it.quantity);
+                  }, 0);
+
+                  const sellingTotal = (order.orderedItems || []).reduce((sum, it) => {
+                    const sale = it.price || 0;
+                    const offer = it.offer || 0;
+                    const effective = sale - offer;
+                    return sum + (effective * it.quantity);
+                  }, 0)-order.couponDiscount;
+
+                  const savings = mrpTotal - sellingTotal;
+                %>
+
+                <!-- Selling Price Total -->
+                <strong class="amount text-gray-900">
+                  ₹<%= sellingTotal.toLocaleString('en-IN') %>
+                </strong>
+
+                <!-- MRP Total -->
+                <div class="text-xs text-gray-500">
+                  MRP: ₹<%= mrpTotal.toLocaleString('en-IN') %>
+                </div>
+
+                <!-- Savings -->
+                <% if (savings > 0) { %>
+                  <div class="text-xs text-green-600 font-semibold">
+                    Discount: ₹<%= savings.toLocaleString('en-IN') %>
+                  </div>
+                <% } %>
+              </td>
+
+              <td>
+                <% 
+                  let paymentClass = '';
+                  if (order.paymentStatus === 'Paid') paymentClass = 'status-active';
+                  else if (order.paymentStatus === 'Pending') paymentClass = 'status-pending';
+                  else if (order.paymentStatus === 'Failed') paymentClass = 'status-blocked';
+                  else if (order.paymentStatus === 'Refunded') paymentClass = 'status-refunded';
+                %>
+                <span class="status-badge <%= paymentClass %>">
+                  <%= order.paymentStatus %>
+                </span>
+              </td>
+              <td>
+                <% 
+                  let statusClass = '';
+                  if (order.orderStatus === 'Delivered') statusClass = 'status-active';
+                  else if (order.orderStatus === 'Shipped' || order.orderStatus === 'Out for Delivery') statusClass = 'status-shipping';
+                  else if (order.orderStatus === 'Pending') statusClass = 'status-pending';
+                  else if (order.orderStatus === 'Confirmed' || order.orderStatus === 'Processing') statusClass = 'status-processing';
+                  else if (order.orderStatus === 'Cancelled') statusClass = 'status-blocked';
+                  else if (order.orderStatus === 'Returned') statusClass = 'status-returned';
+                %>
+                <span class="status-badge <%= statusClass %>">
+                  <%= order.orderStatus %>
+                </span>
+              </td>
+              <td>
+                <a href="/admin/orders/<%= order._id %>" class="btn-view">
+                  View Details
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" class="no-data">
+              <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <p>No orders found</p>
+                <% if (searchQuery || hasActiveFilters) { %>
+                <button class="btn-primary" onclick="clearAllFiltersAndSearch()" style="margin-top: 16px;">
+                  Clear All Filters
+                </button>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-container">
+    <div class="pagination-info">
+      <% if (orders && orders.length > 0) { %>
+        <% const startItem = (currentPage - 1) * limit + 1; %>
+        <% const endItem = Math.min((currentPage - 1) * limit + orders.length, totalOrders); %>
+        Showing <%= startItem %> to <%= endItem %> of <%= totalOrders %> results
+      <% } else { %>
+        No results found
+      <% } %>
+    </div>
+
+    <div class="pagination-controls">
+      <% if(currentPage > 1) { %>
+        <button class="page-btn" onclick="changePage(<%= currentPage - 1 %>)">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+      <% } else { %>
+        <button class="page-btn" disabled>
+          <i class="bi bi-chevron-left"></i>
+        </button>
+      <% } %>
+      
+      <% 
+        const maxPagesToShow = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+        let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+        
+        if (endPage - startPage < maxPagesToShow - 1) {
+          startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+      %>
+      
+      <% if (startPage > 1) { %>
+        <button class="page-btn" onclick="changePage(1)">1</button>
+        <% if (startPage > 2) { %>
+          <span class="pagination-dots">...</span>
+        <% } %>
+      <% } %>
+      
+      <% for(let i = startPage; i <= endPage; i++) { %>
+        <button 
+          class="page-btn <%= currentPage === i ? 'active' : '' %>" 
+          onclick="changePage(<%= i %>)"
+        >
+          <%= i %>
+        </button>
+      <% } %>
+      
+      <% if (endPage < totalPages) { %>
+        <% if (endPage < totalPages - 1) { %>
+          <span class="pagination-dots">...</span>
+        <% } %>
+        <button class="page-btn" onclick="changePage(<%= totalPages %>)"><%= totalPages %></button>
+      <% } %>
+      
+      <% if(currentPage < totalPages) { %>
+        <button class="page-btn" onclick="changePage(<%= currentPage + 1 %>)">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      <% } else { %>
+        <button class="page-btn" disabled>
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      <% } %>
+    </div>
+  </div>
+</div>

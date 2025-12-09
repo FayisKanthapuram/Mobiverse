@@ -1,0 +1,570 @@
+<!-- Breadcrumb -->
+<div class=" container mx-auto px-4 py-4">
+  <%- include('../partials/user/_breadcrumbs', { breadcrumbs }) %>
+</div>
+
+<!-- Product Section -->
+<div class="container mx-auto px-4 py-8">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Product Images -->
+    <div class="space-y-4 relative">
+      <div id="imageContainer" class="relative bg-white rounded-lg overflow-hidden border border-gray-200 cursor-crosshair" style="height: 600px;">
+        <img id="mainImage" src="<%= selectedVariant.images[0] %>" alt="<%= product.name %>" class="w-full h-full object-contain">
+        <div id="zoomLens" class="absolute hidden pointer-events-none border-2 border-blue-600 bg-blue-100 bg-opacity-30" style="width:150px;height:150px;"></div>
+      </div>
+
+      <!-- Zoomed Image Display -->
+      <div id="zoomResult" class="hidden absolute bg-white border-2 border-gray-300 rounded-lg shadow-2xl z-50 overflow-hidden" style="width:500px;height:500px;left:105%;top:0;">
+        <img id="zoomedImage" src="<%= selectedVariant.images[0] %>" alt="Zoomed" class="absolute" style="transform-origin: top left;">
+      </div>
+
+      <!-- Thumbnails -->
+      <div class="flex space-x-3 overflow-x-auto pb-2">
+        <% selectedVariant.images.forEach((img, i) => { %>
+        <button onclick="changeImage('<%= img %>', event)" class="flex-shrink-0 w-24 h-24 bg-white rounded-lg overflow-hidden border-2 <%= i === 0 ? 'border-blue-600' : 'border-gray-200' %> hover:border-blue-600 transition">
+          <img src="<%= img %>" class="w-full h-full object-contain p-1" />
+        </button>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Product Details -->
+    <div class="space-y-6">
+      <h1 class="text-3xl font-bold text-gray-900"><%= product.name %></h1>
+
+
+      <!-- Rating -->
+      <div class="flex items-center space-x-2">
+        <div class="flex">
+          <% for(let i=1;i<=5;i++){ %>
+          <svg class="w-5 h-5 <%= i <= Math.floor(selectedVariant.rating) ? 'text-yellow-400' : 'text-gray-300' %>" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+          </svg>
+          <% } %>
+        </div>
+        <span class="text-gray-600">(<%= selectedVariant.rating?.toFixed(1) %> / 5)</span>
+      </div>
+
+      <!-- Price Section -->
+      <div class="space-y-2">
+
+        <% 
+          const finalPrice = selectedVariant.salePrice - (offer || 0);
+          const hasOffer = offer && offer > 0;
+          const regular = selectedVariant.regularPrice || selectedVariant.salePrice;
+          const totalDiscount = regular - finalPrice;
+          const discountPercentage = Math.round((totalDiscount / regular) * 100);
+        %>
+
+        <!-- MAIN PRICE + DISCOUNT -->
+        <div class="flex items-center space-x-4">
+
+          <!-- Final Price -->
+          <span class="text-4xl font-extrabold text-gray-900">
+            ₹<%= finalPrice.toLocaleString('en-IN') %>
+          </span>
+
+          <!-- Crossed Old Price -->
+          <% if (totalDiscount > 0) { %>
+          <span class="text-xl text-gray-400 line-through">
+            ₹<%= regular.toLocaleString('en-IN') %>
+          </span>
+          <% } %>
+
+          <!-- Total Percentage Off -->
+          <% if (totalDiscount > 0) { %>
+          <span class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-semibold">
+            <%= discountPercentage %>% OFF
+          </span>
+          <% } %>
+
+        </div>
+
+        <!-- BADGES BELOW PRICE -->
+        <% if (hasOffer) { %>
+        <div class="flex items-center space-x-3">
+          <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-lg text-xs font-semibold">
+            Special Offer Applied
+          </span>
+
+          <span class="text-sm text-gray-600">
+            You save ₹<%= totalDiscount.toLocaleString('en-IN') %>
+          </span>
+        </div>
+        <% } %>
+
+      </div>
+
+
+      <!-- Color Section -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Color</h3>
+        <div class="flex flex-wrap gap-2">
+          <% Object.keys(colorGroups).forEach(color => { %>
+
+          <% 
+            // Get variantId for this color
+            const variantId = colorGroups[color][0]; 
+          %>
+
+          <button onclick="showConfigurations('<%= color %>', '<%= variantId._id %>')" class="px-4 py-2 rounded-lg border-2 
+            <%= color === selectedVariant.colour 
+                ? 'border-blue-600 bg-blue-600 text-white' 
+                : 'border-gray-300 text-gray-700' 
+            %>
+            hover:border-blue-600 transition">
+
+            <%= color %>
+          </button>
+
+          <% }); %>
+
+        </div>
+      </div>
+
+      <!-- Configuration Section -->
+      <div id="configurations">
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Configuration</h3>
+        <div class="flex flex-wrap gap-2">
+          <% colorGroups[selectedVariant.colour].forEach(v => { %>
+          <button onclick="selectVariant('<%= v._id %>')" class="px-4 py-2 rounded-lg border-2 
+          <%= v._id.toString() === selectedVariant._id.toString()
+                ? 'border-blue-600 bg-blue-600 text-white'
+                : 'border-gray-300 text-gray-700' %>
+          hover:border-blue-600 transition">
+            <span class="font-medium"><%= v.storage %> / <%= v.ram %></span>
+            <span class="text-xs block mt-1 <%= v._id.toString() === selectedVariant._id.toString() ? 'text-blue-100' : 'text-gray-500' %>">
+              ₹<%= (v.salePrice-offer).toLocaleString('en-IN') %>
+            </span>
+          </button>
+          <% }); %>
+        </div>
+      </div>
+
+
+      <!-- Quantity -->
+      <div>
+        <h3 class="text-sm font-medium text-gray-900 mb-3">Stock Status</h3>
+
+        <% if (selectedVariant.stock === 0) { %>
+        <span class="text-red-600 text-sm font-medium">● Out of Stock</span>
+
+        <% } else if (selectedVariant.stock < 5) { %>
+        <span class="text-red-600 text-sm font-medium">● Only <%= selectedVariant.stock %> left!</span>
+
+        <% } else if (selectedVariant.stock < 10) { %>
+        <span class="text-orange-500 text-sm font-medium">● Low Stock (<%= selectedVariant.stock %>)</span>
+
+        <% } else if (selectedVariant.stock < 20) { %>
+        <span class="text-green-600 text-sm font-medium">● In Stock (<%= selectedVariant.stock %>)</span>
+
+        <% } else { %>
+        <span class="text-green-600 text-sm font-medium">● In Stock</span>
+        <% } %>
+      </div>
+
+
+      <!-- Buttons -->
+      <div class="flex space-x-3 mt-4">
+
+        <!-- ADD TO CART / GO TO CART -->
+        <% if (selectedVariant.stock === 0) { %>
+
+        <button class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-medium cursor-not-allowed">
+          Notify Me
+        </button>
+
+        <% } else { %>
+
+        <% if (selectedVariant.cart) { %>
+        <!-- GO TO CART BUTTON -->
+        <button onclick="event.preventDefault(); window.location.href='/cart'" class="flex-1 bg-white border border-blue-600 text-blue-600 py-3 rounded-lg font-medium">
+          <i class="bi bi-arrow-right-circle"></i> Go to Cart
+        </button>
+
+        <% } else { %>
+        <!-- ADD TO CART BUTTON -->
+        <button onclick="event.preventDefault(); addToCartItem('<%= selectedVariant._id %>')" data-cart-variant-id-details="<%= selectedVariant._id %>" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+          <i class="bi bi-cart-plus"></i> Add to Cart
+        </button>
+        <% } %>
+
+        <% } %>
+
+        <!-- WISHLIST BUTTON -->
+        <% if (!selectedVariant.cart) { %>
+        <button class="wishlist-btn w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50" data-variant-id="<%= selectedVariant._id %>" onclick="event.preventDefault(); toggleWishlist('<%= selectedVariant._id %>', event)">
+          <i class="bi bi-heart wishlist-icon text-xl"></i>
+        </button>
+        <% } %>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Description -->
+  <div class="mt-12">
+    <div class="border-b border-gray-200 mb-6">
+      <h2 class="text-lg font-semibold text-gray-900 pb-2 border-b-2 border-blue-600 inline-block">Description</h2>
+    </div>
+    <p class="text-gray-700 leading-relaxed"><%= product.description || 'No description available.' %></p>
+  </div>
+
+  <!-- Related Products Section -->
+  <div class="mt-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">You Might Also Like</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <% relatedProducts.forEach(product => { %>
+      <%- include('../partials/user/_productGridCard', { product }) %>
+      <% }) %>
+    </div>
+  </div>
+
+
+  <!-- User Reviews Section -->
+  <div class="mt-16">
+    <div class="border-b border-gray-200 mb-6 flex justify-between items-center">
+      <h2 class="text-lg font-semibold text-gray-900 pb-2 border-b-2 border-blue-600 inline-block">
+        Customer Reviews
+      </h2>
+    </div>
+
+    <% if (reviews && reviews.length > 0) { %>
+    <div class="space-y-6">
+      <% reviews.forEach(review => { %>
+      <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
+              <%= review.userName ? review.userName.charAt(0).toUpperCase() : 'U' %>
+            </div>
+            <div>
+              <p class="text-gray-900 font-semibold"><%= review.userName || 'Anonymous' %></p>
+              <p class="text-sm text-gray-500"><%= new Date(review.date).toLocaleDateString('en-IN') %></p>
+            </div>
+          </div>
+
+          <!-- Star Rating -->
+          <div class="flex items-center">
+            <% for(let i = 1; i <= 5; i++) { %>
+            <i class="bi <%= i <= review.rating ? 'bi-star-fill text-yellow-400' : 'bi-star text-gray-300' %> text-sm"></i>
+            <% } %>
+          </div>
+        </div>
+
+        <p class="text-gray-700 leading-relaxed"><%= review.comment %></p>
+      </div>
+      <% }) %>
+    </div>
+    <% } else { %>
+    <div class="text-gray-600 bg-gray-50 p-8 rounded-lg border border-gray-200 text-center">
+      <p class="text-sm">No reviews yet. Be the first to share your experience!</p>
+    </div>
+    <% } %>
+  </div>
+
+</div>
+
+<!-- ==================== FULL SCRIPT ==================== -->
+<script>
+  // Change Image
+  function changeImage(imageSrc, event) {
+    document.getElementById('mainImage').src = imageSrc;
+    document.getElementById('zoomedImage').src = imageSrc;
+    const thumbnails = document.querySelectorAll('button[onclick^="changeImage"]');
+    thumbnails.forEach(thumb => {
+      thumb.classList.remove('border-blue-600');
+      thumb.classList.add('border-gray-200');
+    });
+    event.currentTarget.classList.remove('border-gray-200');
+    event.currentTarget.classList.add('border-blue-600');
+  }
+
+  // Zoom
+  const imageContainer = document.getElementById('imageContainer');
+  const mainImage = document.getElementById('mainImage');
+  const zoomLens = document.getElementById('zoomLens');
+  const zoomResult = document.getElementById('zoomResult');
+  const zoomedImage = document.getElementById('zoomedImage');
+  const zoomLevel = 2.5,
+    lensWidth = 150,
+    lensHeight = 150;
+
+  imageContainer.addEventListener('mouseenter', () => {
+    // Check if image is loaded before showing zoom
+    if (mainImage.naturalWidth === 0) return;
+    zoomLens.classList.remove('hidden');
+    zoomResult.classList.remove('hidden');
+  });
+
+  imageContainer.addEventListener('mouseleave', () => {
+    zoomLens.classList.add('hidden');
+    zoomResult.classList.add('hidden');
+  });
+
+  // --- THIS IS THE CORRECTED FUNCTION ---
+  imageContainer.addEventListener('mousemove', (e) => {
+    const containerRect = imageContainer.getBoundingClientRect(); // The outer div
+    const imageRect = mainImage.getBoundingClientRect(); // The <img> tag
+
+    // The <img> tag's box dimensions (since it's w-full, h-full)
+    const boxWidth = imageRect.width;
+    const boxHeight = imageRect.height;
+
+    // The original image file's dimensions
+    const imgNaturalWidth = mainImage.naturalWidth;
+    const imgNaturalHeight = mainImage.naturalHeight;
+
+    // If image not loaded, stop.
+    if (imgNaturalWidth === 0) return;
+
+    // --- START OF FIX ---
+    // Calculate aspect ratios to figure out 'object-contain'
+    const boxRatio = boxWidth / boxHeight;
+    const imgRatio = imgNaturalWidth / imgNaturalHeight;
+
+    let displayWidth, displayHeight;
+
+    // Calculate the actual rendered size of the image within its box
+    if (imgRatio > boxRatio) {
+      // Image is wider than box (letterboxed)
+      displayWidth = boxWidth;
+      displayHeight = displayWidth / imgRatio;
+    } else {
+      // Image is taller than box (pillarboxed)
+      displayHeight = boxHeight;
+      displayWidth = displayHeight * imgRatio;
+    }
+
+    // Calculate the padding (empty space) inside the <img> box
+    const offsetX = (boxWidth - displayWidth) / 2;
+    const offsetY = (boxHeight - displayHeight) / 2;
+    // --- END OF FIX ---
+
+    // Mouse position relative to the container div
+    const mouseX = e.clientX - containerRect.left;
+    const mouseY = e.clientY - containerRect.top;
+
+    // Check if mouse is over the *visible image*, not the padding
+    if (
+      mouseX < offsetX ||
+      mouseY < offsetY ||
+      mouseX > offsetX + displayWidth ||
+      mouseY > offsetY + displayHeight
+    ) {
+      zoomLens.classList.add('hidden');
+      zoomResult.classList.add('hidden');
+      return;
+    }
+
+    // Show lens and zoom box if we're over the image
+    zoomLens.classList.remove('hidden');
+    zoomResult.classList.remove('hidden');
+
+    // Calculate lens position, clamped to the visible image boundaries
+    let lensX = Math.max(offsetX, Math.min(mouseX - lensWidth / 2, offsetX + displayWidth - lensWidth));
+    let lensY = Math.max(offsetY, Math.min(mouseY - lensHeight / 2, offsetY + displayHeight - lensHeight));
+
+    // Apply lens position
+    zoomLens.style.left = lensX + 'px';
+    zoomLens.style.top = lensY + 'px';
+
+    // Scale the image inside the zoom result box
+    zoomedImage.style.width = displayWidth * zoomLevel + 'px';
+    zoomedImage.style.height = displayHeight * zoomLevel + 'px';
+
+    // Calculate the ratio of the lens's position on the visible image
+    // (e.g., 0.5 means 50% across)
+    const ratioX = (lensX - offsetX) / displayWidth;
+    const ratioY = (lensY - offsetY) / displayHeight;
+
+    // Move the scaled-up image inside the zoom box
+    // This moves it *opposite* to the lens, by the same ratio
+    zoomedImage.style.transform = `translate(-${ratioX * zoomedImage.offsetWidth}px, -${ratioY * zoomedImage.offsetHeight}px)`;
+  });
+
+
+  // Variant Selector
+  function selectVariant(variantId) {
+    window.location.href = '/product/' + variantId;
+  }
+
+  function showConfigurations(color, variantId) {
+    // reload to show that color’s variants
+    console.log(variantId)
+    window.location.href=`/product/${variantId}?color=${color}`
+  }
+
+  async function toggleWishlist(variantId, event) {
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    try {
+      const res = await axios.post("/wishlist/toggle", {
+        variantId
+      });
+
+      const isAdded = res.data.action === "added";
+
+      Toastify({
+        text: res.data.message,
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: isAdded ? "#10b981" : "#ef4444",
+        close: true,
+      }).showToast();
+
+      updateWishlistIcon(variantId, isAdded);
+      updateWishlistBadge(res.data.itemCount);
+
+    } catch (err) {
+      if (err.response?.status === 401) {
+        Toastify({
+          text: "Please login to add items to wishlist",
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          backgroundColor: "#ef4444",
+        }).showToast();
+
+        setTimeout(() => window.location.href = "/login", 1200);
+      }
+    }
+  }
+
+  // Update wishlist heart icon
+  function updateWishlistIcon(variantId, isAdded) {
+    const btn = document.querySelector(`[data-variant-id="${variantId}"]`);
+    if (!btn) return;
+
+    const icon = btn.querySelector(".wishlist-icon");
+
+    if (isAdded) {
+      icon.classList.remove("bi-heart");
+      icon.classList.add("bi-heart-fill", "text-red-500");
+    } else {
+      icon.classList.add("bi-heart");
+      icon.classList.remove("bi-heart-fill", "text-red-500");
+    }
+  }
+
+  // Update badge in navbar
+  function updateWishlistBadge(count) {
+    const badge = document.querySelector('a[href="/wishlist"] span');
+    if (!badge) return;
+
+    badge.textContent = count;
+
+    if (count > 0) badge.classList.remove("hidden");
+    else badge.classList.add("hidden");
+  }
+
+  // ----------------------------
+  // 🛒 ADD TO CART 
+  // ----------------------------
+  async function addToCartItem(variantId) {
+    try {
+      const response = await axios.post("/cart/add", {
+        variantId,
+        quantity: 1
+      });
+
+      if (response.data.success) {
+
+        // Change Add → Go to Cart
+        updateDetailCartButton(variantId);
+
+        // Remove wishlist button
+        removeDetailWishlistButton(variantId);
+
+        Toastify({
+          text: "Added to cart",
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)"
+          },
+          close: true,
+        }).showToast();
+      }
+
+    } catch (error) {
+      Toastify({
+        text: error.response?.data?.message || "Error adding to cart",
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "#e74c3c",
+        close: true,
+      }).showToast();
+    }
+  }
+
+  // Replace Add to Cart with Go to Cart
+  function updateDetailCartButton(variantId) {
+    const btn = document.querySelector(`[data-cart-variant-id-details="${variantId}"]`);
+    if (!btn) return;
+
+    btn.outerHTML = `
+    <button 
+      onclick="event.preventDefault(); window.location.href='/cart'"
+      class="flex-1 bg-white border border-blue-600 text-blue-600 py-3 rounded-lg font-medium"
+    >
+      <i class="bi bi-arrow-right-circle"></i> Go to Cart
+    </button>
+  `;
+    const btnCard = document.querySelector(`[data-cart-variant-id="${variantId}"]`);
+    if (!btnCard) return;
+
+    // Replace button HTML with "Go to Cart"
+    btnCard.outerHTML = `
+      <button type="button" 
+        class="w-full bg-white text-blue-600 border border-blue-600 font-semibold 
+               py-2.5 rounded-full text-sm shadow-sm hover:bg-blue-600 hover:text-white 
+               active:scale-[0.97] transition-all flex items-center justify-center gap-2"
+        onclick="event.preventDefault(); event.stopPropagation(); window.location.href='/cart'">
+          <i class="bi bi-arrow-right-circle"></i>
+          Go to Cart
+      </button>
+    `;
+  }
+
+  // Remove wishlist button after adding to cart
+  function removeDetailWishlistButton(variantId) {
+    const btn = document.querySelectorAll(`[data-variant-id="${variantId}"]`);
+    if (btn.length > 0) {
+      btn.forEach(b => {
+        b.remove();
+      })
+    }
+  }
+
+  // ----------------------------
+  // CHECK WISHLIST STATUS ON LOAD
+  // ----------------------------
+  async function checkWishlistStatusDetailPage() {
+    const btn = document.querySelector(".wishlist-btn");
+    if (!btn) return;
+
+    const variantId = btn.getAttribute("data-variant-id");
+
+    try {
+      const res = await axios.get(`/wishlist/check/${variantId}`);
+
+      if (res.data.success && res.data.inWishlist) {
+        updateWishlistIcon(variantId, true);
+      }
+
+    } catch (err) {
+      console.error("Wishlist check failed:", err);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    checkWishlistStatusDetailPage();
+  });
+</script>
