@@ -114,9 +114,9 @@
                             minute: '2-digit'
                           }) %>
                         </p>
-                        <% if (transaction.orderId) { %>
+                        <% if (transaction.paymentId) { %>
                           <p class="text-xs text-gray-500 mt-1">
-                            Order ID: <%= transaction.orderId %>
+                            Payment ID: <%= transaction.paymentId %>
                           </p>
                         <% } %>
                       </div>

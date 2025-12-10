@@ -2,7 +2,6 @@ import bcrypt from "bcrypt";
 import {
   findUserByEmail,
   createUser,
-  createWallet,
   updateUserPassword
 } from "./auth.repo.js";
 
@@ -46,7 +45,6 @@ export const verifySignUpOtpService = async (otp, session) => {
   }
 
   const user = await createUser(session.tempUser);
-  await createWallet(user._id);
 
   session.tempUser = null;
   session.otp = null;

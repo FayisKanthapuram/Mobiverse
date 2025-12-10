@@ -21,9 +21,10 @@ document
     e.preventDefault();
 
     const formData = new FormData(e.target);
-    const amount = parseFloat(formData.get("amount"));
+    const amount = Number(formData.get("amount"));
 
-    if (amount < 100 || amount > 50000) {
+    // Validate amount
+    if (!amount || amount < 100 || amount > 50000) {
       Toastify({
         text: "Amount must be between ₹100 and ₹50,000",
         duration: 3000,
@@ -35,19 +36,19 @@ document
     }
 
     try {
+      // Create Razorpay Order
       const orderRes = await axios.post("/wallet/add-money", { amount });
-
       const order = orderRes.data.order;
-      console.log(order);
+
       const options = {
         key: window.RAZORPAY_KEY,
         amount: order.amount,
         currency: "INR",
         name: "Mobiverse",
-        description: "Test Payment",
+        description: "Wallet Top-up",
         order_id: order.id,
 
-
+        // Allowed methods
         method: {
           netbanking: true,
           card: true,
@@ -55,29 +56,67 @@ document
           wallet: true,
         },
 
+        // Payment handler
         handler: async function (response) {
-          // Verify payment
-          const verifyRes = await axios.post("/wallet/verify-payment", {...response,amount:order.amount});
-          if (verifyRes.data.success) {
+          try {
+            const verifyRes = await axios.post("/wallet/verify-payment", {
+              ...response,
+              amount:order.amount,
+            });
+
+            if (verifyRes.data.success) {
+              Toastify({
+                text: verifyRes.data.message,
+                duration: 3000,
+                gravity: "bottom",
+                position: "right",
+                backgroundColor: "#10b981",
+              }).showToast();
+
+              closeAddMoneyModal();
+              setTimeout(() => window.location.reload(), 1000);
+            }
+          } catch (err) {
+            console.log(err);
             Toastify({
-              text: "Money added successfully!",
+              text: "Payment verification failed!",
               duration: 3000,
               gravity: "bottom",
               position: "right",
-              backgroundColor: "#10b981",
+              backgroundColor: "#ef4444",
             }).showToast();
-
-            closeAddMoneyModal();
-            setTimeout(() => window.location.reload(), 1000);
           }
-        }
+        },
+
+        // Optional: If payment fails
+        modal: {
+          ondismiss: function () {
+            Toastify({
+              text: "Payment cancelled",
+              duration: 3000,
+              gravity: "bottom",
+              position: "right",
+              backgroundColor: "#ef4444",
+            }).showToast();
+          },
+        },
       };
 
       const rzp = new Razorpay(options);
-      rzp.open();
+      rzp.on("payment.failed", function (response) {
+        Toastify({
+          text: "Payment failed",
+          duration: 3000,
+          gravity: "bottom",
+          position: "right",
+          backgroundColor: "#ef4444",
+        }).showToast();
+      });
 
+      rzp.open();
     } catch (error) {
       console.error("Error adding money:", error);
+
       Toastify({
         text: error.response?.data?.message || "Failed to add money",
         duration: 3000,
@@ -87,6 +126,7 @@ document
       }).showToast();
     }
   });
+
 
 // Filter transactions
 function filterTransactions(type) {
