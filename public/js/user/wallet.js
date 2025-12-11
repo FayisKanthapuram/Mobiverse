@@ -113,6 +113,14 @@ document
         }).showToast();
       });
 
+      Toastify({
+        text: "Redirecting to Razorpay...",
+        duration: 1500,
+        gravity: "bottom",
+        position: "right",
+        backgroundColor: "#0ea5e9",
+      }).showToast();
+
       rzp.open();
     } catch (error) {
       console.error("Error adding money:", error);

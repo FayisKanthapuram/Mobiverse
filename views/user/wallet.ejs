@@ -2,25 +2,35 @@
   <div class="container mx-auto px-4 py-8">
     <div class="flex gap-6">
       <!-- Sidebar -->
-      <%- include('../partials/user/profile/sidebar', { pageTitle: 'My Wallet', user: user }) %>
+      <%- include('../partials/user/profile/sidebar', { pageTitle: 'My Wallet',
+      user: user }) %>
 
       <!-- Main Content -->
       <div class="flex-1">
         <!-- Wallet Balance Card -->
-        <div class="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl shadow-lg p-8 mb-6 text-white">
+        <div
+          class="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl shadow-lg p-8 mb-6 text-white"
+        >
           <div class="flex justify-between items-start mb-6">
             <div>
               <p class="text-blue-100 text-sm mb-2">Available Balance</p>
-              <h1 class="text-5xl font-bold mb-2">₹<%= wallet?.balance?.toLocaleString('en-IN') || '0' %></h1>
-              <p class="text-blue-100 text-sm">Wallet ID: <%= wallet?._id || 'N/A' %></p>
+              <h1 class="text-5xl font-bold mb-2">
+                ₹<%= wallet?.balance?.toLocaleString('en-IN') || '0' %>
+              </h1>
+              <p class="text-blue-100 text-sm">
+                Wallet ID: <%= wallet?._id || 'N/A' %>
+              </p>
             </div>
-            <div class=" bg-opacity-20 rounded-lg p-3">
+            <div class="bg-opacity-20 rounded-lg p-3">
               <i class="bi bi-wallet2 text-4xl"></i>
             </div>
           </div>
-          
+
           <div>
-            <button onclick="openAddMoneyModal()" class="w-full bg-white text-blue-600 font-semibold py-3 rounded-lg hover:bg-blue-50 transition-colors">
+            <button
+              onclick="openAddMoneyModal()"
+              class="w-full bg-white text-blue-600 font-semibold py-3 rounded-lg hover:bg-blue-50 transition-colors"
+            >
               <i class="bi bi-plus-circle"></i> Add Money
             </button>
           </div>
@@ -32,7 +42,9 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm mb-1">Total Credits</p>
-                <p class="text-2xl font-bold text-green-600">₹<%= wallet?.totalCredits?.toLocaleString('en-IN') || '0' %></p>
+                <p class="text-2xl font-bold text-green-600">
+                  ₹<%= wallet?.totalCredits?.toLocaleString('en-IN') || '0' %>
+                </p>
               </div>
               <div class="bg-green-50 rounded-lg p-3">
                 <i class="bi bi-arrow-down-circle text-green-600 text-2xl"></i>
@@ -44,7 +56,9 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm mb-1">Total Debits</p>
-                <p class="text-2xl font-bold text-red-600">₹<%= wallet?.totalDebits?.toLocaleString('en-IN') || '0' %></p>
+                <p class="text-2xl font-bold text-red-600">
+                  ₹<%= wallet?.totalDebits?.toLocaleString('en-IN') || '0' %>
+                </p>
               </div>
               <div class="bg-red-50 rounded-lg p-3">
                 <i class="bi bi-arrow-up-circle text-red-600 text-2xl"></i>
@@ -56,7 +70,9 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-600 text-sm mb-1">Transactions</p>
-                <p class="text-2xl font-bold text-gray-900"><%= wallet?.transactions?.length || '0' %></p>
+                <p class="text-2xl font-bold text-gray-900">
+                  <%= totalDocuments || '0' %>
+                </p>
               </div>
               <div class="bg-blue-50 rounded-lg p-3">
                 <i class="bi bi-receipt text-blue-600 text-2xl"></i>
@@ -69,19 +85,32 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <div class="flex justify-between items-center mb-6">
             <div>
-              <h2 class="text-xl font-semibold text-gray-900">Transaction History</h2>
-              <p class="text-gray-600 text-sm mt-1">All your wallet transactions</p>
+              <h2 class="text-xl font-semibold text-gray-900">
+                Transaction History
+              </h2>
+              <p class="text-gray-600 text-sm mt-1">
+                All your wallet transactions
+              </p>
             </div>
-            
+
             <!-- Filter Buttons -->
             <div class="flex gap-2">
-              <button onclick="filterTransactions('')" class="filter-btn <%= !query.type ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors">
+              <button
+                onclick="filterTransactions('')"
+                class="filter-btn <%= !query.type ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+              >
                 All
               </button>
-              <button onclick="filterTransactions('CREDIT')" class="filter-btn <%= query.type === 'CREDIT' ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors">
+              <button
+                onclick="filterTransactions('CREDIT')"
+                class="filter-btn <%= query.type === 'CREDIT' ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+              >
                 Credits
               </button>
-              <button onclick="filterTransactions('DEBIT')" class="filter-btn <%= query.type === 'DEBIT' ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors">
+              <button
+                onclick="filterTransactions('DEBIT')"
+                class="filter-btn <%= query.type === 'DEBIT' ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+              >
                 Debits
               </button>
             </div>
@@ -89,120 +118,151 @@
 
           <!-- Transactions List -->
           <div class="space-y-4">
-            <% if (transactions && transactions.length > 0) { %>
-              <% transactions.forEach(function(transaction) { %>
-                <div class="border border-gray-200 rounded-xl p-4 hover:border-blue-200 hover:shadow-sm transition-all">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                      <!-- Icon -->
-                      <div class="<%= transaction.type === 'CREDIT' ? 'bg-green-50' : 'bg-red-50' %> rounded-full p-3 flex-shrink-0">
-                        <i class="bi <%= transaction.type === 'CREDIT' ? 'bi-arrow-down-circle text-green-600' : 'bi-arrow-up-circle text-red-600' %> text-xl"></i>
-                      </div>
-                      
-                      <!-- Details -->
-                      <div>
-                        <h3 class="font-semibold text-gray-900 mb-1">
-                          <%= transaction.note || (transaction.type === 'CREDIT' ? 'Money Added' : 'Money Deducted') %>
-                        </h3>
-                        <p class="text-sm text-gray-600">
-                          <i class="bi bi-calendar"></i> 
-                          <%= new Date(transaction.createdAt).toLocaleDateString('en-IN', { 
-                            day: 'numeric', 
-                            month: 'short', 
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          }) %>
-                        </p>
-                        <% if (transaction.referenceId) { %>
-                          <p class="text-xs text-gray-500 mt-1">
-                            Reference ID: <%= transaction.referenceId %>
-                          </p>
-                        <% } %>
-                        <% if (transaction.razorpayOrderId) { %>
-                          <p class="text-xs text-gray-500 mt-1">
-                            Razorpay Order ID: <%= transaction.razorpayOrderId %>
-                          </p>
-                        <% } %>
-                        <% if (transaction.razorpayPaymentId) { %>
-                          <p class="text-xs text-gray-500 mt-1">
-                            Razorpay Payment ID: <%= transaction.razorpayPaymentId %>
-                          </p>
-                        <% } %>
-                      </div>
-                    </div>
+            <% if (transactions && transactions.length > 0) { %> <%
+            transactions.forEach(function(transaction) { %>
+            <div
+              class="border border-gray-200 rounded-xl p-4 hover:border-blue-200 hover:shadow-sm transition-all"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <!-- Icon -->
+                  <div
+                    class="<%= transaction.type === 'CREDIT' ? 'bg-green-50' : 'bg-red-50' %> rounded-full p-3 flex-shrink-0"
+                  >
+                    <i
+                      class="bi <%= transaction.type === 'CREDIT' ? 'bi-arrow-down-circle text-green-600' : 'bi-arrow-up-circle text-red-600' %> text-xl"
+                    ></i>
+                  </div>
 
-                    <!-- Amount -->
-                    <div class="text-right">
-                      <p class="text-xl font-bold <%= transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600' %>">
-                        <%= transaction.type === 'CREDIT' ? '+' : '-' %>₹<%= transaction.amount.toLocaleString('en-IN') %>
-                      </p>
-                      <p class="text-xs text-gray-500 mt-1">
-                        Balance: ₹<%= transaction?.balanceAfter?.toLocaleString('en-IN') %>
-                      </p>
-                    </div>
+                  <!-- Details -->
+                  <div>
+                    <h3 class="font-semibold text-gray-900 mb-1">
+                      <%= transaction.note || (transaction.type === 'CREDIT' ?
+                      'Money Added' : 'Money Deducted') %>
+                    </h3>
+                    <p class="text-sm text-gray-600">
+                      <i class="bi bi-calendar"></i>
+                      <%= new
+                      Date(transaction.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric', month: 'short', year: 'numeric', hour:
+                      '2-digit', minute: '2-digit' }) %>
+                    </p>
+                    <% if (transaction.referenceId) { %>
+                    <p class="text-xs text-gray-500 mt-1">
+                      Reference ID: <%= transaction.referenceId %>
+                    </p>
+                    <% } %> <% if (transaction.razorpayOrderId) { %>
+                    <p class="text-xs text-gray-500 mt-1">
+                      Razorpay Order ID: <%= transaction.razorpayOrderId %>
+                    </p>
+                    <% } %> <% if (transaction.razorpayPaymentId) { %>
+                    <p class="text-xs text-gray-500 mt-1">
+                      Razorpay Payment ID: <%= transaction.razorpayPaymentId %>
+                    </p>
+                    <% } %>
                   </div>
                 </div>
-              <% }); %>
-            <% } else { %>
-              <!-- Empty State -->
-              <div class="text-center py-12">
-                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="bi bi-receipt text-4xl text-gray-400"></i>
+
+                <!-- Amount -->
+                <div class="text-right">
+                  <p
+                    class="text-xl font-bold <%= transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600' %>"
+                  >
+                    <%= transaction.type === 'CREDIT' ? '+' : '-' %>₹<%=
+                    transaction.amount.toLocaleString('en-IN') %>
+                  </p>
+                  <p class="text-xs text-gray-500 mt-1">
+                    Balance: ₹<%=
+                    transaction?.balanceAfter?.toLocaleString('en-IN') %>
+                  </p>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">No Transactions Yet</h3>
-                <p class="text-gray-600 mb-6">Your transaction history will appear here</p>
-                <button onclick="openAddMoneyModal()" class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                  <i class="bi bi-plus-circle"></i> Add Money to Wallet
-                </button>
               </div>
+            </div>
+            <% }); %> <% } else { %>
+            <!-- Empty State -->
+            <div class="text-center py-12">
+              <div
+                class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+              >
+                <i class="bi bi-receipt text-4xl text-gray-400"></i>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                No Transactions Yet
+              </h3>
+              <p class="text-gray-600 mb-6">
+                Your transaction history will appear here
+              </p>
+              <button
+                onclick="openAddMoneyModal()"
+                class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <i class="bi bi-plus-circle"></i> Add Money to Wallet
+              </button>
+            </div>
             <% } %>
           </div>
 
           <!-- Pagination -->
           <% if (transactions && transactions.length > 0 && totalPages > 1) { %>
-          <div class="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div
+            class="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+          >
             <!-- Left: Showing X to Y -->
             <div class="text-sm text-gray-600">
-              <% 
-                const startItem = (currentPage - 1) * limit + 1;
-                const endItem = (currentPage - 1) * limit + transactions.length;
-              %>
-              Showing <span class="font-medium text-gray-900"><%= startItem %></span>
-              to <span class="font-medium text-gray-900"><%= endItem %></span>
-              of <span class="font-medium text-gray-900"><%= totalDocuments %></span> transactions
+              <% const startItem = (currentPage - 1) * limit + 1; const endItem
+              = (currentPage - 1) * limit + transactions.length; %> Showing
+              <span class="font-medium text-gray-900"><%= startItem %></span> to
+              <span class="font-medium text-gray-900"><%= endItem %></span> of
+              <span class="font-medium text-gray-900"
+                ><%= totalDocuments %></span
+              >
+              transactions
             </div>
 
             <!-- Right: Pagination Controls -->
             <div class="flex items-center gap-2">
               <!-- Previous -->
               <% if (currentPage > 1) { %>
-                <button onclick="changeWalletPage(<%= currentPage - 1 %>)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition">
-                  <i class="bi bi-chevron-left text-gray-700"></i>
-                </button>
+              <button
+                onclick="changeWalletPage(<%= currentPage - 1 %>)"
+                class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+              >
+                <i class="bi bi-chevron-left text-gray-700"></i>
+              </button>
               <% } else { %>
-                <button disabled class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed">
-                  <i class="bi bi-chevron-left text-gray-400"></i>
-                </button>
+              <button
+                disabled
+                class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed"
+              >
+                <i class="bi bi-chevron-left text-gray-400"></i>
+              </button>
               <% } %>
 
               <!-- Page Numbers -->
               <% for (let i = 1; i <= totalPages; i++) { %>
-                <button onclick="changeWalletPage(<%= i %>)" class="min-w-[36px] h-9 px-3 flex items-center justify-center rounded-lg border text-sm font-medium transition
-                  <%= currentPage === i ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100' %>">
-                  <%= i %>
-                </button>
+              <button
+                onclick="changeWalletPage(<%= i %>)"
+                class="min-w-[36px] h-9 px-3 flex items-center justify-center rounded-lg border text-sm font-medium transition <%= currentPage === i ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100' %>"
+              >
+                <%= i %>
+              </button>
               <% } %>
 
               <!-- Next -->
               <% if (currentPage < totalPages) { %>
-                <button onclick="changeWalletPage(<%= currentPage + 1 %>)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition">
-                  <i class="bi bi-chevron-right text-gray-700"></i>
-                </button>
+              <button
+                onclick="changeWalletPage(<%= currentPage + 1 %>)"
+                class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+              >
+                <i class="bi bi-chevron-right text-gray-700"></i>
+              </button>
               <% } else { %>
-                <button disabled class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed">
-                  <i class="bi bi-chevron-right text-gray-400"></i>
-                </button>
+              <button
+                disabled
+                class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed"
+              >
+                <i class="bi bi-chevron-right text-gray-400"></i>
+              </button>
               <% } %>
             </div>
           </div>
@@ -214,53 +274,87 @@
 </div>
 
 <!-- Add Money Modal -->
-<div id="addMoneyModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+<div
+  id="addMoneyModal"
+  class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"
+>
   <div class="bg-white rounded-2xl max-w-md w-full">
-    <div class="border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+    <div
+      class="border-b border-gray-200 px-6 py-4 flex justify-between items-center"
+    >
       <h3 class="text-xl font-semibold text-gray-900">Add Money to Wallet</h3>
-      <button onclick="closeAddMoneyModal()" class="text-gray-500 hover:text-gray-700">
+      <button
+        onclick="closeAddMoneyModal()"
+        class="text-gray-500 hover:text-gray-700"
+      >
         <i class="bi bi-x-lg text-2xl"></i>
       </button>
     </div>
-    
+
     <form id="addMoneyForm" class="p-6">
       <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Enter Amount *</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Enter Amount *</label
+        >
         <div class="relative">
-          <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 font-semibold">₹</span>
-          <input 
-            type="number" 
-            name="amount" 
+          <span
+            class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 font-semibold"
+            >₹</span
+          >
+          <input
+            type="number"
+            name="amount"
             id="addAmount"
-            required 
+            required
             class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none px-5"
             placeholder="Enter amount"
           />
         </div>
-        <p class="text-xs text-gray-500 mt-2">Minimum: ₹100 | Maximum: ₹50,000</p>
+        <p class="text-xs text-gray-500 mt-2">
+          Minimum: ₹100 | Maximum: ₹50,000
+        </p>
       </div>
 
       <!-- Quick Amount Buttons -->
       <div class="mb-6">
         <p class="text-sm font-medium text-gray-700 mb-3">Quick Add</p>
         <div class="grid grid-cols-3 gap-3">
-          <button type="button" onclick="setAmount(500)" class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors font-semibold">
+          <button
+            type="button"
+            onclick="setAmount(500)"
+            class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors font-semibold"
+          >
             ₹500
           </button>
-          <button type="button" onclick="setAmount(1000)" class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors font-semibold">
+          <button
+            type="button"
+            onclick="setAmount(1000)"
+            class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors font-semibold"
+          >
             ₹1,000
           </button>
-          <button type="button" onclick="setAmount(2000)" class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors font-semibold">
+          <button
+            type="button"
+            onclick="setAmount(2000)"
+            class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors font-semibold"
+          >
             ₹2,000
           </button>
         </div>
       </div>
 
       <div class="flex gap-3">
-        <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+        <button
+          type="submit"
+          class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+        >
           Proceed to Payment
         </button>
-        <button type="button" onclick="closeAddMoneyModal()" class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors">
+        <button
+          type="button"
+          onclick="closeAddMoneyModal()"
+          class="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+        >
           Cancel
         </button>
       </div>
@@ -268,24 +362,10 @@
   </div>
 </div>
 
-
-
 <style>
-.filter-btn {
-  background-color: #f3f4f6;
-  color: #6b7280;
-}
-
-.filter-btn.active {
-  background-color: #2563eb;
-  color: white;
-}
-
-.filter-btn:hover:not(.active) {
-  background-color: #e5e7eb;
-}
+  
 </style>
 
 <script>
-    window.RAZORPAY_KEY = "<%= key %>";
+  window.RAZORPAY_KEY = "<%= key %>";
 </script>

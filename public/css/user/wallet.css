@@ -1,0 +1,17 @@
+.filter-btn {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.filter-btn.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.filter-btn:hover:not(.active) {
+  background-color: #e5e7eb;
+}
+
+.toastify {
+  z-index: 999999 !important; /* Higher than Razorpay iframe */
+}

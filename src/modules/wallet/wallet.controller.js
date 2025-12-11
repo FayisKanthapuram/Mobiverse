@@ -8,7 +8,7 @@ export const loadMyWallet = async (req, res, next) => {
   try {
     const page = Number(req.query.page) || 1;
     const type = req.query.type || "";
-    const limit = 10;
+    const limit = 5;
 
     const { user, wallet, transactions, totalDocuments } =
       await loadMyWalletService(req.session.user, { page, type, limit });
@@ -19,9 +19,12 @@ export const loadMyWallet = async (req, res, next) => {
       key: process.env.RAZORPAY_KEY_ID,
       pageTitle: "My Wallet",
       pageJs: "wallet",
+      pageCss:'wallet',
       wallet,
       transactions,
       user,
+      limit,
+      totalDocuments,
       query: req.query,
       totalPages,
       currentPage: page,
