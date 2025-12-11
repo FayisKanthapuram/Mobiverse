@@ -10,6 +10,6 @@ export const findUserByEmail = (email) => {
 
 export const saveUser = (user) => user.save();
 
-export const updateUserWalletBalance=(_id,balance)=>{
-  return userModel.updateOne({_id},{balance})
-}
+export const updateUserWalletBalance = (_id, walletBalance) => {
+  return userModel.updateOne({ _id }, { walletBalance });
+};

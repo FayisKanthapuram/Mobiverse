@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "user",
     },
-    balance:{
+    walletBalance:{
       type:Number,
       default:0
     }

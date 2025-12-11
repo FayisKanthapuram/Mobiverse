@@ -1,7 +1,13 @@
 import { razorpay } from "../../config/razorpay.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { findUserById, updateUserWalletBalance } from "../user/user.repo.js";
-import { createWallet, findWalletByPaymentId, findWalletByUserId, updateWalletByUserId } from "./wallet.repo.js";
+import {
+  createLedgerEntry,
+  findFilteredTransationCount,
+  findTransationByPaymentId,
+  findTransations,
+} from "./repo/wallet.ledger.repo.js";
+import { createWallet, findWalletByUserId } from "./repo/wallet.repo.js";
 import { razorpayPaymentValidation } from "./wallet.validator.js";
 import crypto from "crypto";
 
@@ -9,37 +15,28 @@ export const loadMyWalletService = async (userId, { page, type, limit }) => {
   const user = await findUserById(userId);
 
   let wallet = await findWalletByUserId(userId);
+  if (!wallet) wallet = await createWallet(userId);
 
-  // Auto-create wallet if not exists
-  if (!wallet) {
-    wallet = await createWallet(userId);
-  }
+  // fetch transactions from WalletLedger
+  const filter = { userId };
+  if (type) filter.type = type.toUpperCase();
 
-  const totalDocuments = wallet.transactions.length;
+  const totalDocuments = await findFilteredTransationCount(filter);
 
-  const start = (page - 1) * limit;
-  const end = start + limit;
+  const transactions = await findTransations(filter, page, limit);
 
-  // slice only the transactions needed for that page
-  wallet.transactions = wallet.transactions
-    .sort((a, b) => b.createdAt - a.createdAt)
-    .slice(start, end)
-  
-  if(type){
-    wallet.transactions=wallet.transactions.filter(x=>x.type===type)
-  }
-
-  return { user, wallet, totalDocuments };
+  return { user, wallet, transactions, totalDocuments };
 };
 
 export const addMoneyService = async (amount) => {
   const options = {
     amount: amount * 100,
     currency: "INR",
-    receipt: "receipt_" + Date.now(),
+    receipt: "wallet_" + Date.now(),
   };
 
   const order = await razorpay.orders.create(options);
+
   return {
     order,
     status: HttpStatus.ACCEPTED,
@@ -49,12 +46,10 @@ export const addMoneyService = async (amount) => {
 
 export const verifyPaymentService = async (data, userId) => {
   try {
-    // Validate payload
     const { error } = razorpayPaymentValidation.validate(data);
     if (error) {
-      return {
+      throw {
         status: HttpStatus.BAD_REQUEST,
-        success: false,
         message: error.details[0].message,
       };
     }
@@ -66,69 +61,85 @@ export const verifyPaymentService = async (data, userId) => {
       amount,
     } = data;
 
-    // Verify signature
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
-
+    // Validate Razorpay signature
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(body)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      return {
+      throw {
         status: HttpStatus.NOT_ACCEPTABLE,
-        success: false,
-        message: "Payment Verification Failed ❌",
+        message: "Payment verification failed",
       };
     }
-    //to change to rupee
+
+    // Convert paise → rupees
     const creditAmount = Number(amount) / 100;
 
-    const duplicate = await findWalletByPaymentId(razorpay_payment_id)
+    // Prevent duplicate payment
+    const duplicate = await findTransationByPaymentId(
+      razorpay_payment_id,
+      "CREDIT"
+    );
 
     if (duplicate) {
       return {
-        status: HttpStatus.OK,
+        status: HttpStatus.ALREADY_REPORTED,
         success: true,
-        message: "Payment Already Processed ✔",
+        message: "Payment already processed",
       };
     }
 
     // Ensure wallet exists
-    let wallet = await findWalletByUserId(userId)
-    if (!wallet) {
-      wallet = await createWallet(userId)
-    }
+    let wallet = await findWalletByUserId(userId);
+    if (!wallet) wallet = await createWallet(userId);
 
-    const newBalance = wallet.balance + creditAmount;
+    // Increase balance
+    wallet.balance += creditAmount;
+    wallet.totalCredits += creditAmount;
+    wallet.lastTransactionAt = new Date();
+    await wallet.save();
 
-    const transaction = {
-      type: "credit",
+    const entry = {
+      walletId: wallet._id,
+      userId,
       amount: creditAmount,
-      description: "Wallet Top-up",
-      paymentOrderId: razorpay_order_id, 
-      paymentId: razorpay_payment_id,
-      balanceAfter: newBalance,
-      createdAt: new Date(),
+      type: "CREDIT",
+      note: "Wallet top-up",
+      referenceId: razorpay_payment_id,
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      balanceAfter:wallet.balance,
     };
 
-    await updateWalletByUserId(userId,creditAmount,transaction);
+    // Save LEDGER entry
+    await createLedgerEntry(entry);
 
-    await updateUserWalletBalance(userId,newBalance);
+    await updateUserWalletBalance(userId,wallet.balance)
+    // await WalletLedger.create({
+    //   walletId: wallet._id,
+    //   userId,
+    //   amount: creditAmount,
+    //   type: "ADD",
+    //   note: "Wallet top-up",
+    //   referenceId: razorpay_payment_id,
+    //   razorpayOrderId: razorpay_order_id,
+    //   razorpayPaymentId: razorpay_payment_id,
+    // });
 
     return {
       status: HttpStatus.ACCEPTED,
       success: true,
-      message: "Payment Verified & Wallet Credited ✔",
-      newBalance,
-      transaction,
+      message: "Wallet credited successfully",
+      newBalance: wallet.balance,
     };
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
     return {
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      status: HttpStatus.NOT_FOUND,
       success: false,
-      message: "Server Error ❌",
+      message: error.message,
     };
   }
 };

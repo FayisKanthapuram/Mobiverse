@@ -118,7 +118,7 @@
           </div>
         </td>
         <td><%= customer.orderCount %></td>
-        <td>₹<%= customer.balance %></td>
+        <td>₹<%= customer.walletBalance %></td>
         <td>
           <% if (customer.isBlocked) { %>
           <span class="status-badge status-blocked" data-customer-id="<%= customer._id %>" data-customer-status>

@@ -5,13 +5,11 @@ import { findAddressById } from "../../../address/address.repo.js";
 import { createOrder, findOrderByOrderId } from "../../order.repo.js";
 import { decrementProductStock } from "../../../product/repo/product.repo.js";
 import { decrementVariantStock } from "../../../product/repo/variant.repo.js";
-import {
-  deleteUserCart,
-  fetchCartItems,
-} from "../../../cart/cart.repo.js";
+import { deleteUserCart, fetchCartItems } from "../../../cart/cart.repo.js";
 import { calculateCartTotals } from "../../../cart/cartTotals.helper.js";
 import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
 import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
+import { findWalletByUserId } from "../../../wallet/repo/wallet.repo.js";
 
 export const placeOrderService = async (userId, body, appliedCoupon) => {
   const { error } = orderValidation.validate(body);
@@ -104,7 +102,30 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     cartTotals.tax;
 
   if (appliedCoupon) {
-    finalAmount=finalAmount-appliedCoupon.discount
+    finalAmount = finalAmount - appliedCoupon.discount;
+  }
+
+  if (paymentMethod === "wallet") {
+    let wallet = await findWalletByUserId(userId);
+
+    if (!wallet || wallet.balance < amount) {
+      return res.json({
+        success: false,
+        message: "Insufficient wallet balance.",
+      });
+    }
+
+    // Deduct wallet balance
+    wallet.balance -= amount;
+
+    wallet.transactions.push({
+      type: "debit",
+      amount: amount,
+      description: "Order payment",
+      date: new Date(),
+    });
+
+    await wallet.save();
   }
 
   // -------------------------------
@@ -122,8 +143,8 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     deliveryCharge: cartTotals.deliveryCharge,
     tax: cartTotals.tax,
     discount: cartTotals.discount,
-    couponDiscount: appliedCoupon?.discount||0,
-    couponId: appliedCoupon?.couponId||null,
+    couponDiscount: appliedCoupon?.discount || 0,
+    couponId: appliedCoupon?.couponId || null,
 
     finalAmount,
 

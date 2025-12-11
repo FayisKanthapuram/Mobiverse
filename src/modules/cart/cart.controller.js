@@ -1,9 +1,15 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import cartModel from "./cart.model.js";
-import { addToCartService, loadCartService, updateCartItemService } from "./cart.service.js";
+import {
+  addToCartService,
+  loadCartService,
+  updateCartItemService,
+} from "./cart.service.js";
 
 export const loadCart = async (req, res, next) => {
   try {
+    if (req.session.appliedCoupon) req.session.appliedCoupon = null;
+
     const data = await loadCartService(req.session.user);
     return res.status(HttpStatus.OK).render("user/cart", {
       pageTitle: "Cart",
@@ -36,7 +42,6 @@ export const addToCart = async (req, res) => {
   }
 };
 
-
 export const updateCartItem = async (req, res) => {
   try {
     const itemId = req.params.id;
@@ -54,7 +59,6 @@ export const updateCartItem = async (req, res) => {
     });
   }
 };
-
 
 export const deleteCartItem = async (req, res) => {
   try {

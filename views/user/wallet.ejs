@@ -78,10 +78,10 @@
               <button onclick="filterTransactions('')" class="filter-btn <%= !query.type ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors">
                 All
               </button>
-              <button onclick="filterTransactions('credit')" class="filter-btn <%= query.type === 'credit' ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors">
+              <button onclick="filterTransactions('CREDIT')" class="filter-btn <%= query.type === 'CREDIT' ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors">
                 Credits
               </button>
-              <button onclick="filterTransactions('debit')" class="filter-btn <%= query.type === 'debit' ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors">
+              <button onclick="filterTransactions('DEBIT')" class="filter-btn <%= query.type === 'DEBIT' ? 'active' : '' %> px-4 py-2 rounded-lg font-medium text-sm transition-colors">
                 Debits
               </button>
             </div>
@@ -95,14 +95,14 @@
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
                       <!-- Icon -->
-                      <div class="<%= transaction.type === 'credit' ? 'bg-green-50' : 'bg-red-50' %> rounded-full p-3 flex-shrink-0">
-                        <i class="bi <%= transaction.type === 'credit' ? 'bi-arrow-down-circle text-green-600' : 'bi-arrow-up-circle text-red-600' %> text-xl"></i>
+                      <div class="<%= transaction.type === 'CREDIT' ? 'bg-green-50' : 'bg-red-50' %> rounded-full p-3 flex-shrink-0">
+                        <i class="bi <%= transaction.type === 'CREDIT' ? 'bi-arrow-down-circle text-green-600' : 'bi-arrow-up-circle text-red-600' %> text-xl"></i>
                       </div>
                       
                       <!-- Details -->
                       <div>
                         <h3 class="font-semibold text-gray-900 mb-1">
-                          <%= transaction.description || (transaction.type === 'credit' ? 'Money Added' : 'Money Deducted') %>
+                          <%= transaction.note || (transaction.type === 'CREDIT' ? 'Money Added' : 'Money Deducted') %>
                         </h3>
                         <p class="text-sm text-gray-600">
                           <i class="bi bi-calendar"></i> 
@@ -114,9 +114,19 @@
                             minute: '2-digit'
                           }) %>
                         </p>
-                        <% if (transaction.paymentId) { %>
+                        <% if (transaction.referenceId) { %>
                           <p class="text-xs text-gray-500 mt-1">
-                            Payment ID: <%= transaction.paymentId %>
+                            Reference ID: <%= transaction.referenceId %>
+                          </p>
+                        <% } %>
+                        <% if (transaction.razorpayOrderId) { %>
+                          <p class="text-xs text-gray-500 mt-1">
+                            Razorpay Order ID: <%= transaction.razorpayOrderId %>
+                          </p>
+                        <% } %>
+                        <% if (transaction.razorpayPaymentId) { %>
+                          <p class="text-xs text-gray-500 mt-1">
+                            Razorpay Payment ID: <%= transaction.razorpayPaymentId %>
                           </p>
                         <% } %>
                       </div>
@@ -124,11 +134,11 @@
 
                     <!-- Amount -->
                     <div class="text-right">
-                      <p class="text-xl font-bold <%= transaction.type === 'credit' ? 'text-green-600' : 'text-red-600' %>">
-                        <%= transaction.type === 'credit' ? '+' : '-' %>₹<%= transaction.amount.toLocaleString('en-IN') %>
+                      <p class="text-xl font-bold <%= transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600' %>">
+                        <%= transaction.type === 'CREDIT' ? '+' : '-' %>₹<%= transaction.amount.toLocaleString('en-IN') %>
                       </p>
                       <p class="text-xs text-gray-500 mt-1">
-                        Balance: ₹<%= transaction.balanceAfter.toLocaleString('en-IN') %>
+                        Balance: ₹<%= transaction?.balanceAfter?.toLocaleString('en-IN') %>
                       </p>
                     </div>
                   </div>
