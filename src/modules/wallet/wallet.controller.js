@@ -41,7 +41,7 @@ export const addMoney = async (req, res) => {
     const userId = req.session.user;
 
     if (!userId) {
-      return res.status(401).json({
+      return res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: "Please login for adding money to your wallet!",
       });

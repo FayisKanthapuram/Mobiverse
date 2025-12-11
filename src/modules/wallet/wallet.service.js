@@ -8,7 +8,7 @@ import {
   findTransationByPaymentId,
   findTransations,
 } from "./repo/wallet.ledger.repo.js";
-import { createWallet, findWalletByUserId } from "./repo/wallet.repo.js";
+import { createWallet, findWalletByUserId, saveWallet } from "./repo/wallet.repo.js";
 import { razorpayPaymentValidation } from "./wallet.validator.js";
 import crypto from "crypto";
 
@@ -95,14 +95,14 @@ export const verifyPaymentService = async (data, userId) => {
     }
 
     // Ensure wallet exists
-    let wallet = await findWalletByUserId(userId).session(session);
+    let wallet = await findWalletByUserId(userId,session);
     if (!wallet) wallet = await createWallet(userId, session);
 
     // Increase balance
     wallet.balance += creditAmount;
     wallet.totalCredits += creditAmount;
     wallet.lastTransactionAt = new Date();
-    await wallet.save({ session });
+    await saveWallet(wallet,session)
 
     const entry = {
       walletId: wallet._id,
