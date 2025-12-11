@@ -89,12 +89,24 @@ export const findVariantsByProduct = (productId) => {
   return variantModel.find({ productId }).lean();
 };
 
-export const decrementVariantStock = async (variantId, qty) => {
-  return variantModel.updateOne({ _id: variantId }, { $inc: { stock: -qty } });
+
+export const decrementVariantStock = (variantId, qty, session = null) => {
+  const options = session ? { session } : {};
+  return variantModel.updateOne(
+    { _id: variantId },
+    { $inc: { stock: -qty } },
+    options
+  );
 };
 
-export const incrementVariantStock = (variantId, qty) => {
-  return variantModel.updateOne({ _id: variantId }, { $inc: { stock: qty } });
+
+export const incrementVariantStock = (variantId, qty, session = null) => {
+  const options = session ? { session } : {};
+  return variantModel.updateOne(
+    { _id: variantId },
+    { $inc: { stock: qty } },
+    options
+  );
 };
 
 export const findVariantByIdWithProduct = (variantId) => {

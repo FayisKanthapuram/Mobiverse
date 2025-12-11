@@ -21,7 +21,7 @@ export const loadMyWalletService = async (userId, { page, type, limit }) => {
   // fetch transactions from WalletLedger
   const filter = { userId };
   if (type) filter.type = type.toUpperCase();
-
+  else filter.type = { $in: ["CREDIT", "DEBIT", "REFERRAL"] };
   const totalDocuments = await findFilteredTransationCount(filter);
 
   const transactions = await findTransations(filter, page, limit);

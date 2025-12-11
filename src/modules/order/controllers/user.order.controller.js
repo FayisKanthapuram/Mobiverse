@@ -13,6 +13,7 @@ export const placeOrder = async (req, res) => {
     const appliedCoupon = req.session.appliedCoupon || null;
 
     const result = await placeOrderService(userId, body, appliedCoupon);
+    console.log(result)
     req.session.appliedCoupon = null;
 
     return res.status(result.status).json(result);

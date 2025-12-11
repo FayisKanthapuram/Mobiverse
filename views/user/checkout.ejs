@@ -97,7 +97,7 @@
                   </div>
                   <div class="flex-1">
                     <h4 class="font-semibold text-gray-900">Wallet</h4>
-                    <p class="text-sm text-gray-600">Available Balance: ₹<%= user.balance.toLocaleString('en-IN') || 0 %></p>
+                    <p class="text-sm text-gray-600">Available Balance: ₹<%= user.walletBalance.toLocaleString('en-IN') || 0 %></p>
                   </div>
                   <% if (user.walletBalance < cart.total) { %>
                   <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">Insufficient</span>
@@ -685,7 +685,7 @@
 
     // Check wallet balance if wallet selected
     if (paymentMethod === 'wallet') {
-      const walletBalance = <%= user.balance || 0 %>;
+      const walletBalance = <%= user.walletBalance || 0 %>;
       const totalAmount = <%= cart?.subtotal+cart?.tax+cart?.deliveryCharge-cart?.discount %>;
       if (walletBalance < totalAmount) {
         Toastify({
@@ -723,7 +723,13 @@
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to place order. Please try again.');
+      Toastify({
+          text: error.response?.data?.message||'Something went wrong',
+          duration: 3000,
+          gravity: "bottom",
+          position: "right",
+          backgroundColor: "#ef4444",
+        }).showToast();
       placeOrderBtn.disabled = false;
       placeOrderBtn.innerHTML = '<i class="bi bi-check-circle"></i> Place Order';
     }

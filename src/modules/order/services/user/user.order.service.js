@@ -3,14 +3,31 @@ import { orderValidation } from "../../order.validator.js";
 
 import { findAddressById } from "../../../address/address.repo.js";
 import { createOrder, findOrderByOrderId } from "../../order.repo.js";
-import { decrementProductStock } from "../../../product/repo/product.repo.js";
-import { decrementVariantStock } from "../../../product/repo/variant.repo.js";
+import {
+  decrementProductStock,
+  incrementProductStock,
+} from "../../../product/repo/product.repo.js";
+import {
+  decrementVariantStock,
+  incrementVariantStock,
+} from "../../../product/repo/variant.repo.js";
 import { deleteUserCart, fetchCartItems } from "../../../cart/cart.repo.js";
 import { calculateCartTotals } from "../../../cart/cartTotals.helper.js";
 import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
 import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
-import { findWalletByUserId } from "../../../wallet/repo/wallet.repo.js";
+import {
+  findWalletByUserId,
+  updateWalletBalance,
+  updateWalletHoldBalance,
+  updateWalletTotalDebits,
+} from "../../../wallet/repo/wallet.repo.js";
 import mongoose from "mongoose";
+import {
+  createHoldRecord,
+  updateHoldStatus,
+} from "../../../wallet/repo/wallet.hold.repo.js";
+import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
+import { updateUserWalletBalance } from "../../../user/user.repo.js";
 
 export const placeOrderService = async (userId, body, appliedCoupon) => {
   const session = await mongoose.startSession();
@@ -29,62 +46,90 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     const { addressId, paymentMethod } = body;
 
     // -------------------------------
-    // Address Validation
+    // 1. Fetch Address
     // -------------------------------
     const address = await findAddressById(addressId);
-    if (!address) throw { status: HttpStatus.NOT_FOUND, message: "Address not found" };
+    if (!address) throw { status: 404, message: "Address not found" };
 
     // -------------------------------
-    // Cart Fetch
+    // 2. Fetch Cart Items
     // -------------------------------
     const items = await fetchCartItems(userId);
-    if (!items.length) throw { status: HttpStatus.BAD_REQUEST, message: "Your cart is empty" };
+    if (!items.length) throw { status: 400, message: "Your cart is empty" };
 
-    const totals = await calculateCartTotals(items);
+    const cartTotals = await calculateCartTotals(items);
 
     // -------------------------------
-    // Stock Decrease
+    // 3. Reduce Stock
     // -------------------------------
     for (let item of items) {
-      await decrementProductStock(item.productId._id, item.quantity, session);
+      const dec=await decrementProductStock(item.productId._id, item.quantity, session);
+      console.log(dec)
       await decrementVariantStock(item.variantId._id, item.quantity, session);
     }
 
     // -------------------------------
-    // Format Order Items
+    // 4. Format orderedItems (DO NOT SKIP ANY FIELD)
     // -------------------------------
     const orderedItems = items.map((item) => ({
       productId: item.productId._id,
       variantId: item.variantId._id,
       quantity: item.quantity,
-      price: item.variantId.salePrice,
+
+      regularPrice: item.variantId.regularPrice ?? 0,
+      offer: item.offer ?? 0,
+      price: item.variantId.salePrice ?? 0, // final sale price
     }));
 
     // -------------------------------
-    // Final Amount
+    // 5. Copy Shipping Address (FULLY)
+    // -------------------------------
+    const shippingAddress = {
+      fullName: address.fullName,
+      phone: address.phone,
+      address1: address.address1,
+      address2: address.address2,
+      city: address.city,
+      state: address.state,
+      pincode: address.pincode,
+      country: address.country,
+      addressType: address.addressType,
+    };
+
+    // -------------------------------
+    // 6. Calculate Final Amount
     // -------------------------------
     let finalAmount =
-      totals.subtotal - totals.discount + totals.deliveryCharge + totals.tax;
+      cartTotals.subtotal -
+      cartTotals.discount +
+      cartTotals.deliveryCharge +
+      cartTotals.tax;
 
-    if (appliedCoupon) finalAmount -= appliedCoupon.discount;
+    if (appliedCoupon) {
+      finalAmount = finalAmount - appliedCoupon.discount;
+    }
 
     const orderId = new mongoose.Types.ObjectId();
-    let hold = null;
+    let holdRecord = null;
 
     // -------------------------------
-    // Wallet HOLD
+    // 7. Wallet Payment → HOLD
     // -------------------------------
     if (paymentMethod === "wallet") {
       const wallet = await findWalletByUserId(userId, session);
+
       if (!wallet || wallet.balance - wallet.holdBalance < finalAmount) {
-        throw { status: 400, message: "Insufficient wallet balance" };
+        throw {
+          status: HttpStatus.BAD_REQUEST,
+          message: "Insufficient wallet balance",
+        };
       }
 
-      // Increment hold
+      // Increase holdBalance
       await updateWalletHoldBalance(userId, finalAmount, session);
 
       // Create hold record
-      const [holdRecord] = await createHoldRecord(
+      const [hold] = await createHoldRecord(
         {
           userId,
           walletId: wallet._id,
@@ -95,9 +140,9 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
         session
       );
 
-      hold = holdRecord;
+      holdRecord = hold;
 
-      // Ledger for hold
+      // Ledger: HOLD
       await createLedgerEntry(
         {
           walletId: wallet._id,
@@ -105,14 +150,15 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           amount: -finalAmount,
           type: "HOLD",
           referenceId: orderId,
-          note: "Reserved for order",
+          note: "Wallet amount reserved for order",
+          balanceAfter: wallet.balance,
         },
         session
       );
     }
 
     // -------------------------------
-    // Create ORDER
+    // 8. Create Order (FULL FIELDS)
     // -------------------------------
     const order = await createOrder(
       {
@@ -120,50 +166,75 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
         userId,
         addressId,
         orderedItems,
+        shippingAddress,
+
+        subtotal: cartTotals.subtotal,
+        deliveryCharge: cartTotals.deliveryCharge,
+        tax: cartTotals.tax,
+        discount: cartTotals.discount,
+        couponDiscount: appliedCoupon?.discount || 0,
+        couponId: appliedCoupon?.couponId || null,
+
         finalAmount,
         paymentMethod,
         paymentStatus: paymentMethod === "wallet" ? "Paid" : "Pending",
+        expectedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
       },
       session
     );
 
     // -------------------------------
-    // Wallet CAPTURE
+    // 9. CAPTURE WALLET PAYMENT
     // -------------------------------
     if (paymentMethod === "wallet") {
       try {
-        // Deduct from wallet
+        const wallet = await findWalletByUserId(userId, session);
+
+        // Remove hold
         await updateWalletHoldBalance(userId, -finalAmount, session);
+
+        // Deduct actual money
         await updateWalletBalance(userId, -finalAmount, session);
 
-        // Update hold record
-        await updateHoldStatus(hold._id, "CAPTURED", session);
+        // Update hold status
+        await updateHoldStatus(holdRecord._id, "CAPTURED", session);
 
-        // Ledger entry
+        //update user wallet balance
+        await updateUserWalletBalance(
+          userId,
+          wallet.balance - finalAmount,
+          session
+        );
+
+        await updateWalletTotalDebits(userId,finalAmount,session)
+
+        // Ledger: DEBIT
         await createLedgerEntry(
           {
-            walletId: hold.walletId,
+            walletId: wallet._id,
             userId,
             amount: -finalAmount,
             type: "DEBIT",
             referenceId: orderId,
-            note: "Order payment captured",
+            note: `Wallet payment captured for order :- ${order.orderId}`,
+            balanceAfter: wallet.balance - finalAmount,
           },
           session
         );
       } catch (err) {
-        // RELEASE
+        console.log(err)
+        // Release hold on failure
         await updateWalletHoldBalance(userId, -finalAmount, session);
-        await updateHoldStatus(hold._id, "RELEASED", session);
+        await updateHoldStatus(holdRecord._id, "RELEASED", session);
 
         await createLedgerEntry(
           {
-            walletId: hold.walletId,
+            walletId: holdRecord.walletId,
             userId,
             amount: finalAmount,
             type: "RELEASE",
             referenceId: orderId,
-            note: "Order payment failed, released hold",
+            note: "Wallet capture failed → Hold released",
           },
           session
         );
@@ -174,17 +245,20 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           await incrementVariantStock(item.variantId, item.quantity, session);
         }
 
-        throw { status: 400, message: "Wallet payment failed" };
+        throw {
+          status: HttpStatus.BAD_REQUEST,
+          message: "Wallet payment failed",
+        };
       }
     }
 
     // -------------------------------
-    // Clear Cart
+    // 10. Clear Cart
     // -------------------------------
     await deleteUserCart(userId);
 
     // -------------------------------
-    // Coupon Usage
+    // 11. Coupon Usage
     // -------------------------------
     if (appliedCoupon) {
       await couponUsageCreate(
@@ -203,7 +277,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       status: 200,
       success: true,
       message: "Order placed successfully",
-      orderId: order._id,
+      orderId: order.orderId,
     };
   } catch (error) {
     await session.abortTransaction();
@@ -212,15 +286,13 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     return {
       status: error.status || 500,
       success: false,
-      message: error.message || "Something went wrong",
+      message: error.message || "Order failed",
     };
   }
 };
 
-
 export const loadOrderSuccessService = async (orderId) => {
   const order = await findOrderByOrderId(orderId);
-
   if (!order) {
     const err = new Error("Order not found");
     err.status = 404;

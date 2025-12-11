@@ -15,8 +15,9 @@ export const findTransationByPaymentId = (razorpayPaymentId, type) => {
   return WalletLedger.findOne({ razorpayPaymentId, type });
 };
 
-export const createLedgerEntry = async (entry, session) => {
-  return WalletLedger.create([entry], { session });
+export const createLedgerEntry = (entry, session = null) => {
+  const options = session ? { session } : {};
+  return WalletLedger.create([entry], options);
 };
 
 export const placeOrderService = async (userId, body, appliedCoupon) => {

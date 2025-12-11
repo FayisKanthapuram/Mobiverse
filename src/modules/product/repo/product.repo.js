@@ -465,19 +465,25 @@ export const countShopProductsAgg = (pipeline) => {
   return productModel.aggregate(pipeline);
 };
 
-export const decrementProductStock = async (productId, qty) => {
+export const decrementProductStock = (productId, qty, session = null) => {
+  console.log('hi')
+  const options = session ? { session } : {};
   return productModel.updateOne(
     { _id: productId },
-    { $inc: { totalStock: -qty } }
+    { $inc: { totalStock: -qty } },
+    options
   );
 };
 
-export const incrementProductStock = (productId, qty) => {
+export const incrementProductStock = (productId, qty, session = null) => {
+  const options = session ? { session } : {};
   return productModel.updateOne(
     { _id: productId },
-    { $inc: { totalStock: qty } }
+    { $inc: { stock: qty } },
+    options
   );
 };
+
 
 export const findProducts = (query, sort = { name: 1 }, skip = 0, limit = 10) =>
   productModel.find(query).sort(sort).skip(skip).limit(limit);

@@ -37,7 +37,7 @@ export const loadOrderDetails = async (req, res, next) => {
     const order = await loadOrderDetailsService(orderId);
 
     res.status(HttpStatus.OK).render("admin/orders/orderDetails", {
-      pageTitle: "Order Details",
+      pageTitle: "Orders",
       pageJs: "orderDetails",
       pageCss: "orderDetails",
       order,
