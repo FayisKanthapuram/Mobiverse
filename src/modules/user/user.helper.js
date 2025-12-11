@@ -12,3 +12,4 @@ export const createOtpPayload = () => {
 export const sendOtpEmail = async (email, otp) => {
   return await sendVerificationEmail(email, otp);
 };
+

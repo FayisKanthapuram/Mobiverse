@@ -6,6 +6,8 @@ document
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
+    const referralCode =
+      document.getElementById("referralCode").value.trim() || '';
     const submitBtn = document.querySelector("#registerBtn");
     submitBtn.disabled = true;
     submitBtn.textContent = "Registering...";
@@ -15,6 +17,7 @@ document
         email,
         password,
         confirmPassword,
+        referralCode
       });
       if (response.data.success) {
         Toastify({
@@ -54,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.getElementById("terms-modal-overlay");
 
   if (openBtn && closeBtn && overlay) {
-
     // Open
     openBtn.addEventListener("click", () => {
       overlay.classList.remove("opacity-0", "invisible");
@@ -76,17 +78,25 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function toggleSignupPassword(inputId, eyeOpenId, eyeClosedId) {
-    const input = document.getElementById(inputId);
-    const eyeOpen = document.getElementById(eyeOpenId);
-    const eyeClosed = document.getElementById(eyeClosedId);
+  const input = document.getElementById(inputId);
+  const eyeOpen = document.getElementById(eyeOpenId);
+  const eyeClosed = document.getElementById(eyeClosedId);
 
-    if (input.type === "password") {
-        input.type = "text";
-        eyeOpen.classList.add("hidden");
-        eyeClosed.classList.remove("hidden");
-    } else {
-        input.type = "password";
-        eyeOpen.classList.remove("hidden");
-        eyeClosed.classList.add("hidden");
-    }
+  if (input.type === "password") {
+    input.type = "text";
+    eyeOpen.classList.add("hidden");
+    eyeClosed.classList.remove("hidden");
+  } else {
+    input.type = "password";
+    eyeOpen.classList.remove("hidden");
+    eyeClosed.classList.add("hidden");
+  }
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const ref = urlParams.get("ref");
+
+// If referral exists, set it automatically
+if (ref) {
+  document.getElementById("referralCode").value = ref;
 }

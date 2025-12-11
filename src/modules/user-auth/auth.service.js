@@ -5,12 +5,16 @@ import {
   updateUserPassword
 } from "./auth.repo.js";
 
-import { createOtp, sendOtpEmail } from "./auth.helper.js";
-import { createWallet } from "../wallet/repo/wallet.repo.js";
+import { createOtp, generateReferralCode, sendOtpEmail } from "./auth.helper.js";
+import { createWallet, findWalletByUserId, updateWalletForReferral } from "../wallet/repo/wallet.repo.js";
+import { NEW_USER_REWARD } from "../../shared/constants/defaults.js";
+import { createLedgerEntry } from "../wallet/repo/wallet.ledger.repo.js";
+import { findUserByReferralId } from "../user/user.repo.js";
+import { createRefferalLog } from "../referral/referral.repo.js";
 
 // SIGNUP - STEP 1
 export const registerUserService = async (body, session) => {
-  const { username, email, password } = body;
+  const { username, email, password, referralCode } = body;
 
   const exists = await findUserByEmail(email);
   if (exists) throw new Error("User already exist with this email");
@@ -18,11 +22,12 @@ export const registerUserService = async (body, session) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   // Store temporary user
-  session.tempUser = { username, email, password: hashedPassword };
+  session.tempUser = { username, email, password: hashedPassword ,referralCode};
 
   const { otp, expiry } = createOtp();
 
   const sent = await sendOtpEmail(email, otp);
+  console.log(otp)
   if (!sent) throw new Error("Failed to send OTP");
 
   session.otp = otp;
@@ -45,15 +50,62 @@ export const verifySignUpOtpService = async (otp, session) => {
     throw new Error("Incorrect OTP. Try again.");
   }
 
-  const user = await createUser(session.tempUser);
+  //generate self referal code
+  const referralCode = generateReferralCode(session.tempUser.username);
 
+  //create user
+  const user = await createUser({...session.tempUser,referralCode});
+
+  //create wallet
   await createWallet(user._id);
+
+  if (session.tempUser.referralCode) {
+    const code = session.tempUser.referralCode.toUpperCase();
+
+    // 1) Find the referrer
+    const referrer = await findUserByReferralId(code)
+
+    if (referrer && referrer._id.toString() !== user._id.toString()) {
+      // 2) Create referral entry
+      const entry = {
+        referrer: referrer._id,
+        referredUser: user._id,
+        referralCode: code,
+        status: "REGISTERED",
+      };
+      await createRefferalLog(entry);
+      // give 50 joining bonus to new user
+      await creditReferralBonusToNewUser(user._id, NEW_USER_REWARD);
+    }
+  }
 
   session.tempUser = null;
   session.otp = null;
   session.otpExpiry = null;
 
   return true;
+};
+
+export const creditReferralBonusToNewUser = async (userId, amount) => {
+  const wallet = await findWalletByUserId(userId);
+  if (!wallet) throw new Error("Wallet not found");
+
+  const newBalance = wallet.balance + amount;
+
+  // Update wallet values
+  await updateWalletForReferral(userId, amount);
+
+  // Create ledger record
+  const ledger = await createLedgerEntry({
+    walletId: wallet._id,
+    userId,
+    amount,
+    balanceAfter: newBalance,
+    type: "REFERRAL",
+    note: "Referral Signup Bonus",
+  });
+
+  return ledger;
 };
 
 // RESEND OTP
@@ -67,6 +119,7 @@ export const resendOtpService = async (session) => {
   session.otpExpiry = expiry;
 
   const sent = await sendOtpEmail(email, otp);
+  console.log(otp)
   if (!sent) throw new Error("Failed to resend OTP");
 
   return true;

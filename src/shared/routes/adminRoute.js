@@ -2,7 +2,7 @@ import express from "express";
 import setLayout from "../middlewares/setLayout.js";
 
 import orderRoutes from "../../modules/order/routes/admin.order.routes.js";
-import referralRoutes from "../../modules/referral/referral.routes.js";
+import referralRoutes from "../../modules/referral/routes/admin.referral.routes.js";
 
 import adminAuthRoutes from "../../modules/admin-auth/admin.auth.routes.js"
 import usersRoutes from "../../modules/user-management/user.managment.routes.js"

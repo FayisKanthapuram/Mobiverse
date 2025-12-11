@@ -23,19 +23,18 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
-    avatar: { type: String,default:DEFAULT_USER_AVATAR},
+    avatar: { type: String, default: DEFAULT_USER_AVATAR },
     isBlocked: {
       type: Boolean,
       default: false,
     },
-    role: {
-      type: String,
-      default: "user",
+    walletBalance: {
+      type: Number,
+      default: 0,
     },
-    walletBalance:{
-      type:Number,
-      default:0
-    }
+    referralCode: { type: String, unique: true },
+    referredBy: { type: String, default: null },
+    referralRewards: { type: Number, default: 0 },
   },
   {
     timestamps: true,

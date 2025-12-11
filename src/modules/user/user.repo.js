@@ -14,3 +14,7 @@ export const updateUserWalletBalance = (_id, walletBalance, session = null) => {
   const options = session ? { session } : {};
   return userModel.updateOne({ _id }, { walletBalance }, options);
 };
+
+export const findUserByReferralId=(referralCode)=>{
+  return userModel.findOne({referralCode})
+}

@@ -9,3 +9,10 @@ export const createOtp = () => ({
 export const sendOtpEmail = async (email, otp) => {
   return await sendVerificationEmail(email, otp);
 };
+
+export function generateReferralCode(name) {
+  return (
+    name.slice(0, 3).toUpperCase() +
+    Math.random().toString(36).substring(2, 7).toUpperCase()
+  );
+}

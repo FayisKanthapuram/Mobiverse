@@ -3,6 +3,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../modules/user/user.model.js";
 import dotenv from "dotenv"
 import { createWallet } from "../modules/wallet/repo/wallet.repo.js";
+import { generateReferralCode } from "../modules/user-auth/auth.helper.js";
 dotenv.config({ quiet: true });
 
 passport.use(
@@ -39,11 +40,13 @@ passport.use(
           return done(null, user);
         } else {
           // If new Google user
+          const referralCode = generateReferralCode(profile.displayName);
           const newUser = new User({
             username: profile.displayName,
             email: email,
             googleId: profile.id,
             avatar: profile.photos?.[0]?.value || null, // optional: save profile pic
+            referralCode,
           });
           await newUser.save();
           await createWallet(newUser._id);

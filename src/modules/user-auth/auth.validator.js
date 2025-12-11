@@ -28,6 +28,16 @@ export const userRegisterSchema = Joi.object({
     "any.only": "Passwords do not match",
     "string.empty": "Confirm password is required",
   }),
+
+  referralCode: Joi.string()
+    .alphanum()
+    .length(8)
+    .allow("") // <-- allows empty string
+    .optional()
+    .messages({
+      "string.length": "Referral code must be 8 characters",
+      "string.alphanum": "Referral code must contain only letters and numbers",
+    }),
 });
 
 export const userLoginSchema = Joi.object({

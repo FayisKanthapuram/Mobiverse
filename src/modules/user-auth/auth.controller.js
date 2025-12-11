@@ -26,6 +26,7 @@ export const loadLogin = (req, res) =>
 // SIGNUP
 export const registerUser = async (req, res) => {
   try {
+    console.log(req.body.referralCode);
     const { error } = userRegisterSchema.validate(req.body);
     if (error)
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
@@ -55,6 +56,7 @@ export const verifyOtp = async (req, res) => {
       message: "OTP verified successfully!",
     });
   } catch (err) {
+    console.log(err)
     res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err.message });
   }
 };

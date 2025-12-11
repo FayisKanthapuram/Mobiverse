@@ -1,0 +1,317 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex gap-6">
+      <!-- Sidebar -->
+      <%- include('../partials/user/profile/sidebar', { pageTitle: 'Refer & Earn', user: user }) %>
+
+      <!-- Main Content -->
+      <div class="flex-1">
+        <!-- Hero Card -->
+        <div class="bg-gradient-to-r from-purple-600 to-pink-500 rounded-2xl shadow-lg p-8 mb-6 text-white">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex-1">
+              <h1 class="text-4xl font-bold mb-3">Refer & Earn Rewards!</h1>
+              <p class="text-purple-100 text-lg mb-4">
+                Share the love and earn ₹100 for every friend who makes their first purchase
+              </p>
+              <div class="flex flex-wrap items-center gap-4">
+                <div class="bg-white bg-opacity-20 rounded-lg px-6 py-3">
+                  <p class="text-sm text-purple-100">Your Earnings</p>
+                  <p class="text-2xl font-bold">₹<%= typeof referralEarnings !== 'undefined' ? referralEarnings.toLocaleString('en-IN') : '0' %></p>
+                </div>
+                <div class="bg-white bg-opacity-20 rounded-lg px-6 py-3">
+                  <p class="text-sm text-purple-100">Successful Referrals</p>
+                  <p class="text-2xl font-bold"><%= typeof totalSuccessfulReferrals !== 'undefined' ? totalSuccessfulReferrals : '0' %></p>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:block">
+              <div class="bg-white bg-opacity-20 rounded-full p-6">
+                <i class="bi bi-gift text-6xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Referral Code Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-6">
+          <div class="text-center">
+            <h2 class="text-2xl font-semibold text-gray-900 mb-2">Your Referral Code</h2>
+            <p class="text-gray-600 mb-6">Share this code with your friends</p>
+            
+            <div class="max-w-md mx-auto">
+              <div class="flex items-center gap-3 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-4 mb-4">
+                <div class="flex-1 text-center">
+                  <p class="text-3xl font-bold text-purple-600 tracking-wider"><%= user.referralCode || 'N/A' %></p>
+                </div>
+                <button onclick="copyReferralCode()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                  <i class="bi bi-clipboard"></i> Copy
+                </button>
+              </div>
+
+              <!-- Share Buttons -->
+              <div class="flex justify-center gap-3">
+                <button onclick="shareViaWhatsApp()" class="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                  <i class="bi bi-whatsapp"></i>
+                  <span class="hidden sm:inline">WhatsApp</span>
+                </button>
+                <button onclick="shareViaEmail()" class="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                  <i class="bi bi-envelope"></i>
+                  <span class="hidden sm:inline">Email</span>
+                </button>
+                <button onclick="shareViaSMS()" class="flex items-center gap-2 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">
+                  <i class="bi bi-chat-dots"></i>
+                  <span class="hidden sm:inline">SMS</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">How It Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Step 1 -->
+          <div class="text-center">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="bi bi-share text-3xl text-purple-600"></i>
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-2">1. Share Your Code</h3>
+            <p class="text-sm text-gray-600">Share your unique referral code with friends and family</p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="text-center">
+            <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="bi bi-cart-check text-3xl text-pink-600"></i>
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-2">2. Friend Signs Up</h3>
+            <p class="text-sm text-gray-600">Your friend signs up using your referral code and completes their first order</p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="bi bi-currency-rupee text-3xl text-green-600"></i>
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-2">3. Earn Rewards Together</h3>
+            <p class="text-sm text-gray-600">
+              Your friend gets <span class="font-semibold text-green-600">₹50</span> and you earn 
+              <span class="font-semibold text-green-600">₹100</span> in your wallet
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+
+        <!-- Referral History -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900">Referral History</h2>
+              <p class="text-gray-600 text-sm mt-1">Track all your referrals</p>
+            </div>
+          </div>
+
+          <!-- Referrals List -->
+          <div class="space-y-4">
+            <% if (referrals && referrals.length > 0) { %>
+              <% referrals.forEach(function(referral) { %>
+                <div class="border border-gray-200 rounded-xl p-4 hover:border-purple-200 hover:shadow-sm transition-all">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                      <!-- Icon -->
+                      <div class="<%= referral.status === 'COMPLETED' ? 'bg-green-50' : referral.status === 'PENDING' ? 'bg-yellow-50' : 'bg-gray-50' %> rounded-full p-3 flex-shrink-0">
+                        <i class="bi <%= referral.status === 'COMPLETED' ? 'bi-check-circle text-green-600' : referral.status === 'PENDING' ? 'bi-clock text-yellow-600' : 'bi-person-plus text-gray-600' %> text-xl"></i>
+                      </div>
+
+                      <!-- Details -->
+                      <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">
+                          <%= referral.referredUser?.username || 'User' %>
+                        </h3>
+                        <p class="text-sm text-gray-600">
+                          <i class="bi bi-calendar"></i>
+                          <%= new Date(referral.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                        </p>
+                        <% if (referral.status === 'PENDING') { %>
+                          <p class="text-xs text-yellow-600 mt-1">
+                            <i class="bi bi-info-circle"></i> Waiting for first purchase
+                          </p>
+                        <% } %>
+                      </div>
+                    </div>
+
+                    <!-- Status & Reward -->
+                    <div class="text-right">
+                      <% if (referral.status === 'COMPLETED') { %>
+                        <p class="text-xl font-bold text-green-600">+₹<%= referral.rewardAmount || '100' %></p>
+                        <span class="inline-block mt-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">Completed</span>
+                      <% } else if (referral.status === 'PENDING') { %>
+                        <p class="text-sm font-semibold text-yellow-600">₹100</p>
+                        <span class="inline-block mt-1 px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full">Pending</span>
+                      <% } else { %>
+                        <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">Registered</span>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <!-- Empty State -->
+              <div class="text-center py-12">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="bi bi-people text-4xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">No Referrals Yet</h3>
+                <p class="text-gray-600 mb-6">Start referring friends to earn rewards</p>
+                <button onclick="copyReferralCode()" class="inline-block px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors">
+                  <i class="bi bi-share"></i> Share Your Code
+                </button>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Pagination -->
+          <% if (referrals && referrals.length > 0 && totalPages > 1) { %>
+            <div class="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <!-- Left: Showing X to Y -->
+              <div class="text-sm text-gray-600">
+                <% const startItem = (currentPage - 1) * limit + 1; 
+                   const endItem = (currentPage - 1) * limit + referrals.length; %>
+                Showing <span class="font-medium text-gray-900"><%= startItem %></span> to 
+                <span class="font-medium text-gray-900"><%= endItem %></span> of 
+                <span class="font-medium text-gray-900"><%= totalReferrals %></span> referrals
+              </div>
+
+              <!-- Right: Pagination Controls -->
+              <div class="flex items-center gap-2">
+                <!-- Previous -->
+                <% if (currentPage > 1) { %>
+                  <button onclick="changeReferralPage(<%= currentPage - 1 %>)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition">
+                    <i class="bi bi-chevron-left text-gray-700"></i>
+                  </button>
+                <% } else { %>
+                  <button disabled class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed">
+                    <i class="bi bi-chevron-left text-gray-400"></i>
+                  </button>
+                <% } %>
+
+                <!-- Page Numbers -->
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                  <button onclick="changeReferralPage(<%= i %>)" class="min-w-[36px] h-9 px-3 flex items-center justify-center rounded-lg border text-sm font-medium transition <%= currentPage === i ? 'bg-purple-600 text-white border-purple-600' : 'border-gray-300 text-gray-700 hover:bg-gray-100' %>">
+                    <%= i %>
+                  </button>
+                <% } %>
+
+                <!-- Next -->
+                <% if (currentPage < totalPages) { %>
+                  <button onclick="changeReferralPage(<%= currentPage + 1 %>)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition">
+                    <i class="bi bi-chevron-right text-gray-700"></i>
+                  </button>
+                <% } else { %>
+                  <button disabled class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed">
+                    <i class="bi bi-chevron-right text-gray-400"></i>
+                  </button>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Terms & Conditions -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-6">
+          <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <i class="bi bi-info-circle text-blue-600"></i>
+            Terms & Conditions
+          </h3>
+          <ul class="space-y-2 text-sm text-gray-700">
+            <li class="flex items-start gap-2">
+              <i class="bi bi-check-circle-fill text-blue-600 mt-0.5"></i>
+              <span>You will earn ₹100 for each successful referral when your friend completes their first purchase</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="bi bi-check-circle-fill text-blue-600 mt-0.5"></i>
+              <span>Referred friend must use your referral code during signup</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="bi bi-check-circle-fill text-blue-600 mt-0.5"></i>
+              <span>Rewards will be credited to your wallet within 24 hours of successful purchase</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="bi bi-check-circle-fill text-blue-600 mt-0.5"></i>
+              <span>There is no limit to the number of friends you can refer</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="bi bi-check-circle-fill text-blue-600 mt-0.5"></i>
+              <span>Mobiverse reserves the right to modify or cancel this program at any time</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function copyReferralCode() {
+    const code = '<%= user.referralCode || "" %>';
+    if (!code) {
+      showToast('No referral code available', 'error');
+      return;
+    }
+    
+    navigator.clipboard.writeText(code).then(() => {
+      showToast('Referral code copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Failed to copy code', 'error');
+    });
+  }
+
+  function shareViaWhatsApp() {
+    const code = '<%= user.referralCode || "" %>';
+    const message = `Hey! Join Mobiverse using my referral code ${code} and we both get rewards! 🎁 Shop for amazing mobile phones at great prices. Sign up now: ${window.location.origin}/signup?ref=${code}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+
+  function shareViaEmail() {
+    const code = '<%= user.referralCode || "" %>';
+    const subject = 'Join Mobiverse and Get Rewards!';
+    const body = `Hi there!\n\nI've been shopping at Mobiverse and thought you'd love it too!\n\nUse my referral code: ${code} when you sign up and we both get rewards.\n\nCheck it out: ${window.location.origin}/signup?ref=${code}\n\nHappy Shopping!\n`;
+    const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = url;
+  }
+
+  function shareViaSMS() {
+    const code = '<%= user.referralCode || "" %>';
+    const message = `Join Mobiverse using my code ${code} and get rewards! ${window.location.origin}/signup?ref=${code}`;
+    const url = `sms:?body=${encodeURIComponent(message)}`;
+    window.location.href = url;
+  }
+
+  function changeReferralPage(page) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+    window.location.href = url.toString();
+  }
+
+  function showToast(message, type) {
+    if (typeof Toastify !== 'undefined') {
+      Toastify({
+        text: message,
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: type === 'success' ? '#10B981' : '#EF4444',
+        }
+      }).showToast();
+    } else {
+      alert(message);
+    }
+  }
+</script>

@@ -127,10 +127,10 @@
                 <div class="flex items-center gap-4">
                   <!-- Icon -->
                   <div
-                    class="<%= transaction.type === 'CREDIT' ? 'bg-green-50' : 'bg-red-50' %> rounded-full p-3 flex-shrink-0"
+                    class="<%= (transaction.type === 'CREDIT' || transaction.type === 'REFERRAL')? 'bg-green-50' : 'bg-red-50' %> rounded-full p-3 flex-shrink-0"
                   >
                     <i
-                      class="bi <%= transaction.type === 'CREDIT' ? 'bi-arrow-down-circle text-green-600' : 'bi-arrow-up-circle text-red-600' %> text-xl"
+                      class="bi <%= (transaction.type === 'CREDIT' || transaction.type === 'REFERRAL')? 'bi-arrow-down-circle text-green-600' : 'bi-arrow-up-circle text-red-600' %> text-xl"
                     ></i>
                   </div>
 

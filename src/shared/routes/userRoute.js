@@ -9,7 +9,7 @@ import checkoutRoutes from "../../modules/checkout/checkout.routes.js";
 import orderRoutes from "../../modules/order/routes/user.order.routes.js";
 import wishlistRoutes from "../../modules/wishlist/wishlist.routes.js"
 import walletRoutes from "../../modules/wallet/wallet.routes.js"
-
+import referralRoutes from "../../modules/referral/routes/user.referral.routes.js"
 import homeRoutes from "../../modules/home/home.routes.js"
 import userProductRoutes from "../../modules/product/routes/user.product.routes.js";
 
@@ -25,6 +25,7 @@ router.use(profileRoutes);
 router.use(addressRoutes);
 router.use(orderRoutes);
 router.use(walletRoutes);
+router.use(referralRoutes);
 router.use(wishlistRoutes);
 router.use(cartRoutes);
 router.use(checkoutRoutes);
