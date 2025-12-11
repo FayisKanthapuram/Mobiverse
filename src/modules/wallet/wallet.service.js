@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { razorpay } from "../../config/razorpay.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { findUserById, updateUserWalletBalance } from "../user/user.repo.js";
@@ -45,7 +46,9 @@ export const addMoneyService = async (amount) => {
 };
 
 export const verifyPaymentService = async (data, userId) => {
+  const session = await mongoose.startSession();
   try {
+    session.startTransaction();
     const { error } = razorpayPaymentValidation.validate(data);
     if (error) {
       throw {
@@ -92,14 +95,14 @@ export const verifyPaymentService = async (data, userId) => {
     }
 
     // Ensure wallet exists
-    let wallet = await findWalletByUserId(userId);
-    if (!wallet) wallet = await createWallet(userId);
+    let wallet = await findWalletByUserId(userId).session(session);
+    if (!wallet) wallet = await createWallet(userId, session);
 
     // Increase balance
     wallet.balance += creditAmount;
     wallet.totalCredits += creditAmount;
     wallet.lastTransactionAt = new Date();
-    await wallet.save();
+    await wallet.save({ session });
 
     const entry = {
       walletId: wallet._id,
@@ -110,23 +113,16 @@ export const verifyPaymentService = async (data, userId) => {
       referenceId: razorpay_payment_id,
       razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
-      balanceAfter:wallet.balance,
+      balanceAfter: wallet.balance,
     };
 
     // Save LEDGER entry
-    await createLedgerEntry(entry);
+    await createLedgerEntry(entry, session);
 
-    await updateUserWalletBalance(userId,wallet.balance)
-    // await WalletLedger.create({
-    //   walletId: wallet._id,
-    //   userId,
-    //   amount: creditAmount,
-    //   type: "ADD",
-    //   note: "Wallet top-up",
-    //   referenceId: razorpay_payment_id,
-    //   razorpayOrderId: razorpay_order_id,
-    //   razorpayPaymentId: razorpay_payment_id,
-    // });
+    await updateUserWalletBalance(userId, wallet.balance, session);
+
+    await session.commitTransaction();
+    session.endSession();
 
     return {
       status: HttpStatus.ACCEPTED,
@@ -135,6 +131,9 @@ export const verifyPaymentService = async (data, userId) => {
       newBalance: wallet.balance,
     };
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
     console.log(error);
     return {
       status: HttpStatus.NOT_FOUND,

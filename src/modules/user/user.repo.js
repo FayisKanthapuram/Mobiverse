@@ -10,6 +10,7 @@ export const findUserByEmail = (email) => {
 
 export const saveUser = (user) => user.save();
 
-export const updateUserWalletBalance = (_id, walletBalance) => {
-  return userModel.updateOne({ _id }, { walletBalance });
+export const updateUserWalletBalance = (_id, walletBalance, session = null) => {
+  const options = session ? { session } : {};
+  return userModel.updateOne({ _id }, { walletBalance }, options);
 };

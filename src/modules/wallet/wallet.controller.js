@@ -15,7 +15,7 @@ export const loadMyWallet = async (req, res, next) => {
 
     const totalPages = Math.ceil(totalDocuments / limit);
 
-    res.status(200).render("user/wallet", {
+    res.status(HttpStatus.ACCEPTED).render("user/wallet", {
       key: process.env.RAZORPAY_KEY_ID,
       pageTitle: "My Wallet",
       pageJs: "wallet",
@@ -50,7 +50,7 @@ export const addMoney = async (req, res) => {
     const result = await addMoneyService(req.body.amount);
     return res.status(result.status).json(result);
   } catch (error) {
-    return res.status(500).json({
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Could not initiate payment",
     });
