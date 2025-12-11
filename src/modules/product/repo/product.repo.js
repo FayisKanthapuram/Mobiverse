@@ -466,7 +466,6 @@ export const countShopProductsAgg = (pipeline) => {
 };
 
 export const decrementProductStock = (productId, qty, session = null) => {
-  console.log('hi')
   const options = session ? { session } : {};
   return productModel.updateOne(
     { _id: productId },

@@ -6,6 +6,7 @@ import {
 } from "./auth.repo.js";
 
 import { createOtp, sendOtpEmail } from "./auth.helper.js";
+import { createWallet } from "../wallet/repo/wallet.repo.js";
 
 // SIGNUP - STEP 1
 export const registerUserService = async (body, session) => {
@@ -45,6 +46,8 @@ export const verifySignUpOtpService = async (otp, session) => {
   }
 
   const user = await createUser(session.tempUser);
+
+  await createWallet(user._id);
 
   session.tempUser = null;
   session.otp = null;

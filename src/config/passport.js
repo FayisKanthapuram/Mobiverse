@@ -2,6 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../modules/user/user.model.js";
 import dotenv from "dotenv"
+import { createWallet } from "../modules/wallet/repo/wallet.repo.js";
 dotenv.config({ quiet: true });
 
 passport.use(
@@ -45,6 +46,7 @@ passport.use(
             avatar: profile.photos?.[0]?.value || null, // optional: save profile pic
           });
           await newUser.save();
+          await createWallet(newUser._id);
           return done(null, newUser);
         }
       } catch (error) {
