@@ -1,4 +1,4 @@
-import { findOrderDetailsById } from "../../order.repo.js";
+import { findOrderDetailsById } from "../../repo/order.repo.js";
 
 export const loadOrderDetailsService = async (orderId) => {
   const order = await findOrderDetailsById(orderId);

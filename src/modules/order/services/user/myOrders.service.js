@@ -1,4 +1,4 @@
-import { findOrderById, findOrderByIdWithItems, findOrderByOrderIdWithUser, findUserOrders, saveOrder } from "../../order.repo.js";
+import { findOrderById, findOrderByIdWithItems, findOrderByOrderIdWithUser, findUserOrders, saveOrder } from "../../repo/order.repo.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderItemsSchema } from "../../order.validator.js";
 import { incrementVariantStock } from "../../../product/repo/variant.repo.js";

@@ -1,4 +1,4 @@
-import { findOrderById, saveOrder } from "../../order.repo.js";
+import { findOrderById, saveOrder } from "../../repo/order.repo.js";
 import { findProductById, saveProduct } from "../../../product/repo/product.repo.js";
 import { findVariantById, saveVariant } from "../../../product/repo/variant.repo.js";
 

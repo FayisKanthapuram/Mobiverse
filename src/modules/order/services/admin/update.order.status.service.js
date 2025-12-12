@@ -1,4 +1,4 @@
-import { findOrderById, saveOrder } from "../../order.repo.js";
+import { findOrderById, saveOrder } from "../../repo/order.repo.js";
 
 export const updateOrderStatusService = async (orderId, newStatus) => {
   const order = await findOrderById(orderId);

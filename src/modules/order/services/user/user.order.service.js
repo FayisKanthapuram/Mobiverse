@@ -2,7 +2,7 @@ import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { orderValidation } from "../../order.validator.js";
 
 import { findAddressById } from "../../../address/address.repo.js";
-import { createOrder, findOrderByOrderId } from "../../order.repo.js";
+import { createOrder, findOrderByOrderId } from "../../repo/order.repo.js";
 import {
   decrementProductStock,
   incrementProductStock,

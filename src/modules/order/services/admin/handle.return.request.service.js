@@ -1,4 +1,4 @@
-import { findOrderById, saveOrder } from "../../order.repo.js";
+import { findOrderById, saveOrder } from "../../repo/order.repo.js";
 
 export const handleReturnRequestService = async (orderId, body) => {
   const { itemId, action, adminNote } = body;

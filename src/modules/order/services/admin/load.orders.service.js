@@ -5,7 +5,7 @@ import {
   countActiveOrders,
   countReturnedOrders,
   countCancelledOrders,
-} from "../../order.repo.js";
+} from "../../repo/order.repo.js";
 
 export const loadOrdersService = async (queryParams) => {
   const currentPage = parseInt(queryParams.page) || 1;
