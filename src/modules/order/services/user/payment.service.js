@@ -1,11 +1,17 @@
 import mongoose from "mongoose";
-import  {razorpay}  from "../../../../config/razorpay.js";
+import { razorpay } from "../../../../config/razorpay.js";
 import { deleteUserCart } from "../../../cart/cart.repo.js";
 import { createOrder } from "../../repo/order.repo.js";
-import { deleteTempOrder, findTempOrderById, updateTempOrder } from "../../repo/temp.order.repo.js";
-import crypto from "crypto"
+import {
+  deleteTempOrder,
+  findTempOrderById,
+  updateTempOrder,
+} from "../../repo/temp.order.repo.js";
+import crypto from "crypto";
 import { decrementProductStock } from "../../../product/repo/product.repo.js";
 import { decrementVariantStock } from "../../../product/repo/variant.repo.js";
+import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
+import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
 
 export const createRazorpayOrderService = async ({ amount, tempOrderId }) => {
   const options = {
@@ -23,6 +29,7 @@ export const verifyRazorpayPaymentService = async ({
   razorpay_signature,
   tempOrderId,
   userId,
+  appliedCoupon,
 }) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -79,6 +86,16 @@ export const verifyRazorpayPaymentService = async ({
       session
     );
 
+    if (appliedCoupon) {
+      await couponUsageCreate(
+        appliedCoupon.couponId,
+        userId,
+        order._id,
+        appliedCoupon.discount
+      );
+      await findCouponIncrementCount(appliedCoupon.couponId);
+    }
+
     // Clear cart
     await deleteUserCart(userId);
 
@@ -95,7 +112,7 @@ export const verifyRazorpayPaymentService = async ({
       orderId: order.orderId,
     };
   } catch (err) {
-    console.log(err)
+    console.log(err);
     await session.abortTransaction();
     session.endSession();
 
