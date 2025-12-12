@@ -28,6 +28,7 @@ import {
 } from "../../../wallet/repo/wallet.hold.repo.js";
 import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 import { updateUserWalletBalance } from "../../../user/user.repo.js";
+import { completeReferralReward, markReferralAsPending } from "../../../referral/referral.service.js";
 
 export const placeOrderService = async (userId, body, appliedCoupon) => {
   const session = await mongoose.startSession();
@@ -183,6 +184,8 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       session
     );
 
+    await markReferralAsPending(userId,orderId,session);
+
     // -------------------------------
     // 9. CAPTURE WALLET PAYMENT
     // -------------------------------
@@ -221,6 +224,8 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           },
           session
         );
+
+        await completeReferralReward(userId,order._id,session)
       } catch (err) {
         console.log(err)
         // Release hold on failure

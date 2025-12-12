@@ -73,7 +73,6 @@ const referralSchema = new mongoose.Schema(
 
 // Indexes for better query performance
 referralSchema.index({ referrer: 1, status: 1 });
-referralSchema.index({ referredUser: 1 });
 referralSchema.index({ referralCode: 1 });
 referralSchema.index({ createdAt: -1 });
 

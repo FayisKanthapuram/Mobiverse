@@ -42,12 +42,14 @@ export const saveWallet = (wallet, session=null) => {
   return wallet.save({session})
 };
 
-export const updateWalletForReferral = (userId, amount) => {
+export const updateWalletBalanceAndCredit = (userId, amount,session=null) => {
+  const options = session ? { session } : {};
   return Wallet.updateOne(
     { userId },
     {
       $inc: { balance: amount, totalCredits: amount },
       $set: { lastTransactionAt: new Date() },
-    }
+    },
+    options
   );
 };

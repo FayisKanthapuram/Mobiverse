@@ -6,10 +6,14 @@ import {
 } from "./auth.repo.js";
 
 import { createOtp, generateReferralCode, sendOtpEmail } from "./auth.helper.js";
-import { createWallet, findWalletByUserId, updateWalletForReferral } from "../wallet/repo/wallet.repo.js";
+import {
+  createWallet,
+  findWalletByUserId,
+  updateWalletBalanceAndCredit,
+} from "../wallet/repo/wallet.repo.js";
 import { NEW_USER_REWARD } from "../../shared/constants/defaults.js";
 import { createLedgerEntry } from "../wallet/repo/wallet.ledger.repo.js";
-import { findUserByReferralId } from "../user/user.repo.js";
+import { findUserByReferralId, updateUserWalletBalance } from "../user/user.repo.js";
 import { createRefferalLog } from "../referral/referral.repo.js";
 
 // SIGNUP - STEP 1
@@ -93,7 +97,9 @@ export const creditReferralBonusToNewUser = async (userId, amount) => {
   const newBalance = wallet.balance + amount;
 
   // Update wallet values
-  await updateWalletForReferral(userId, amount);
+  await updateWalletBalanceAndCredit(userId, amount);
+
+  await updateUserWalletBalance(userId,newBalance);
 
   // Create ledger record
   const ledger = await createLedgerEntry({
