@@ -479,23 +479,6 @@
             <span class="status-badge <%= paymentClass %>"><%= order.paymentStatus %></span>
           </div>
 
-          <!-- Payment Status Update Section -->
-          <div class="payment-status-update-section">
-            <label for="paymentStatusSelect">Update Payment Status</label>
-            <div class="status-update-controls">
-              <select id="paymentStatusSelect" class="form-select">
-                <option value="Pending" <%= order.paymentStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
-                <option value="Paid" <%= order.paymentStatus === 'Paid' ? 'selected' : '' %>>Paid</option>
-                <option value="Failed" <%= order.paymentStatus === 'Failed' ? 'selected' : '' %>>Failed</option>
-                <option value="Refunded" <%= order.paymentStatus === 'Refunded' ? 'selected' : '' %>>Refunded</option>
-              </select>
-              <button class="btn-primary btn-update-payment" onclick="updatePaymentStatus()">
-                <i class="bi bi-check-circle"></i>
-                Update
-              </button>
-            </div>
-          </div>
-
           <% if (order.paymentInfo?.razorpayPaymentId) { %>
           <div class="info-row">
             <span class="info-label">Payment ID</span>

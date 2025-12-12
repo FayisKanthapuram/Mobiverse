@@ -12,13 +12,14 @@ import {
   loadOrderFailure,
   retryPayment,
 } from "../controllers/user.order.controller.js";
-import { verifyRazorpayPayment } from "../controllers/payment.controller.js";
+import { deleteTemperoryOrder, verifyRazorpayPayment } from "../controllers/payment.controller.js";
 
 const router = express.Router();
 
 router.get("/orders", requireLogin, loadMyOrders);
 router.post("/order/place", placeOrder);
 router.post("/order/retry-payment/:id",retryPayment);
+router.delete('/order/delete/temp-order/:id',deleteTemperoryOrder);
 router.get("/order/success/:id", requireLogin, loadOrderSuccess);
 router.get("/order/failure/:id",requireLogin,loadOrderFailure);
 router.post("/order/:id/cancel-items", cancelOrderItems);

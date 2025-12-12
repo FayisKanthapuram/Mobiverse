@@ -17,9 +17,10 @@ const orderedItemSchema = new mongoose.Schema({
   },
 
   quantity: { type: Number, required: true, min: 1 },
-  regularPrice: { type: Number },
-  offer: { type: Number },
+  regularPrice: { type: Number ,default:0},
+  offer: { type: Number ,default:0},
   price: { type: Number, required: true }, // sale price at time of purchase
+  couponShare:{type:Number,default:0},// coupon share for each product
 
   // Item-level status
   itemStatus: {

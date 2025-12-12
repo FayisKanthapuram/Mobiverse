@@ -17,7 +17,7 @@ import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
 import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
 import {
   findWalletByUserId,
-  updateWalletBalance,
+  updateWalletBalanceAndCredit,
   updateWalletHoldBalance,
   updateWalletTotalDebits,
 } from "../../../wallet/repo/wallet.repo.js";
@@ -67,20 +67,10 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     // -------------------------------
     const items = await fetchCartItems(userId);
     if (!items.length) throw { status: 400, message: "Your cart is empty" };
-
     const cartTotals = await calculateCartTotals(items);
     // -------------------------------
     // 4. Format orderedItems
     // -------------------------------
-    const orderedItems = items.map((item) => ({
-      productId: item.productId._id,
-      variantId: item.variantId._id,
-      quantity: item.quantity,
-
-      regularPrice: item.variantId.regularPrice ?? 0,
-      offer: item.offer ?? 0,
-      price: item.variantId.salePrice ?? 0, // final sale price
-    }));
 
     // -------------------------------
     // 5. Copy Shipping Address
@@ -105,6 +95,18 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       cartTotals.discount +
       cartTotals.deliveryCharge +
       cartTotals.tax;
+
+    const orderedItems = items.map((item) => ({
+      productId: item.productId._id,
+      variantId: item.variantId._id,
+      quantity: item.quantity,
+      regularPrice: item.variantId.regularPrice ?? 0,
+      offer: item.offer ?? 0,
+      price: item.variantId.salePrice ?? 0, // final sale price
+      couponShare: appliedCoupon
+        ? ((item.variantId.salePrice-(item.offer||0)) / finalAmount) * appliedCoupon.discount
+        : 0,
+    }));
 
     if (appliedCoupon) {
       finalAmount = finalAmount - appliedCoupon.discount;
@@ -258,7 +260,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
         await updateWalletHoldBalance(userId, -finalAmount, session);
 
         // Deduct actual money
-        await updateWalletBalance(userId, -finalAmount, session);
+        await updateWalletBalanceAndCredit(userId, -finalAmount, session);
 
         // Update hold status
         await updateHoldStatus(holdRecord._id, "CAPTURED", session);
@@ -390,7 +392,7 @@ export const retryPaymentService = async (tempOrderId) => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    console.log(error)
+    console.log(error);
     throw {
       status: HttpStatus.BAD_REQUEST,
       message: "razorpay payment failed",

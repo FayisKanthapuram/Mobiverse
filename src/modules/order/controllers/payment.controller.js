@@ -1,3 +1,5 @@
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
+import { deleteTempOrder } from "../repo/temp.order.repo.js";
 import { verifyRazorpayPaymentService } from "../services/user/payment.service.js";
 
 export const verifyRazorpayPayment = async (req, res) => {
@@ -14,3 +16,8 @@ export const verifyRazorpayPayment = async (req, res) => {
 
   return res.status(result.status).json(result);
 };
+
+export const deleteTemperoryOrder=async(req,res)=>{
+  await deleteTempOrder(req.params.id);
+  res.status(HttpStatus.OK).json({ success:true });
+}

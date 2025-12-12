@@ -1,9 +1,23 @@
-import { findOrderById, findOrderByIdWithItems, findOrderByOrderIdWithUser, findUserOrders, saveOrder } from "../../repo/order.repo.js";
+import {
+  findOrderById,
+  findOrderByIdWithItems,
+  findOrderByOrderIdWithUser,
+  findUserOrders,
+  saveOrder,
+} from "../../repo/order.repo.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderItemsSchema } from "../../order.validator.js";
 import { incrementVariantStock } from "../../../product/repo/variant.repo.js";
 import { incrementProductStock } from "../../../product/repo/product.repo.js";
-import { findUserById } from "../../../user/user.repo.js";
+import {
+  findUserById,
+  updateUserWalletBalance,
+} from "../../../user/user.repo.js";
+import {
+  findWalletByUserId,
+  updateWalletBalanceAndCredit,
+} from "../../../wallet/repo/wallet.repo.js";
+import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 
 export const loadMyOrdersService = async (userId, queryParams) => {
   const status = queryParams.status || "";
@@ -26,11 +40,12 @@ export const loadMyOrdersService = async (userId, queryParams) => {
   if (search) {
     const s = search.toLowerCase();
 
-    orders = orders.filter((order) =>
-      order.orderId?.toLowerCase().includes(s) ||
-      order.orderedItems.some((item) =>
-        item.productId?.name?.toLowerCase().includes(s)
-      )
+    orders = orders.filter(
+      (order) =>
+        order.orderId?.toLowerCase().includes(s) ||
+        order.orderedItems.some((item) =>
+          item.productId?.name?.toLowerCase().includes(s)
+        )
     );
   }
 
@@ -51,9 +66,7 @@ export const loadMyOrdersService = async (userId, queryParams) => {
   };
 };
 
-
 export const cancelOrderItemsService = async (orderId, body) => {
-
   const { error } = OrderItemsSchema.validate(body);
   if (error) {
     return {
@@ -76,6 +89,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
   }
 
   let isAllCancelled = true;
+  let refundAmount = 0;
 
   for (const item of order.orderedItems) {
     const isSelected = itemIds.includes(item._id.toString());
@@ -88,6 +102,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
       // Update Item
       item.itemStatus = "Cancelled";
       item.reason = `${reason}, ${comments}`;
+      refundAmount += item.price - item.couponShare - item.offer;
     }
 
     // Check if any item remains active
@@ -99,9 +114,25 @@ export const cancelOrderItemsService = async (orderId, body) => {
   // 4. Update Order Status
   if (isAllCancelled) {
     order.orderStatus = "Cancelled";
+    order.paymentStatus = "Refunded";
     order.statusTimeline.cancelledAt = Date.now();
   } else {
     order.orderStatus = "Partially Cancelled";
+  }
+
+  if (order.paymentStatus === "Paid" || order.paymentMethod !== "cod") {
+    await updateWalletBalanceAndCredit(order.userId, refundAmount);
+    const wallet = await findWalletByUserId(order.userId);
+    await updateUserWalletBalance(order.userId, wallet.balance);
+    await createLedgerEntry({
+      walletId: wallet._id,
+      userId: order.userId,
+      amount: refundAmount,
+      type: "CREDIT",
+      referenceId: order.orderId,
+      note: `Refund of ₹${refundAmount} has been processed for the cancelled order: ${order.orderId}`,
+      balanceAfter: wallet.balance,
+    });
   }
 
   await saveOrder(order);
@@ -114,7 +145,6 @@ export const cancelOrderItemsService = async (orderId, body) => {
 };
 
 export const returnOrderItemsService = async (orderId, body) => {
-
   // 1. Validate request
   const { error } = OrderItemsSchema.validate(body);
   if (error) {
@@ -138,9 +168,8 @@ export const returnOrderItemsService = async (orderId, body) => {
     };
   }
 
-  
   // 3. Update item statuses
-  
+
   let anyItemUpdated = false;
 
   for (const item of order.orderedItems) {
@@ -159,14 +188,12 @@ export const returnOrderItemsService = async (orderId, body) => {
     };
   }
 
-  
   // 4. Update order status
-  
+
   order.orderStatus = "Partially Returned";
 
-  
   // 5. Save order
-  
+
   await saveOrder(order);
 
   return {

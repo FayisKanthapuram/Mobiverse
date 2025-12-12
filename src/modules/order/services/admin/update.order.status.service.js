@@ -132,6 +132,7 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
 
   if (newStatus === "Delivered") {
     order.deliveredDate = now;
+    order.paymentStatus='Paid'
   }
 
   order.markModified("statusTimeline");

@@ -39,41 +39,7 @@ async function updateOrderStatus() {
   }
 }
 
-// -------------------------------
-// Update Payment Status
-// -------------------------------
-async function updatePaymentStatus(event) {
-  const newPaymentStatus = document.getElementById("paymentStatusSelect").value;
-  const orderId = document.querySelector("[data-order-id]")?.dataset.orderId;
 
-  if (!confirm(`Update payment status to "${newPaymentStatus}"?`)) return;
-
-  const btn = event.target;
-  const original = btn.innerHTML;
-
-  btn.disabled = true;
-  btn.innerHTML = `<i class="bi bi-hourglass-split"></i> Updating...`;
-
-  try {
-    const res = await axios.patch(`/admin/orders/${orderId}/payment-status`, {
-      paymentStatus: newPaymentStatus,
-    });
-
-    if (res.data.success) {
-      notify("Payment status updated", "success");
-      setTimeout(() => window.location.reload(), 800);
-    } else {
-      notify(res.data.message || "Failed to update payment", "error");
-      btn.disabled = false;
-      btn.innerHTML = original;
-    }
-  } catch (err) {
-    console.error(err);
-    notify("Error updating payment", "error");
-    btn.disabled = false;
-    btn.innerHTML = original;
-  }
-}
 
 // -------------------------------
 // Download Invoice

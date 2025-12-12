@@ -10,15 +10,6 @@ export const createWallet = (userId, session = null) => {
   return Wallet.create([{ userId }], options);
 };
 
-export const updateWalletBalance = (userId, amount, session = null) => {
-  const options = session ? { session } : {};
-  return Wallet.updateOne(
-    { userId },
-    { $inc: { balance: amount }, lastTransactionAt: new Date() },
-    options
-  );
-};
-
 export const updateWalletHoldBalance = (userId, amount, session = null) => {
   const options = session ? { session } : {};
   return Wallet.updateOne(

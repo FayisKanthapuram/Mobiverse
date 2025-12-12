@@ -73,20 +73,19 @@
         <!-- </form> -->
 
         <!-- Return to Checkout -->
-        <a
-          href="/checkout"
-          class="flex-1 text-center px-6 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition-all"
-        >
+        <button 
+          onclick="redirect('/checkout','<%= order._id %>')" 
+          class="flex-1 text-center px-6 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition-all">
           <i class="bi bi-arrow-counterclockwise"></i> Return to Checkout
-        </a>
+        </button>
+
 
         <!-- Return to Home -->
-        <a
-          href="/"
-          class="flex-1 text-center px-6 py-4 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors"
-        >
+        <button 
+          onclick="redirect('/','<%= order._id %>')" 
+          class="flex-1 text-center px-6 py-4 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors">
           <i class="bi bi-house-door"></i> Return to Home
-        </a>
+        </button>
       </div>
     </div>
   </div>
@@ -188,6 +187,21 @@
         position: "right",
         backgroundColor: "#ef4444",
       }).showToast();
+    }
+  }
+
+  async function redirect(href,orderId) {
+    try {
+      const response = await axios.delete(`/order/delete/temp-order/${orderId}`);
+
+      if (response.data.success) {
+        window.location.href = href;
+      } else {
+        alert("Unable to proceed to checkout!");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong!");
     }
   }
 </script>
