@@ -15,7 +15,6 @@ export const laodRefferAndEarn = async (req, res) => {
   const limit = 5;
   const skip = (currentPage - 1) * limit;
   const referrals = await findReferralsByUserId(user._id, skip, limit);
-  console.log(referrals);
   let totalReferralEarnings = 0;
   let totalSuccessfulReferrals = 0;
   for (let referral of referrals) {
