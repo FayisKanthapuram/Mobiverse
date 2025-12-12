@@ -3,6 +3,7 @@ import {
   countAllUsers,
   countBlockedUsers,
   countFilteredUsers,
+  findUser,
   findUsers,
 } from "./user.managment.repo.js";
 
