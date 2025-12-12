@@ -17,7 +17,7 @@
               <div class="flex flex-wrap items-center gap-4">
                 <div class="bg-white bg-opacity-20 rounded-lg px-6 py-3">
                   <p class="text-sm text-purple-100">Your Earnings</p>
-                  <p class="text-2xl font-bold">₹<%= typeof referralEarnings !== 'undefined' ? referralEarnings.toLocaleString('en-IN') : '0' %></p>
+                  <p class="text-2xl font-bold">₹<%= typeof totalReferralEarnings !== 'undefined' ? totalReferralEarnings.toLocaleString('en-IN') : '0' %></p>
                 </div>
                 <div class="bg-white bg-opacity-20 rounded-lg px-6 py-3">
                   <p class="text-sm text-purple-100">Successful Referrals</p>
@@ -98,8 +98,8 @@
             </div>
             <h3 class="font-semibold text-gray-900 mb-2">3. Earn Rewards Together</h3>
             <p class="text-sm text-gray-600">
-              Your friend gets <span class="font-semibold text-green-600">₹50</span> and you earn 
-              <span class="font-semibold text-green-600">₹100</span> in your wallet
+              Your friend gets <span class="font-semibold text-green-600">₹<%= NEW_USER_REWARD %> </span> and you earn 
+              <span class="font-semibold text-green-600">₹<%= REFERRER_REWARD %></span> in your wallet
             </p>
           </div>
 
@@ -139,7 +139,7 @@
                         </p>
                         <% if (referral.status === 'PENDING') { %>
                           <p class="text-xs text-yellow-600 mt-1">
-                            <i class="bi bi-info-circle"></i> Waiting for first purchase
+                            <i class="bi bi-info-circle"></i> Waiting for first purchase payment
                           </p>
                         <% } %>
                       </div>

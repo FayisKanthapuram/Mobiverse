@@ -55,3 +55,11 @@ export const updateReferralToCompleted = (referralId, ledgerId, session) => {
   );
 };
 
+export const findReferralsByUserId = (referrer,skip,limit)=>{
+  return Referral.find({ referrer }).skip(skip).limit(limit).populate("referredUser");
+}
+
+export const findTotalReferralsCount = (referrer)=>{
+  return Referral.countDocuments({referrer})
+}
+
