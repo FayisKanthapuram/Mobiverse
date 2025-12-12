@@ -1,6 +1,8 @@
 import {
+  loadOrderFailureService,
   loadOrderSuccessService,
   placeOrderService,
+  retryPaymentService,
 } from "../services/user/user.order.service.js";
 import { cancelOrderItemsService, loadInvoiceService, loadMyOrdersService, loadOrderDetailsService, returnOrderItemsService } from "../services/user/myOrders.service.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
@@ -27,6 +29,22 @@ export const placeOrder = async (req, res) => {
   }
 };
 
+export const retryPayment=async(req,res)=>{
+  try {
+    const tempOrderId = req.params.id;
+    const result = await retryPaymentService(tempOrderId);
+    console.log(result);
+    return res.status(result.status).json(result);
+  } catch (err) {
+    console.log("Order Error:", err);
+
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Something went wrong while placing the order.",
+    });
+  }
+}
+
 export const loadOrderSuccess = async (req, res, next) => {
   try {
     const orderId = req.params.id;
@@ -35,6 +53,20 @@ export const loadOrderSuccess = async (req, res, next) => {
 
     res.status(HttpStatus.OK).render("user/orders/orderSuccess", {
       pageTitle: "Success",
+      order,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const loadOrderFailure = async (req, res, next) => {
+  try {
+    const orderId = req.params.id;
+
+    const order = await loadOrderFailureService(orderId);
+    res.status(HttpStatus.OK).render("user/orders/orderFailed", {
+      pageTitle: "Order Failed",
       order,
     });
   } catch (error) {

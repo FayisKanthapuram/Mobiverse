@@ -9,6 +9,8 @@ import {
   loadOrderDetails,
   loadTrackOrder,
   returnOrderItems,
+  loadOrderFailure,
+  retryPayment,
 } from "../controllers/user.order.controller.js";
 import { verifyRazorpayPayment } from "../controllers/payment.controller.js";
 
@@ -16,7 +18,9 @@ const router = express.Router();
 
 router.get("/orders", requireLogin, loadMyOrders);
 router.post("/order/place", placeOrder);
+router.post("/order/retry-payment/:id",retryPayment);
 router.get("/order/success/:id", requireLogin, loadOrderSuccess);
+router.get("/order/failure/:id",requireLogin,loadOrderFailure);
 router.post("/order/:id/cancel-items", cancelOrderItems);
 router.post("/order/:id/return-items", returnOrderItems);
 router.get("/order/track/:id", requireLogin, loadTrackOrder);

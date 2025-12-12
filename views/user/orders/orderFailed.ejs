@@ -1,0 +1,168 @@
+<div class="min-h-screen bg-gray-50 py-16">
+  <div class="container mx-auto px-4">
+    <div class="max-w-3xl mx-auto text-center">
+
+      <!-- Failed Animation -->
+      <div class="mb-8">
+        <div class="inline-block">
+          <div class="w-32 h-32 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+            <i class="bi bi-x-circle-fill text-6xl text-red-600"></i>
+          </div>
+        </div>
+
+        <h1 class="text-4xl font-bold text-red-600 mb-3">Payment Failed!</h1>
+        <p class="text-lg text-gray-600">
+          Unfortunately, your payment could not be completed.
+        </p>
+      </div>
+
+      <!-- Order Info -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">Order Information</h3>
+
+        <div class="flex justify-between text-gray-700 text-sm mb-3">
+          <span>Order ID</span>
+          <span class="font-semibold">#<%= order.orderId || order._id %></span>
+        </div>
+
+        <div class="flex justify-between text-gray-700 text-sm mb-3">
+          <span>Payment Method</span>
+          <span class="font-semibold capitalize"><%= order.paymentMethod %></span>
+        </div>
+
+        <% if (order.razorpayOrderId) { %>
+        <div class="flex justify-between text-gray-700 text-sm mb-3">
+          <span>Razorpay Order ID</span>
+          <span class="font-semibold"><%= order.razorpayOrderId %></span>
+        </div>
+        <% } %>
+
+        <% if (order.razorpayPaymentId) { %>
+        <div class="flex justify-between text-gray-700 text-sm mb-3">
+          <span>Razorpay Payment ID</span>
+          <span class="font-semibold"><%= order.razorpayPaymentId %></span>
+        </div>
+        <% } %>
+
+        <div class="mt-4 px-4 py-3 bg-red-50 rounded-lg flex items-center gap-2">
+          <i class="bi bi-exclamation-triangle text-red-600"></i>
+          <p class="text-sm text-red-700">
+            Your payment attempt was unsuccessful. Please try again.
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
+
+        <!-- Retry Payment -->
+        <!-- <form class="flex-1"> -->
+          <div class="flex-1">
+
+            <button 
+            onclick="retryPayment('<%= order._id %>')" 
+            class="w-full px-6 py-4 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold rounded-xl shadow-md hover:from-red-700 hover:to-red-600 transition-all">
+            <i class="bi bi-arrow-repeat"></i> Retry Payment
+          </button>
+        </div>
+
+        <!-- </form> -->
+
+        <!-- Return to Checkout -->
+        <a href="/checkout"
+          class="flex-1 text-center px-6 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition-all">
+          <i class="bi bi-arrow-counterclockwise"></i> Return to Checkout
+        </a>
+
+        <!-- Return to Home -->
+        <a href="/"
+          class="flex-1 text-center px-6 py-4 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors">
+          <i class="bi bi-house-door"></i> Return to Home
+        </a>
+
+      </div>
+
+
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  .animate-bounce {
+    animation: bounce 1s ease-in-out 2;
+  }
+</style>
+<script>
+  async function retryPayment(orderId) {
+    try {
+
+      // 1️⃣ Create a new Razorpay order again from backend
+      const response = await axios.post(`/order/retry-payment/${orderId}`);
+      const data = response.data;
+      console.log(data)
+      if (!data.success) {
+        Toastify({
+          text: data.message || "Failed to initiate payment",
+          duration: 3000,
+          gravity: "bottom",
+          position: "right",
+          backgroundColor: "#ef4444",
+        }).showToast();
+        return;
+      }
+
+      const { razorpayOrderId, amount, tempOrderId } = data;
+
+      const options = {
+        key: "<%= process.env.RAZORPAY_KEY_ID %>",
+        amount,
+        currency: "INR",
+        order_id: razorpayOrderId,
+
+        handler: async function (payment) {
+          // Verify payment server-side
+          const verifyRes = await axios.post("/order/razorpay/verify", {
+            ...payment,
+            tempOrderId
+          });
+
+          if (verifyRes.data.success) {
+            window.location.href = "/order/success/" + verifyRes.data.orderId;
+          } else {
+            Toastify({
+              text: verifyRes.data.message || "Payment verification failed",
+              duration: 3000,
+              gravity: "bottom",
+              position: "right",
+              backgroundColor: "#ef4444",
+            }).showToast();
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+
+      rzp.on('payment.failed',function(response){
+        window.location.href=`/order/failure/${tempOrderId}`
+      })
+      
+      rzp.open();
+
+
+    } catch (error) {
+      console.error('Error:', error);
+
+      Toastify({
+        text: error.response?.data?.message || 'Something went wrong',
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        backgroundColor: "#ef4444",
+      }).showToast();
+    }
+  }
+</script>

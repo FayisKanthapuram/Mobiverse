@@ -761,6 +761,11 @@
       };
 
       const rzp = new Razorpay(options);
+
+      rzp.on('payment.failed',function(response){
+        window.location.href=`/order/failure/${tempOrderId}`
+      })
+      
       rzp.open();
 
       placeOrderBtn.disabled = false;

@@ -117,6 +117,21 @@
               <p class="text-sm text-gray-600">Paid via Razorpay</p>
             </div>
             <span class="ml-auto px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded">Paid</span>
+
+            <!-- Razorpay Details -->
+            <div class="w-full mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h4 class="text-sm font-semibold text-gray-800 mb-2">Razorpay Details</h4>
+
+              <div class="flex justify-between text-gray-700 text-sm mb-1">
+                <span>Razorpay Order ID:</span>
+                <span class="font-medium"><%= order.razorpayOrderId %></span>
+              </div>
+
+              <div class="flex justify-between text-gray-700 text-sm">
+                <span>Razorpay Payment ID:</span>
+                <span class="font-medium"><%= order.razorpayPaymentId %></span>
+              </div>
+            </div>
             <% } else if (order.paymentMethod === 'wallet') { %>
             <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
               <i class="bi bi-wallet2 text-2xl text-purple-600"></i>

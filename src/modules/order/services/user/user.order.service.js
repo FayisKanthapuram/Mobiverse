@@ -33,8 +33,12 @@ import {
   markReferralAsPending,
 } from "../../../referral/referral.service.js";
 
-import { createTempOrder, updateTempOrder } from "../../repo/temp.order.repo.js"
+import {
+  createTempOrder,
+  updateTempOrder,
+} from "../../repo/temp.order.repo.js";
 import { createRazorpayOrderService } from "./payment.service.js";
+import { findTempOrderById } from "../../repo/temp.order.repo.js";
 
 export const placeOrderService = async (userId, body, appliedCoupon) => {
   const session = await mongoose.startSession();
@@ -70,17 +74,12 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     // 3. Reduce Stock
     // -------------------------------
     for (let item of items) {
-      const dec = await decrementProductStock(
-        item.productId._id,
-        item.quantity,
-        session
-      );
-      console.log(dec);
+      await decrementProductStock(item.productId._id, item.quantity, session);
       await decrementVariantStock(item.variantId._id, item.quantity, session);
     }
 
     // -------------------------------
-    // 4. Format orderedItems 
+    // 4. Format orderedItems
     // -------------------------------
     const orderedItems = items.map((item) => ({
       productId: item.productId._id,
@@ -93,7 +92,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     }));
 
     // -------------------------------
-    // 5. Copy Shipping Address 
+    // 5. Copy Shipping Address
     // -------------------------------
     const shippingAddress = {
       fullName: address.fullName,
@@ -172,44 +171,54 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     // 7B. Razorpay → TEMP ORDER + RETURN PAYMENT DETAILS
     // -------------------------------
     if (paymentMethod === "razorpay") {
-      const [tempOrder] = await createTempOrder(
-        {
-          userId,
-          addressId,
-          orderedItems,
-          shippingAddress,
-          subtotal: cartTotals.subtotal,
-          discount: cartTotals.discount,
-          couponDiscount: appliedCoupon?.discount || 0,
-          couponId: appliedCoupon?.couponId || null,
-          finalAmount,
-          paymentMethod: "razorpay",
-          paymentStatus: "Pending",
-        },
-        session
-      );
+      try {
+        const [tempOrder] = await createTempOrder(
+          {
+            userId,
+            addressId,
+            orderedItems,
+            shippingAddress,
+            subtotal: cartTotals.subtotal,
+            discount: cartTotals.discount,
+            couponDiscount: appliedCoupon?.discount || 0,
+            couponId: appliedCoupon?.couponId || null,
+            finalAmount,
+            paymentMethod: "razorpay",
+            paymentStatus: "Pending",
+          },
+          session
+        );
 
-      const razorpayOrder = await createRazorpayOrderService({
-        amount: finalAmount,
-        tempOrderId: tempOrder._id,
-      });
+        const razorpayOrder = await createRazorpayOrderService({
+          amount: finalAmount,
+          tempOrderId: tempOrder._id,
+        });
 
-      await updateTempOrder(
-        tempOrder._id,
-        { razorpayOrderId: razorpayOrder.id },
-        session
-      );
+        await updateTempOrder(
+          tempOrder._id,
+          { razorpayOrderId: razorpayOrder.id },
+          session
+        );
 
-      await session.commitTransaction();
-      session.endSession();
+        await session.commitTransaction();
+        session.endSession();
 
-      return {
-        status: 200,
-        success: true,
-        razorpayOrderId: razorpayOrder.id,
-        amount: razorpayOrder.amount,
-        tempOrderId: tempOrder._id,
-      };
+        return {
+          status: 200,
+          success: true,
+          razorpayOrderId: razorpayOrder.id,
+          amount: razorpayOrder.amount,
+          tempOrderId: tempOrder._id,
+        };
+      } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+
+        throw {
+          status: HttpStatus.BAD_REQUEST,
+          message: "razorpay payment failed",
+        };
+      }
     }
 
     // -------------------------------
@@ -349,8 +358,60 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
   }
 };
 
+export const retryPaymentService = async (tempOrderId) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const tempOrder = await findTempOrderById(tempOrderId);
+    if (!tempOrder) {
+      return res.json({ success: false, message: "Order not found" });
+    }
+
+    const razorpayOrder = await createRazorpayOrderService({
+      amount: tempOrder.finalAmount,
+      tempOrderId: tempOrder._id,
+    });
+
+    await updateTempOrder(
+      tempOrder._id,
+      { razorpayOrderId: razorpayOrder.id },
+      session
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      status: 200,
+      success: true,
+      razorpayOrderId: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      tempOrderId: tempOrder._id,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.log(error)
+    throw {
+      status: HttpStatus.BAD_REQUEST,
+      message: "razorpay payment failed",
+    };
+  }
+};
+
 export const loadOrderSuccessService = async (orderId) => {
   const order = await findOrderByOrderId(orderId);
+  if (!order) {
+    const err = new Error("Order not found");
+    err.status = 404;
+    throw err;
+  }
+
+  return order;
+};
+
+export const loadOrderFailureService = async (orderId) => {
+  const order = await findTempOrderById(orderId);
   if (!order) {
     const err = new Error("Order not found");
     err.status = 404;

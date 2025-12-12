@@ -28,7 +28,6 @@ export const verifyRazorpayPaymentService = async ({
   try {
     const tempOrder = await findTempOrderById(tempOrderId);
     if (!tempOrder) throw { status: 400, message: "Temp order not found" };
-    console.log(tempOrder)
 
     // Validate signature
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
@@ -67,6 +66,8 @@ export const verifyRazorpayPaymentService = async ({
         paymentMethod: "razorpay",
         paymentStatus: "Paid",
         expectedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
       },
       session
     );

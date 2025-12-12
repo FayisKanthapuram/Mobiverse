@@ -153,6 +153,16 @@ const orderSchema = new mongoose.Schema(
     deliveryCharge: { type: Number, default: 0 },
     finalAmount: { type: Number, required: true },
 
+    razorpayOrderId: {
+      type: String,
+      default: null, // store Razorpay order_id
+    },
+
+    razorpayPaymentId: {
+      type: String,
+      default: null, // store Razorpay payment_id
+    },
+
     expectedDelivery: { type: Date },
     deliveredDate: { type: Date },
   },
