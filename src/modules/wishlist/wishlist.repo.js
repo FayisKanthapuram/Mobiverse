@@ -2,15 +2,25 @@ import mongoose from "mongoose";
 import wishlistModel from "./wishlist.model.js";
 
 export const fetchWishlistItems = (userId, limit, skip) => {
+  // Build dynamic project stage
+  const projectStage = {
+    $project: {
+      items:
+        limit != null && skip != null
+          ? { $slice: ["$items", skip, limit] }
+          : "$items",
+    },
+  };
+
   return wishlistModel.aggregate([
     {
       $match: { userId: new mongoose.Types.ObjectId(userId) },
     },
-    {
-      $project: {
-        items: { $slice: ["$items", skip, limit] },
-      },
-    },
+
+    // Dynamic project stage for skip+limit
+    projectStage,
+
+    // Lookup products
     {
       $lookup: {
         from: "products",
@@ -22,6 +32,8 @@ export const fetchWishlistItems = (userId, limit, skip) => {
         as: "products",
       },
     },
+
+    // Lookup variants
     {
       $lookup: {
         from: "variants",
@@ -33,17 +45,21 @@ export const fetchWishlistItems = (userId, limit, skip) => {
         as: "variants",
       },
     },
+
+    // Lookup brands
     {
       $lookup: {
         from: "brands",
         let: { brandIds: "$products.brandID" },
         pipeline: [
           { $match: { $expr: { $in: ["$_id", "$$brandIds"] } } },
-          { $match: { isListed: true } }
+          { $match: { isListed: true } },
         ],
-        as: "brands"
-      }
+        as: "brands",
+      },
     },
+
+    // Merge product & variant into items
     {
       $addFields: {
         items: {
@@ -79,35 +95,39 @@ export const fetchWishlistItems = (userId, limit, skip) => {
         },
       },
     },
+
+    // Merge brand into items
     {
-      $addFields:{
-        items:{
-          $map:{
-            input:'$items',
-            as:'i',
-            in:{
-              $mergeObjects:[
+      $addFields: {
+        items: {
+          $map: {
+            input: "$items",
+            as: "i",
+            in: {
+              $mergeObjects: [
                 "$$i",
                 {
-                  brandId:{
-                    $first:{
-                      $filter:{
-                        input:'$brands',
-                        as:'brand',
-                        cond:{$eq:['$$brand._id','$$i.productId.brandID']}
-                      }
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
+                  brandId: {
+                    $first: {
+                      $filter: {
+                        input: "$brands",
+                        as: "brand",
+                        cond: { $eq: ["$$brand._id", "$$i.productId.brandID"] },
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
       },
     },
-    { $project: { products: 0, variants: 0 ,brands:0} },
+
+    { $project: { products: 0, variants: 0, brands: 0 } },
   ]);
 };
+
 
 export const getWishlistItemsCount = async (userId) => {
   const result = await wishlistModel.aggregate([

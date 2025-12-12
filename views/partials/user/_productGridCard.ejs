@@ -28,10 +28,22 @@
 
         <!-- Wishlist Button -->
         <% if (!isInCart) { %>
-        <button type="button" class="wishlist-btn absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:text-red-500 shadow-sm transition-all hover:scale-110" data-variant-id="<%= product?.variants?._id %>" onclick="event.stopPropagation(); event.preventDefault(); toggleWishlist('<%= product?.variants?._id %>', event)">
-          <i class="bi bi-heart text-lg wishlist-icon"></i>
+        <button 
+          type="button"
+          class="wishlist-btn absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-all hover:scale-110
+            <%= product?.variants?.isInWishlist ? 'text-red-500' : 'text-gray-500' %>"
+          data-variant-id="<%= product?.variants?._id %>"
+          onclick="event.stopPropagation(); event.preventDefault(); toggleWishlist('<%= product?.variants?._id %>', event)">
+          
+          <% if (product?.variants?.isInWishlist) { %>
+            <i class="bi bi-heart-fill wishlist-icon text-lg text-red-500"></i>
+          <% } else { %>
+            <i class="bi bi-heart wishlist-icon text-lg"></i>
+          <% } %>
+
         </button>
         <% } %>
+
 
         <!-- Discount Badge -->
         <% if (discountPercent > 0) { %>
@@ -253,41 +265,4 @@
       }
     }
   }
-
-  // Check wishlist status for all products on page load
-  async function checkAllWishlistStatuses() {
-    const wishlistButtons = document.querySelectorAll('.wishlist-btn');
-
-    if (wishlistButtons.length === 0) return;
-
-    try {
-      // Get all variant IDs
-      const variantIds = Array.from(wishlistButtons).map(btn =>
-        btn.getAttribute('data-variant-id')
-      ).filter(Boolean);
-
-      if (variantIds.length === 0) return;
-
-      // Check each variant (you might want to create a batch endpoint for better performance)
-      for (const variantId of variantIds) {
-        try {
-          const response = await axios.get(`/wishlist/check/${variantId}`);
-          if (response.data.success && response.data.inWishlist) {
-            updateWishlistButton(variantId, true);
-          }
-        } catch (error) {
-          console.error(`Error checking wishlist for ${variantId}:`, error);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking wishlist statuses:', error);
-    }
-  }
-  // Initialize on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    let user="<%= user %>"
-    if(user){
-      checkAllWishlistStatuses();
-    }
-  });
 </script>

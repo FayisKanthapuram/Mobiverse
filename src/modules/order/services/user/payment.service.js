@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import  {razorpay}  from "../../../../config/razorpay.js";
 import { deleteUserCart } from "../../../cart/cart.repo.js";
 import { createOrder } from "../../repo/order.repo.js";
-import { findTempOrderById, updateTempOrder } from "../../repo/temp.order.repo.js";
+import { deleteTempOrder, findTempOrderById, updateTempOrder } from "../../repo/temp.order.repo.js";
 import crypto from "crypto"
 
 export const createRazorpayOrderService = async ({ amount, tempOrderId }) => {
@@ -72,8 +72,12 @@ export const verifyRazorpayPaymentService = async ({
       session
     );
 
+    
     // Clear cart
     await deleteUserCart(userId);
+    
+    //delete temp order
+    await deleteTempOrder(tempOrderId,session)
 
     await session.commitTransaction();
     session.endSession();

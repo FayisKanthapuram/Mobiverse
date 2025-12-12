@@ -3,6 +3,8 @@ import {
   countShopProductsAgg,
 } from "../../repo/product.repo.js";
 import { getAllListedBrands } from "../../../brand/brand.repo.js";
+import { markWishlistStatus } from "../../../wishlist/wishlist.helper.js";
+import { fetchWishlistItems } from "../../../wishlist/wishlist.repo.js";
 
 export const loadShopService = async (query, userId) => {
   const search = query.search || "";
@@ -251,11 +253,14 @@ export const loadShopService = async (query, userId) => {
 
   const products = await getShopProductsAgg(productPipeline);
 
+  const wishlistItems = await fetchWishlistItems(userId);
+  const shopProducts=await markWishlistStatus(products,wishlistItems);
+
   // BRANDS
   const brands = await getAllListedBrands();
 
   return {
-    products,
+    products:shopProducts,
     brands,
     pagination: {
       currentPage,

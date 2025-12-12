@@ -5,9 +5,16 @@ export const createTempOrder = (data, session) => {
 };
 
 export const updateTempOrder = (id, data, session) => {
-  return TempOrder.updateOne({ _id: id }, { $set: data }, { session });
+  const options = session ? { session } : {};
+  return TempOrder.updateOne({ _id: id }, { $set: data }, { options });
 };
 
 export const findTempOrderById = (id) => {
   return TempOrder.findById(id);
 };
+
+export const deleteTempOrder = (id, session) => {
+  const options = session ? { session } : {};
+  return TempOrder.deleteOne({ _id: id }, options);
+};
+

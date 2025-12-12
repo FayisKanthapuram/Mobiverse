@@ -9,6 +9,7 @@ import {
 } from "../../repo/product.repo.js";
 
 import { getAppliedOffer, groupVariantsByColor } from "../../helpers/user.product.helper.js";
+import { getLatestProducts } from "../product.common.service.js";
 
 export const loadProductDetailsService = async (params, query,userId=null) => {
 
@@ -16,7 +17,6 @@ export const loadProductDetailsService = async (params, query,userId=null) => {
   let selectedVariant;
 
   if (query.color) {
-    console.log('hi')
     selectedVariant = await findVariantByColor(query.color,params.variantId,userId);
   } else {
     selectedVariant = await findVariantByIdAgg(params.variantId,userId);
@@ -45,7 +45,7 @@ export const loadProductDetailsService = async (params, query,userId=null) => {
   const colorGroups = groupVariantsByColor(product.variants);
 
   // 4. Get Related Products
-  const relatedProducts = await getLatestProductsAgg(6,userId);
+  const relatedProducts = await getLatestProducts(6,userId);
 
   // 5. Static reviews (temporary)
   const reviews = [

@@ -740,24 +740,42 @@
         order_id: razorpayOrderId,
 
         handler: async function (payment) {
-          // Verify payment server-side
-          const verifyRes = await axios.post("/order/razorpay/verify", {
-            ...payment,
-            tempOrderId
-          });
-
-          if (verifyRes.data.success) {
-            window.location.href = "/order/success/" + verifyRes.data.orderId;
-          } else {
+          try {
+            // Verify payment server-side
+            const verifyRes = await axios.post("/order/razorpay/verify", {
+              ...payment,
+              tempOrderId
+            });
+  
+            if (verifyRes.data.success) {
+              window.location.href = "/order/success/" + verifyRes.data.orderId;
+            } else {
+              window.location.href = `/order/failure/${tempOrderId}`;
+            }
+          } catch (error) {
+            console.log(error);
             Toastify({
-              text: verifyRes.data.message || "Payment verification failed",
+              text: "Payment verification failed!",
               duration: 3000,
               gravity: "bottom",
               position: "right",
               backgroundColor: "#ef4444",
             }).showToast();
           }
-        }
+        },
+
+        modal: {
+          ondismiss: function () {
+            Toastify({
+              text: "Payment cancelled",
+              duration: 3000,
+              gravity: "bottom",
+              position: "right",
+              backgroundColor: "#ef4444",
+            }).showToast();
+          },
+        },
+
       };
 
       const rzp = new Razorpay(options);

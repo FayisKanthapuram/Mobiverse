@@ -1,8 +1,5 @@
-import {
-  getLatestProductsAgg,
-  getFeaturedProductsAgg,
-} from "../product/repo/product.repo.js";
 import { getHomeBrands } from "../brand/brand.repo.js";
+import { getFeaturedProducts, getLatestProducts } from "../product/services/product.common.service.js";
 
 export const loadHomeService = async (userId=null) => {
   // Static banner data
@@ -13,8 +10,8 @@ export const loadHomeService = async (userId=null) => {
     image: "/images/s23-ultra-hero.png",
   };
 
-  const latestProducts = await getLatestProductsAgg(5,userId);
-  const featuredProducts = await getFeaturedProductsAgg(userId);
+  const latestProducts = await getLatestProducts(5,userId)
+  const featuredProducts = await getFeaturedProducts(userId);
   const brands = await getHomeBrands();
 
   return {

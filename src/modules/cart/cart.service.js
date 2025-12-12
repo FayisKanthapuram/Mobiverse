@@ -1,15 +1,15 @@
 import { createCartItem, fetchCartItems, findCartItem, findCartItemById, saveCartItem } from "./cart.repo.js";
 import { calculateBasicCartTotals, calculateCartTotals } from "./cartTotals.helper.js";
-import { getLatestProductsAgg } from "../product/repo/product.repo.js";
 import { addToCartSchema } from "./cart.validator.js";
 import { findVariantByIdWithProduct } from "../product/repo/variant.repo.js";
 import { findBrandById } from "../brand/brand.repo.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { checkInWishlist, removeWishlistItem } from "../wishlist/wishlist.repo.js";
+import { getLatestProducts } from "../product/services/product.common.service.js";
 
 export const loadCartService = async (userId) => {
   // Related products recommendation
-  const relatedProducts = await getLatestProductsAgg(5,userId);
+  const relatedProducts = await getLatestProducts(5,userId);
 
   // Fetch cart items for this user
   const items = await fetchCartItems(userId);
