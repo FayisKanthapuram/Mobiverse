@@ -4,6 +4,8 @@ import { deleteUserCart } from "../../../cart/cart.repo.js";
 import { createOrder } from "../../repo/order.repo.js";
 import { deleteTempOrder, findTempOrderById, updateTempOrder } from "../../repo/temp.order.repo.js";
 import crypto from "crypto"
+import { decrementProductStock } from "../../../product/repo/product.repo.js";
+import { decrementVariantStock } from "../../../product/repo/variant.repo.js";
 
 export const createRazorpayOrderService = async ({ amount, tempOrderId }) => {
   const options = {
@@ -51,6 +53,11 @@ export const verifyRazorpayPaymentService = async ({
       session
     );
 
+    for (let item of tempOrder.orderedItems) {
+      await decrementProductStock(item.productId._id, item.quantity, session);
+      await decrementVariantStock(item.variantId._id, item.quantity, session);
+    }
+
     // Create final order
     const order = await createOrder(
       {
@@ -72,12 +79,11 @@ export const verifyRazorpayPaymentService = async ({
       session
     );
 
-    
     // Clear cart
     await deleteUserCart(userId);
-    
+
     //delete temp order
-    await deleteTempOrder(tempOrderId,session)
+    await deleteTempOrder(tempOrderId, session);
 
     await session.commitTransaction();
     session.endSession();

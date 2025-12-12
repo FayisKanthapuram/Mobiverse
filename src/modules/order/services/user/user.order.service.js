@@ -69,15 +69,6 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     if (!items.length) throw { status: 400, message: "Your cart is empty" };
 
     const cartTotals = await calculateCartTotals(items);
-
-    // -------------------------------
-    // 3. Reduce Stock
-    // -------------------------------
-    for (let item of items) {
-      await decrementProductStock(item.productId._id, item.quantity, session);
-      await decrementVariantStock(item.variantId._id, item.quantity, session);
-    }
-
     // -------------------------------
     // 4. Format orderedItems
     // -------------------------------
@@ -219,6 +210,14 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           message: "razorpay payment failed",
         };
       }
+    }
+
+    // -------------------------------
+    // 3. Reduce Stock
+    // -------------------------------
+    for (let item of items) {
+      await decrementProductStock(item.productId._id, item.quantity, session);
+      await decrementVariantStock(item.variantId._id, item.quantity, session);
     }
 
     // -------------------------------
