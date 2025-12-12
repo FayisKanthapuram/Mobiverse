@@ -28,7 +28,13 @@ import {
 } from "../../../wallet/repo/wallet.hold.repo.js";
 import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 import { updateUserWalletBalance } from "../../../user/user.repo.js";
-import { completeReferralReward, markReferralAsPending } from "../../../referral/referral.service.js";
+import {
+  completeReferralReward,
+  markReferralAsPending,
+} from "../../../referral/referral.service.js";
+
+import { createTempOrder, updateTempOrder } from "../../repo/temp.order.repo.js"
+import { createRazorpayOrderService } from "./payment.service.js";
 
 export const placeOrderService = async (userId, body, appliedCoupon) => {
   const session = await mongoose.startSession();
@@ -64,13 +70,17 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     // 3. Reduce Stock
     // -------------------------------
     for (let item of items) {
-      const dec=await decrementProductStock(item.productId._id, item.quantity, session);
-      console.log(dec)
+      const dec = await decrementProductStock(
+        item.productId._id,
+        item.quantity,
+        session
+      );
+      console.log(dec);
       await decrementVariantStock(item.variantId._id, item.quantity, session);
     }
 
     // -------------------------------
-    // 4. Format orderedItems (DO NOT SKIP ANY FIELD)
+    // 4. Format orderedItems 
     // -------------------------------
     const orderedItems = items.map((item) => ({
       productId: item.productId._id,
@@ -83,7 +93,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     }));
 
     // -------------------------------
-    // 5. Copy Shipping Address (FULLY)
+    // 5. Copy Shipping Address 
     // -------------------------------
     const shippingAddress = {
       fullName: address.fullName,
@@ -114,7 +124,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     let holdRecord = null;
 
     // -------------------------------
-    // 7. Wallet Payment → HOLD
+    // 7A. Wallet Payment → HOLD
     // -------------------------------
     if (paymentMethod === "wallet") {
       const wallet = await findWalletByUserId(userId, session);
@@ -159,6 +169,50 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     }
 
     // -------------------------------
+    // 7B. Razorpay → TEMP ORDER + RETURN PAYMENT DETAILS
+    // -------------------------------
+    if (paymentMethod === "razorpay") {
+      const [tempOrder] = await createTempOrder(
+        {
+          userId,
+          addressId,
+          orderedItems,
+          shippingAddress,
+          subtotal: cartTotals.subtotal,
+          discount: cartTotals.discount,
+          couponDiscount: appliedCoupon?.discount || 0,
+          couponId: appliedCoupon?.couponId || null,
+          finalAmount,
+          paymentMethod: "razorpay",
+          paymentStatus: "Pending",
+        },
+        session
+      );
+
+      const razorpayOrder = await createRazorpayOrderService({
+        amount: finalAmount,
+        tempOrderId: tempOrder._id,
+      });
+
+      await updateTempOrder(
+        tempOrder._id,
+        { razorpayOrderId: razorpayOrder.id },
+        session
+      );
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return {
+        status: 200,
+        success: true,
+        razorpayOrderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        tempOrderId: tempOrder._id,
+      };
+    }
+
+    // -------------------------------
     // 8. Create Order (FULL FIELDS)
     // -------------------------------
     const order = await createOrder(
@@ -171,7 +225,6 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
 
         subtotal: cartTotals.subtotal,
         deliveryCharge: cartTotals.deliveryCharge,
-        tax: cartTotals.tax,
         discount: cartTotals.discount,
         couponDiscount: appliedCoupon?.discount || 0,
         couponId: appliedCoupon?.couponId || null,
@@ -184,7 +237,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       session
     );
 
-    await markReferralAsPending(userId,orderId,session);
+    await markReferralAsPending(userId, orderId, session);
 
     // -------------------------------
     // 9. CAPTURE WALLET PAYMENT
@@ -209,7 +262,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           session
         );
 
-        await updateWalletTotalDebits(userId,finalAmount,session)
+        await updateWalletTotalDebits(userId, finalAmount, session);
 
         // Ledger: DEBIT
         await createLedgerEntry(
@@ -225,9 +278,9 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           session
         );
 
-        await completeReferralReward(userId,order._id,session)
+        await completeReferralReward(userId, order._id, session);
       } catch (err) {
-        console.log(err)
+        console.log(err);
         // Release hold on failure
         await updateWalletHoldBalance(userId, -finalAmount, session);
         await updateHoldStatus(holdRecord._id, "RELEASED", session);

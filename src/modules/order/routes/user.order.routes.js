@@ -10,6 +10,7 @@ import {
   loadTrackOrder,
   returnOrderItems,
 } from "../controllers/user.order.controller.js";
+import { verifyRazorpayPayment } from "../controllers/payment.controller.js";
 
 const router = express.Router();
 
@@ -21,5 +22,6 @@ router.post("/order/:id/return-items", returnOrderItems);
 router.get("/order/track/:id", requireLogin, loadTrackOrder);
 router.get("/order/details/:id", requireLogin, loadOrderDetails);
 router.get("/order/invoice/:orderId", requireLogin, downloadInvoice);
+router.post("/order/razorpay/verify", requireLogin, verifyRazorpayPayment);
 
 export default router;

@@ -252,7 +252,7 @@
           <!-- Actions -->
           <div class="space-y-2">
             <% if (order.orderStatus === 'Delivered') { %>
-            <button onclick="downloadInvoice('<%= order._id %>')" class="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+            <button onclick="downloadInvoice('<%= order.orderId %>')" class="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
               <i class="bi bi-download"></i> Download Invoice
             </button>
             <% } %>
@@ -283,7 +283,7 @@
 
 <script>
   function downloadInvoice(orderId) {
-    window.open(`/api/order/invoice/${orderId}`, '_blank');
+    window.open(`/order/invoice/${orderId}`, '_blank');
   }
 </script>
 

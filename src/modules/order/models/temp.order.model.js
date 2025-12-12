@@ -8,41 +8,33 @@ const tempOrderSchema = new mongoose.Schema(
       required: true,
     },
 
-    orderedItems: {
-      type: Array, // full snapshot of items
+    addressId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "address",
       required: true,
     },
 
-    shippingAddress: {
-      type: Object, // full snapshot of address
-      required: true,
-    },
+    orderedItems: { type: Array, required: true },
+
+    shippingAddress: { type: Object, required: true },
 
     subtotal: Number,
     discount: Number,
     couponDiscount: Number,
-    tax: Number,
-    deliveryCharge: Number,
+    couponId: { type: String },
+
     finalAmount: Number,
 
-    couponId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Coupon",
-      default: null,
-    },
-
-    paymentMethod: {
-      type: String,
-      default: "razorpay",
-    },
-
+    paymentMethod: { type: String, enum: ["razorpay"], default: "razorpay" },
     paymentStatus: {
       type: String,
-      enum: ["Pending", "Paid", "Failed"],
+      enum: ["Pending", "Success", "Failed"],
       default: "Pending",
     },
 
     razorpayOrderId: String,
+    razorpayPaymentId: String,
+    razorpaySignature: String,
   },
   { timestamps: true }
 );
