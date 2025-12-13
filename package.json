@@ -30,6 +30,7 @@
     "exceljs": "^4.4.0",
     "express": "^5.1.0",
     "express-ejs-layouts": "^2.5.1",
+    "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.2",
     "joi": "^18.0.1",
     "mongoose": "^8.19.2",
@@ -39,7 +40,6 @@
     "nodemailer": "^7.0.10",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "pdfkit": "^0.17.2",
     "razorpay": "^2.9.6"
   }
 }
