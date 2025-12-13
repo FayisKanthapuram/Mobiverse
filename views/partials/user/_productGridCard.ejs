@@ -210,7 +210,7 @@
         Toastify({
           text: "Please login to add items to wishlist",
           duration: 3000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           backgroundColor: "#ef4444",
           close: true,
@@ -223,7 +223,7 @@
         Toastify({
           text: error.response?.data?.message || "Failed to update wishlist",
           duration: 3000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           backgroundColor: "#ef4444",
         }).showToast();

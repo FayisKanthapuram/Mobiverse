@@ -23,7 +23,7 @@ document
         Toastify({
           text: response.data.message,
           duration: 1000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           style: {
             background: "linear-gradient(to right, #00b09b, #96c93d)",
@@ -38,7 +38,7 @@ document
       Toastify({
         text: error.response?.data?.message || "Register user failed ❌",
         duration: 2000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         style: {
           background: "#e74c3c",

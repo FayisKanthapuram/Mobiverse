@@ -14,7 +14,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     Toastify({
       text: error.response?.data?.message || "Login failed",
       duration: 2000,
-      gravity: "top",
+      gravity: "bottom",
       position: "right",
       style: {
         background: "#e74c3c",
@@ -30,7 +30,7 @@ if (error === "blocked") {
   Toastify({
     text: "Your account is currently blocked. Please contact the admin for assistance.",
     duration: 4000,
-    gravity: "top", // top or bottom
+    gravity: "bottom", // top or bottom
     position: "right", // left, center, right
     backgroundColor: "#e63946",
     close: true,
@@ -42,7 +42,7 @@ if (error === "login") {
   Toastify({
     text: "You need to log in to continue",
     duration: 4000,
-    gravity: "top", // top or bottom
+    gravity: "bottom", // top or bottom
     position: "right", // left, center, right
     backgroundColor: "#e63946",
     close: true,
@@ -54,7 +54,7 @@ if (error === "logout") {
   Toastify({
     text: "Logged out successfully.",
     duration: 4000,
-    gravity: "top", // top or bottom
+    gravity: "bottom", // top or bottom
     position: "right", // left, center, right
     backgroundColor: "#e63946",
     close: true,

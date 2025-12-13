@@ -5,7 +5,7 @@ function notify(message, type = "info") {
   Toastify({
     text: message,
     duration: 3000,
-    gravity: "top",
+    gravity: "bottom",
     position: "right",
     backgroundColor:
       type === "success" ? "#16a34a" : type === "error" ? "#dc2626" : "#3b82f6",

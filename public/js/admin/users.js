@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
           Toastify({
             text: !isBlocked ? "Customer Blocked" : "Customer Unblocked",
             duration: 1500,
-            gravity: "top",
+            gravity: "bottom",
             position: "right",
             style: {
               background: !isBlocked
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         Toastify({
           text: error.response?.data?.message || "Something went wrong",
           duration: 2000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           style: { background: "#dc3545" },
         }).showToast();

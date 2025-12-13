@@ -219,7 +219,7 @@
         Toastify({
           text: "Item removed from wishlist",
           duration: 3000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           backgroundColor: "#ef4444",
         }).showToast();
@@ -232,7 +232,7 @@
       Toastify({
         text: error.response?.data?.message || "Failed to remove item",
         duration: 3000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         backgroundColor: "#ef4444",
       }).showToast();
@@ -251,7 +251,7 @@
         Toastify({
           text: "Wishlist cleared successfully",
           duration: 3000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           backgroundColor: "#10b981",
         }).showToast();
@@ -263,7 +263,7 @@
       Toastify({
         text: error.response?.data?.message || "Failed to clear wishlist",
         duration: 3000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         backgroundColor: "#ef4444",
       }).showToast();
@@ -280,7 +280,7 @@
       Toastify({
         text: "Item moved to cart",
         duration: 1000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         backgroundColor: "#10b981",
       }).showToast();
@@ -292,7 +292,7 @@
       Toastify({
         text: error.response?.data?.message || "Something went wrong",
         duration: 2000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         style: {
           background: "#e74c3c",

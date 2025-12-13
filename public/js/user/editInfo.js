@@ -134,7 +134,7 @@ document.getElementById('editProfileForm').addEventListener('submit', async func
       Toastify({
         text: response.data.message,
         duration: 1000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
       }).showToast();
@@ -144,7 +144,7 @@ document.getElementById('editProfileForm').addEventListener('submit', async func
     Toastify({
       text: error.response?.data?.message || "Failed to update personal information",
       duration: 2000,
-      gravity: "top",
+      gravity: "bottom",
       position: "right",
       style: { background: "#e74c3c" },
     }).showToast();

@@ -5,7 +5,7 @@ document.getElementById('logout-button').addEventListener('click',async()=>{
             Toastify({
                 text: responce.data.message,
                 duration: 500,
-                gravity: "top",
+                gravity: "bottom",
                 position: "right",
                 backgroundColor: "#00b09b",
             }).showToast();
@@ -18,7 +18,7 @@ document.getElementById('logout-button').addEventListener('click',async()=>{
         Toastify({
             text: error.response?.data?.message || "Logout failed ❌",
             duration: 1000,
-            gravity: "top",
+            gravity: "bottom",
             position: "right",
             backgroundColor: "#e74c3c",
         }).showToast();

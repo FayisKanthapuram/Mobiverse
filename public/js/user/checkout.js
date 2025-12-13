@@ -14,7 +14,7 @@ if (message) {
   Toastify({
     text,
     duration: 4000,
-    gravity: "top", // top or bottom
+    gravity: "bottom", // top or bottom
     position: "right", // left, center, right
     style: {
       background: "linear-gradient(to right, #00b09b, #96c93d)",

@@ -59,7 +59,7 @@ async function addToCart(variantId) {
       Toastify({
         text: "Item added to cart",
         duration: 4000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         style: {
           background: "linear-gradient(to right, #00b09b, #96c93d)",
@@ -72,7 +72,7 @@ async function addToCart(variantId) {
     Toastify({
       text: error.response?.data?.message || "Something went wrong",
       duration: 2000,
-      gravity: "top",
+      gravity: "bottom",
       position: "right",
       style: { background: "#e74c3c" },
     }).showToast();

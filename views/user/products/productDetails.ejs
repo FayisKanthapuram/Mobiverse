@@ -411,7 +411,7 @@
       Toastify({
         text: res.data.message,
         duration: 3000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         backgroundColor: isAdded ? "#10b981" : "#ef4444",
         close: true,
@@ -425,7 +425,7 @@
         Toastify({
           text: "Please login to add items to wishlist",
           duration: 3000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           backgroundColor: "#ef4444",
         }).showToast();
@@ -483,7 +483,7 @@
         Toastify({
           text: "Added to cart",
           duration: 3000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           style: {
             background: "linear-gradient(to right, #00b09b, #96c93d)"
@@ -496,7 +496,7 @@
       Toastify({
         text: error.response?.data?.message || "Error adding to cart",
         duration: 3000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         backgroundColor: "#e74c3c",
         close: true,

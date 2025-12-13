@@ -54,7 +54,7 @@ async function deleteAddress(addressId) {
       Toastify({
         text: error.response?.data?.message || "set default failed",
         duration: 2000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         style: {
           background: "#e74c3c",
@@ -75,7 +75,7 @@ async function setDefaultAddress(addressId) {
     Toastify({
       text: error.response?.data?.message || "set default failed",
       duration: 2000,
-      gravity: "top",
+      gravity: "bottom",
       position: "right",
       style: {
         background: "#e74c3c",
@@ -119,7 +119,7 @@ document
         Toastify({
           text: error.response?.data?.message || "edit address failed",
           duration: 2000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           style: {
             background: "#e74c3c",
@@ -136,7 +136,7 @@ document
         Toastify({
           text: error.response?.data?.message || "add address failed",
           duration: 2000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           style: {
             background: "#e74c3c",
@@ -180,7 +180,7 @@ if (message) {
   Toastify({
     text,
     duration: 4000,
-    gravity: "top", // top or bottom
+    gravity: "bottom", // top or bottom
     position: "right", // left, center, right
     style: {
       background: "linear-gradient(to right, #00b09b, #96c93d)",

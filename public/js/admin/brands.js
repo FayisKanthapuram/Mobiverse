@@ -154,7 +154,7 @@ document
         Toastify({
           text: response.data.message,
           duration: 1000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
         }).showToast();
@@ -165,7 +165,7 @@ document
       Toastify({
         text: error.response?.data?.message || "Failed to add brand",
         duration: 2000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         style: { background: "#e74c3c" },
       }).showToast();
@@ -201,7 +201,7 @@ document.querySelectorAll(".open-edit-modal-btn").forEach((btn) => {
       Toastify({
         text: "Could not load brand data. Please try again.",
         duration: 2000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         style: { background: "#e74c3c" },
       }).showToast();
@@ -335,7 +335,7 @@ editForm.addEventListener("submit", async (e) => {
       Toastify({
         text: response.data.message,
         duration: 1000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
       }).showToast();
@@ -346,7 +346,7 @@ editForm.addEventListener("submit", async (e) => {
     Toastify({
       text: error.response?.data?.message || "Failed to update brand",
       duration: 2000,
-      gravity: "top",
+      gravity: "bottom",
       position: "right",
       style: { background: "#e74c3c" },
     }).showToast();
@@ -395,7 +395,7 @@ document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
         Toastify({
           text: isListed ? "Brand Unlisted" : "Brand Listed",
           duration: 1000,
-          gravity: "top",
+          gravity: "bottom",
           position: "right",
           style: {
             background: isListed
@@ -409,7 +409,7 @@ document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
       Toastify({
         text: "Something went wrong",
         duration: 2000,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         style: { background: "#e74c3c" },
       }).showToast();

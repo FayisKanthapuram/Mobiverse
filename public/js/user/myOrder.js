@@ -116,7 +116,7 @@ document.getElementById("cancelItemForm").addEventListener("submit", async funct
       Toastify({
         text: "Items cancelled successfully!",
         duration: 2500,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         backgroundColor: "linear-gradient(to right, #16a34a, #10b981)",
       }).showToast();
@@ -129,7 +129,7 @@ document.getElementById("cancelItemForm").addEventListener("submit", async funct
     Toastify({
       text: error.response?.data?.message || "Failed to cancel items",
       duration: 4000,
-      gravity: "top",
+      gravity: "bottom",
       position: "right",
       backgroundColor: "linear-gradient(to right, #ef4444, #dc2626)",
     }).showToast();
@@ -200,7 +200,7 @@ document.getElementById("returnItemForm").addEventListener("submit", async funct
     Toastify({
       text: "Please select at least one item to return",
       duration: 3000,
-      gravity: "top",
+      gravity: "bottom",
       position: "right",
       backgroundColor: "linear-gradient(to right, #f97316, #f43f5e)",
     }).showToast();
@@ -219,7 +219,7 @@ document.getElementById("returnItemForm").addEventListener("submit", async funct
       Toastify({
         text: "Return request submitted successfully!",
         duration: 2500,
-        gravity: "top",
+        gravity: "bottom",
         position: "right",
         backgroundColor: "linear-gradient(to right, #16a34a, #10b981)",
       }).showToast();
@@ -232,7 +232,7 @@ document.getElementById("returnItemForm").addEventListener("submit", async funct
     Toastify({
       text: error.response?.data?.message || "Failed to submit return request",
       duration: 4000,
-      gravity: "top",
+      gravity: "bottom",
       position: "right",
       backgroundColor: "linear-gradient(to right, #ef4444, #dc2626)",
     }).showToast();
