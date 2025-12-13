@@ -10,6 +10,12 @@ export const findOrderByOrderId = (orderId) => {
     .populate("orderedItems.variantId");
 };
 
+export const findOrdersByFilter=(filter)=>{
+  return Order.find(filter)
+    .populate("userId", "username email")
+    .populate("orderedItems.productId");
+}
+
 export const findUserOrders = (query) => {
   return Order.find(query)
     .sort({ createdAt: -1 })

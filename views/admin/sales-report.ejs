@@ -1,0 +1,398 @@
+<!-- Sales Report Page -->
+<div class="page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1>Sales Report</h1>
+      <p class="subtitle">Comprehensive sales analytics and performance metrics.</p>
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn-primary" onclick="downloadPDF()">
+        <i class="bi bi-file-pdf"></i>
+        Download PDF
+      </button>
+      <button class="btn-primary" onclick="downloadExcel()">
+        <i class="bi bi-file-excel"></i>
+        Download Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Date Range Filter -->
+  <div class="filters-container">
+    <div class="filter-group">
+      <label>Report Type:</label>
+      <select id="reportType" class="filter-select" onchange="applyFilters()">
+        <option value="daily" <%= reportType === 'daily' ? 'selected' : '' %>>Daily</option>
+        <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
+        <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
+        <option value="yearly" <%= reportType === 'yearly' ? 'selected' : '' %>>Yearly</option>
+        <option value="custom" <%= reportType === 'custom' ? 'selected' : '' %>>Custom Range</option>
+      </select>
+    </div>
+
+    <div class="filter-group" id="customDateRange" style="<%= reportType === 'custom' ? '' : 'display: none;' %>">
+      <label>From:</label>
+      <input type="date" id="startDate" class="filter-select" value="<%= startDate || '' %>" onchange="applyFilters()" />
+    </div>
+
+    <div class="filter-group" id="customDateRange2" style="<%= reportType === 'custom' ? '' : 'display: none;' %>">
+      <label>To:</label>
+      <input type="date" id="endDate" class="filter-select" value="<%= endDate || '' %>" onchange="applyFilters()" />
+    </div>
+
+    <div class="filter-group">
+      <label>Status:</label>
+      <select id="statusFilter" class="filter-select" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="Pending" <%= statusFilter === 'Pending' ? 'selected' : '' %>>Pending</option>
+        <option value="Confirmed" <%= statusFilter === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
+        <option value="Processing" <%= statusFilter === 'Processing' ? 'selected' : '' %>>Processing</option>
+        <option value="Shipped" <%= statusFilter === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+        <option value="Out for Delivery" <%= statusFilter === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
+        <option value="Delivered" <%= statusFilter === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+        <option value="Cancelled" <%= statusFilter === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+        <option value="Returned" <%= statusFilter === 'Returned' ? 'selected' : '' %>>Returned</option>
+      </select>
+    </div>
+
+    <% const hasActiveFilters = statusFilter || (reportType && reportType !== 'daily') || startDate || endDate; %>
+    <% if (hasActiveFilters) { %>
+    <button class="btn-clear-filters" onclick="clearFilters()">
+      <i class="bi bi-x-circle"></i>
+      Clear Filters
+    </button>
+    <% } %>
+  </div>
+
+  <% 
+  function formatDate(d) {
+    if (!d) return '';
+    const date = new Date(d);
+    return date.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  let periodFrom = "";
+  let periodTo = "";
+
+  if (reportType === "daily") {
+    periodFrom = periodTo = formatDate(startDate || new Date());
+  }
+
+  if (reportType === "weekly") {
+    periodFrom = formatDate(weekStart);
+    periodTo = formatDate(weekEnd);
+  }
+
+  if (reportType === "monthly") {
+    periodFrom = formatDate(monthStart);
+    periodTo = formatDate(monthEnd);
+  }
+
+  if (reportType === "yearly") {
+    periodFrom = formatDate(yearStart);
+    periodTo = formatDate(yearEnd);
+  }
+
+  if (reportType === "custom") {
+    periodFrom = formatDate(startDate);
+    periodTo = formatDate(endDate);
+  }
+  %>
+
+  <% if (reportType !== 'daily') { %>
+    <div class="selected-period-bar">
+      <span class="period-label">Selected Period:</span>
+      <span class="period-range"><%= periodFrom %> to <%= periodTo %></span>
+    </div>
+  <% } %>
+
+
+  <!-- Analytics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card stat-blue">
+      <div class="stat-icon">
+        <i class="bi bi-cart-check"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Sales</div>
+        <div class="stat-value">₹<%= (salesData.totalSales || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+        <div class="stat-growth">
+          <i class="bi bi-arrow-up"></i> <%= salesData.salesGrowth.toFixed(1) %>%
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-green">
+      <div class="stat-icon">
+        <i class="bi bi-receipt"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value"><%= salesData.totalOrders || 0 %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-purple">
+      <div class="stat-icon">
+        <i class="bi bi-graph-up"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Average Order Value</div>
+        <div class="stat-value">₹<%= (salesData.averageOrderValue || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-orange">
+      <div class="stat-icon">
+        <i class="bi bi-percent"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Total Discounts</div>
+        <div class="stat-value">₹<%= (salesData.totalDiscounts || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+        <div class="stat-growth text-orange">
+          <%= (salesData.discountPercentage || 0).toFixed(1) %>% of sales
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-blue">
+      <div class="stat-icon">
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Products Sold</div>
+        <div class="stat-value"><%= salesData.productsSold || 0 %></div>
+        <div class="stat-subtext"><%= salesData.uniqueProducts || 0 %> unique products</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-red">
+      <div class="stat-icon">
+        <i class="bi bi-arrow-return-left"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-label">Returns & Cancellations</div>
+        <div class="stat-value"><%= salesData.returnsCancellations || 0 %></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales Summary Section -->
+  <div class="summary-section">
+    <h2 class="section-title">Order Status Breakdown</h2>
+    <div class="summary-grid">
+      <% 
+        const statusCounts = {
+          'Delivered': 0,
+          'Pending': 0,
+          'Processing': 0,
+          'Shipped': 0,
+          'Cancelled': 0,
+          'Returned': 0
+        };
+        
+        salesData.transactions.forEach(t => {
+          if (statusCounts.hasOwnProperty(t.status)) {
+            statusCounts[t.status]++;
+          } else if (['Confirmed', 'Processing'].includes(t.status)) {
+            statusCounts['Processing']++;
+          } else if (t.status === 'Out for Delivery') {
+            statusCounts['Shipped']++;
+          }
+        });
+      %>
+
+      <div class="summary-card">
+        <div class="summary-label">Delivered</div>
+        <div class="summary-value"><%= statusCounts.Delivered %></div>
+        <div class="summary-percentage text-green">
+          <%= totalTransactions ? ((statusCounts.Delivered / totalTransactions) * 100).toFixed(1) : 0 %>%
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Processing</div>
+        <div class="summary-value"><%= statusCounts.Processing %></div>
+        <div class="summary-percentage text-blue">
+          <%= totalTransactions ? ((statusCounts.Processing / totalTransactions) * 100).toFixed(1) : 0 %>%
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Shipped</div>
+        <div class="summary-value"><%= statusCounts.Shipped %></div>
+        <div class="summary-percentage text-blue">
+          <%= totalTransactions ? ((statusCounts.Shipped / totalTransactions) * 100).toFixed(1) : 0 %>%
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Pending</div>
+        <div class="summary-value"><%= statusCounts.Pending %></div>
+        <div class="summary-percentage text-orange">
+          <%= totalTransactions ? ((statusCounts.Pending / totalTransactions) * 100).toFixed(1) : 0 %>%
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Cancelled</div>
+        <div class="summary-value"><%= statusCounts.Cancelled %></div>
+        <div class="summary-percentage text-red">
+          <%= totalTransactions ? ((statusCounts.Cancelled / totalTransactions) * 100).toFixed(1) : 0 %>%
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-label">Returned</div>
+        <div class="summary-value"><%= statusCounts.Returned %></div>
+        <div class="summary-percentage text-red">
+          <%= totalTransactions ? ((statusCounts.Returned / totalTransactions) * 100).toFixed(1) : 0 %>%
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Sales Table -->
+  <div class="summary-section">
+    <h2 class="section-title">Sales Transactions</h2>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Amount</th>
+            <th>Discount</th>
+            <th>Payment</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (salesData.transactions && salesData.transactions.length > 0) { %>
+            <% salesData.transactions.forEach(transaction => { %>
+              <tr>
+                <td><%= new Date(transaction.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                <td>
+                  <strong class="order-id">#<%= transaction.orderId %></strong>
+                </td>
+                <td>
+                  <div class="customer-info">
+                    <div class="customer-name"><%= transaction.customerName %></div>
+                    <div class="customer-email"><%= transaction.customerEmail %></div>
+                  </div>
+                </td>
+                <td><%= transaction.itemCount %></td>
+                <td>
+                  <strong class="amount">₹<%= transaction.totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></strong>
+                </td>
+                <td>
+                  <span class="text-green">-₹<%= transaction.discount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                </td>
+                <td>
+                  <span class="payment-method"><%= transaction.paymentMethod || 'N/A' %></span>
+                </td>
+                <td>
+                  <% 
+                    let statusClass = '';
+                    if (transaction.status === 'Delivered') statusClass = 'status-active';
+                    else if (transaction.status === 'Shipped' || transaction.status === 'Out for Delivery') statusClass = 'status-shipping';
+                    else if (transaction.status === 'Pending') statusClass = 'status-pending';
+                    else if (transaction.status === 'Confirmed' || transaction.status === 'Processing') statusClass = 'status-processing';
+                    else if (transaction.status === 'Cancelled') statusClass = 'status-blocked';
+                    else if (transaction.status === 'Returned') statusClass = 'status-returned';
+                  %>
+                  <span class="status-badge <%= statusClass %>">
+                    <%= transaction.status %>
+                  </span>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="8" class="no-data">
+                <div class="empty-state">
+                  <i class="bi bi-inbox"></i>
+                  <p>No sales data available for the selected period</p>
+                  <% if (hasActiveFilters) { %>
+                  <button class="btn-primary" onclick="clearFilters()" style="margin-top: 16px;">
+                    Clear All Filters
+                  </button>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <% if (salesData.transactions && salesData.transactions.length > 0) { %>
+  <div class="pagination-container">
+    <div class="pagination-info">
+      <% const startItem = (currentPage - 1) * limit + 1; %>
+      <% const endItem = Math.min((currentPage - 1) * limit + salesData.transactions.length, totalTransactions); %>
+      Showing <%= startItem %> to <%= endItem %> of <%= totalTransactions %> results
+    </div>
+
+    <div class="pagination-controls">
+      <% if(currentPage > 1) { %>
+        <button class="page-btn" onclick="changePage(<%= currentPage - 1 %>)">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+      <% } else { %>
+        <button class="page-btn" disabled>
+          <i class="bi bi-chevron-left"></i>
+        </button>
+      <% } %>
+      
+      <% 
+        const maxPagesToShow = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+        let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+        
+        if (endPage - startPage < maxPagesToShow - 1) {
+          startPage = Math.max(1, endPage - maxPagesToShow + 1);
+        }
+      %>
+      
+      <% if (startPage > 1) { %>
+        <button class="page-btn" onclick="changePage(1)">1</button>
+        <% if (startPage > 2) { %>
+          <span class="pagination-dots">...</span>
+        <% } %>
+      <% } %>
+      
+      <% for(let i = startPage; i <= endPage; i++) { %>
+        <button 
+          class="page-btn <%= currentPage === i ? 'active' : '' %>" 
+          onclick="changePage(<%= i %>)"
+        >
+          <%= i %>
+        </button>
+      <% } %>
+      
+      <% if (endPage < totalPages) { %>
+        <% if (endPage < totalPages - 1) { %>
+          <span class="pagination-dots">...</span>
+        <% } %>
+        <button class="page-btn" onclick="changePage(<%= totalPages %>)"><%= totalPages %></button>
+      <% } %>
+      
+      <% if(currentPage < totalPages) { %>
+        <button class="page-btn" onclick="changePage(<%= currentPage + 1 %>)">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      <% } else { %>
+        <button class="page-btn" disabled>
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      <% } %>
+    </div>
+  </div>
+  <% } %>
+</div>
