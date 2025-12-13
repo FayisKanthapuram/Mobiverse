@@ -1,6 +1,5 @@
 import { getDeliveredSalesReportService } from "./sales.report.service.js";
 import { generateSalesReportExcel } from "./utils/sales.report.excel.js";
-import { generateSalesReportPDF } from "./utils/sales.report.pdf.js";
 
 export const loadSalesReport = async (req, res,next) => {
   try {

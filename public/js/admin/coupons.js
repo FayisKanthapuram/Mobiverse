@@ -3,8 +3,16 @@
 let searchTimeout;
 let selectedUsers = [];
 
+const couponModal = document.getElementById("couponModal");
+
+couponModal.addEventListener("shown.bs.modal", () => {
+  handleTypeChange(); // 👈 hide field every time modal opens
+});
+
+
 // Modal Management
 function openAddCouponModal() {
+  handleTypeChange();
   const modal = document.getElementById('couponModal');
   const form = document.getElementById('couponForm');
   const modalTitle = document.getElementById('modalTitle');
@@ -51,35 +59,50 @@ window.onclick = function(event) {
   }
 }
 
+
+
 // Handle Type Change
 function handleTypeChange() {
-  const type = document.getElementById('type').value;
-  const discountValueGroup = document.getElementById('discountValueGroup');
-  const discountValue = document.getElementById('discountValue');
-  const discountIcon = document.getElementById('discountIcon');
-  const discountHelp = document.getElementById('discountHelp');
-  const maxDiscountGroup = document.getElementById('maxDiscountGroup');
-  
-  if (type === 'percentage') {
-    discountValueGroup.style.display = 'block';
-    maxDiscountGroup.style.display = 'block';
-    discountIcon.textContent = '%';
-    discountHelp.textContent = 'Enter percentage (1-90%)';
-    discountValue.placeholder = 'e.g., 20';
-    discountValue.max = '90';
-    discountValue.min = '1';
-    discountValue.required = true;
-  } else if (type === 'fixed') {
-    discountValueGroup.style.display = 'block';
-    maxDiscountGroup.style.display = 'none';
-    discountIcon.textContent = '₹';
-    discountHelp.textContent = 'Enter fixed amount';
-    discountValue.placeholder = 'e.g., 500';
-    discountValue.removeAttribute('max');
-    discountValue.min = '1';
-    discountValue.required = true;
+  const type = document.getElementById("type").value;
+  const discountValueGroup = document.getElementById("discountValueGroup");
+  const discountValue = document.getElementById("discountValue");
+  const discountIcon = document.getElementById("discountIcon");
+  const discountHelp = document.getElementById("discountHelp");
+  const maxDiscountGroup = document.getElementById("maxDiscountGroup");
+
+  // Reset values always
+  discountValue.value = "";
+  discountValue.removeAttribute("max");
+  discountValue.required = false;
+  maxDiscountGroup.style.display = "none";
+
+  if (!type) {
+    // Nothing selected → hide everything
+    discountValueGroup.style.display = "none";
+    return;
+  }
+  discountValueGroup.classList.remove('hidden');
+
+  discountValueGroup.style.display = "block";
+  discountValue.required = true;
+
+  if (type === "percentage") {
+    discountIcon.textContent = "%";
+    discountHelp.textContent = "Enter percentage (1–90%)";
+    discountValue.placeholder = "e.g., 20";
+    discountValue.min = "1";
+    discountValue.max = "90";
+    maxDiscountGroup.style.display = "block";
+  }
+
+  if (type === "fixed") {
+    discountIcon.textContent = "₹";
+    discountHelp.textContent = "Enter fixed amount";
+    discountValue.placeholder = "e.g., 500";
+    discountValue.min = "1";
   }
 }
+
 
 // Handle Eligibility Change
 function handleEligibilityChange() {
