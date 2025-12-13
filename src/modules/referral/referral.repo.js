@@ -27,6 +27,20 @@ export const updateReferralToPending = (
   );
 };
 
+export const updateReferralOrderId = (
+  referralId,
+  orderId,
+  session = null
+) => {
+  return Referral.findByIdAndUpdate(
+    referralId,
+    {
+      firstOrder: orderId,
+    },
+    { new: true, ...(session ? { session } : {}) }
+  );
+};
+
 export const findPendingReferralForUser = (userId, session = null) => {
   const options = session ? { session } : {};
 

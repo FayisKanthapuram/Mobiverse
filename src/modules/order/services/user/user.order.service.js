@@ -104,7 +104,8 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       offer: item.offer ?? 0,
       price: item.variantId.salePrice ?? 0, // final sale price
       couponShare: appliedCoupon
-        ? ((item.variantId.salePrice-(item.offer||0)) / finalAmount) * appliedCoupon.discount
+        ? ((item.variantId.salePrice - (item.offer || 0)) / finalAmount) *
+          appliedCoupon.discount
         : 0,
     }));
 
@@ -193,6 +194,8 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           session
         );
 
+        await markReferralAsPending(userId, tempOrder._id, session);
+
         await session.commitTransaction();
         session.endSession();
 
@@ -247,6 +250,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       session
     );
 
+    //mark referral as pending
     await markReferralAsPending(userId, orderId, session);
 
     // -------------------------------

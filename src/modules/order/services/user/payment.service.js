@@ -12,6 +12,7 @@ import { decrementProductStock } from "../../../product/repo/product.repo.js";
 import { decrementVariantStock } from "../../../product/repo/variant.repo.js";
 import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
 import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
+import { completeReferralReward } from "../../../referral/referral.service.js";
 
 export const createRazorpayOrderService = async ({ amount, tempOrderId }) => {
   const options = {
@@ -98,6 +99,9 @@ export const verifyRazorpayPaymentService = async ({
 
     // Clear cart
     await deleteUserCart(userId);
+
+    //complete referral reward
+    await completeReferralReward(userId,order._id,session)
 
     //delete temp order
     await deleteTempOrder(tempOrderId, session);

@@ -1,3 +1,4 @@
+import { completeReferralReward } from "../../../referral/referral.service.js";
 import { findOrderById, saveOrder } from "../../repo/order.repo.js";
 
 export const updateOrderStatusService = async (orderId, newStatus) => {
@@ -132,7 +133,9 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
 
   if (newStatus === "Delivered") {
     order.deliveredDate = now;
-    order.paymentStatus='Paid'
+    order.paymentStatus='Paid';
+    //complete referral reward
+    await completeReferralReward(order.userId,order._id)
   }
 
   order.markModified("statusTimeline");

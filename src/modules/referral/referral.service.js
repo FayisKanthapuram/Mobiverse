@@ -6,6 +6,7 @@ import { findWalletByUserId, updateWalletBalanceAndCredit } from "../wallet/repo
 import {
   findPendingReferralForUser,
   findReferralByReferredUser,
+  updateReferralOrderId,
   updateReferralToCompleted,
   updateReferralToPending,
 } from "./referral.repo.js";
@@ -23,15 +24,16 @@ export const completeReferralReward = async (
   orderId,
   session
 ) => {
-
-  
   //  Find referral that is still pending
   const referral = await findPendingReferralForUser(referredUserId,session);
   if (!referral) return;
-  
+
   const referredUser=await findUserById(referredUserId,session);
   if(!referredUser)return;
-
+  
+  //update referral id
+  await updateReferralOrderId(referredUserId,orderId,session);
+  
   const referrerId = referral.referrer;
 
   //  Get wallet of referrer
