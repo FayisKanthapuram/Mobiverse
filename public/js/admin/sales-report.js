@@ -2,11 +2,10 @@ function applyFilters() {
   const reportType = document.getElementById("reportType").value;
   const startDate = document.getElementById("startDate")?.value || "";
   const endDate = document.getElementById("endDate")?.value || "";
-  const statusFilter = document.getElementById("statusFilter").value;
 
-  // Show/hide custom date inputs
   const customRange1 = document.getElementById("customDateRange");
   const customRange2 = document.getElementById("customDateRange2");
+
   if (reportType === "custom") {
     customRange1.style.display = "";
     customRange2.style.display = "";
@@ -15,19 +14,15 @@ function applyFilters() {
     customRange2.style.display = "none";
   }
 
-  const urlParams = new URLSearchParams();
-  urlParams.set("reportType", reportType);
+  const params = new URLSearchParams();
+  params.set("reportType", reportType);
 
-  if (reportType === "custom" ) {
-    urlParams.set("startDate", startDate);
-    urlParams.set("endDate", endDate);
+  if (reportType === "custom") {
+    params.set("startDate", startDate);
+    params.set("endDate", endDate);
   }
 
-  if (statusFilter) {
-    urlParams.set("status", statusFilter);
-  }
-
-  window.location.href = "/admin/sales-report?" + urlParams.toString();
+  window.location.href = "/admin/sales-report?" + params.toString();
 }
 
 function clearFilters() {
@@ -35,19 +30,19 @@ function clearFilters() {
 }
 
 function changePage(page) {
-  const urlParams = new URLSearchParams(window.location.search);
-  urlParams.set("page", page);
-  window.location.href = "/admin/sales-report?" + urlParams.toString();
+  const params = new URLSearchParams(window.location.search);
+  params.set("page", page);
+  window.location.href = "/admin/sales-report?" + params.toString();
 }
 
 function downloadPDF() {
-  const urlParams = new URLSearchParams(window.location.search);
-  urlParams.set("format", "pdf");
-  window.location.href = "/admin/sales-report/download?" + urlParams.toString();
+  const params = new URLSearchParams(window.location.search);
+  window.open("/admin/sales-report/pdf?" + params.toString(), "_blank");
 }
 
+
 function downloadExcel() {
-  const urlParams = new URLSearchParams(window.location.search);
-  urlParams.set("format", "excel");
-  window.location.href = "/admin/sales-report/download?" + urlParams.toString();
+  const params = new URLSearchParams(window.location.search);
+  params.set("format", "excel");
+  window.location.href = "/admin/sales-report/download?" + params.toString();
 }

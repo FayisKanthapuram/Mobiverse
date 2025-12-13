@@ -1,6 +1,15 @@
 import { findOrderById, saveOrder } from "../../repo/order.repo.js";
-import { findProductById, saveProduct } from "../../../product/repo/product.repo.js";
-import { findVariantById, saveVariant } from "../../../product/repo/variant.repo.js";
+import {
+  findProductById,
+  saveProduct,
+} from "../../../product/repo/product.repo.js";
+import {
+  findVariantById,
+  saveVariant,
+} from "../../../product/repo/variant.repo.js";
+import { findWalletByUserId, updateWalletBalanceAndCredit } from "../../../wallet/repo/wallet.repo.js";
+import { updateUserWalletBalance } from "../../../user/user.repo.js";
+import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 
 export const markItemReturnedService = async (orderId, body) => {
   const { itemId } = body;
@@ -19,9 +28,7 @@ export const markItemReturnedService = async (orderId, body) => {
   }
 
   // Find item
-  const item = order.orderedItems.find(
-    (i) => i._id.toString() === itemId
-  );
+  const item = order.orderedItems.find((i) => i._id.toString() === itemId);
 
   if (!item) {
     const err = new Error("Ordered item not found");
@@ -65,9 +72,28 @@ export const markItemReturnedService = async (orderId, body) => {
     (i) => i.itemStatus === "Returned"
   );
 
+  const allReturnedOrCancelled=order.orderedItems.every((i)=>i.itemStatus==='Cancelled'||i.itemStatus==='Returned')
+
   const anyReturned = order.orderedItems.some(
     (i) => i.itemStatus === "Returned"
   );
+
+  const refundAmount=item.price-item.couponShare-item.offer
+
+  if (order.paymentStatus === "Paid") {
+    await updateWalletBalanceAndCredit(order.userId, refundAmount);
+    const wallet = await findWalletByUserId(order.userId);
+    await updateUserWalletBalance(order.userId, wallet.balance);
+    await createLedgerEntry({
+      walletId: wallet._id,
+      userId: order.userId,
+      amount: refundAmount,
+      type: "CREDIT",
+      referenceId: order.orderId,
+      note: `Refund of ₹${refundAmount} has been processed for the refund order: ${order.orderId}`,
+      balanceAfter: wallet.balance,
+    });
+  }
 
   if (allReturned) {
     order.orderStatus = "Returned";
@@ -76,6 +102,11 @@ export const markItemReturnedService = async (orderId, body) => {
   } else if (anyReturned) {
     order.orderStatus = "Partially Returned";
   }
+
+  if(allReturnedOrCancelled){
+    order.paymentStatus = "Refunded";
+  }
+
 
   order.markModified("orderedItems");
   await saveOrder(order);

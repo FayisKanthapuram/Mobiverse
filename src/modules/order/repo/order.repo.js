@@ -10,10 +10,23 @@ export const findOrderByOrderId = (orderId) => {
     .populate("orderedItems.variantId");
 };
 
-export const findOrdersByFilter=(filter)=>{
-  return Order.find(filter)
-    .populate("userId", "username email")
-    .populate("orderedItems.productId");
+export const getOrderTransations = (pipeline,skip,limit) => {
+  return Order.aggregate([...pipeline, { $skip: skip }, { $limit: limit }]);
+};
+
+export const getOrderTransationsTotal=(pipeline)=>{
+  return Order.aggregate([
+    ...pipeline,
+    {
+      $group: {
+        _id: null,
+        totalSales: { $sum: "$totalAmount" }, // NET SALES
+        totalOrders: { $sum: 1 },
+        totalDiscounts: { $sum: "$discount" },
+        productsSold: { $sum: "$itemCount" },
+      },
+    },
+  ]);
 }
 
 export const findUserOrders = (query) => {
@@ -45,9 +58,7 @@ export const findOrderByOrderIdWithUser = (orderId) => {
 };
 
 export const findOrders = (query, sort = {}) => {
-  return Order.find(query)
-    .sort(sort)
-    .populate("userId", "username email");
+  return Order.find(query).sort(sort).populate("userId", "username email");
 };
 
 export const countAllOrders = () => Order.countDocuments();

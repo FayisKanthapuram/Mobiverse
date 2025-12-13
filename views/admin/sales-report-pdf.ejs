@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Sales Report</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      margin: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .btn-print {
+      margin-bottom: 15px;
+      padding: 8px 14px;
+      background: #000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #999;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #efefef;
+    }
+
+    .total-row td {
+      font-weight: bold;
+    }
+
+    @media print {
+      .btn-print {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<button class="btn-print" onclick="window.print()">Download PDF</button>
+
+<h1>Delivered Sales Report</h1>
+
+<p>
+  <strong>Total Sales:</strong> ₹<%= salesData.totalSales.toLocaleString('en-IN') %><br>
+  <strong>Total Orders:</strong> <%= salesData.totalOrders %><br>
+  <strong>Total Discounts:</strong> ₹<%= salesData.totalDiscounts.toLocaleString('en-IN') %>
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Order ID</th>
+      <th>Customer</th>
+      <th>Items</th>
+      <th>Amount</th>
+      <th>Discount</th>
+      <th>Payment</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% salesData.transactions.forEach(t => { %>
+      <tr>
+        <td><%= new Date(t.createdAt).toLocaleDateString('en-IN') %></td>
+        <td>#<%= t.orderId %></td>
+        <td><%= t.customerName %></td>
+        <td><%= t.itemCount %></td>
+        <td>₹<%= t.totalAmount.toLocaleString('en-IN') %></td>
+        <td>- ₹<%= t.discount.toLocaleString('en-IN') %></td>
+        <td><%= t.paymentMethod %></td>
+      </tr>
+    <% }) %>
+
+    <tr class="total-row">
+      <td colspan="4">TOTAL</td>
+      <td>₹<%= salesData.totalSales.toLocaleString('en-IN') %></td>
+      <td>- ₹<%= salesData.totalDiscounts.toLocaleString('en-IN') %></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

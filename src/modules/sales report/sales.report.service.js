@@ -1,11 +1,45 @@
-import { findOrdersByFilter } from "../order/repo/order.repo.js";
+import {
+  getOrderTransations,
+  getOrderTransationsTotal,
+} from "../order/repo/order.repo.js";
 
-export const loadSalesReportService=async(data)=>{
-  const { reportType, startDate, endDate, status, limit, currentPage } = data;
+export const getDeliveredSalesReportService = async ({
+  reportType,
+  startDate,
+  endDate,
+  page,
+  limit,
+}) => {
+  
+  // ---------------- DATE FILTER ----------------
   let dateFilter = {};
-  let weekStart, weekEnd;
-  let monthStart, monthEnd;
-  let yearStart, yearEnd;
+  const today = new Date();
+  console.log()
+  if (reportType === "daily") {
+    today.setHours(0, 0, 0, 0);
+    dateFilter = { createdAt: { $gte: today } };
+  }
+
+  if (reportType === "weekly") {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    weekAgo.setHours(0, 0, 0, 0);
+    dateFilter = { createdAt: { $gte: weekAgo } };
+  }
+
+  if (reportType === "monthly") {
+    const monthAgo = new Date();
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+    monthAgo.setHours(0, 0, 0, 0);
+    dateFilter = { createdAt: { $gte: monthAgo } };
+  }
+
+  if (reportType === "yearly") {
+    const yearAgo = new Date();
+    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+    yearAgo.setHours(0, 0, 0, 0);
+    dateFilter = { createdAt: { $gte: yearAgo } };
+  }
 
   if (reportType === "custom" && startDate && endDate) {
     dateFilter = {
@@ -14,122 +48,122 @@ export const loadSalesReportService=async(data)=>{
         $lte: new Date(endDate),
       },
     };
-  } else if (reportType === "daily") {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    weekStart = today;
-    weekEnd = today;
-
-    dateFilter = { createdAt: { $gte: today } };
-  } else if (reportType === "weekly") {
-    weekEnd = new Date();
-    weekEnd.setHours(23, 59, 59, 999);
-
-    weekStart = new Date(weekEnd);
-    weekStart.setDate(weekEnd.getDate() - 7);
-    weekStart.setHours(0, 0, 0, 0);
-
-    dateFilter = {
-      createdAt: { $gte: weekStart, $lte: weekEnd },
-    };
-  } else if (reportType === "monthly") {
-    monthEnd = new Date();
-    monthEnd.setHours(23, 59, 59, 999);
-
-    monthStart = new Date(monthEnd);
-    monthStart.setMonth(monthStart.getMonth() - 1);
-    monthStart.setHours(0, 0, 0, 0);
-
-    dateFilter = {
-      createdAt: { $gte: monthStart, $lte: monthEnd },
-    };
-  } else if (reportType === "yearly") {
-    yearEnd = new Date();
-    yearEnd.setHours(23, 59, 59, 999);
-
-    yearStart = new Date(yearEnd);
-    yearStart.setFullYear(yearStart.getFullYear() - 1);
-    yearStart.setHours(0, 0, 0, 0);
-
-    dateFilter = {
-      createdAt: { $gte: yearStart, $lte: yearEnd },
-    };
   }
 
+  const skip = (page - 1) * limit;
 
-  // Build status filter
-  let statusFilterObj = {};
-  if (status) {
-    statusFilterObj = { orderStatus: status };
-  }
+  // ---------------- AGGREGATION ----------------
+  const basePipeline = [
+    { $match: dateFilter },
 
-  // Combine filters
-  const filter = { ...dateFilter, ...statusFilterObj };
+    // Join user
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
 
-  // Fetch orders with filters
-  const orders = await findOrdersByFilter(filter);
-  const totalOrders = orders.length;
-  const totalSales = orders.reduce((sum, order) => {
-    // Calculate order total (same logic as your orders page)
-    const orderTotal =
-      order.orderedItems.reduce((itemSum, item) => {
-        const price = item.price || 0;
-        const offer = item.offer || 0;
-        const effective = price - offer;
-        return itemSum + effective * item.quantity;
-      }, 0) - (order.couponDiscount || 0);
-    return sum + orderTotal;
-  }, 0);
+    // Flatten items
+    { $unwind: "$orderedItems" },
 
-  const totalDiscounts = orders.reduce((sum, order) => {
-    const itemDiscounts = order.orderedItems.reduce((itemSum, item) => {
-      const mrp = item.regularPrice || item.price;
-      const selling = item.price - (item.offer || 0);
-      const discount = (mrp - selling) * item.quantity;
-      return itemSum + discount;
-    }, 0);
-    return sum + itemDiscounts + (order.couponDiscount || 0);
-  }, 0);
+    // 🔥 ONLY DELIVERED ITEMS
+    {
+      $match: {
+        "orderedItems.itemStatus": {
+          $in: ["Delivered", "ReturnRejected"],
+        },
+      },
+    },
 
-  // Paginate transactions
-  const skip = (currentPage - 1) * limit;
-  const transactions = orders.slice(skip, skip + limit).map((order) => ({
-    orderId: order.orderId,
-    date: order.createdAt,
-    customerName: order.userId.username,
-    customerEmail: order.userId.email,
-    itemCount: order.orderedItems.length,
-    paymentMethod: order.paymentMethod,
-    status: order.orderStatus,
-    discount:
-      (order.couponDiscount || 0) +
-      order.orderedItems.reduce((sum, item) => {
-        const mrp = item.regularPrice || item.price;
-        const selling = item.price - (item.offer || 0);
-        return sum + (mrp - selling) * item.quantity;
-      }, 0),
-    totalAmount:
-      order.orderedItems.reduce((sum, item) => {
-        const effective = item.price - (item.offer || 0);
-        return sum + effective * item.quantity;
-      }, 0) - (order.couponDiscount || 0),
-  }));
+    // ---------------- CALCULATIONS PER ITEM ----------------
+    {
+      $addFields: {
+        itemGrossTotal: {
+          $multiply: [
+            {
+              $cond: {
+                if: { $ne: ["$orderedItems.regularPrice", 0] }, // if regularPrice != 0
+                then: "$orderedItems.regularPrice", // use regularPrice
+                else: "$orderedItems.price", // else use price
+              },
+            },
+            "$orderedItems.quantity",
+          ],
+        },
+        itemDiscountTotal: {
+          $multiply: [
+            {
+              $add: [
+                "$orderedItems.offer",
+                "$orderedItems.couponShare",
+                {
+                  $subtract: [
+                    "$orderedItems.regularPrice",
+                    "$orderedItems.price",
+                  ],
+                },
+              ],
+            },
+            "$orderedItems.quantity",
+          ],
+        },
+      },
+    },
 
-  const totalPages = Math.ceil(totalOrders / limit);
-  const salesGrowth=15.5;
+    {
+      $addFields: {
+        itemNetTotal: {
+          $subtract: ["$itemGrossTotal", "$itemDiscountTotal"],
+        },
+      },
+    },
+
+    // ---------------- GROUP BY ORDER ----------------
+    {
+      $group: {
+        _id: "$_id",
+        orderId: { $first: "$orderId" },
+        createdAt: { $first: "$createdAt" },
+        customerName: { $first: "$user.username" },
+        customerEmail: { $first: "$user.email" },
+        paymentMethod: { $first: "$paymentMethod" },
+
+        itemCount: { $sum: "$orderedItems.quantity" },
+
+        totalAmount: { $sum: "$itemNetTotal" },
+        discount: { $sum: "$itemDiscountTotal" }, 
+      },
+    },
+
+    { $sort: { createdAt: -1 } },
+  ];
+
+  const transactions = await getOrderTransations(basePipeline, skip, limit);
+
+  const totalsAgg = await getOrderTransationsTotal(basePipeline);
+
+  const totals = totalsAgg[0] || {};
+
+  const totalTransactions = totals.totalOrders || 0;
+  const totalPages = Math.ceil(totalTransactions / limit);
+
   return {
+    salesData: {
+      transactions,
+      totalSales: totals.totalSales || 0,
+      totalOrders: totals.totalOrders || 0,
+      totalDiscounts: totals.totalDiscounts || 0,
+      productsSold: totals.productsSold || 0,
+      averageOrderValue:
+        totals.totalOrders > 0 ? totals.totalSales / totals.totalOrders : 0,
+    },
+    totalTransactions,
     totalPages,
-    totalOrders,
-    totalSales,
-    totalDiscounts,
-    orders,
-    transactions,
-    weekStart,
-    weekEnd,
-    monthStart,
-    monthEnd,
-    yearStart,
-    yearEnd,
+    currentPage: page,
+    limit,
   };
-}
+};

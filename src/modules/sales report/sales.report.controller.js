@@ -1,83 +1,91 @@
-import { LOGO } from "../../config/cloudinaryDefaults.js";
-import { loadSalesReportService } from "./sales.report.service.js";
+import { getDeliveredSalesReportService } from "./sales.report.service.js";
+import { generateSalesReportExcel } from "./utils/sales.report.excel.js";
+import { generateSalesReportPDF } from "./utils/sales.report.pdf.js";
 
-export const loadSalesReport = async (req, res) => {
-  const {
-    reportType = "daily",
-    startDate,
-    endDate,
-    status = "",
-    page = 1,
-  } = req.query;
+export const loadSalesReport = async (req, res,next) => {
+  try {
+    const {
+      reportType = "daily",
+      startDate,
+      endDate,
+      page = 1,
+      limit = 4,
+    } = req.query;
+  
+    const data = await getDeliveredSalesReportService({
+      reportType,
+      startDate,
+      endDate,
+      page: Number(page),
+      limit: Number(limit),
+    });
+  
+    res.render("admin/sales-report", {
+      pageTitle: "Sales Report",
+      pageCss: "sales-report",
+      pageJs: "sales-report",
+      ...data,
+      reportType,
+      startDate,
+      endDate,
+    });
+  } catch (error) {
+    next(error)
+  }
+};
 
-  const limit = 20;
-  const currentPage = parseInt(page);
+export const loadSalesReportDownload = async (req, res, next) => {
+  try {
+    const {
+      reportType = "daily",
+      startDate,
+      endDate,
+      format = "pdf",
+    } = req.query;
 
-  const {
-    totalPages,
-    totalOrders,
-    totalSales,
-    totalDiscounts,
-    orders,
-    transactions,
-    weekStart,
-    weekEnd,
-    monthStart,
-    monthEnd,
-    yearStart,
-    yearEnd,
-  } = await loadSalesReportService({
-    reportType,
-    startDate,
-    endDate,
-    status,
-    limit,
-    currentPage,
-  });
+    // fetch ALL data (no pagination)
+    const data = await getDeliveredSalesReportService({
+      reportType,
+      startDate,
+      endDate,
+      page: 1,
+      limit: 100000, // big number to fetch all
+    });
 
-  res.render("admin/sales-report", {
-    pageTitle: "Sales Report",
-    pageCss: "sales-report",
-    pageJs: "sales-report",
-    logo: LOGO,
-    reportType,
-    startDate,
-    endDate,
-    statusFilter: status,
-    currentPage,
-    limit,
-    totalPages,
-    totalTransactions: totalOrders,
-    weekStart,
-    weekEnd,
-    monthStart,
-    monthEnd,
-    yearStart,
-    yearEnd,
-    salesData: {
-      totalSales,
-      salesGrowth: 15.5, // Calculate based on previous period
-      totalOrders,
-      averageOrderValue: totalSales / totalOrders,
-      totalDiscounts,
-      discountPercentage: (totalDiscounts / totalSales) * 100,
-      productsSold: orders.reduce(
-        (sum, o) => sum + o.orderedItems.reduce((s, i) => s + i.quantity, 0),
-        0
-      ),
-      uniqueProducts: new Set(
-        orders.flatMap((o) =>
-          o.orderedItems.map((i) => i.productId._id.toString())
-        )
-      ).size,
-      returnsCancellations: orders.filter((o) =>
-        ["Cancelled", "Returned"].includes(o.orderStatus)
-      ).length,
-      returnsCancellationsAmount: 0, // Calculate
-      paymentMethods: [], // Calculate breakdown
-      orderStatus: [], // Calculate breakdown
-      topProducts: [], // Calculate top products
-      transactions,
-    },
-  });
+    if (format === "pdf") {
+      return generateSalesReportPDF(res, data.salesData);
+    }
+
+    if (format === "excel") {
+      return generateSalesReportExcel(res, data.salesData);
+    }
+
+    res.status(400).send("Invalid format");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const loadSalesReportPDF = async (req, res, next) => {
+  try {
+    const { reportType = "daily", startDate, endDate } = req.query;
+
+    const data = await getDeliveredSalesReportService({
+      reportType,
+      startDate,
+      endDate,
+      page: 1,
+      limit: 100000, // all data
+    });
+
+    res.render("admin/sales-report-pdf", {
+      layout: false, // IMPORTANT
+      salesData: data.salesData,
+      reportType,
+      startDate,
+      endDate,
+    });
+  } catch (err) {
+    next(err);
+  }
 };
