@@ -9,68 +9,69 @@ import {
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 
 // LOAD LIST PAGE
-export const loadManageAddress = async (req, res, next) => {
-  try {
-    const { user, addresses } = await loadManageAddressService(req.session.user);
+export const loadManageAddress = async (req, res) => {
+  const { user, addresses } = await loadManageAddressService(req.session.user);
 
-    res.status(HttpStatus.OK).render("user/manageAddress", {
-      pageTitle: "Manage Address",
-      pageJs: "manageAddress",
-      user,
-      addresses,
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).render("user/manageAddress", {
+    pageTitle: "Manage Address",
+    pageJs: "manageAddress",
+    user,
+    addresses,
+  });
 };
 
 // ADD ADDRESS
 export const addAddress = async (req, res) => {
-  try {
-    const { error } = addressSchema.validate(req.body);
-    if (error) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
-
-    await addAddressService(req.session.user, req.body);
-
-    res.status(HttpStatus.OK).json({ success: true, message: "The address has been added successfully." });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+  const { error } = addressSchema.validate(req.body);
+  if (error) {
+    const err = new Error(error.details[0].message);
+    err.status = HttpStatus.BAD_REQUEST;
+    throw err;
   }
+
+  await addAddressService(req.session.user, req.body);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: "The address has been added successfully.",
+  });
 };
 
 // EDIT ADDRESS
 export const editAddress = async (req, res) => {
-  try {
-    const { addressId } = req.params;
-    const { error } = addressSchema.validate(req.body);
+  const { addressId } = req.params;
 
-    if (error) return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
-
-    await editAddressService(req.session.user, addressId, req.body);
-
-    res.status(HttpStatus.OK).json({ success: true, message: "The address has been updated successfully." });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+  const { error } = addressSchema.validate(req.body);
+  if (error) {
+    const err = new Error(error.details[0].message);
+    err.status = HttpStatus.BAD_REQUEST;
+    throw err;
   }
+
+  await editAddressService(req.session.user, addressId, req.body);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: "The address has been updated successfully.",
+  });
 };
 
-// SET DEFAULT
+// SET DEFAULT ADDRESS
 export const setDefaultAddress = async (req, res) => {
-  try {
-    await setDefaultAddressService(req.session.user, req.params.addressId);
-    res.status(HttpStatus.OK).json({ success: true });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
-  }
+  await setDefaultAddressService(req.session.user, req.params.addressId);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: "Default address updated",
+  });
 };
 
 // DELETE ADDRESS
 export const deleteAddress = async (req, res) => {
-  try {
-    await deleteAddressService(req.session.user, req.params.addressId);
+  await deleteAddressService(req.session.user, req.params.addressId);
 
-    res.status(HttpStatus.OK).json({ success: true, message: "Address deleted successfully" });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal server error" });
-  }
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: "Address deleted successfully",
+  });
 };

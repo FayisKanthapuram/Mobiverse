@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 import adminRoutes from "./shared/routes/adminRoute.js";
 import userRoutes from "./shared/routes/userRoute.js";
 import passport from "./config/passport.js";
-import { logger } from "./shared/middlewares/logger.js";
+import { logger } from "./shared/utils/logger.js";
 import { setUser } from "./shared/middlewares/setUser.js";
 import {
   errorHandler,
