@@ -7,8 +7,11 @@ import {
   loginAdmin,
   logoutAdmin,
 } from "./admin.auth.controller.js";
+import nocache from "nocache";
 
 const router = express.Router();
+
+router.use(nocache())
 
 router.get("/login", isLogin, loadLogin);
 router.post("/register", registerAdmin);

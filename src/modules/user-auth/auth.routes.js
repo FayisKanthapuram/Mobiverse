@@ -23,8 +23,11 @@ import {
   isVerifyOtp,
   isVerifyRecoveryOtp,
 } from "../../shared/middlewares/userAuth.js";
+import nocache from "nocache";
 
 const router = express.Router();
+
+router.use(nocache());
 
 // auth routes
 router.get("/login", isLogin, loadLogin);

@@ -1,6 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-import nocache from "nocache";
 import path from "path";
 import expressLayouts from "express-ejs-layouts";
 import { sessionConfig } from "./shared/middlewares/session.js";
@@ -33,7 +32,6 @@ sessionConfig(app);
 app.use(setUser);
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(nocache());
 // app.use(ipRateLimiter);
 
 // Static + Views
