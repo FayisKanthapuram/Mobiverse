@@ -1,4 +1,8 @@
 import Joi from "joi";
+
+const strongPasswordRegex =
+  "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{6,}$";
+
 export const userRegisterSchema = Joi.object({
   username: Joi.string().min(3).max(30).required().messages({
     "string.empty": "Username is required",
@@ -12,27 +16,26 @@ export const userRegisterSchema = Joi.object({
   }),
 
   password: Joi.string()
-    .pattern(
-      new RegExp(
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$"
-      )
-    )
+    .pattern(new RegExp(strongPasswordRegex))
     .required()
     .messages({
       "string.empty": "Password is required",
       "string.pattern.base":
-        "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character",
+        "Password must be at least 6 characters long and include uppercase, lowercase, number, and a special character",
     }),
 
-  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
-    "any.only": "Passwords do not match",
-    "string.empty": "Confirm password is required",
-  }),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref("password"))
+    .required()
+    .messages({
+      "any.only": "Passwords do not match",
+      "string.empty": "Confirm password is required",
+    }),
 
   referralCode: Joi.string()
     .alphanum()
     .length(8)
-    .allow("") // <-- allows empty string
+    .allow("")
     .optional()
     .messages({
       "string.length": "Referral code must be 8 characters",
@@ -45,6 +48,7 @@ export const userLoginSchema = Joi.object({
     "string.email": "Please enter a valid email",
     "string.empty": "Email is required",
   }),
+
   password: Joi.string().min(4).required().messages({
     "string.empty": "Password is required",
     "string.min": "Password must be at least 4 characters",
@@ -53,20 +57,19 @@ export const userLoginSchema = Joi.object({
 
 export const resetPasswordSchema = Joi.object({
   password: Joi.string()
-    .pattern(
-      new RegExp(
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,}$"
-      )
-    )
+    .pattern(new RegExp(strongPasswordRegex))
     .required()
     .messages({
       "string.empty": "Password is required",
       "string.pattern.base":
-        "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character",
+        "Password must be at least 6 characters long and include uppercase, lowercase, number, and a special character",
     }),
 
-  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
-    "any.only": "Passwords do not match",
-    "string.empty": "Confirm password is required",
-  }),
+  confirmPassword: Joi.string()
+    .valid(Joi.ref("password"))
+    .required()
+    .messages({
+      "any.only": "Passwords do not match",
+      "string.empty": "Confirm password is required",
+    }),
 });

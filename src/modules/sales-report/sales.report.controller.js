@@ -51,9 +51,6 @@ export const loadSalesReportDownload = async (req, res, next) => {
       limit: 100000, // big number to fetch all
     });
 
-    if (format === "pdf") {
-      return generateSalesReportPDF(res, data.salesData);
-    }
 
     if (format === "excel") {
       return generateSalesReportExcel(res, data.salesData);

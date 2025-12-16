@@ -34,7 +34,7 @@ app.use(setUser);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(nocache());
-app.use(ipRateLimiter);
+// app.use(ipRateLimiter);
 
 // Static + Views
 app.use(express.static(path.join(__dirname, "../public")));
