@@ -1,4 +1,3 @@
-// user.service.js
 import {
   countAllUsers,
   countBlockedUsers,
@@ -6,14 +5,18 @@ import {
   findUser,
   findUsers,
 } from "./user.managment.repo.js";
-
 import {
   buildUserQuery,
   buildSortQuery,
   getPagination,
 } from "./user.managment.helper.js";
 import { findUserById } from "../user/user.repo.js";
+import { AppError } from "../../shared/utils/app.error.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 
+/* ----------------------------------------------------
+   LOAD USERS
+---------------------------------------------------- */
 export const loadUsersService = async (queryParams) => {
   const { page, search, status, sort } = queryParams;
 
@@ -46,22 +49,33 @@ export const loadUsersService = async (queryParams) => {
   };
 };
 
+/* ----------------------------------------------------
+   BLOCK / UNBLOCK USER
+---------------------------------------------------- */
 export const blockUserService = async (id) => {
   const user = await findUserById(id);
-  if (!user) return null;
+  if (!user) {
+    throw new AppError("User not found", HttpStatus.NOT_FOUND);
+  }
 
   user.isBlocked = !user.isBlocked;
   await user.save();
-  return user;
+
+  return true;
 };
 
-export const getCustomersBySearch=async(search="")=>{
-  const query={}
-  if(search) {
-    query.$or=[
-      {username:{$regex:search,$options:"i"}},
-      {email:{$regex:search,$options:"i"}},
-    ]
+/* ----------------------------------------------------
+   SEARCH USERS
+---------------------------------------------------- */
+export const getCustomersBySearch = async (search = "") => {
+  const query = {};
+
+  if (search) {
+    query.$or = [
+      { username: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+    ];
   }
+
   return await findUser(query);
-}
+};

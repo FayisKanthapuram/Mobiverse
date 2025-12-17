@@ -15,3 +15,34 @@ document.getElementById('logout-button').addEventListener('click',async()=>{
         }).showToast();
     }
 })
+
+let pendingAction = null;
+
+function openConfirmModal({ title, message, onConfirm }) {
+  const modal = document.getElementById("confirmModal");
+  const titleEl = document.getElementById("confirmTitle");
+  const messageEl = document.getElementById("confirmMessage");
+  const confirmBtn = document.getElementById("confirmAction");
+  const cancelBtn = document.getElementById("cancelConfirm");
+
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+
+  pendingAction = onConfirm;
+
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+
+  cancelBtn.onclick = closeConfirmModal;
+  confirmBtn.onclick = () => {
+    if (pendingAction) pendingAction();
+    closeConfirmModal();
+  };
+}
+
+function closeConfirmModal() {
+  const modal = document.getElementById("confirmModal");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+  pendingAction = null;
+}

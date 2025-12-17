@@ -2,82 +2,98 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".unblock-btn , .block-btn").forEach((btn) => {
     btn.addEventListener("click", async (event) => {
       event.preventDefault();
+
       const target = event.currentTarget;
       const customerId = target.dataset.customerId;
       const isBlocked = target.dataset.isBlocked === "true";
 
-      if (
-        !isBlocked &&
-        !confirm("Are you sure you want to block this customer?")
-      )
-        return;
+      const proceed = async () => {
+        target.disabled = true;
 
-      target.disabled = true;
-
-      try {
-        const response = await axios.patch(
-          `/admin/users/block/${customerId}`
-        );
-        if (response.data.success) {
-          target.dataset.isBlocked = (!isBlocked).toString();
-          let activeCount = Number(
-            document.getElementById("active-count").textContent
-          );
-          let blockCount = Number(
-            document.getElementById("block-count").textContent
+        try {
+          const response = await axios.patch(
+            `/admin/users/block/${customerId}`
           );
 
-          if (isBlocked) {
-            activeCount++;
-            blockCount--;
-            target.textContent = "Block";
-            target.classList.replace("unblock-btn", "block-btn");
-          } else {
-            activeCount--;
-            blockCount++;
-            target.textContent = "Unblock";
-            target.classList.replace("block-btn", "unblock-btn");
+          if (response.data.success) {
+            target.dataset.isBlocked = (!isBlocked).toString();
+
+            let activeCount = Number(
+              document.getElementById("active-count").textContent
+            );
+            let blockCount = Number(
+              document.getElementById("block-count").textContent
+            );
+
+            if (isBlocked) {
+              activeCount++;
+              blockCount--;
+              target.textContent = "Block";
+              target.classList.replace("unblock-btn", "block-btn");
+            } else {
+              activeCount--;
+              blockCount++;
+              target.textContent = "Unblock";
+              target.classList.replace("block-btn", "unblock-btn");
+            }
+
+            document.getElementById("active-count").textContent = activeCount;
+            document.getElementById("block-count").textContent = blockCount;
+
+            const badge = document.querySelector(
+              `[data-customer-status][data-customer-id="${customerId}"]`
+            );
+
+            if (badge) {
+              badge.classList.remove(
+                "bg-red-100",
+                "text-red-600",
+                "bg-green-100",
+                "text-green-600"
+              );
+
+              if (isBlocked) {
+                badge.classList.add("bg-green-100", "text-green-600");
+                badge.innerHTML = `<i class="fas fa-circle text-[8px]"></i> Active`;
+              } else {
+                badge.classList.add("bg-red-100", "text-red-600");
+                badge.innerHTML = `<i class="fas fa-circle text-[8px]"></i> Blocked`;
+              }
+            }
+
+            Toastify({
+              text: isBlocked ? "Customer Unblocked" : "Customer Blocked",
+              duration: 1500,
+              gravity: "bottom",
+              position: "right",
+              style: {
+                background: isBlocked
+                  ? "linear-gradient(to right, #00b09b, #96c93d)"
+                  : "#dc3545",
+              },
+            }).showToast();
           }
-
-          document.getElementById("active-count").textContent = activeCount;
-          document.getElementById("block-count").textContent = blockCount;
-
-          const badge = document.querySelector(
-            `[data-customer-status][data-customer-id="${customerId}"]`
-          );
-
-          if (badge) {
-            badge.innerHTML = isBlocked
-              ? '<i class="fas fa-circle"></i> Active'
-              : '<i class="fas fa-circle"></i> Blocked';
-            badge.classList.toggle("status-blocked", !isBlocked);
-            badge.classList.toggle("status-active", isBlocked);
-          }
-
+        } catch (error) {
           Toastify({
-            text: !isBlocked ? "Customer Blocked" : "Customer Unblocked",
-            duration: 1500,
+            text: error.response?.data?.message || "Something went wrong",
+            duration: 2000,
             gravity: "bottom",
             position: "right",
-            style: {
-              background: !isBlocked
-                ? "#dc3545"
-                : "linear-gradient(to right, #00b09b, #96c93d)",
-            },
+            style: { background: "#dc3545" },
           }).showToast();
+        } finally {
+          target.disabled = false;
         }
-      } catch (error) {
-        console.log(error);
-        Toastify({
-          text: error.response?.data?.message || "Something went wrong",
-          duration: 2000,
-          gravity: "bottom",
-          position: "right",
-          style: { background: "#dc3545" },
-        }).showToast();
-      } finally {
-        target.disabled = false;
-      }
+      };
+
+      // ✅ MODAL FOR BOTH ACTIONS
+      openConfirmModal({
+        title: isBlocked ? "Unblock Customer" : "Block Customer",
+        message: isBlocked
+          ? "Are you sure you want to unblock this customer?"
+          : "Are you sure you want to block this customer?",
+        onConfirm: proceed,
+      });
     });
   });
 });
