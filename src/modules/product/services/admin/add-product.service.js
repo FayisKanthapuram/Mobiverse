@@ -1,78 +1,67 @@
-import {
-  findProducts,
-  createProduct,
-} from "../../repo/product.repo.js";
-import {
-  createVariant,
-} from "../../repo/variant.repo.js";
-import {
-  findBrandById,
-} from "../../../brand/brand.repo.js";
+import { findProducts, createProduct } from "../../repo/product.repo.js";
+import { createVariant } from "../../repo/variant.repo.js";
+import { findBrandById } from "../../../brand/brand.repo.js";
 import { cloudinaryUpload } from "../../../../shared/middlewares/upload.js";
 import {
   rollbackCloudinary,
   calcMinMaxStock,
 } from "../../helpers/admin.product.helper.js";
+import { AppError } from "../../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 
 export const addProductService = async (body, files) => {
   const uploadedPublicIds = [];
 
   try {
-    // Validate name/brand at controller level (we assume productValidationSchema done earlier)
     const variants = JSON.parse(body.variants || "[]");
     if (!Array.isArray(variants) || variants.length === 0) {
-      throw new Error("Variants data required");
+      throw new AppError("Variants data required", HttpStatus.BAD_REQUEST);
     }
 
-    if (!files || files.length === 0) throw new Error("No images uploaded");
+    if (!files || files.length === 0) {
+      throw new AppError("No images uploaded", HttpStatus.BAD_REQUEST);
+    }
 
-    // Group images by variant index based on fieldname pattern variantImages_{index}_{n}
     const imagesByVariant = {};
+
     for (const file of files) {
       const match = file.fieldname.match(/variantImages_(\d+)_\d+/);
       if (!match) continue;
+
       const idx = match[1];
       const uploadResult = await cloudinaryUpload(file.buffer, "products");
-      // keep public_id for rollback
-      uploadedPublicIds.push(
-        uploadResult.public_id || uploadResult.publicId || uploadResult.publicId
-      );
+
+      uploadedPublicIds.push(uploadResult.public_id);
       imagesByVariant[idx] = imagesByVariant[idx] || [];
       imagesByVariant[idx].push(uploadResult.secure_url);
     }
 
-    // Ensure each variant has at least 3 images
     for (let i = 0; i < variants.length; i++) {
       if (!imagesByVariant[i] || imagesByVariant[i].length < 3) {
-        await rollbackCloudinary(uploadedPublicIds);
-        throw new Error(`Variant ${i + 1} must have at least 3 images`);
+        throw new AppError(
+          `Variant ${i + 1} must have at least 3 images`,
+          HttpStatus.BAD_REQUEST
+        );
       }
     }
 
-    // attach images
     const finalVariants = variants.map((v, idx) => ({
       ...v,
-      images: imagesByVariant[idx] || [],
+      images: imagesByVariant[idx],
     }));
 
-    // check product name uniqueness
     const existing = await findProducts({ name: body.productName }, {}, 0, 1);
-    if (existing && existing.length) {
-      await rollbackCloudinary(uploadedPublicIds);
-      throw new Error("Product name already exists");
+    if (existing.length) {
+      throw new AppError("Product name already exists", HttpStatus.BAD_REQUEST);
     }
 
-    // validate brand
     const brand = await findBrandById(body.brand);
     if (!brand) {
-      await rollbackCloudinary(uploadedPublicIds);
-      throw new Error("Invalid brand ID");
+      throw new AppError("Invalid brand ID", HttpStatus.BAD_REQUEST);
     }
 
-    // calc prices & stock
     const { minPrice, maxPrice, totalStock } = calcMinMaxStock(finalVariants);
 
-    // create product
     const product = await createProduct({
       name: body.productName,
       image: finalVariants[0].images[0],
@@ -85,7 +74,6 @@ export const addProductService = async (body, files) => {
       totalStock,
     });
 
-    // create variants
     await Promise.all(
       finalVariants.map((v) =>
         createVariant({
@@ -102,15 +90,9 @@ export const addProductService = async (body, files) => {
       )
     );
 
-    return { success: true, product };
+    return product;
   } catch (err) {
-    try {
-      if (Array.isArray(uploadedPublicIds) && uploadedPublicIds.length) {
-        await rollbackCloudinary(uploadedPublicIds);
-      }
-    } catch (e) {
-      // ignore rollback errors
-    }
+    await rollbackCloudinary(uploadedPublicIds);
     throw err;
   }
 };

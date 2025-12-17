@@ -1,25 +1,42 @@
-<div class="main-header">
-  <div class="header-left">
-    <h2>Products Management</h2>
-    <p>Manage all mobile products and their variants</p>
+<!-- Main Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+  <div>
+    <h2 class="m-0 mb-1 text-2xl font-semibold text-gray-900">Products Management</h2>
+    <p class="m-0 text-sm text-gray-500">Manage all mobile products and their variants</p>
   </div>
-  <button class="btn btn-primary" id="open-add-modal-btn">
+  <button class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-colors hover:bg-blue-700" 
+          id="open-add-modal-btn">
     <i class="fas fa-plus"></i> Add Product
   </button>
 </div>
 
-<div class="filter-bar">
-  <div class="search-wrapper">
-    <i class="fas fa-search"></i>
-    <input type="text" placeholder="Search by product name or brand..." id="product-search-input" value="<%= typeof query.search !== 'undefined' ? query.search : '' %>" onkeyup="debounceSearch()" />
+<!-- Filter Bar -->
+<div class="flex flex-col md:flex-row gap-4 p-5 bg-white rounded-lg mb-6 shadow-sm">
+  <!-- Search Wrapper -->
+  <div class="flex-1 relative">
+    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+    <input type="text" 
+           placeholder="Search by product name or brand..." 
+           id="product-search-input" 
+           value="<%= typeof query.search !== 'undefined' ? query.search : '' %>" 
+           onkeyup="debounceSearch()" 
+           class="w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
   </div>
 
   <% if (typeof query.search !== 'undefined' && query.search.trim() !== '') { %>
-  <button type="button" class="btn-clear" id="clear-search" onclick="clearSearch()">Clear</button>
+  <button type="button" 
+          class="px-4 py-2 bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600 border border-blue-200 rounded-lg font-semibold text-sm tracking-wide cursor-pointer transition-all hover:from-blue-600 hover:to-blue-700 hover:text-white hover:border-blue-600 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0" 
+          id="clear-search" 
+          onclick="clearSearch()">
+    Clear
+  </button>
   <% } %>
 
-  <select name="brand" onchange="applyFilter()" class="filter-select">
-    <option value="" <%= !query.brand ?'selected' : '' %>>All Brands</option>
+  <!-- Brand Filter -->
+  <select name="brand" 
+          onchange="applyFilter()" 
+          class="px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white min-w-[150px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    <option value="" <%= !query.brand ? 'selected' : '' %>>All Brands</option>
     <% if (brands && brands.length > 0) { %>
     <% brands.forEach(brand => { %>
     <option value="<%= brand._id %>" <%= String(query.brand) === String(brand._id) ? 'selected' : '' %>>
@@ -28,68 +45,97 @@
     <% }); %>
     <% } %>
   </select>
-  <select name="status" onchange="applyFilter()" class="filter-select">
-    <option value="All" <%= !query.status ?'selected' : '' %>>All</option>
+
+  <!-- Status Filter -->
+  <select name="status" 
+          onchange="applyFilter()" 
+          class="px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white min-w-[150px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    <option value="All" <%= !query.status ? 'selected' : '' %>>All</option>
     <option value="listed" <%= query.status === 'listed' ? 'selected' : '' %>>Listed</option>
     <option value="unlisted" <%= query.status === 'unlisted' ? 'selected' : '' %>>Unlisted</option>
   </select>
 </div>
 
-<div class="table-container">
-  <table class="products-table">
+<!-- Table Container -->
+<div class="bg-white rounded-lg shadow-sm overflow-x-auto">
+  <table class="w-full border-collapse">
     <thead>
       <tr>
-        <th>Product Image</th>
-        <th>Product Name</th>
-        <th>Brand</th>
-        <th>Avg Rating</th>
-        <th>Price Range</th>
-        <th>Total Stock</th>
-        <th>Status</th>
-        <th>Featured</th>
-        <th>Actions</th>
+        <th class="px-4 py-4 text-left border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product Image</th>
+        <th class="px-4 py-4 text-left border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product Name</th>
+        <th class="px-4 py-4 text-left border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">Brand</th>
+        <th class="px-4 py-4 text-left border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">Avg Rating</th>
+        <th class="px-4 py-4 text-left border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">Price Range</th>
+        <th class="px-4 py-4 text-left border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Stock</th>
+        <th class="px-4 py-4 text-left border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+        <th class="px-4 py-4 text-left border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">Featured</th>
+        <th class="px-4 py-4 text-left border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
       </tr>
     </thead>
     <tbody>
-      <% if (typeof products !== 'undefined' && products.length > 0) { %> <%
-      products.forEach(product => { %>
-      <tr>
-        <td>
-          <img src="<%= product.image || '/images/default-product.png' %>" alt="<%= product.name %>" class="product-table-img" />
+      <% if (typeof products !== 'undefined' && products.length > 0) { %>
+      <% products.forEach(product => { %>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="px-4 py-4 border-b border-gray-200">
+          <img src="<%= product.image || '/images/default-product.png' %>" 
+               alt="<%= product.name %>" 
+               class="w-12 h-12 object-cover rounded-md" />
         </td>
-        <td><%= product.name %></td>
-        <td><%= product.brandID.brandName %></td>
-        <td><%= product.avgRating %></td>
-        <%if (product.minPrice ===product.maxPrice) {%>
-        <td>₹<%= product.minPrice %></td>
-        <% } else { %>
-        <td>₹<%= product.minPrice %> - ₹<%= product.maxPrice %></td>
-        <% } %>
-        <td><%= product.totalStock %></td>
-        <td>
-          <% if (product.isListed) { %>
-          <span class="status-badge status-listed" data-product-status data-product-id="<%= product._id %>">Listed</span>
+        <td class="px-4 py-4 border-b border-gray-200 text-sm text-gray-900"><%= product.name %></td>
+        <td class="px-4 py-4 border-b border-gray-200 text-sm text-gray-700"><%= product.brandID.brandName %></td>
+        <td class="px-4 py-4 border-b border-gray-200 text-sm text-gray-700"><%= product.avgRating %></td>
+        <td class="px-4 py-4 border-b border-gray-200 text-sm text-gray-700">
+          <% if (product.minPrice === product.maxPrice) { %>
+          ₹<%= product.minPrice %>
           <% } else { %>
-          <span class="status-badge status-unlisted" data-product-status data-product-id="<%= product._id %>">Unlisted</span>
+          ₹<%= product.minPrice %> - ₹<%= product.maxPrice %>
           <% } %>
         </td>
-        <td><%= product.isFeatured ? 'Yes' : 'No' %></td>
-        <td>
-          <div class="action-buttons">
-            <button class="btn-action btn-edit" data-product-id="<%= product._id %>">
-              <i class="fas fa-pencil-alt"></i> Edit
+        <td class="px-4 py-4 border-b border-gray-200 text-sm text-gray-700"><%= product.totalStock %></td>
+        <td class="px-4 py-4 border-b border-gray-200">
+          <% if (product.isListed) { %>
+          <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-green-100 text-green-700" 
+                data-product-status 
+                data-product-id="<%= product._id %>">
+            Listed
+          </span>
+          <% } else { %>
+          <span class="inline-flex items-center px-2.5 py-1 rounded-xl text-xs font-semibold bg-red-100 text-red-700" 
+                data-product-status 
+                data-product-id="<%= product._id %>">
+            Unlisted
+          </span>
+          <% } %>
+        </td>
+        <td class="px-4 py-4 border-b border-gray-200 text-sm text-gray-700"><%= product.isFeatured ? 'Yes' : 'No' %></td>
+        <td class="px-4 py-4 border-b border-gray-200">
+          <div class="flex items-center gap-2">
+            <button class="px-2.5 py-1.5 text-xs border border-gray-300 bg-white rounded-md cursor-pointer flex items-center gap-1 hover:bg-gray-50 transition-colors btn-edit" 
+                    data-product-id="<%= product._id %>">
+              <i class="fas fa-pencil-alt text-blue-600"></i> Edit
             </button>
             <% if (product.isListed) { %>
-            <button type="submit" class="btn-action btn-unlist" data-product-id="<%= product._id %>" data-product-islisted="<%= product.isListed %>">Unlist</button>
+            <button type="submit" 
+                    class="px-2.5 py-1.5 text-xs border bg-white rounded-md cursor-pointer hover:bg-gray-50 transition-colors text-red-600 border-red-300 hover:bg-red-600 hover:text-white btn-action btn-unlist" 
+                    data-product-id="<%= product._id %>" 
+                    data-product-islisted="<%= product.isListed %>">
+              Unlist
+            </button>
             <% } else { %>
-            <button type="submit" class="btn-action btn-list" data-product-id="<%= product._id %>" data-product-islisted="<%= product.isListed %>">List</button>
+            <button type="submit" 
+                    class="px-2.5 py-1.5 text-xs border bg-white rounded-md cursor-pointer hover:bg-gray-50 transition-colors text-green-600 border-green-300 hover:bg-green-600 hover:text-white btn-action btn-list" 
+                    data-product-id="<%= product._id %>" 
+                    data-product-islisted="<%= product.isListed %>">
+              List
+            </button>
             <% } %>
           </div>
         </td>
       </tr>
-      <% }); %> <% } else { %>
+      <% }); %>
+      <% } else { %>
       <tr>
-        <td colspan="8" style="text-align: center; padding: 20px">
+        <td colspan="9" class="text-center py-20 text-gray-500">
           No products found.
         </td>
       </tr>
@@ -98,22 +144,32 @@
   </table>
 </div>
 
-
 <%- include('../partials/admin/products/pagination') %>
 <%- include('../partials/admin/products/addNewProductModal') %>
-<%-include('../partials/admin/products/editProductModal') %>
+<%- include('../partials/admin/products/editProductModal') %>
 
-<!-- 🖼️ Cropper Modal -->
-<div id="cropperModal" class="cropper-modal">
-  <div class="cropper-wrapper">
-    <img id="cropperImage" alt="Crop Image" />
-    <div class="cropper-actions">
-      <button type="button" id="cancelCropBtn" class="btn btn-secondary">
+<!-- Cropper Modal -->
+<div id="cropperModal" class="cropper-modal fixed top-0 left-0 w-full h-full bg-black bg-opacity-70 flex items-center justify-center z-[5000] opacity-0 invisible transition-all duration-200">
+  <div class="cropper-wrapper bg-white rounded-lg p-5 max-w-2xl w-[90%] shadow-2xl">
+    <img id="cropperImage" alt="Crop Image" class="w-full max-h-96 block object-contain rounded-md" />
+    <div class="cropper-actions flex justify-end mt-4 gap-3">
+      <button type="button" 
+              id="cancelCropBtn" 
+              class="px-4 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold cursor-pointer text-sm hover:bg-gray-50">
         Cancel
       </button>
-      <button type="button" id="applyCropBtn" class="btn btn-primary">
+      <button type="button" 
+              id="applyCropBtn" 
+              class="px-4 py-2.5 bg-blue-600 text-white border-none rounded-lg font-semibold cursor-pointer text-sm hover:bg-blue-700">
         Apply Crop
       </button>
     </div>
   </div>
 </div>
+
+<style>
+  #cropperModal.active {
+    opacity: 1;
+    visibility: visible;
+  }
+</style>

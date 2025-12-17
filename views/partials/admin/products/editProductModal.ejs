@@ -1,27 +1,38 @@
-<div class="modal-overlay" id="edit-product-modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Edit Product</h2>
-      <button class="close-modal-btn">&times;</button>
+<div class="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden justify-center items-start z-[1000] overflow-y-auto py-12" 
+     id="edit-product-modal">
+  <div class="modal-content bg-white rounded-xl w-[90%] max-w-3xl shadow-2xl animate-slideDown">
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center px-6 py-5 border-b border-gray-200">
+      <h2 class="m-0 text-xl font-semibold text-gray-900">Edit Product</h2>
+      <button class="close-modal-btn bg-transparent border-none text-3xl font-light text-gray-500 cursor-pointer hover:text-gray-900 transition-colors">
+        &times;
+      </button>
     </div>
 
-    <form id="edit-product-form" class="modal-form">
+    <!-- Form -->
+    <form id="edit-product-form" class="modal-form p-0">
       <input type="hidden" id="edit-product-id" name="productId">
 
-      <div class="form-step">
-        <div class="step-header active">
-          <h3>Step 1 – Basic Information</h3>
-          <i class="fas fa-chevron-down"></i>
+      <!-- Step 1: Basic Information -->
+      <div class="form-step border-b border-gray-200">
+        <div class="step-header flex justify-between items-center px-6 py-5 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors active">
+          <h3 class="m-0 text-base font-semibold text-gray-900">Step 1 – Basic Information</h3>
+          <i class="fas fa-chevron-down transition-transform duration-300"></i>
         </div>
-        <div class="step-content" style="display: block;">
-          <div class="form-group">
-            <label for="edit-product-name">Product Name</label>
-            <input type="text" id="edit-product-name" name="productName">
+        <div class="step-content px-6 py-6 block">
+          <div class="form-group mb-5">
+            <label for="edit-product-name" class="block mb-2 text-sm font-semibold text-gray-900">Product Name</label>
+            <input type="text" 
+                   id="edit-product-name" 
+                   name="productName" 
+                   class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
           </div>
 
-          <div class="form-group">
-            <label for="edit-brand">Brand</label>
-            <select id="edit-brand" name="brand">
+          <div class="form-group mb-5">
+            <label for="edit-brand" class="block mb-2 text-sm font-semibold text-gray-900">Brand</label>
+            <select id="edit-brand" 
+                    name="brand" 
+                    class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
               <% if (brands && brands.length > 0) { %>
                 <% brands.forEach(brand => { %>
                   <option value="<%= brand._id %>"><%= brand.brandName %></option>
@@ -30,52 +41,98 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label for="edit-description">Description</label>
-            <textarea id="edit-description" name="description" rows="4"></textarea>
+          <div class="form-group mb-5">
+            <label for="edit-description" class="block mb-2 text-sm font-semibold text-gray-900">Description</label>
+            <textarea id="edit-description" 
+                      name="description" 
+                      rows="4" 
+                      class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
           </div>
 
-
-          <div class="form-group toggle-group">
-            <label for="edit-featured">Mark as Featured Product</label>
-            <label class="switch">
-              <input type="checkbox" id="edit-featured" name="isFeatured">
-              <span class="slider round"></span>
+          <div class="form-group toggle-group flex justify-between items-center px-3 py-3 border border-gray-300 rounded-lg mb-5">
+            <label for="edit-featured" class="mb-0 text-sm font-semibold text-gray-900">Mark as Featured Product</label>
+            <label class="switch relative inline-block w-12 h-7">
+              <input type="checkbox" id="edit-featured" name="isFeatured" class="opacity-0 w-0 h-0" />
+              <span class="slider round absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 transition-all duration-300 rounded-full before:absolute before:content-[''] before:h-5 before:w-5 before:left-1 before:bottom-1 before:bg-white before:transition-all before:duration-300 before:rounded-full"></span>
             </label>
           </div>
 
-          <div class="form-group toggle-group">
-            <label for="edit-status">Product Status</label>
-            <label class="switch">
-              <input type="checkbox" id="edit-status" name="status">
-              <span class="slider round"></span>
+          <div class="form-group toggle-group flex justify-between items-center px-3 py-3 border border-gray-300 rounded-lg mb-5">
+            <label for="edit-status" class="mb-0 text-sm font-semibold text-gray-900">Product Status</label>
+            <label class="switch relative inline-block w-12 h-7">
+              <input type="checkbox" id="edit-status" name="status" class="opacity-0 w-0 h-0" />
+              <span class="slider round absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 transition-all duration-300 rounded-full before:absolute before:content-[''] before:h-5 before:w-5 before:left-1 before:bottom-1 before:bg-white before:transition-all before:duration-300 before:rounded-full"></span>
             </label>
           </div>
         </div>
       </div>
 
+      <!-- Step 2: Product Variants -->
       <div class="form-step">
-        <div class="step-header">
-          <h3>Step 2 – Product Variants</h3>
-          <i class="fas fa-chevron-down"></i>
+        <div class="step-header flex justify-between items-center px-6 py-5 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+          <h3 class="m-0 text-base font-semibold text-gray-900">Step 2 – Product Variants</h3>
+          <i class="fas fa-chevron-down transition-transform duration-300"></i>
         </div>
-        <div class="step-content">
+        <div class="step-content px-6 py-6 hidden">
           <div id="edit-variant-list"></div>
 
-          <button type="button" class="btn-add-variant" id="edit-add-variant-btn">
+          <button type="button" 
+                  class="btn-add-variant w-full px-3 py-3 text-sm font-semibold border-2 border-dashed border-blue-600 rounded-lg bg-blue-50 text-blue-600 cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center gap-2" 
+                  id="edit-add-variant-btn">
             <i class="fas fa-plus"></i> Add Another Variant
           </button>
 
-          <div class="total-stock-display">
-            Total Stock: <span id="edit-total-stock">0 units</span>
+          <div class="total-stock-display px-4 py-4 mt-5 bg-gray-50 border border-gray-300 rounded-lg text-base font-semibold text-gray-900">
+            Total Stock: <span id="edit-total-stock" class="text-blue-600">0 units</span>
           </div>
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
-        <button type="submit" class="btn btn-primary">Update Product</button>
+      <!-- Modal Footer -->
+      <div class="modal-footer px-6 py-5 border-t border-gray-200 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
+        <button type="button" 
+                class="px-4 py-2.5 bg-white text-gray-900 border border-gray-300 rounded-lg font-semibold text-sm cursor-pointer hover:bg-gray-50 transition-colors close-modal-btn">
+          Cancel
+        </button>
+        <button type="submit" 
+                class="px-4 py-2.5 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer hover:bg-blue-700 transition-colors flex items-center gap-2">
+          Update Product
+        </button>
       </div>
     </form>
   </div>
 </div>
+
+<style>
+  @keyframes slideDown {
+    from {
+      transform: translateY(-30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-slideDown {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  .step-header.active .fas {
+    transform: rotate(180deg);
+  }
+  
+  input:checked + .slider {
+    background-color: #198754;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+  
+  .disabled-form {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+</style>

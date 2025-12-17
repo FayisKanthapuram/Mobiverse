@@ -1,31 +1,47 @@
-<div class="pagination-footer">
-  <% if (products && products.length > 0) { %> <% const startItem = (currentPage -
-  1) * limit + 1; const endItem = (currentPage - 1) * limit + products.length; %>
-  <span>Showing <%= startItem %> to <%= endItem %> of <%= totalDocuments %>
-    results</span>
-  <% } else { %>
-  <span>No results found</span>
-  <% } %>
+<div class="flex flex-col md:flex-row justify-between items-center p-6 bg-white border border-gray-200 border-t-0 rounded-b-lg text-sm text-gray-500 gap-4">
+  <!-- Results Text -->
+  <div>
+    <% if (products && products.length > 0) { %> 
+    <% const startItem = (currentPage - 1) * limit + 1; const endItem = (currentPage - 1) * limit + products.length; %>
+    <span>Showing <%= startItem %> to <%= endItem %> of <%= totalDocuments %> results</span>
+    <% } else { %>
+    <span>No results found</span>
+    <% } %>
+  </div>
 
-  <div class="pagination-controls">
+  <!-- Pagination Controls -->
+  <div class="flex items-center gap-2">
+    <!-- Previous Button -->
     <% if(currentPage > 1) { %>
-    <a href="javascript:void(0)" class="page-arrow"  onclick="changePage(<%= currentPage -1 %>)" >
+    <a href="javascript:void(0)" 
+       class="inline-block px-3 py-2 min-w-[36px] text-center rounded-md no-underline text-gray-500 border border-gray-200 transition-all hover:bg-gray-100 hover:border-gray-300 active:scale-95 cursor-pointer" 
+       onclick="changePage(<%= currentPage - 1 %>)">
       <i class="bi bi-chevron-left"></i>
     </a>
     <% } else { %>
-    <span classa="page-arrow disabled" aria-disabled="true">
+    <span class="inline-block px-3 py-2 min-w-[36px] text-center rounded-md text-gray-400 border border-gray-200 pointer-events-none">
       <i class="bi bi-chevron-left"></i>
     </span>
-    <% } %> <% for(let i = 1; i <= totalPages; i++) { %>
-    <a href="javascript:void(0)" class="page-number <%= currentPage === i ? 'active' : '' %>" onclick="changePage(<%= i %>)">
+    <% } %>
+
+    <!-- Page Numbers -->
+    <% for(let i = 1; i <= totalPages; i++) { %>
+    <a href="javascript:void(0)" 
+       class="inline-block px-3 py-2 min-w-[36px] text-center rounded-md no-underline transition-all cursor-pointer <%= currentPage === i ? 'bg-blue-600 border-blue-600 text-white font-semibold' : 'text-gray-500 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 active:scale-95' %>" 
+       onclick="changePage(<%= i %>)">
       <%= i %>
     </a>
-    <% } %> <% if(currentPage < totalPages) { %>
-    <a href="javascript:void(0)"  class="page-arrow" onclick="changePage(<%= currentPage + 1 %>)">
-      <i class="bi bi-chevron-right" ></i>
+    <% } %>
+
+    <!-- Next Button -->
+    <% if(currentPage < totalPages) { %>
+    <a href="javascript:void(0)" 
+       class="inline-block px-3 py-2 min-w-[36px] text-center rounded-md no-underline text-gray-500 border border-gray-200 transition-all hover:bg-gray-100 hover:border-gray-300 active:scale-95 cursor-pointer" 
+       onclick="changePage(<%= currentPage + 1 %>)">
+      <i class="bi bi-chevron-right"></i>
     </a>
     <% } else { %>
-    <span class="page-arrow disabled" aria-disabled="true">
+    <span class="inline-block px-3 py-2 min-w-[36px] text-center rounded-md text-gray-400 border border-gray-200 pointer-events-none">
       <i class="bi bi-chevron-right"></i>
     </span>
     <% } %>

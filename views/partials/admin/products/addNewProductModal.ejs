@@ -1,25 +1,37 @@
-<div class="modal-overlay" id="add-product-modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Add New Product</h2>
-      <button class="close-modal-btn">&times;</button>
+<div class="modal-overlay fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden justify-center items-start z-[1000] overflow-y-auto py-12" 
+     id="add-product-modal">
+  <div class="modal-content bg-white rounded-xl w-[90%] max-w-3xl shadow-2xl animate-slideDown">
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center px-6 py-5 border-b border-gray-200">
+      <h2 class="m-0 text-xl font-semibold text-gray-900">Add New Product</h2>
+      <button class="close-modal-btn bg-transparent border-none text-3xl font-light text-gray-500 cursor-pointer hover:text-gray-900 transition-colors">
+        &times;
+      </button>
     </div>
 
-    <form id="add-product-form" class="modal-form">
-      <div class="form-step">
-        <div class="step-header active">
-          <h3>Step 1 – Basic Information</h3>
-          <i class="fas fa-chevron-down"></i>
+    <!-- Form -->
+    <form id="add-product-form" class="modal-form p-0">
+      <!-- Step 1: Basic Information -->
+      <div class="form-step border-b border-gray-200">
+        <div class="step-header flex justify-between items-center px-6 py-5 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors active">
+          <h3 class="m-0 text-base font-semibold text-gray-900">Step 1 - Basic Information</h3>
+          <i class="fas fa-chevron-down transition-transform duration-300"></i>
         </div>
-        <div class="step-content" style="display: block">
-          <div class="form-group">
-            <label for="add-product-name">Product Name</label>
-            <input type="text" id="add-product-name" name="productName" placeholder="e.g., iPhone 15 Pro Max" />
+        <div class="step-content px-6 py-6 block">
+          <div class="form-group mb-5">
+            <label for="add-product-name" class="block mb-2 text-sm font-semibold text-gray-900">Product Name</label>
+            <input type="text" 
+                   id="add-product-name" 
+                   name="productName" 
+                   placeholder="e.g., iPhone 15 Pro Max" 
+                   class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
           </div>
 
-          <div class="form-group">
-            <label for="add-brand">Brand</label>
-            <select id="add-brand" name="brand">
+          <div class="form-group mb-5">
+            <label for="add-brand" class="block mb-2 text-sm font-semibold text-gray-900">Brand</label>
+            <select id="add-brand" 
+                    name="brand" 
+                    class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
               <% if (brands && brands.length > 0) { %>
                 <% brands.forEach(function(brand) { %>
                   <option value="<%= brand._id %>"><%= brand.brandName %></option>
@@ -28,140 +40,209 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label for="add-description">Description</label>
-            <textarea id="add-description" name="description" rows="4" placeholder="Enter product description..."></textarea>
+          <div class="form-group mb-5">
+            <label for="add-description" class="block mb-2 text-sm font-semibold text-gray-900">Description</label>
+            <textarea id="add-description" 
+                      name="description" 
+                      rows="4" 
+                      placeholder="Enter product description..." 
+                      class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
           </div>
 
-          <div class="form-group toggle-group">
-            <label for="add-featured">Mark as Featured Product</label>
-            <label class="switch">
-              <input type="checkbox" id="add-featured" name="isFeatured" />
-              <span class="slider round"></span>
+          <div class="form-group toggle-group flex justify-between items-center px-3 py-3 border border-gray-300 rounded-lg mb-5">
+            <label for="add-featured" class="mb-0 text-sm font-semibold text-gray-900">Mark as Featured Product</label>
+            <label class="switch relative inline-block w-12 h-7">
+              <input type="checkbox" id="add-featured" name="isFeatured" class="opacity-0 w-0 h-0" />
+              <span class="slider round absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 transition-all duration-300 rounded-full before:absolute before:content-[''] before:h-5 before:w-5 before:left-1 before:bottom-1 before:bg-white before:transition-all before:duration-300 before:rounded-full"></span>
             </label>
           </div>
 
-          <div class="form-group toggle-group">
-            <label for="add-status">Product Status</label>
-            <label class="switch">
-              <input type="checkbox" id="add-status" name="status" checked />
-              <span class="slider round"></span>
+          <div class="form-group toggle-group flex justify-between items-center px-3 py-3 border border-gray-300 rounded-lg mb-5">
+            <label for="add-status" class="mb-0 text-sm font-semibold text-gray-900">Product Status</label>
+            <label class="switch relative inline-block w-12 h-7">
+              <input type="checkbox" id="add-status" name="status" checked class="opacity-0 w-0 h-0" />
+              <span class="slider round absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 transition-all duration-300 rounded-full before:absolute before:content-[''] before:h-5 before:w-5 before:left-1 before:bottom-1 before:bg-white before:transition-all before:duration-300 before:rounded-full"></span>
             </label>
           </div>
         </div>
       </div>
 
+      <!-- Step 2: Product Variants -->
       <div class="form-step">
-        <div class="step-header">
-          <h3>Step 2 – Product Variants</h3>
-          <i class="fas fa-chevron-down"></i>
+        <div class="step-header flex justify-between items-center px-6 py-5 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+          <h3 class="m-0 text-base font-semibold text-gray-900">Step 2 – Product Variants</h3>
+          <i class="fas fa-chevron-down transition-transform duration-300"></i>
         </div>
-        <div class="step-content">
+        <div class="step-content px-6 py-6 hidden">
           <div id="add-variant-list"></div>
 
-          <button type="button" class="btn-add-variant" id="add-variant-btn">
+          <button type="button" 
+                  class="btn-add-variant w-full px-3 py-3 text-sm font-semibold border-2 border-dashed border-blue-600 rounded-lg bg-blue-50 text-blue-600 cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center gap-2" 
+                  id="add-variant-btn">
             <i class="fas fa-plus"></i> Add Another Variant
           </button>
 
-          <div class="total-stock-display">
-            Total Stock: <span id="add-total-stock">0 units</span>
+          <div class="total-stock-display px-4 py-4 mt-5 bg-gray-50 border border-gray-300 rounded-lg text-base font-semibold text-gray-900">
+            Total Stock: <span id="add-total-stock" class="text-blue-600">0 units</span>
           </div>
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
-        <button type="submit" class="btn btn-primary">Add Product</button>
+      <!-- Modal Footer -->
+      <div class="modal-footer px-6 py-5 border-t border-gray-200 flex justify-end gap-3 bg-gray-50 rounded-b-xl">
+        <button type="button" 
+                class="px-4 py-2.5 bg-white text-gray-900 border border-gray-300 rounded-lg font-semibold text-sm cursor-pointer hover:bg-gray-50 transition-colors close-modal-btn">
+          Cancel
+        </button>
+        <button type="submit" 
+                class="px-4 py-2.5 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer hover:bg-blue-700 transition-colors flex items-center gap-2">
+          Add Product
+        </button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- ✅ Safe Template Block -->
+<!-- Variant Template -->
 <template id="variant-template">
-  <div class="variant-form-section">
-    <div class="variant-header">
-      <h4>Variant <span class="variant-number">1</span></h4>
-      <button type="button" class="btn-remove-variant">
+  <div class="variant-form-section border border-gray-300 rounded-lg mb-5 bg-gray-50">
+    <div class="variant-header flex justify-between items-center px-4 py-3 border-b border-gray-300 bg-white">
+      <h4 class="m-0 text-sm font-semibold text-gray-900">Variant <span class="variant-number">1</span></h4>
+      <button type="button" 
+              class="btn-remove-variant bg-transparent border-none text-red-600 text-xs font-semibold cursor-pointer flex items-center gap-1 hover:text-red-700 transition-colors">
         <i class="fas fa-trash-alt"></i> Remove
       </button>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Regular Price (₹)</label>
-        <input type="number" name="regularPrice" placeholder="0" min="0" class="variant-price" />
+    <div class="px-4 py-4 space-y-4">
+      <!-- Price Row -->
+      <div class="form-row flex gap-4">
+        <div class="form-group flex-1">
+          <label class="block mb-2 text-sm font-semibold text-gray-900">Regular Price (₹)</label>
+          <input type="number" 
+                 name="regularPrice" 
+                 placeholder="0" 
+                 min="0" 
+                 class="variant-price w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="form-group flex-1">
+          <label class="block mb-2 text-sm font-semibold text-gray-900">Sale Price (₹)</label>
+          <input type="number" 
+                 name="salePrice" 
+                 placeholder="0" 
+                 min="0" 
+                 class="variant-price w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
       </div>
-      <div class="form-group">
-        <label>Sale Price (₹)</label>
-        <input type="number" name="salePrice" placeholder="0" min="0" class="variant-price" />
-      </div>
-    </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>RAM</label>
-        <select name="ram">
-          <option value="2GB">2GB</option>
-          <option value="3GB">3GB</option>
-          <option value="4GB">4GB</option>
-          <option value="6GB">6GB</option>
-          <option value="8GB">8GB</option>
-          <option value="12GB">12GB</option>
-          <option value="16GB">16GB</option>
-          <option value="24GB">24GB</option>
-          <option value="32GB">32GB</option>
-          <option value="64GB">64GB</option>
-        </select>
+      <!-- Specs Row -->
+      <div class="form-row flex gap-4">
+        <div class="form-group flex-1">
+          <label class="block mb-2 text-sm font-semibold text-gray-900">RAM</label>
+          <select name="ram" 
+                  class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="2GB">2GB</option>
+            <option value="3GB">3GB</option>
+            <option value="4GB">4GB</option>
+            <option value="6GB">6GB</option>
+            <option value="8GB">8GB</option>
+            <option value="12GB">12GB</option>
+            <option value="16GB">16GB</option>
+            <option value="24GB">24GB</option>
+            <option value="32GB">32GB</option>
+            <option value="64GB">64GB</option>
+          </select>
+        </div>
+        <div class="form-group flex-1">
+          <label class="block mb-2 text-sm font-semibold text-gray-900">Storage</label>
+          <select name="storage" 
+                  class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="16GB">16GB</option>
+            <option value="32GB">32GB</option>
+            <option value="64GB">64GB</option>
+            <option value="128GB">128GB</option>
+            <option value="256GB">256GB</option>
+            <option value="512GB">512GB</option>
+            <option value="1TB">1TB</option>
+            <option value="2TB">2TB</option>
+          </select>
+        </div>
+        <div class="form-group flex-1">
+          <label class="block mb-2 text-sm font-semibold text-gray-900">Colour</label>
+          <input type="text" 
+                 name="colour" 
+                 placeholder="e.g., Phantom Black" 
+                 class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
       </div>
-      <div class="form-group">
-        <label>Storage</label>
-        <select name="storage">
-          <option value="16GB">16GB</option>
-          <option value="32GB">32GB</option>
-          <option value="64GB">64GB</option>
-          <option value="128GB">128GB</option>
-          <option value="256GB">256GB</option>
-          <option value="512GB">512GB</option>
-          <option value="1TB">1TB</option>
-          <option value="2TB">2TB</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Colour</label>
-        <input type="text" name="colour" placeholder="e.g., Phantom Black" />
-      </div>
-    </div>
 
-    <div class="form-group">
-      <label>Stock Quantity</label>
-      <input type="number" name="stockQuantity" placeholder="0" min="0" class="variant-stock" />
-    </div>
-
-    <!-- ✅ Variant Status -->
-    <div class="form-group toggle-group toogle-varient">
-      <label>Variant Status</label>
-      <label class="switch">
-        <input type="checkbox" id="varient-status" name="isListed" checked />
-        <span class="slider round"></span>
-      </label>
-    </div>
-
-    <!-- 🖼️ Variant Image Upload -->
-    <div class="form-group">
-      <label>Variant Images (Minimum 3)</label>
-      <div class="image-upload-box">
-        <i class="fas fa-upload"></i>
-        <p>Upload Images</p>
-        <input 
-          type="file" 
-          name="variantImages" 
-          class="variant-image-upload-input" 
-          accept="image/*" 
-          multiple 
-        />
+      <!-- Stock -->
+      <div class="form-group">
+        <label class="block mb-2 text-sm font-semibold text-gray-900">Stock Quantity</label>
+        <input type="number" 
+               name="stockQuantity" 
+               placeholder="0" 
+               min="0" 
+               class="variant-stock w-full px-3 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
-      <div class="image-preview-container variant-image-preview"></div>
+
+      <!-- Variant Status -->
+      <div class="form-group toggle-group flex justify-between items-center px-3 py-3 border border-gray-300 rounded-lg">
+        <label class="mb-0 text-sm font-semibold text-gray-900">Variant Status</label>
+        <label class="switch relative inline-block w-12 h-7">
+          <input type="checkbox" id="varient-status" name="isListed" checked class="opacity-0 w-0 h-0" />
+          <span class="slider round absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 transition-all duration-300 rounded-full before:absolute before:content-[''] before:h-5 before:w-5 before:left-1 before:bottom-1 before:bg-white before:transition-all before:duration-300 before:rounded-full"></span>
+        </label>
+      </div>
+
+      <!-- Variant Images -->
+      <div class="form-group">
+        <label class="block mb-2 text-sm font-semibold text-gray-900">Variant Images (Minimum 3)</label>
+        <div class="image-upload-box border-2 border-dashed border-gray-300 rounded-lg p-8 text-center relative cursor-pointer hover:border-blue-600 hover:bg-gray-50 transition-all flex flex-col items-center justify-center">
+          <i class="fas fa-upload text-3xl text-blue-600 mb-2.5"></i>
+          <p class="m-0 text-sm font-medium text-gray-500">Upload Images</p>
+          <input type="file" 
+                 name="variantImages" 
+                 class="variant-image-upload-input absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer" 
+                 accept="image/*" 
+                 multiple />
+        </div>
+        <div class="image-preview-container variant-image-preview flex flex-wrap gap-3 mt-4"></div>
+      </div>
     </div>
   </div>
 </template>
+
+<style>
+  @keyframes slideDown {
+    from {
+      transform: translateY(-30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-slideDown {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  .step-header.active .fas {
+    transform: rotate(180deg);
+  }
+  
+  input:checked + .slider {
+    background-color: #198754;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+  
+  .disabled-form {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+</style>

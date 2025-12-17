@@ -1,14 +1,6 @@
-import {
-  findProducts,
-  countProducts,
-} from "../../repo/product.repo.js";
-import {
-  findAllListedBrands,
-} from "../../../brand/brand.repo.js";
+import { findProducts, countProducts } from "../../repo/product.repo.js";
+import { findAllListedBrands } from "../../../brand/brand.repo.js";
 
-/**
- * Get filtered products for admin listing
- */
 export const getFilteredProducts = async ({
   search = "",
   status = "All",
@@ -30,12 +22,11 @@ export const getFilteredProducts = async ({
     countProducts(query),
     findAllListedBrands(),
   ]);
-  const totalPages = Math.ceil(totalDocuments / limit);
 
   return {
     products,
     totalDocuments,
-    totalPages,
+    totalPages: Math.ceil(totalDocuments / limit),
     limit,
     brands,
   };

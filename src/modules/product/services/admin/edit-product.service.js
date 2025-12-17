@@ -3,9 +3,7 @@ import {
   createVariant,
   updateVariantById,
 } from "../../repo/variant.repo.js";
-import {
-  updateProductById,
-} from "../../repo/product.repo.js";
+import { updateProductById } from "../../repo/product.repo.js";
 import { cloudinaryUpload } from "../../../../shared/middlewares/upload.js";
 import {
   rollbackCloudinary,
@@ -13,60 +11,78 @@ import {
   calcMinMaxStock,
 } from "../../helpers/admin.product.helper.js";
 import cloudinary from "../../../../config/cloudinary.js";
+import { AppError } from "../../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 
 export const editProductService = async (productId, body, files = []) => {
   const uploadedPublicIds = [];
+
   try {
     const variants = JSON.parse(body.variants || "[]");
+    if (!Array.isArray(variants) || variants.length === 0) {
+      throw new AppError("Variants data required", HttpStatus.BAD_REQUEST);
+    }
+
     const dbVariants = await findVariantsByProduct(productId);
+    if (!dbVariants.length) {
+      throw new AppError("Product not found", HttpStatus.NOT_FOUND);
+    }
 
     const newImagesMapping = {};
-    for (const file of files || []) {
+
+    for (const file of files) {
       const match = file.fieldname.match(/variantImages_(\d+)_\d+/);
       if (!match) continue;
+
       const idx = Number(match[1]);
       const uploadResult = await cloudinaryUpload(file.buffer, "products");
-      uploadedPublicIds.push(uploadResult.public_id || uploadResult.publicId);
+
+      uploadedPublicIds.push(uploadResult.public_id);
       newImagesMapping[idx] = newImagesMapping[idx] || [];
       newImagesMapping[idx].push(uploadResult.secure_url);
     }
 
+    // merge new images with existing
     for (let i = 0; i < variants.length; i++) {
-      if (!variants[i].existingImages) variants[i].existingImages = [];
-      if (newImagesMapping[i])
+      variants[i].existingImages ||= [];
+      if (newImagesMapping[i]) {
         variants[i].existingImages.push(...newImagesMapping[i]);
+      }
     }
 
+    // remove deleted images from Cloudinary
     for (let i = 0; i < variants.length; i++) {
       const oldVariant = dbVariants[i];
       if (!oldVariant) continue;
-      const oldImages = oldVariant.images || [];
-      const newImages = variants[i].existingImages || [];
-      const removed = oldImages.filter((img) => !newImages.includes(img));
+
+      const removed = (oldVariant.images || []).filter(
+        (img) => !variants[i].existingImages.includes(img)
+      );
+
       for (const url of removed) {
-        const publicId = getPublicIdFromUrl(url);
         try {
-          await cloudinary.uploader.destroy(publicId);
+          await cloudinary.uploader.destroy(getPublicIdFromUrl(url));
         } catch (e) {
-          console.warn("Failed to delete old image", publicId, e?.message);
+          console.warn("Cloudinary delete failed:", url);
         }
       }
     }
 
-    // validate 3 images per variant
+    // validate minimum images
     for (let i = 0; i < variants.length; i++) {
       if (
         !variants[i].existingImages ||
         variants[i].existingImages.length < 3
       ) {
-        await rollbackCloudinary(uploadedPublicIds);
-        throw new Error(`Variant ${i + 1} must have at least 3 images.`);
+        throw new AppError(
+          `Variant ${i + 1} must have at least 3 images`,
+          HttpStatus.BAD_REQUEST
+        );
       }
     }
 
-    const mainImage =
-      variants.find((v) => v.existingImages && v.existingImages.length > 0)
-        ?.existingImages[0] || undefined;
+    const mainImage = variants.find((v) => v.existingImages.length)
+      ?.existingImages[0];
 
     const { minPrice, maxPrice, totalStock } = calcMinMaxStock(variants);
 
@@ -111,13 +127,9 @@ export const editProductService = async (productId, body, files = []) => {
       })
     );
 
-    return { success: true };
+    return true;
   } catch (err) {
-    try {
-      if (Array.isArray(uploadedPublicIds) && uploadedPublicIds.length) {
-        await rollbackCloudinary(uploadedPublicIds);
-      }
-    } catch (_) {}
+    await rollbackCloudinary(uploadedPublicIds);
     throw err;
   }
 };

@@ -42,8 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
     header.addEventListener("click", () => {
       const content = header.nextElementSibling;
       header.classList.toggle("active");
-      content.style.display =
-        content.style.display === "block" ? "none" : "block";
+
+      if (content.classList.contains("block")) {
+        content.classList.remove("block");
+        content.classList.add("hidden");
+      } else {
+        content.classList.remove("hidden");
+        content.classList.add("block");
+      }
     });
   });
 
@@ -209,7 +215,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const applyCropBtn = document.getElementById("applyCropBtn");
   const nextCropBtn = document.createElement("button");
   nextCropBtn.textContent = "Next";
-  nextCropBtn.className = "btn btn-primary";
+  nextCropBtn.className =
+    "px-4 py-2.5 bg-blue-600 text-white border-none rounded-lg font-semibold cursor-pointer text-sm hover:bg-blue-700";
   nextCropBtn.style.display = "none";
   cropperModal.querySelector(".cropper-actions").appendChild(nextCropBtn);
 
@@ -331,10 +338,12 @@ document.addEventListener("DOMContentLoaded", () => {
     list.forEach((entry, idx) => {
       const url = entry.url || (entry.file && URL.createObjectURL(entry.file));
       const wrapper = document.createElement("div");
-      wrapper.className = "img-preview-wrapper";
+      wrapper.className = "relative";
       wrapper.innerHTML = `
-        <img src="${url}" class="img-preview" />
-        <button type="button" class="remove-img-btn" data-index="${idx}">&times;</button>
+        <img src="${url}" class="w-24 h-24 object-cover rounded-lg border border-gray-300" />
+        <button type="button" 
+                class="remove-img-btn absolute -top-1.5 -right-1.5 bg-red-600 text-white border-none rounded-full w-5 h-5 text-xs cursor-pointer flex items-center justify-center shadow-md hover:bg-red-700 transition-colors" 
+                data-index="${idx}">&times;</button>
       `;
       previewContainer.appendChild(wrapper);
     });
@@ -368,7 +377,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const oldText = submitBtn.textContent;
     submitBtn.textContent = "Processing...";
 
-    // Disable whole form
     form.classList.add("disabled-form");
 
     const formData = new FormData();
@@ -442,7 +450,6 @@ document.addEventListener("DOMContentLoaded", () => {
         style: { background: "#e74c3c" },
       }).showToast();
     } finally {
-      // Restore form
       form.classList.remove("disabled-form");
       submitBtn.disabled = false;
       submitBtn.textContent = oldText;
@@ -450,67 +457,111 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   //================================================
-  // 7. List / Unlist (AXIOS)
+  // 7. List / Unlist (AXIOS) — with Global Modal
   //================================================
-
   document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
       e.preventDefault();
+
       const target = e.currentTarget;
       const productId = target.dataset.productId;
       const isListed = target.dataset.productIslisted === "true";
 
-      if (isListed && !confirm("Are you sure you want to unlist this product?"))
-        return;
+      const proceed = async () => {
+        target.disabled = true;
 
-      target.disabled = true;
-
-      try {
-        const response = await axios.patch(`/admin/products/list/${productId}`);
-        if (response.data.success) {
-          target.dataset.productIslisted = (!isListed).toString();
-
-          if (isListed) {
-            target.textContent = "List";
-            target.classList.replace("btn-unlist", "btn-list");
-          } else {
-            target.textContent = "Unlist";
-            target.classList.replace("btn-list", "btn-unlist");
-          }
-
-          const badge = document.querySelector(
-            `[data-product-status][data-product-id="${productId}"]`
+        try {
+          const response = await axios.patch(
+            `/admin/products/list/${productId}`
           );
-          if (badge) {
-            badge.textContent = isListed ? "Unlisted" : "Listed";
-            badge.classList.toggle("status-listed", !isListed);
-            badge.classList.toggle("status-unlisted", isListed);
-          }
 
+          if (response.data.success) {
+            target.dataset.productIslisted = (!isListed).toString();
+
+            if (isListed) {
+              // → UNLIST
+              target.textContent = "List";
+              target.classList.remove(
+                "text-red-600",
+                "border-red-300",
+                "hover:bg-red-600"
+              );
+              target.classList.add(
+                "text-green-600",
+                "border-green-300",
+                "hover:bg-green-600"
+              );
+              target.classList.replace("btn-unlist", "btn-list");
+            } else {
+              // → LIST
+              target.textContent = "Unlist";
+              target.classList.remove(
+                "text-green-600",
+                "border-green-300",
+                "hover:bg-green-600"
+              );
+              target.classList.add(
+                "text-red-600",
+                "border-red-300",
+                "hover:bg-red-600"
+              );
+              target.classList.replace("btn-list", "btn-unlist");
+            }
+
+            const badge = document.querySelector(
+              `[data-product-status][data-product-id="${productId}"]`
+            );
+
+            if (badge) {
+              badge.textContent = isListed ? "Unlisted" : "Listed";
+
+              if (isListed) {
+                badge.classList.remove("bg-green-100", "text-green-700");
+                badge.classList.add("bg-red-100", "text-red-700");
+                badge.classList.remove("status-listed");
+                badge.classList.add("status-unlisted");
+              } else {
+                badge.classList.remove("bg-red-100", "text-red-700");
+                badge.classList.add("bg-green-100", "text-green-700");
+                badge.classList.remove("status-unlisted");
+                badge.classList.add("status-listed");
+              }
+            }
+
+            Toastify({
+              text: isListed ? "Product Unlisted" : "Product Listed",
+              duration: 1500,
+              gravity: "bottom",
+              position: "right",
+              style: {
+                background: isListed
+                  ? "#e74c3c"
+                  : "linear-gradient(to right, #00b09b, #96c93d)",
+              },
+            }).showToast();
+          }
+        } catch (error) {
+          console.error(error);
           Toastify({
-            text: isListed ? "Product Unlisted" : "Product Listed",
-            duration: 1500,
+            text: error.response?.data?.message || "Something went wrong",
+            duration: 2000,
             gravity: "bottom",
             position: "right",
-            style: {
-              background: isListed
-                ? "#e74c3c"
-                : "linear-gradient(to right, #00b09b, #96c93d)",
-            },
+            style: { background: "#e74c3c" },
           }).showToast();
+        } finally {
+          target.disabled = false;
         }
-      } catch (error) {
-        console.error(error);
-        Toastify({
-          text: error.response?.data?.message || "Something went wrong",
-          duration: 2000,
-          gravity: "bottom",
-          position: "right",
-          style: { background: "#e74c3c" },
-        }).showToast();
-      } finally {
-        target.disabled = false;
-      }
+      };
+
+      // ✅ GLOBAL CONFIRM MODAL (for BOTH list & unlist)
+      openConfirmModal({
+        title: isListed ? "Unlist Product" : "List Product",
+        message: isListed
+          ? "Are you sure you want to unlist this product?"
+          : "Do you want to list this product?",
+        onConfirm: proceed,
+      });
     });
   });
 
@@ -520,92 +571,104 @@ document.addEventListener("DOMContentLoaded", () => {
   const editForm = document.getElementById("edit-product-form");
 
   editForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const submitBtn = editForm.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  const oldText = submitBtn.textContent;
-  submitBtn.textContent = "Processing...";
+    const submitBtn = editForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    const oldText = submitBtn.textContent;
+    submitBtn.textContent = "Processing...";
 
-  // Disable entire form
-  editForm.classList.add("disabled-form");
+    editForm.classList.add("disabled-form");
 
-  const formData = new FormData();
-  const productId = document.getElementById("edit-product-id").value;
+    const formData = new FormData();
+    const productId = document.getElementById("edit-product-id").value;
 
-  formData.append("productName", document.getElementById("edit-product-name").value.trim());
-  formData.append("brand", document.getElementById("edit-brand").value);
-  formData.append("description", document.getElementById("edit-description").value.trim());
-  formData.append("isFeatured", document.getElementById("edit-featured").checked);
-  formData.append("isListed", document.getElementById("edit-status").checked);
+    formData.append(
+      "productName",
+      document.getElementById("edit-product-name").value.trim()
+    );
+    formData.append("brand", document.getElementById("edit-brand").value);
+    formData.append(
+      "description",
+      document.getElementById("edit-description").value.trim()
+    );
+    formData.append(
+      "isFeatured",
+      document.getElementById("edit-featured").checked
+    );
+    formData.append("isListed", document.getElementById("edit-status").checked);
 
-  const variantSections = editForm.querySelectorAll(".variant-form-section");
-  const variants = [];
+    const variantSections = editForm.querySelectorAll(".variant-form-section");
+    const variants = [];
 
-  variantSections.forEach((section, index) => {
-    const variantData = {
-      _id: section.dataset.variantId || null,
-      regularPrice: section.querySelector('input[name="regularPrice"]').value,
-      salePrice: section.querySelector('input[name="salePrice"]').value,
-      ram: section.querySelector('select[name="ram"]').value,
-      storage: section.querySelector('select[name="storage"]').value,
-      colour: section.querySelector('input[name="colour"]').value.trim(),
-      stockQuantity: section.querySelector('input[name="stockQuantity"]').value,
-      isListed: section.querySelector('input[name="isListed"]')?.checked ?? true,
-    };
+    variantSections.forEach((section, index) => {
+      const variantData = {
+        _id: section.dataset.variantId || null,
+        regularPrice: section.querySelector('input[name="regularPrice"]').value,
+        salePrice: section.querySelector('input[name="salePrice"]').value,
+        ram: section.querySelector('select[name="ram"]').value,
+        storage: section.querySelector('select[name="storage"]').value,
+        colour: section.querySelector('input[name="colour"]').value.trim(),
+        stockQuantity: section.querySelector('input[name="stockQuantity"]')
+          .value,
+        isListed:
+          section.querySelector('input[name="isListed"]')?.checked ?? true,
+      };
 
-    const input = section.querySelector(".variant-image-upload-input");
-    const images = variantImagesMap.get(input) || [];
+      const input = section.querySelector(".variant-image-upload-input");
+      const images = variantImagesMap.get(input) || [];
 
-    const existingImageUrls = [];
+      const existingImageUrls = [];
 
-    images.forEach((entry, idx) => {
-      if (entry.file instanceof File) {
-        formData.append(`variantImages_${index}_${idx}`, entry.file);
-      } else if (entry.isExisting) {
-        existingImageUrls.push(entry.url);
+      images.forEach((entry, idx) => {
+        if (entry.file instanceof File) {
+          formData.append(`variantImages_${index}_${idx}`, entry.file);
+        } else if (entry.isExisting) {
+          existingImageUrls.push(entry.url);
+        }
+      });
+
+      variantData.existingImages = existingImageUrls;
+
+      variants.push(variantData);
+    });
+
+    formData.append("variants", JSON.stringify(variants));
+
+    try {
+      const response = await axios.patch(
+        `/admin/products/edit/${productId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      if (response.data.success) {
+        Toastify({
+          text: response.data.message || "Product updated successfully!",
+          duration: 1200,
+          gravity: "bottom",
+          position: "right",
+          style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+        }).showToast();
+
+        setTimeout(() => window.location.reload(), 1300);
       }
-    });
-
-    variantData.existingImages = existingImageUrls;
-
-    variants.push(variantData);
-  });
-
-  formData.append("variants", JSON.stringify(variants));
-
-  try {
-    const response = await axios.patch(`/admin/products/edit/${productId}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    if (response.data.success) {
+    } catch (err) {
       Toastify({
-        text: response.data.message || "Product updated successfully!",
-        duration: 1200,
+        text: err.response?.data?.message || "Failed to update product",
+        duration: 2000,
         gravity: "bottom",
         position: "right",
-        style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+        style: { background: "#e74c3c" },
       }).showToast();
-
-      setTimeout(() => window.location.reload(), 1300);
+    } finally {
+      editForm.classList.remove("disabled-form");
+      submitBtn.disabled = false;
+      submitBtn.textContent = oldText;
     }
-  } catch (err) {
-    Toastify({
-      text: err.response?.data?.message || "Failed to update product",
-      duration: 2000,
-      gravity: "bottom",
-      position: "right",
-      style: { background: "#e74c3c" },
-    }).showToast();
-  } finally {
-    // Restore form
-    editForm.classList.remove("disabled-form");
-    submitBtn.disabled = false;
-    submitBtn.textContent = oldText;
-  }
-});
-
+  });
 });
 
 // --------------------------------------
