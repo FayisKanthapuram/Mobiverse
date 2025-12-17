@@ -9,6 +9,7 @@ import {
 } from "./admin.auth.validator.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
+import { AdminAuthMessages } from "../../shared/constants/messages/adminAuthMessages.js";
 
 /* ----------------------------------------------------
    REGISTER ADMIN
@@ -50,7 +51,7 @@ export const loginAdmin = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Admin logged in successfully",
+    message: AdminAuthMessages.ADMIN_LOGGED_IN,
     redirect: "/admin/dashboard",
   });
 };
@@ -71,7 +72,7 @@ export const logoutAdmin = async (req, res) => {
   req.session.destroy();
 
   const result = logoutAdminService();
-
+  console.log(result)
   res.status(HttpStatus.OK).json({
     success: result.success,
     message: result.message,

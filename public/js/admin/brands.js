@@ -151,15 +151,8 @@ document
       });
 
       if (response.data.success) {
-        Toastify({
-          text: response.data.message,
-          duration: 1000,
-          gravity: "bottom",
-          position: "right",
-          style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
-        }).showToast();
-
-        setTimeout(() => window.location.reload(), 1200);
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.reload();
       }
     } catch (error) {
       Toastify({
@@ -332,15 +325,8 @@ editForm.addEventListener("submit", async (e) => {
     });
 
     if (response.data.success) {
-      Toastify({
-        text: response.data.message,
-        duration: 1000,
-        gravity: "bottom",
-        position: "right",
-        style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
-      }).showToast();
-
-      setTimeout(() => window.location.reload(), 1200);
+      sessionStorage.setItem("toastSuccess", response.data.message);
+      window.location.reload();
     }
   } catch (error) {
     Toastify({

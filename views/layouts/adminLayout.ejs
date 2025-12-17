@@ -13,6 +13,7 @@
 
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="/css/user/style.css">
   <link rel="stylesheet" href="/css/admin/admin-style.css" />
   <% if (typeof pageCss !== 'undefined' && pageCss) { %>
   <link rel="stylesheet" href="/css/admin/<%= pageCss %>.css" />
@@ -33,6 +34,43 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="/js/admin/admin.js"></script>
+
+  //toast messages
+  <script>
+    const successMsg = sessionStorage.getItem("toastSuccess");
+    const errorMsg = sessionStorage.getItem("toastError");
+
+    if (successMsg) {
+      Toastify({
+        text: successMsg,
+        duration: 4000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+        close: true,
+      }).showToast();
+
+      sessionStorage.removeItem("toastSuccess");
+    }
+
+    if (errorMsg) {
+      Toastify({
+        text: errorMsg,
+        duration: 4000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: "#e74c3c",
+        },
+        close: true,
+      }).showToast();
+
+      sessionStorage.removeItem("toastError");
+    }
+  </script>
+
   <% if (typeof pageJs !== 'undefined' && pageJs) { %>
   <script src="/js/admin/<%= pageJs %>.js"></script>
   <% } %>

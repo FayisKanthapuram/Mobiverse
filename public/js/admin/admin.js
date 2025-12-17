@@ -2,17 +2,8 @@ document.getElementById('logout-button').addEventListener('click',async()=>{
     try {
         const responce=await axios.post("/admin/logout");
         if(responce.data.success){
-            Toastify({
-                text: responce.data.message,
-                duration: 500,
-                gravity: "bottom",
-                position: "right",
-                backgroundColor: "#00b09b",
-            }).showToast();
-
-            setTimeout(() => {
-                window.location.href = responce.data.redirect;
-            }, 600);
+            sessionStorage.setItem("toastSuccess", responce.data.message);
+            window.location.href = responce.data.redirect;
         }
     } catch (error) {
         Toastify({

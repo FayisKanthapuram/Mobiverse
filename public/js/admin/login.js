@@ -1,3 +1,36 @@
+const successMsg = sessionStorage.getItem("toastSuccess");
+const errorMsg = sessionStorage.getItem("toastError");
+
+if (successMsg) {
+  Toastify({
+    text: successMsg,
+    duration: 4000,
+    gravity: "bottom",
+    position: "right",
+    style: {
+      background: "linear-gradient(to right, #00b09b, #96c93d)",
+    },
+    close: true,
+  }).showToast();
+
+  sessionStorage.removeItem("toastSuccess");
+}
+
+if (errorMsg) {
+  Toastify({
+    text: errorMsg,
+    duration: 4000,
+    gravity: "bottom",
+    position: "right",
+    style: {
+      background: "#e74c3c",
+    },
+    close: true,
+  }).showToast();
+
+  sessionStorage.removeItem("toastError");
+}
+
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -8,18 +41,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     const response = await axios.post("/admin/login", { email, password });
 
     if (response.data.success) {
-      Toastify({
-        text: response.data.message,
-        duration: 500,
-        gravity: "bottom",
-        position: "right",
-        style: {
-          background: "linear-gradient(to right, #00b09b, #96c93d)",
-        },
-      }).showToast();
-      setTimeout(() => {
-        window.location.href = response.data.redirect;
-      }, 600);
+      sessionStorage.setItem("toastSuccess", response.data.message);
+      window.location.href = response.data.redirect;
     }
   } catch (error) {
     Toastify({

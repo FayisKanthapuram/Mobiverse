@@ -1,50 +1,37 @@
 import { findBrandById, findBrandByName, saveBrand } from "../brand.repo.js";
-import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import cloudinary from "../../../config/cloudinary.js";
 import { cloudinaryUpload } from "../../../shared/middlewares/upload.js";
 import { brandValidation } from "../brand.validator.js";
+import { AppError } from "../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
+import { BrandMessages } from "../../../shared/constants/messages/brandMessages.js";
 
 export const editBrandService = async (body, file) => {
   const { brandId, brandName } = body;
 
   const { error } = brandValidation.validate(body);
   if (error) {
-    return {
-      status: HttpStatus.BAD_REQUEST,
-      success: false,
-      message: error.details[0].message,
-    };
+    throw new AppError(error.details[0].message, HttpStatus.BAD_REQUEST);
   }
 
   const brand = await findBrandById(brandId);
   if (!brand) {
-    return {
-      status: HttpStatus.NOT_FOUND,
-      success: false,
-      message: "Brand not found",
-    };
+    throw new AppError(BrandMessages.BRAND_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  // If name changed, ensure unique
   if (brand.brandName !== brandName) {
     const exists = await findBrandByName(brandName);
     if (exists) {
-      return {
-        status: HttpStatus.BAD_REQUEST,
-        success: false,
-        message: "Brand name already exists",
-      };
+      throw new AppError(BrandMessages.BRAND_NAME_EXISTS, HttpStatus.BAD_REQUEST);
     }
   }
 
-  let newLogoUrl = brand.logo;
+  let logo = brand.logo;
 
-  // If new logo uploaded
   if (file) {
-    const result = await cloudinaryUpload(file.buffer, "brands");
-    newLogoUrl = result.secure_url;
+    const uploadResult = await cloudinaryUpload(file.buffer, "brands");
+    logo = uploadResult.secure_url;
 
-    // Delete old logo
     if (brand.logo) {
       const publicId = brand.logo.split("/").pop().split(".")[0];
       await cloudinary.uploader.destroy(`ecommerce/brands/${publicId}`);
@@ -52,14 +39,8 @@ export const editBrandService = async (body, file) => {
   }
 
   brand.brandName = brandName;
-  brand.logo = newLogoUrl;
+  brand.logo = logo;
 
   await saveBrand(brand);
-
-  return {
-    status: HttpStatus.OK,
-    success: true,
-    message: "Brand updated successfully",
-    brand,
-  };
+  return brand;
 };
