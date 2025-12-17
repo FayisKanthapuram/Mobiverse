@@ -1,3 +1,4 @@
+import { countProductsByBrandId } from "../../product/repo/product.repo.js";
 import {
   findBrands,
   countBrands,
@@ -24,6 +25,9 @@ export const loadBrandsService = async (queryParams) => {
   const totalPages = Math.ceil(totalDocuments / limit);
 
   const brands = await findBrands(query, limit, skip);
+  for(let brand of brands){
+    brand.productCount = await countProductsByBrandId(brand._id);
+  }
 
   return {
     brands,

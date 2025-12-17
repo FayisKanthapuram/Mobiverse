@@ -512,3 +512,7 @@ export const aggregateProductById = (productId) =>
 export const saveProduct = (product) => {
   return product.save();
 };
+
+export const countProductsByBrandId=(brandID)=>{
+  return productModel.countDocuments({brandID});
+}

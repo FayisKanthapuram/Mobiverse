@@ -16,10 +16,16 @@ document.getElementById('logout-button').addEventListener('click',async()=>{
     }
 })
 
+/* =====================================================
+   GLOBAL ADMIN CONFIRM MODAL
+===================================================== */
+
 let pendingAction = null;
 
-function openConfirmModal({ title, message, onConfirm }) {
+window.openConfirmModal = function ({ title, message, onConfirm }) {
   const modal = document.getElementById("confirmModal");
+  if (!modal) return;
+
   const titleEl = document.getElementById("confirmTitle");
   const messageEl = document.getElementById("confirmMessage");
   const confirmBtn = document.getElementById("confirmAction");
@@ -38,11 +44,13 @@ function openConfirmModal({ title, message, onConfirm }) {
     if (pendingAction) pendingAction();
     closeConfirmModal();
   };
-}
+};
 
-function closeConfirmModal() {
+window.closeConfirmModal = function () {
   const modal = document.getElementById("confirmModal");
+  if (!modal) return;
+
   modal.classList.add("hidden");
   modal.classList.remove("flex");
   pendingAction = null;
-}
+};

@@ -16,7 +16,7 @@ export const loadBrands = async (req, res) => {
 
   res.status(HttpStatus.OK).render("admin/brands", {
     pageTitle: "Brands",
-    pageCss: "brands",
+    // pageCss: "brands",
     pageJs: "brands",
     brands: data.brands,
     currentPage: data.pagination.currentPage,

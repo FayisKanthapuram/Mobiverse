@@ -65,7 +65,8 @@ fileInput.addEventListener("change", (e) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       croppedImagePreview.src = event.target.result;
-      preview.style.display = "flex";
+      preview.classList.remove("hidden");
+      preview.classList.add("flex");
       placeholder.style.display = "none";
     };
     reader.readAsDataURL(file);
@@ -103,7 +104,8 @@ applyCropBtn.addEventListener("click", () => {
   canvas.toBlob((blob) => {
     const croppedUrl = canvas.toDataURL("image/png");
     croppedImagePreview.src = croppedUrl;
-    preview.style.display = "flex";
+    preview.classList.remove("hidden");
+    preview.classList.add("flex");
     placeholder.style.display = "none";
     cropperModal.classList.remove("active");
 
@@ -125,7 +127,8 @@ applyCropBtn.addEventListener("click", () => {
 });
 
 changeImageBtn.addEventListener("click", () => {
-  preview.style.display = "none";
+  preview.classList.add("hidden");
+  preview.classList.remove("flex");
   placeholder.style.display = "block";
   fileInput.value = "";
 });
@@ -206,7 +209,8 @@ const populateEditModal = (brand) => {
   editBrandId.value = brand._id;
   editBrandName.value = brand.brandName;
   croppedImagePreviewEdit.src = brand.logo;
-  uploadPreviewEdit.style.display = "flex";
+  uploadPreviewEdit.classList.remove("hidden");
+  uploadPreviewEdit.classList.add("flex");
   uploadPlaceholderEdit.style.display = "none";
 };
 
@@ -225,20 +229,20 @@ const changeImageBtnEdit = document.getElementById("changeImageBtnEdit");
 
 let cropperEdit;
 
-uploadContainerEdit.addEventListener("click", () => fileInputEditCrop.click()); //It makes the entire upload box area clickable
+uploadContainerEdit.addEventListener("click", () => fileInputEditCrop.click());
 
 fileInputEditCrop.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  const ext = file.name.split(".").pop().toLowerCase(); //extract file extension in lower case
+  const ext = file.name.split(".").pop().toLowerCase();
   if (ext === "svg") {
-    //f the file is an SVG, we don’t want to crop it.SVGs are vector images — cropping them doesn’t make sense.
     const reader = new FileReader();
     reader.onload = (event) => {
       croppedImagePreviewEdit.src = event.target.result;
-      previewEditCrop.style.display = "flex";
-      placeholderEdit.style.display = "none"; //remove the text in there
+      previewEditCrop.classList.remove("hidden");
+      previewEditCrop.classList.add("flex");
+      placeholderEdit.style.display = "none";
     };
     reader.readAsDataURL(file);
     return;
@@ -246,20 +250,19 @@ fileInputEditCrop.addEventListener("change", (e) => {
 
   const reader = new FileReader();
   reader.onload = (event) => {
-    //.onload is working after image is loaded
     cropperImageEdit.src = event.target.result;
     cropperModalEdit.classList.add("active");
     cropperImageEdit.onload = () => {
       if (cropperEdit) cropperEdit.destroy();
       cropperEdit = new Cropper(cropperImageEdit, {
-        viewMode: 1, // Restrict cropping inside the image bounds
-        autoCropArea: 1, //Automatically fill the whole image initially
+        viewMode: 1,
+        autoCropArea: 1,
         background: true,
-        responsive: true, //responsive copper
+        responsive: true,
       });
     };
   };
-  reader.readAsDataURL(file); //after this reader.onload works(it read the image file from disk)
+  reader.readAsDataURL(file);
 });
 
 cancelCropBtnEdit.addEventListener("click", () => {
@@ -276,10 +279,10 @@ applyCropBtnEdit.addEventListener("click", () => {
   });
 
   canvas.toBlob((blob) => {
-    //.toBlob converts whatever is drawn inside that canvas (your cropped image) into a binary file object called a Blob.
-    const croppedUrl = canvas.toDataURL("image/png"); //Creates a preview URL that the browser can show
+    const croppedUrl = canvas.toDataURL("image/png");
     croppedImagePreviewEdit.src = croppedUrl;
-    previewEditCrop.style.display = "flex";
+    previewEditCrop.classList.remove("hidden");
+    previewEditCrop.classList.add("flex");
     placeholderEdit.style.display = "none";
     cropperModalEdit.classList.remove("active");
 
@@ -301,7 +304,8 @@ applyCropBtnEdit.addEventListener("click", () => {
 });
 
 changeImageBtnEdit.addEventListener("click", () => {
-  previewEditCrop.style.display = "none";
+  previewEditCrop.classList.add("hidden");
+  previewEditCrop.classList.remove("flex");
   placeholderEdit.style.display = "block";
   fileInputEditCrop.value = "";
 });
@@ -339,69 +343,116 @@ editForm.addEventListener("submit", async (e) => {
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "Save Changes";
+    e.target.classList.remove("disabled-form");
   }
 });
 
 // --------------------------------------
-//  List / Unlist Brand
+//  List / Unlist Brand (with global modal)
 // --------------------------------------
 document.querySelectorAll(".btn-unlist, .btn-list").forEach((btn) => {
   btn.addEventListener("click", async (e) => {
     e.preventDefault();
+
     const brandId = btn.dataset.brandId;
     const isListed = btn.dataset.brandIslisted === "true";
 
-    if (isListed && !confirm("Are you sure you want to unlist this brand?"))
-      return;
-
-    try {
-      const response = await axios.patch(`/admin/brands/list/${brandId}`);
-      if (response.data.success) {
-        btn.dataset.brandIslisted = (!isListed).toString();
-
-        if (isListed) {
-          btn.textContent = "List";
-          btn.classList.remove("btn-unlist");
-          btn.classList.add("btn-list");
-        } else {
-          btn.textContent = "Unlist";
-          btn.classList.remove("btn-list");
-          btn.classList.add("btn-unlist");
-        }
-
-        const badge = document.querySelector(
-          `[data-brand-status][data-brand-id="${brandId}"]`
+    const proceed = async () => {
+      try {
+        const response = await axios.patch(
+          `/admin/brands/list/${brandId}`
         );
-        if (badge) {
-          badge.textContent = isListed ? "Unlisted" : "Listed";
-          badge.classList.toggle("status-listed", !isListed);
-          badge.classList.toggle("status-unlisted", isListed);
-        }
 
+        if (response.data.success) {
+          btn.dataset.brandIslisted = (!isListed).toString();
+
+          if (isListed) {
+            // → UNLIST
+            btn.textContent = "List";
+            btn.classList.remove(
+              "text-red-600",
+              "border-red-300",
+              "hover:bg-red-600"
+            );
+            btn.classList.add(
+              "text-green-600",
+              "border-green-300",
+              "hover:bg-green-600"
+            );
+            btn.classList.remove("btn-unlist");
+            btn.classList.add("btn-list");
+          } else {
+            // → LIST
+            btn.textContent = "Unlist";
+            btn.classList.remove(
+              "text-green-600",
+              "border-green-300",
+              "hover:bg-green-600"
+            );
+            btn.classList.add(
+              "text-red-600",
+              "border-red-300",
+              "hover:bg-red-600"
+            );
+            btn.classList.remove("btn-list");
+            btn.classList.add("btn-unlist");
+          }
+
+          const badge = document.querySelector(
+            `[data-brand-status][data-brand-id="${brandId}"]`
+          );
+
+          if (badge) {
+            badge.textContent = isListed ? "Unlisted" : "Listed";
+
+            if (isListed) {
+              badge.classList.remove("bg-green-100", "text-green-700");
+              badge.classList.add("bg-red-100", "text-red-700");
+              badge.classList.remove("status-listed");
+              badge.classList.add("status-unlisted");
+            } else {
+              badge.classList.remove("bg-red-100", "text-red-700");
+              badge.classList.add("bg-green-100", "text-green-700");
+              badge.classList.remove("status-unlisted");
+              badge.classList.add("status-listed");
+            }
+          }
+
+          Toastify({
+            text: isListed ? "Brand Unlisted" : "Brand Listed",
+            duration: 1000,
+            gravity: "bottom",
+            position: "right",
+            style: {
+              background: isListed
+                ? "#e74c3c"
+                : "linear-gradient(to right, #00b09b, #96c93d)",
+            },
+          }).showToast();
+        }
+      } catch (error) {
+        console.error(error);
         Toastify({
-          text: isListed ? "Brand Unlisted" : "Brand Listed",
-          duration: 1000,
+          text: "Something went wrong",
+          duration: 2000,
           gravity: "bottom",
           position: "right",
-          style: {
-            background: isListed
-              ? "#e74c3c"
-              : "linear-gradient(to right, #00b09b, #96c93d)",
-          },
+          style: { background: "#e74c3c" },
         }).showToast();
       }
-    } catch (error) {
-      console.log(error);
-      Toastify({
-        text: "Something went wrong",
-        duration: 2000,
-        gravity: "bottom",
-        position: "right",
-        style: { background: "#e74c3c" },
-      }).showToast();
-    }
+    };
+
+    // ✅ GLOBAL CONFIRM MODAL (both actions)
+    openConfirmModal({
+      title: isListed ? "Unlist Brand" : "List Brand",
+      message: isListed
+        ? "Are you sure you want to unlist this brand?"
+        : "Do you want to list this brand?",
+      onConfirm: proceed,
+    });
   });
 });
+
 
 // --------------------------------------
 //  Search(Debouncing)+pagination+filter

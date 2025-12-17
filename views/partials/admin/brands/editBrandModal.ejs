@@ -1,57 +1,112 @@
-<div class="modal-admin" id="edit-brand-modal">
-  <div class="modal-header">
-    <h2>Edit Brand</h2>
-    <button class="modal-close-btn" data-close-target="#edit-brand-modal">
+<div class="modal-admin fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-[90%] max-w-lg z-[1001] opacity-0 invisible scale-90 transition-all duration-300" 
+     id="edit-brand-modal">
+  <!-- Modal Header -->
+  <div class="flex justify-between items-center px-8 py-6 border-b border-gray-200">
+    <h2 class="m-0 text-xl font-semibold text-gray-900">Edit Brand</h2>
+    <button class="bg-transparent border-none text-2xl text-gray-500 cursor-pointer p-0 leading-none hover:text-gray-900 transition-colors modal-close-btn" 
+            data-close-target="#edit-brand-modal">
       <i class="bi bi-x-lg"></i>
     </button>
   </div>
 
-  <form id="edit-brand-form" enctype="multipart/form-data" class="modal-body">
+  <!-- Modal Body / Form -->
+  <form id="edit-brand-form" enctype="multipart/form-data" class="px-8 py-8 flex flex-col gap-5">
     <input type="hidden" id="editBrandId" name="brandId" />
 
-    <div class="form-group-admin">
-      <label for="editBrandName">Brand Name</label>
-      <input type="text" id="editBrandName" name="brandName" required />
+    <!-- Brand Name -->
+    <div class="flex flex-col gap-2">
+      <label for="editBrandName" class="text-sm font-semibold text-gray-800">Brand Name</label>
+      <input type="text" 
+             id="editBrandName" 
+             name="brandName" 
+             required 
+             class="w-full px-4 py-3 border border-gray-300 rounded-md text-sm outline-none transition-all focus:border-blue-600 focus:ring-2 focus:ring-blue-100" />
     </div>
 
-    <div class="form-group-admin">
-      <label for="brandLogoEdit">Brand Logo</label>
+    <!-- Brand Logo Upload -->
+    <div class="flex flex-col gap-2">
+      <label for="brandLogoEdit" class="text-sm font-semibold text-gray-800">Brand Logo</label>
 
-      <div class="upload-container" id="uploadContainerEdit">
-        <input type="file" id="brandLogoEdit" name="brandLogo" accept="image/*" hidden />
-        <div class="upload-placeholder" id="uploadPlaceholderEdit">
-          <i class="bi bi-image"></i>
-          <p>Click to Upload Logo</p>
+      <div class="upload-container border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-blue-600" 
+           id="uploadContainerEdit">
+        <input type="file" id="brandLogoEdit" name="brandLogo" accept="image/*" class="hidden" />
+        
+        <!-- Upload Placeholder -->
+        <div class="upload-placeholder flex flex-col items-center gap-2 text-gray-500" id="uploadPlaceholderEdit">
+          <i class="bi bi-image text-4xl text-gray-400"></i>
+          <p class="font-semibold text-gray-700 m-0">Click to Upload Logo</p>
         </div>
-        <div class="upload-preview" id="uploadPreviewEdit" style="display: none">
-          <img id="croppedImagePreviewEdit" alt="Cropped Preview" />
-          <button type="button" id="changeImageBtnEdit" class="btn-secondary-admin small">
+        
+        <!-- Upload Preview -->
+        <div class="upload-preview hidden flex-col items-center gap-3" id="uploadPreviewEdit">
+          <img id="croppedImagePreviewEdit" 
+               alt="Cropped Preview" 
+               class="w-36 h-36 object-contain rounded-lg border border-gray-300 bg-gray-50" />
+          <button type="button" 
+                  id="changeImageBtnEdit" 
+                  class="px-3 py-2 text-xs bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold cursor-pointer transition-colors hover:bg-gray-50">
             Change Image
           </button>
         </div>
       </div>
 
       <!-- Cropper Modal for Edit -->
-      <div id="cropperModalEdit" class="cropper-modal">
-        <div class="cropper-wrapper">
-          <img id="cropperImageEdit" alt="Crop area" />
-        </div>
-        <div class="cropper-actions">
-          <button type="button" id="cancelCropBtnEdit" class="btn-secondary-admin">
-            Cancel
-          </button>
-          <button type="button" id="applyCropBtnEdit" class="btn-primary-admin">
-            Apply Crop
-          </button>
+      <div id="cropperModalEdit" 
+           class="cropper-modal fixed top-0 left-0 w-full h-full bg-black bg-opacity-70 flex items-center justify-center z-[5000] opacity-0 invisible transition-all duration-200">
+        <div class="cropper-wrapper bg-white rounded-lg p-5 max-w-2xl w-[90%] shadow-2xl">
+          <img id="cropperImageEdit" 
+               alt="Crop area" 
+               class="w-full max-h-96 block object-contain rounded-md" />
+          <div class="cropper-actions flex justify-end mt-4 gap-3">
+            <button type="button" 
+                    id="cancelCropBtnEdit" 
+                    class="px-5 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold cursor-pointer text-sm transition-colors hover:bg-gray-50">
+              Cancel
+            </button>
+            <button type="button" 
+                    id="applyCropBtnEdit" 
+                    class="px-5 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold cursor-pointer text-sm transition-colors hover:bg-blue-700">
+              Apply Crop
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="modal-footer">
-      <button type="button" class="btn-secondary-admin" data-close-target="#edit-brand-modal">
+    <!-- Modal Footer -->
+    <div class="flex justify-end items-center gap-3 pt-6 border-t border-gray-200 -mx-8 px-8 -mb-6 pb-6">
+      <button type="button" 
+              class="px-5 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold cursor-pointer text-sm transition-colors hover:bg-gray-50" 
+              data-close-target="#edit-brand-modal">
         Cancel
       </button>
-      <button type="submit" class="btn-primary-admin">Save Changes</button>
+      <button type="submit" 
+              class="px-5 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold cursor-pointer text-sm transition-colors hover:bg-blue-700">
+        Save Changes
+      </button>
     </div>
   </form>
 </div>
+
+<style>
+  .modal-admin.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  
+  .modal-overlay-admin.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  #cropperModalEdit.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .disabled-form {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+</style>
