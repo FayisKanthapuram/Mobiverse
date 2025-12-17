@@ -1,4 +1,6 @@
 import { AppError } from "../../shared/utils/app.error.js";
+import { AddressMessages } from "../../shared/constants/messages/addressMessages.js";
+import { UserMessages } from "../../shared/constants/messages/userMessages.js";
 import userModel from "../user/user.model.js";
 import {
   findAddressesByUser,
@@ -9,6 +11,7 @@ import {
   unsetDefaultAddress,
   findAnotherAddress,
 } from "./address.repo.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 
 /* ----------------------------------------------------
    LOAD MANAGE ADDRESS
@@ -16,7 +19,7 @@ import {
 export const loadManageAddressService = async (userId) => {
   const user = await userModel.findById(userId);
   if (!user) {
-    throw new AppError("User not found", 404);
+    throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   const addresses = await findAddressesByUser(userId);
@@ -29,7 +32,7 @@ export const loadManageAddressService = async (userId) => {
 export const addAddressService = async (userId, body) => {
   const user = await userModel.findById(userId);
   if (!user) {
-    throw new AppError("User not found", 404);
+    throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   const addressData = { ...body, userId };
@@ -51,12 +54,12 @@ export const addAddressService = async (userId, body) => {
 export const editAddressService = async (userId, addressId, body) => {
   const address = await findAddressById(addressId);
   if (!address) {
-    throw new AppError("Address not found", 404);
+    throw new AppError(AddressMessages.ADDRESS_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   const user = await userModel.findById(userId);
   if (!user) {
-    throw new AppError("User not found", 404);
+    throw new AppError(AddressMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   const updatedAddress = { ...body, userId };
@@ -81,7 +84,7 @@ export const editAddressService = async (userId, addressId, body) => {
 export const setDefaultAddressService = async (userId, addressId) => {
   const address = await findAddressById(addressId);
   if (!address) {
-    throw new AppError("Address not found", 404);
+    throw new AppError(AddressMessages.ADDRESS_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   await unsetDefaultAddress(userId);
@@ -96,7 +99,7 @@ export const setDefaultAddressService = async (userId, addressId) => {
 export const deleteAddressService = async (userId, addressId) => {
   const address = await findAddressById(addressId);
   if (!address) {
-    throw new AppError("Address not found", 404);
+    throw new AppError(AddressMessages.ADDRESS_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   if (address.setDefault) {

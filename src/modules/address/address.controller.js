@@ -7,6 +7,7 @@ import {
   deleteAddressService,
 } from "./address.service.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { AddressMessages } from "../../shared/constants/messages/addressMessages.js";
 
 // LOAD LIST PAGE
 export const loadManageAddress = async (req, res) => {
@@ -33,7 +34,7 @@ export const addAddress = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "The address has been added successfully.",
+    message: AddressMessages.ADDRESS_ADDED,
   });
 };
 
@@ -52,7 +53,7 @@ export const editAddress = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "The address has been updated successfully.",
+    message: AddressMessages.ADDRESS_UPDATED,
   });
 };
 
@@ -62,7 +63,7 @@ export const setDefaultAddress = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Default address updated",
+    message: AddressMessages.DEFAULT_ADDRESS_UPDATED,
   });
 };
 
@@ -72,6 +73,6 @@ export const deleteAddress = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Address deleted successfully",
+    message: AddressMessages.ADDRESS_DELETED,
   });
 };
