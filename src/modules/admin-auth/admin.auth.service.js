@@ -1,12 +1,17 @@
 import bcrypt from "bcrypt";
-import {
-  createAdmin,
-  findAdminByEmail,
-} from "./admin.repo.js";
+import { createAdmin, findAdminByEmail } from "./admin.repo.js";
+import { AppError } from "../../shared/utils/app.error.js";
 
-// Register a new admin
+/* ----------------------------------------------------
+   REGISTER ADMIN
+---------------------------------------------------- */
 export const registerAdminService = async (adminData) => {
   const { username, email, password } = adminData;
+
+  const existingAdmin = await findAdminByEmail(email);
+  if (existingAdmin) {
+    throw new AppError("Admin already exists with this email", 409);
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -19,28 +24,29 @@ export const registerAdminService = async (adminData) => {
   return admin;
 };
 
-// Login admin
+/* ----------------------------------------------------
+   LOGIN ADMIN
+---------------------------------------------------- */
 export const loginAdminService = async (email, password) => {
   const admin = await findAdminByEmail(email);
-
   if (!admin) {
-    const err = new Error("Admin not found");
-    err.status = 404;
-    throw err;
+    throw new AppError("Admin not found", 404);
   }
 
   const isMatch = await bcrypt.compare(password, admin.password);
-
   if (!isMatch) {
-    const err = new Error("Invalid password");
-    err.status = 401;
-    throw err;
+    throw new AppError("Invalid password", 401);
   }
 
   return admin;
 };
 
-// Logout admin
+/* ----------------------------------------------------
+   LOGOUT ADMIN
+---------------------------------------------------- */
 export const logoutAdminService = () => {
-  return { success: true, message: "Admin logged out successfully" };
+  return {
+    success: true,
+    message: "Admin logged out successfully",
+  };
 };

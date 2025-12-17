@@ -43,33 +43,62 @@ function editAddress(addressData) {
 }
 
 // Delete Address
-async function deleteAddress(addressId) {
-  if (confirm("Are you sure you want to delete this address?")) {
+let deleteAddressId = null;
+function openDeleteModal(addressId) {
+  deleteAddressId = addressId;
+  document.getElementById("deleteConfirmModal").classList.remove("hidden");
+  document.getElementById("deleteConfirmModal").classList.add("flex");
+  document.body.style.overflow = "hidden";
+}
+
+function closeDeleteModal() {
+  deleteAddressId = null;
+  document.getElementById("deleteConfirmModal").classList.add("hidden");
+  document.getElementById("deleteConfirmModal").classList.remove("flex");
+  document.body.style.overflow = "auto";
+}
+
+// Close delete modal on outside click
+document
+  .getElementById("deleteConfirmModal")
+  .addEventListener("click", function (e) {
+    if (e.target === this) {
+      closeDeleteModal();
+    }
+  });
+
+
+document
+  .getElementById("confirmDeleteBtn")
+  .addEventListener("click", async function () {
+    if (!deleteAddressId) return;
+
     try {
-      const response = await axios.delete(`/address/${addressId}`);
+      const response = await axios.delete(`/address/${deleteAddressId}`);
       if (response.data.success) {
-        window.location.href = "/address?message=delete-address";
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.href = "/address";
       }
     } catch (error) {
       Toastify({
-        text: error.response?.data?.message || "set default failed",
+        text: error.response?.data?.message || "Delete address failed",
         duration: 2000,
         gravity: "bottom",
         position: "right",
-        style: {
-          background: "#e74c3c",
-        },
+        style: { background: "#e74c3c" },
       }).showToast();
+    } finally {
+      closeDeleteModal();
     }
-  }
-}
+  });
 
 // Set Default Address
 async function setDefaultAddress(addressId) {
   try {
     const response = await axios.patch(`/address/${addressId}/set-default`);
     if (response.data.success) {
-      window.location.href = "/address?message=default-address";
+      sessionStorage.setItem("toastSuccess", response.data.message);
+      window.location.href = "/address";
     }
   } catch (error) {
     Toastify({
@@ -84,11 +113,27 @@ async function setDefaultAddress(addressId) {
   }
 }
 
-// Form Submission
+// Form Submission (with loading state)
 document
   .getElementById("addressForm")
   .addEventListener("submit", async function (e) {
     e.preventDefault();
+
+    const submitBtn = document.getElementById("saveAddressBtn");
+
+    // ⛔ Prevent multiple clicks
+    if (submitBtn.disabled) return;
+
+    // 🔄 Set loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <span class="relative w-5 h-5">
+        <span class="absolute inset-0 rounded-full border-2 border-white opacity-30"></span>
+        <span class="absolute inset-0 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+      </span>
+      <span>Saving...</span>
+    `;
+
 
     const formData = new FormData(this);
     const addressData = {
@@ -100,51 +145,44 @@ document
       city: formData.get("city"),
       state: formData.get("state"),
       pincode: formData.get("pincode"),
-      country: "India", // Fixed to India
+      country: "India",
       setDefault: formData.get("setDefault") === "on",
     };
 
-    console.log(addressData);
+    try {
+      let response;
 
-    if (editingAddressId) {
-      try {
-        const response = await axios.put(
+      if (editingAddressId) {
+        response = await axios.put(
           `/address/${editingAddressId}`,
           addressData
         );
-        if (response.data.success) {
-          window.location.href = "/address?message=address-edit";
-        }
-      } catch (error) {
-        Toastify({
-          text: error.response?.data?.message || "edit address failed",
-          duration: 2000,
-          gravity: "bottom",
-          position: "right",
-          style: {
-            background: "#e74c3c",
-          },
-        }).showToast();
+      } else {
+        response = await axios.post("/address", addressData);
       }
-    } else {
-      try {
-        const response = await axios.post("/address", addressData);
-        if (response.data.success) {
-          window.location.href = "/address?message=address-add";
-        }
-      } catch (error) {
-        Toastify({
-          text: error.response?.data?.message || "add address failed",
-          duration: 2000,
-          gravity: "bottom",
-          position: "right",
-          style: {
-            background: "#e74c3c",
-          },
-        }).showToast();
+
+      if (response.data.success) {
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.href = "/address";
       }
+    } catch (error) {
+      Toastify({
+        text: error.response?.data?.message || "Saving address failed",
+        duration: 2000,
+        gravity: "bottom",
+        position: "right",
+        style: { background: "#e74c3c" },
+      }).showToast();
+
+      // 🔁 Restore button state on error
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `
+        <i class="bi bi-check-circle"></i>
+        <span>Save Address</span>
+      `;
     }
   });
+
 
 // Close modal on outside click
 document.getElementById("addressModal").addEventListener("click", function (e) {
@@ -155,37 +193,14 @@ document.getElementById("addressModal").addEventListener("click", function (e) {
 
 // Close modal on Escape key
 document.addEventListener("keydown", function (e) {
-  if (
-    e.key === "Escape" &&
-    !document.getElementById("addressModal").classList.contains("hidden")
-  ) {
+  if (e.key !== "Escape") return;
+
+  const addressModal = document.getElementById("addressModal");
+  const deleteModal = document.getElementById("deleteConfirmModal");
+
+  if (!deleteModal.classList.contains("hidden")) {
+    closeDeleteModal();
+  } else if (!addressModal.classList.contains("hidden")) {
     closeAddressModal();
   }
 });
-
-const urlParams = new URLSearchParams(window.location.search);
-const message = urlParams.get("message");
-let text = "";
-if (message === "address-add") {
-  text = "The address has been added successfully.";
-} else if (message === "address-edit") {
-  text = "The address has been edited successfully.";
-} else if (message === "default-address") {
-  text = "default address updated successfully";
-}else if(message==="delete-address"){
-  text="address is deleted successfully."
-}
-
-if (message) {
-  Toastify({
-    text,
-    duration: 4000,
-    gravity: "bottom", // top or bottom
-    position: "right", // left, center, right
-    style: {
-      background: "linear-gradient(to right, #00b09b, #96c93d)",
-    },
-    close: true,
-    stopOnFocus: true,
-  }).showToast();
-}

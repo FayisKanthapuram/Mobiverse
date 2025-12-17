@@ -44,6 +44,44 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
   <script src="/js/user/user.js"></script>
+
+  //toast messages
+  <script>
+    const successMsg = sessionStorage.getItem("toastSuccess");
+    const errorMsg = sessionStorage.getItem("toastError");
+
+    if (successMsg) {
+      Toastify({
+        text: successMsg,
+        duration: 4000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+        close: true,
+      }).showToast();
+
+      sessionStorage.removeItem("toastSuccess");
+    }
+
+    if (errorMsg) {
+      Toastify({
+        text: errorMsg,
+        duration: 4000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: "#e74c3c",
+        },
+        close: true,
+      }).showToast();
+
+      sessionStorage.removeItem("toastError");
+    }
+  </script>
+
+
   <% if (typeof pageJs !== 'undefined' && pageJs) { %>
   <script src="/js/user/<%= pageJs %>.js"></script>
   <% } %>

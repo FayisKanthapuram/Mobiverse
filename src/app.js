@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import adminRoutes from "./shared/routes/adminRoute.js";
 import userRoutes from "./shared/routes/userRoute.js";
 import passport from "./config/passport.js";
+import flash from "connect-flash";
 import { logger } from "./shared/utils/logger.js";
 import { setUser } from "./shared/middlewares/setUser.js";
 import {
@@ -29,6 +30,7 @@ app.use(logger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 sessionConfig(app);
+app.use(flash())
 app.use(setUser);
 app.use(passport.initialize());
 app.use(passport.session());

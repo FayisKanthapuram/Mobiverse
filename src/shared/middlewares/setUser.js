@@ -5,6 +5,7 @@ export const setUser = (req, res, next) => {
   res.locals.logoName=LOGONAME;
   res.locals.logo=LOGO;
   res.locals.user = req.session.user || null;
+  res.locals.flash = req.flash();
   res.set("Cache-Control", "no-store");
   next();
 };
