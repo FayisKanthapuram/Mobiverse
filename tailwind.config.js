@@ -5,6 +5,12 @@ export const content = [
   "./views/**/*.{ejs,html}",
 ];
 export const theme = {
-  extend: {},
+  extend: {
+    colors: {
+      primary: "#0d6efd",
+      danger: "#dc3545",
+      success: "#198754",
+    },
+  },
 };
 export const plugins = [];

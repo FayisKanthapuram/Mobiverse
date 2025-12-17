@@ -1,92 +1,147 @@
-<aside class="sidebar">
-  <div class="sidebar-header">
-    <i class="bi bi-phone"></i>
-    <h2>Mobiverse<br />Admin</h2>
+<aside id="admin-sidebar" class="sidebar w-72 h-screen fixed left-0 top-0 bg-white p-6 flex flex-col border-r border-gray-200 overflow-y-auto z-50">
+  <!-- Close Button (Mobile Only) -->
+  <button id="mobile-close-btn" class="md:hidden absolute top-4 right-4 text-2xl text-gray-600 hover:text-gray-900 transition-colors">
+    <i class="bi bi-x-lg"></i>
+  </button>
+
+  <!-- Sidebar Header -->
+  <div class="flex items-center gap-4 pb-6">
+    <i class="bi bi-phone text-5xl text-blue-600"></i>
+    <h2 class="text-xl font-bold leading-tight text-gray-900">
+      Mobiverse<br />Admin
+    </h2>
   </div>
 
-  <ul class="sidebar-nav">
-    <li class="<%= pageTitle === 'Dashboard' ? 'active' : '' %>">
-      <a href="/admin/dashboard">
-        <i class="bi bi-grid-fill"></i>
+  <!-- Sidebar Navigation -->
+  <ul class="sidebar-nav flex-1 space-y-2">
+    <li class="relative <%= pageTitle === 'Dashboard' ? 'active' : '' %>">
+      <% if (pageTitle === 'Dashboard') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/dashboard" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Dashboard' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-grid-fill text-xl w-5 text-center"></i>
         <span>Dashboard</span>
       </a>
     </li>
 
-    <li class="<%= pageTitle === 'Sales Report' ? 'active' : '' %>">
-      <a href="/admin/sales-report">
-        <i class="bi bi-bar-chart-line-fill"></i>
+    <li class="relative <%= pageTitle === 'Sales Report' ? 'active' : '' %>">
+      <% if (pageTitle === 'Sales Report') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/sales-report" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Sales Report' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-bar-chart-line-fill text-xl w-5 text-center"></i>
         <span>Sales Report</span>
       </a>
     </li>
 
-    <li class="<%= pageTitle === 'Brands' ? 'active' : '' %>">
-      <a href="/admin/brands">
-        <i class="bi bi-tag"></i>
+    <li class="relative <%= pageTitle === 'Brands' ? 'active' : '' %>">
+      <% if (pageTitle === 'Brands') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/brands" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Brands' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-tag text-xl w-5 text-center"></i>
         <span>Brands</span>
       </a>
     </li>
 
-    <li class="<%= pageTitle === 'Products' ? 'active' : '' %>">
-      <a href="/admin/products">
-        <i class="bi bi-box-seam"></i>
+    <li class="relative <%= pageTitle === 'Products' ? 'active' : '' %>">
+      <% if (pageTitle === 'Products') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/products" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Products' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-box-seam text-xl w-5 text-center"></i>
         <span>Products</span>
       </a>
     </li>
 
-    <li class="<%= pageTitle === 'Users' ? 'active' : '' %>">
-      <a href="/admin/users">
-        <i class="bi bi-people"></i>
+    <li class="relative <%= pageTitle === 'Users' ? 'active' : '' %>">
+      <% if (pageTitle === 'Users') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/users" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Users' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-people text-xl w-5 text-center"></i>
         <span>Users</span>
       </a>
     </li>
 
-    <li class="<%= pageTitle === 'Orders' ? 'active' : '' %>">
-      <a href="/admin/orders">
-        <i class="bi bi-cash-stack"></i>
+    <li class="relative <%= pageTitle === 'Orders' ? 'active' : '' %>">
+      <% if (pageTitle === 'Orders') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/orders" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Orders' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-cash-stack text-xl w-5 text-center"></i>
         <span>Orders</span>
       </a>
     </li>
 
-    <li class="<%= pageTitle === 'Coupons' ? 'active' : '' %>">
-      <a href="/admin/coupons">
-        <i class="bi bi-ticket-perforated"></i>
+    <li class="relative <%= pageTitle === 'Coupons' ? 'active' : '' %>">
+      <% if (pageTitle === 'Coupons') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/coupons" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Coupons' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-ticket-perforated text-xl w-5 text-center"></i>
         <span>Coupons</span>
       </a>
     </li>
 
-    <li class="<%= pageTitle === 'Referrals' ? 'active' : '' %>">
-      <a href="/admin/referrals">
-        <i class="bi bi-share"></i>
+    <li class="relative <%= pageTitle === 'Referrals' ? 'active' : '' %>">
+      <% if (pageTitle === 'Referrals') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/referrals" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Referrals' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-share text-xl w-5 text-center"></i>
         <span>Referrals</span>
       </a>
     </li>
 
-    <li class="<%= pageTitle === 'Banners' ? 'active' : '' %>">
-      <a href="/admin/banners">
-        <i class="bi bi-megaphone"></i>
+    <li class="relative <%= pageTitle === 'Banners' ? 'active' : '' %>">
+      <% if (pageTitle === 'Banners') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/banners" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Banners' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-megaphone text-xl w-5 text-center"></i>
         <span>Banners</span>
       </a>
     </li>
 
-    <li class="<%= pageTitle === 'Offers' ? 'active' : '' %>">
-      <a href="/admin/offers">
-        <i class="bi bi-percent"></i> <span>Offers</span>
+    <li class="relative <%= pageTitle === 'Offers' ? 'active' : '' %>">
+      <% if (pageTitle === 'Offers') { %>
+      <span class="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-blue-600 rounded-r"></span>
+      <% } %>
+      <a href="/admin/offers" 
+         class="flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 <%= pageTitle === 'Offers' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' %>">
+        <i class="bi bi-percent text-xl w-5 text-center"></i>
+        <span>Offers</span>
       </a>
     </li>
   </ul>
 
-  <hr class="sidebar-divider" />
+  <!-- Divider -->
+  <hr class="my-6 border-gray-200" />
 
-  <div class="admin-profile">
-    <i class="bi bi-person-circle avatar"></i>
-    <div class="admin-info">
-      <strong>Admin Name</strong>
-      <span>Administrator</span>
+  <!-- Admin Profile -->
+  <div class="flex items-center gap-3 px-2">
+    <i class="bi bi-person-circle text-5xl text-gray-400"></i>
+    <div class="flex flex-col">
+      <strong class="text-sm text-gray-900 font-semibold">Admin Name</strong>
+      <span class="text-xs text-gray-500">Administrator</span>
     </div>
   </div>
 
-  <button type="button" class="logout-button" id="logout-button">
-    <i class="bi bi-box-arrow-right"></i>
+  <!-- Logout Button -->
+  <button type="button" 
+          class="flex items-center justify-center gap-3 w-full px-4 py-3 mt-6 border border-red-600 bg-white text-red-600 rounded-lg font-semibold text-base transition-all duration-200 hover:bg-red-600 hover:text-white" 
+          id="logout-button">
+    <i class="bi bi-box-arrow-right text-lg"></i>
     <span>Logout</span>
   </button>
 </aside>

@@ -1,142 +1,193 @@
-<div class="main-header">
-  <div class="header-left">
-    <h2>Customers Management</h2>
-    <p>Manage and monitor all customers in your marketplace.</p>
+<!-- Main Header -->
+<div class="mb-6">
+  <div>
+    <h2 class="m-0 text-gray-900 text-2xl font-semibold">Customers Management</h2>
+    <p class="mt-1 mb-0 text-gray-500 text-base">Manage and monitor all customers in your marketplace.</p>
   </div>
 </div>
 
-<div class="stats-container">
-  <div class="stat-card total">
-    <div class="icon-wrapper"> <i class="fas fa-users"></i> </div>
-    <div class="stat-info"> <span>Total Users</span>
-      <h3><%= totalCustomersCound %></h3>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+  <!-- Total Users Card -->
+  <div class="flex items-center gap-5 p-6 rounded-xl bg-blue-50 shadow-sm">
+    <div class="flex items-center justify-center text-3xl p-5 rounded-full bg-blue-200 text-blue-600">
+      <i class="fas fa-users"></i>
+    </div>
+    <div>
+      <span class="block text-sm text-gray-600 mb-1">Total Users</span>
+      <h3 class="m-0 text-3xl font-semibold text-gray-900"><%= totalCustomersCound %></h3>
     </div>
   </div>
-  <div class="stat-card active">
-    <div class="icon-wrapper"> <i class="fas fa-user-check"></i> </div>
-    <div class="stat-info"> <span>Active Users</span>
-      <h3 id="active-count"><%= totalCustomersCound - blockedCustomerCount %></h3>
+
+  <!-- Active Users Card -->
+  <div class="flex items-center gap-5 p-6 rounded-xl bg-green-50 shadow-sm">
+    <div class="flex items-center justify-center text-3xl p-5 rounded-full bg-green-200 text-green-600">
+      <i class="fas fa-user-check"></i>
+    </div>
+    <div>
+      <span class="block text-sm text-gray-600 mb-1">Active Users</span>
+      <h3 class="m-0 text-3xl font-semibold text-gray-900" id="active-count"><%= totalCustomersCound - blockedCustomerCount %></h3>
     </div>
   </div>
-  <div class="stat-card blocked">
-    <div class="icon-wrapper"> <i class="fas fa-user-lock"></i> </div>
-    <div class="stat-info"> <span>Blocked Users</span>
-      <h3 id="block-count"><%= blockedCustomerCount %></h3>
+
+  <!-- Blocked Users Card -->
+  <div class="flex items-center gap-5 p-6 rounded-xl bg-red-50 shadow-sm">
+    <div class="flex items-center justify-center text-3xl p-5 rounded-full bg-red-200 text-red-600">
+      <i class="fas fa-user-lock"></i>
+    </div>
+    <div>
+      <span class="block text-sm text-gray-600 mb-1">Blocked Users</span>
+      <h3 class="m-0 text-3xl font-semibold text-gray-900" id="block-count"><%= blockedCustomerCount %></h3>
     </div>
   </div>
 </div>
 
-<div class="filter-bar">
-  <div class="search-wrapper">
-    <i class="fas fa-search"></i>
-
-    <input type="text" id="search-input" placeholder="Search customer name or email..." value="<%= searchQuery || '' %>" onkeyup="handleSearch()" />
-
+<!-- Filter Bar -->
+<div class="flex flex-col md:flex-row gap-4 items-stretch md:items-center p-5 bg-white rounded-lg mb-6 shadow-sm">
+  <!-- Search Wrapper -->
+  <div class="flex-1 relative flex items-center gap-2">
+    <i class="fas fa-search absolute left-3 text-base text-gray-500"></i>
+    <input type="text" 
+           id="search-input" 
+           placeholder="Search customer name or email..." 
+           value="<%= searchQuery || '' %>" 
+           onkeyup="handleSearch()" 
+           class="flex-1 px-3 py-2 pl-9 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+    
     <% if (searchQuery) { %>
-    <button class="clear-search-btn" onclick="clearSearch()">
+    <button class="clear-search-btn px-3 py-2 bg-blue-50 border border-blue-300 text-blue-600 rounded-md text-sm font-semibold whitespace-nowrap hover:bg-blue-100 transition-colors" 
+            onclick="clearSearch()">
       Clear
     </button>
     <% } %>
   </div>
 
-
-  <div class="filter-group">
-    <label for="status-filter">Status:</label>
-    <select id="status-filter" class="filter-select" onchange="applyFilters()">
+  <!-- Status Filter -->
+  <div class="flex items-center gap-2">
+    <label for="status-filter" class="text-sm text-gray-500 whitespace-nowrap">Status:</label>
+    <select id="status-filter" 
+            class="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white min-w-[150px] cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            onchange="applyFilters()">
       <option value="all" <%= statusFilter === 'all' || !statusFilter ? 'selected' : '' %>>All</option>
       <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
       <option value="blocked" <%= statusFilter === 'blocked' ? 'selected' : '' %>>Blocked</option>
     </select>
   </div>
 
-  <div class="filter-group">
-    <label for="sort-by">Sort By:</label>
-    <select id="sort-by" class="filter-select" onchange="applyFilters()">
+  <!-- Sort By Filter -->
+  <div class="flex items-center gap-2">
+    <label for="sort-by" class="text-sm text-gray-500 whitespace-nowrap">Sort By:</label>
+    <select id="sort-by" 
+            class="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white min-w-[150px] cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+            onchange="applyFilters()">
       <option value="recent" <%= sortBy === 'recent' || !sortBy ? 'selected' : '' %>>Recent</option>
       <option value="oldest" <%= sortBy === 'oldest' ? 'selected' : '' %>>Oldest</option>
     </select>
   </div>
-
-  <% const hasActiveFilters = (statusFilter && statusFilter !== 'all') || (sortBy && sortBy !== 'recent'); %>
 </div>
 
 <!-- Active Filters Display -->
+<% const hasActiveFilters = (statusFilter && statusFilter !== 'all') || (sortBy && sortBy !== 'recent'); %>
 <% if (searchQuery || hasActiveFilters) { %>
-<div class="active-filters-bar">
-  <span class="filter-label">Active Filters:</span>
-  <div class="filter-tags">
+<div class="bg-white rounded-lg p-4 mb-6 flex items-center gap-3 flex-wrap shadow-sm">
+  <span class="text-sm font-semibold text-gray-500 whitespace-nowrap">Active Filters:</span>
+  
+  <div class="flex flex-wrap gap-2 flex-1">
     <% if (searchQuery) { %>
-    <span class="filter-tag">
+    <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold">
       Search: "<%= searchQuery %>"
-      <button onclick="clearSearch()" class="tag-remove">
-        <i class="fas fa-times"></i>
+      <button onclick="clearSearch()" 
+              class="flex items-center justify-center text-blue-600 opacity-70 hover:opacity-100 transition-opacity">
+        <i class="fas fa-times text-sm"></i>
       </button>
     </span>
     <% } %>
+    
     <% if (statusFilter && statusFilter !== 'all') { %>
-    <span class="filter-tag">
+    <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold">
       Status: <%= statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1) %>
-      <button onclick="removeFilter('status')" class="tag-remove">
-        <i class="fas fa-times"></i>
+      <button onclick="removeFilter('status')" 
+              class="flex items-center justify-center text-blue-600 opacity-70 hover:opacity-100 transition-opacity">
+        <i class="fas fa-times text-sm"></i>
       </button>
     </span>
     <% } %>
+    
     <% if (sortBy && sortBy !== 'recent') { %>
-    <span class="filter-tag">
+    <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-xs font-semibold">
       Sort: <%= sortBy.charAt(0).toUpperCase() + sortBy.slice(1) %>
-      <button onclick="removeFilter('sort')" class="tag-remove">
-        <i class="fas fa-times"></i>
+      <button onclick="removeFilter('sort')" 
+              class="flex items-center justify-center text-blue-600 opacity-70 hover:opacity-100 transition-opacity">
+        <i class="fas fa-times text-sm"></i>
       </button>
     </span>
     <% } %>
   </div>
-  <button class="clear-all-link" onclick="clearAllFiltersAndSearch()">Clear All</button>
+  
+  <button class="text-sm font-semibold text-red-600 whitespace-nowrap hover:text-red-700 hover:underline transition-colors" 
+          onclick="clearAllFiltersAndSearch()">
+    Clear All
+  </button>
 </div>
 <% } %>
 
-<div class="table-container">
-  <table class="customers-table">
+<!-- Table Container -->
+<div class="bg-white rounded-lg shadow-sm overflow-x-auto">
+  <table class="w-full border-collapse">
     <thead>
       <tr>
-        <th>Image</th>
-        <th>Customer Name</th>
-        <th>Orders</th>
-        <th>Balance</th>
-        <th>Status</th>
-        <th>Block/Unblock</th>
+        <th class="p-4 text-left border-b border-gray-200 bg-gray-50 text-gray-500 font-semibold text-xs uppercase tracking-wide">Image</th>
+        <th class="p-4 text-left border-b border-gray-200 bg-gray-50 text-gray-500 font-semibold text-xs uppercase tracking-wide">Customer Name</th>
+        <th class="p-4 text-left border-b border-gray-200 bg-gray-50 text-gray-500 font-semibold text-xs uppercase tracking-wide">Orders</th>
+        <th class="p-4 text-left border-b border-gray-200 bg-gray-50 text-gray-500 font-semibold text-xs uppercase tracking-wide">Balance</th>
+        <th class="p-4 text-left border-b border-gray-200 bg-gray-50 text-gray-500 font-semibold text-xs uppercase tracking-wide">Status</th>
+        <th class="p-4 text-left border-b border-gray-200 bg-gray-50 text-gray-500 font-semibold text-xs uppercase tracking-wide">Block/Unblock</th>
       </tr>
     </thead>
     <tbody>
       <% if (typeof customers !== 'undefined' && customers.length > 0) { %>
       <% customers.forEach(customer => { %>
-      <tr>
-        <td> <img src="<%= customer.avatar %>" alt="<%= customer.username %>" onerror="this.onerror=null; this.src='<%= defaultAvatar %>';" class="customer-avatar" /> </td>
-        <td>
-          <div class="customer-info">
-            <span><%= customer.username %></span>
-            <small><%= customer.email %></small>
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="p-4 border-b border-gray-200">
+          <img src="<%= customer.avatar %>" 
+               alt="<%= customer.username %>" 
+               onerror="this.onerror=null; this.src='<%= defaultAvatar %>';" 
+               class="w-10 h-10 rounded-full object-cover border-2 border-gray-200" />
+        </td>
+        <td class="p-4 border-b border-gray-200">
+          <div class="flex flex-col gap-1">
+            <span class="font-semibold text-gray-900"><%= customer.username %></span>
+            <small class="text-gray-500 text-xs"><%= customer.email %></small>
           </div>
         </td>
-        <td><%= customer.orderCount %></td>
-        <td>₹<%= customer.walletBalance %></td>
-        <td>
+        <td class="p-4 border-b border-gray-200 text-sm"><%= customer.orderCount %></td>
+        <td class="p-4 border-b border-gray-200 text-sm">₹<%= customer.walletBalance %></td>
+        <td class="p-4 border-b border-gray-200">
           <% if (customer.isBlocked) { %>
-          <span class="status-badge status-blocked" data-customer-id="<%= customer._id %>" data-customer-status>
-            <i class="fas fa-circle"></i> Blocked
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-red-100 text-red-600" 
+                data-customer-id="<%= customer._id %>" 
+                data-customer-status>
+            <i class="fas fa-circle text-[8px]"></i> Blocked
           </span>
           <% } else { %>
-          <span class="status-badge status-active" data-customer-id="<%= customer._id %>" data-customer-status>
-            <i class="fas fa-circle"></i> Active
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold bg-green-100 text-green-600" 
+                data-customer-id="<%= customer._id %>" 
+                data-customer-status>
+            <i class="fas fa-circle text-[8px]"></i> Active
           </span>
           <% } %>
         </td>
-        <td>
+        <td class="p-4 border-b border-gray-200">
           <% if (customer.isBlocked) { %>
-          <button class="action-btn unblock-btn" data-is-blocked="<%= customer.isBlocked %>" data-customer-id="<%= customer._id %>">
+          <button class="action-btn unblock-btn px-4 py-2 text-xs font-semibold rounded-md border-none cursor-pointer transition-all text-white bg-green-600 hover:bg-green-700 active:scale-98 disabled:opacity-60 disabled:cursor-not-allowed" 
+                  data-is-blocked="<%= customer.isBlocked %>" 
+                  data-customer-id="<%= customer._id %>">
             Unblock
           </button>
           <% } else { %>
-          <button class="action-btn block-btn" data-is-blocked="<%= customer.isBlocked %>" data-customer-id="<%= customer._id %>">
+          <button class="action-btn block-btn px-4 py-2 text-xs font-semibold rounded-md border-none cursor-pointer transition-all text-white bg-red-600 hover:bg-red-700 active:scale-98 disabled:opacity-60 disabled:cursor-not-allowed" 
+                  data-is-blocked="<%= customer.isBlocked %>" 
+                  data-customer-id="<%= customer._id %>">
             Block
           </button>
           <% } %>
@@ -145,12 +196,13 @@
       <% }); %>
       <% } else { %>
       <tr>
-        <td colspan="6" class="no-data">
-          <div class="empty-state">
-            <i class="fas fa-users" style="font-size: 48px; opacity: 0.3; margin-bottom: 12px;"></i>
-            <p style="font-size: 16px; color: #6c757d; margin: 0;">No customers found</p>
+        <td colspan="6" class="text-center p-10">
+          <div class="flex flex-col items-center gap-3">
+            <i class="fas fa-users text-5xl opacity-30 mb-3"></i>
+            <p class="text-base text-gray-500 m-0">No customers found</p>
             <% if (searchQuery || hasActiveFilters) { %>
-            <button class="btn-primary" onclick="clearAllFiltersAndSearch()" style="margin-top: 16px; padding: 10px 20px; background: #0d6efd; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            <button class="mt-4 px-5 py-2.5 bg-blue-600 text-white border-none rounded-md cursor-pointer hover:bg-blue-700 transition-colors" 
+                    onclick="clearAllFiltersAndSearch()">
               Clear All Filters
             </button>
             <% } %>
@@ -162,4 +214,4 @@
   </table>
 </div>
 
-<%- include('../partials/admin/customers/pagination') %>
+<%- include('../partials/admin/users/pagination') %>
