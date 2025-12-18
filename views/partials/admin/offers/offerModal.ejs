@@ -1,0 +1,196 @@
+<!-- Add/Edit Offer Modal -->
+<div id="offerModal" class="modal hidden fixed z-[1000] left-0 top-0 w-full h-full overflow-auto bg-black bg-opacity-50 backdrop-blur-sm">
+  <div class="modal-content bg-white rounded-2xl w-[90%] max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl my-12 mx-auto animate-slideDown">
+    <div class="flex justify-between items-center px-6 py-6 border-b border-gray-200">
+      <h2 id="modalTitle" class="m-0 text-2xl text-gray-900 font-semibold">Add New Offer</h2>
+      <button class="modal-close bg-transparent border-none text-2xl cursor-pointer text-gray-500 w-8 h-8 flex items-center justify-center rounded-md transition-all hover:bg-red-50 hover:text-red-600" 
+              onclick="closeOfferModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <form id="offerForm" class="px-6 py-6">
+      <input type="hidden" id="offerId" name="offerId">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="mb-4">
+          <label for="offerType" class="block mb-2 font-semibold text-gray-700 text-sm">Offer Type <span class="text-red-600">*</span></label>
+          <select id="offerTypeSelect" 
+                  name="offerType" 
+                  required 
+                  onchange="handleOfferTypeChange()"
+                  class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+            <option value="">Select Offer Type</option>
+            <option value="product">Product Offer</option>
+            <option value="brand">Brand Offer</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label for="offerName" class="block mb-2 font-semibold text-gray-700 text-sm">Offer Name <span class="text-red-600">*</span></label>
+          <input type="text" 
+                 id="offerName" 
+                 name="offerName" 
+                 placeholder="e.g., Summer Sale 2025" 
+                 required
+                 class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+        </div>
+      </div>
+
+      <!-- Product Selection (shown when product offer is selected) -->
+      <div id="productSelectionSection" class="mb-6 hidden">
+        <div class="mb-4 relative">
+          <label for="productSearch" class="block mb-2 font-semibold text-gray-700 text-sm">Select Products <span class="text-red-600">*</span></label>
+          <div class="search-select-wrapper relative">
+            <input type="text" 
+                   id="productSearch" 
+                   placeholder="Search and add products..." 
+                   autocomplete="off"
+                   oninput="searchProducts(this.value)"
+                   class="w-full px-3 py-3 pl-11 border border-gray-300 rounded-lg text-sm relative z-[2] focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+            <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none z-[1]"></i>
+            <div id="productSearchResults" class="search-results absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg max-h-[300px] overflow-y-auto shadow-xl z-[1001] hidden"></div>
+          </div>
+          
+          <!-- Selected Products Display -->
+          <div id="selectedProductsContainer" class="mt-4 border border-gray-300 rounded-lg overflow-hidden hidden">
+            <div class="flex justify-between items-center px-4 py-3 bg-gray-50 border-b border-gray-300">
+              <span class="selected-count font-semibold text-gray-700 text-sm">0 products selected</span>
+              <button type="button" 
+                      class="bg-transparent border-none text-red-600 font-semibold text-xs cursor-pointer p-0 hover:text-red-700 hover:underline transition-colors" 
+                      onclick="clearAllProducts()">Clear All</button>
+            </div>
+            <div id="selectedProductsList" class="max-h-[300px] overflow-y-auto"></div>
+          </div>
+          
+          <input type="hidden" id="productIDs" name="productIDs">
+        </div>
+      </div>
+
+      <!-- Brand Selection (shown when brand offer is selected) -->
+      <div id="brandSelectionSection" class="mb-6 hidden">
+        <div class="mb-4">
+          <label for="brandID" class="block mb-2 font-semibold text-gray-700 text-sm">Select Brand <span class="text-red-600">*</span></label>
+          <select id="brandID" 
+                  name="brandID"
+                  class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+            <option value="">Choose a brand</option>
+            <% if (typeof brands !== 'undefined' && brands) { %>
+              <% brands.forEach(brand => { %>
+                <option value="<%= brand._id %>"><%= brand.brandName %></option>
+              <% }); %>
+            <% } %>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="mb-4">
+          <label for="discountType" class="block mb-2 font-semibold text-gray-700 text-sm">Discount Type <span class="text-red-600">*</span></label>
+          <select id="discountType" 
+                  name="discountType" 
+                  required 
+                  onchange="handleDiscountTypeChange()"
+                  class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+            <option value="">Select Discount Type</option>
+            <option value="percentage">Percentage (%)</option>
+            <option value="fixed">Fixed Amount (₹)</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label for="discountValue" class="block mb-2 font-semibold text-gray-700 text-sm">Discount Value <span class="text-red-600">*</span></label>
+          <div class="relative">
+            <input type="number" 
+                   id="discountValue" 
+                   name="discountValue" 
+                   placeholder="Enter value" 
+                   min="1"
+                   required
+                   class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+            <span class="input-icon absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold pointer-events-none" id="discountIcon">%</span>
+          </div>
+          <small class="block mt-1.5 text-xs text-gray-500" id="discountHelp">Enter discount percentage (1-90%)</small>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="mb-4">
+          <label for="startDate" class="block mb-2 font-semibold text-gray-700 text-sm">Start Date <span class="text-red-600">*</span></label>
+          <input type="date" 
+                 id="startDate" 
+                 name="startDate" 
+                 required
+                 class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+        </div>
+
+        <div class="mb-4">
+          <label for="endDate" class="block mb-2 font-semibold text-gray-700 text-sm">End Date <span class="text-red-600">*</span></label>
+          <input type="date" 
+                 id="endDate" 
+                 name="endDate" 
+                 required
+                 class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="isActive" class="block mb-2 font-semibold text-gray-700 text-sm">Status</label>
+        <select id="isActive" 
+                name="isActive"
+                class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100">
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+
+      <div class="flex justify-end gap-4 pt-6 border-t border-gray-200 mt-6">
+        <button type="button" 
+                class="px-6 py-3 bg-gray-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-colors hover:bg-gray-700" 
+                onclick="closeOfferModal()">Cancel</button>
+        <button type="submit" 
+                class="px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 flex items-center gap-2" 
+                id="submitBtn">
+          <i class="bi bi-check-circle"></i>
+          <span id="submitBtnText">Create Offer</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-slideDown {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  .modal.show {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  
+  .search-results.show {
+    display: block !important;
+  }
+  
+  #selectedProductsContainer {
+    display: none;
+  }
+  
+  #selectedProductsContainer:not(.hidden) {
+    display: block;
+  }
+</style>

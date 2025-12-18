@@ -1,11 +1,13 @@
 import { toggleOfferStatus } from "../offer.repo.js";
+import { AppError } from "../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
+import { OfferMessages } from "../../../shared/constants/messages/offerMessages.js";
 
 export const toggleOfferStatusService = async (id) => {
   const offer = await toggleOfferStatus(id);
-
   if (!offer) {
-    const err = new Error("Offer not found");
-    err.status = 404;
-    throw err;
+    throw new AppError(OfferMessages.OFFER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
+
+  return true;
 };

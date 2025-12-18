@@ -1,4 +1,3 @@
-// controllers/offerController.js
 import {
   addOfferService,
   deleteOfferStatusService,
@@ -9,110 +8,100 @@ import {
 } from "./services/index.js";
 import { offerSchema } from "./offerValidator.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { AppError } from "../../shared/utils/app.error.js";
+import { OfferMessages } from "../../shared/constants/messages/offerMessages.js";
 
-export const loadOffers = async (req, res, next) => {
-  try {
-    const offerType = req.query.type || "product";
-    const searchQuery = req.query.search || "";
-    const statusFilter = req.query.status || "";
-    const sortFilter = req.query.sort || "";
-    const currentPage = parseInt(req.query.page) || 1;
-    const data = await getOfferPageDataService(
-      offerType,
-      searchQuery,
-      statusFilter,
-      sortFilter,
-      currentPage
-    );
+/* ----------------------------------------------------
+   LOAD OFFERS PAGE
+---------------------------------------------------- */
+export const loadOffers = async (req, res) => {
+  const offerType = req.query.type || "product";
+  const searchQuery = req.query.search || "";
+  const statusFilter = req.query.status || "";
+  const currentPage = parseInt(req.query.page) || 1;
+  const limit=2;
 
-    res.status(HttpStatus.OK).render("admin/offers", {
-      pageTitle: "Offers",
-      pageCss: "offers",
-      pageJs: "offers",
-      ...data,
-    });
-  } catch (error) {
-    next(error);
-  }
+  const data = await getOfferPageDataService(
+    offerType,
+    searchQuery,
+    statusFilter,
+    currentPage,
+    limit,
+  );
+
+  res.status(HttpStatus.OK).render("admin/offers", {
+    pageTitle: "Offers",
+    pageJs: "offers",
+    ...data,
+  });
 };
 
+/* ----------------------------------------------------
+   ADD OFFER
+---------------------------------------------------- */
 export const addOffer = async (req, res) => {
-  try {
-    const { error } = offerSchema.validate(req.body);
-    if (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: error.details[0].message,
-      });
-    }
-    await addOfferService(req.body);
-    return res.status(HttpStatus.OK).json({ success: true, message: "Offer added successfully" });
-  } catch (error) {
-    console.error("Add Offer Error:", error.message);
-
-    return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Server error",
-    });
+  const { error } = offerSchema.validate(req.body);
+  if (error) {
+    throw new AppError(error.details[0].message, HttpStatus.BAD_REQUEST);
   }
+
+  await addOfferService(req.body);
+
+  res.status(HttpStatus.CREATED).json({
+    success: true,
+    message: OfferMessages.OFFER_ADDED,
+  });
 };
 
-export const getOfferById=async(req,res,next)=>{
-  try {
-    const {id}=req.params;
-    const offer=await getOfferByIdService(id);
-    return res.status(HttpStatus.OK).json({success:true,offer})
-  } catch (error) {
-    next(error)
-  }
-}
+/* ----------------------------------------------------
+   GET OFFER BY ID
+---------------------------------------------------- */
+export const getOfferById = async (req, res) => {
+  const offer = await getOfferByIdService(req.params.id);
 
-export const editOffer=async(req,res)=>{
-  try {
-    const { error } = offerSchema.validate(req.body);
-    if (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: error.details[0].message,
-      });
-    }
-    const {id}=req.params
-    await editOfferService(id,req.body);
-    return res.status(HttpStatus.OK).json({ success: true, message: "Edit added successfully" });
-  } catch (error) {
-    console.error("Edit offer error Offer Error:", error.message);
+  res.status(HttpStatus.OK).json({
+    success: true,
+    offer,
+  });
+};
 
-    return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Server error",
-    });
+/* ----------------------------------------------------
+   EDIT OFFER
+---------------------------------------------------- */
+export const editOffer = async (req, res) => {
+  const { error } = offerSchema.validate(req.body);
+  if (error) {
+    throw new AppError(error.details[0].message, HttpStatus.BAD_REQUEST);
   }
-}
 
-export const toggleOfferStatus=async(req,res)=>{
-  try {
-    const {id}=req.params;
-    await toggleOfferStatusService(id);
-    return res.status(HttpStatus.OK).json({ success: true, message: "Status updated" });
-  } catch (error) {
-    console.error("Toggle offer error Offer Error:", error.message);
-    return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Server error",
-    });
-  }
-}
+  await editOfferService(req.params.id, req.body);
 
-export const deleteOffer=async(req,res)=>{
-  try {
-    const {id}=req.params;
-    await deleteOfferStatusService(id);
-    return res.status(HttpStatus.OK).json({ success: true, message: "Offer deleted successfully" });
-  } catch (error) {
-    console.error("Delete offer error:", error.message);
-    return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Server error",
-    });
-  }
-}
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: OfferMessages.OFFER_UPDATED,
+  });
+};
+
+/* ----------------------------------------------------
+   TOGGLE OFFER STATUS
+---------------------------------------------------- */
+export const toggleOfferStatus = async (req, res) => {
+  await toggleOfferStatusService(req.params.id);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: OfferMessages.OFFER_STATUS_UPDATED,
+  });
+};
+
+/* ----------------------------------------------------
+   DELETE OFFER
+---------------------------------------------------- */
+export const deleteOffer = async (req, res) => {
+  await deleteOfferStatusService(req.params.id);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: OfferMessages.OFFER_DELETED,
+  });
+};

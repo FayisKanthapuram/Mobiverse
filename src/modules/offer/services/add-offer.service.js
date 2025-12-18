@@ -1,25 +1,18 @@
-import {
-  createOffer,
-  findOfferByNameAndType,
-} from "../offer.repo.js";
+import { createOffer, findOfferByNameAndType } from "../offer.repo.js";
+import { AppError } from "../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
+import { OfferMessages } from "../../../shared/constants/messages/offerMessages.js";
 
 export const addOfferService = async (offerData) => {
-  try {
-    const existing = await findOfferByNameAndType(
-      offerData.offerName,
-      offerData.offerType
-    );
+  const existing = await findOfferByNameAndType(
+    offerData.offerName,
+    offerData.offerType
+  );
 
-    if (existing) {
-      const error = new Error("Offer already exists");
-      error.status = 400;
-      throw error;
-    }
-
-    // Create new offer
-    await createOffer(offerData);
-    return;
-  } catch (error) {
-    throw error;
+  if (existing) {
+    throw new AppError(OfferMessages.OFFER_EXISTS, HttpStatus.BAD_REQUEST);
   }
+
+  await createOffer(offerData);
+  return true;
 };

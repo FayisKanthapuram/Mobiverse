@@ -431,15 +431,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (response.data.success) {
-        Toastify({
-          text: response.data.message,
-          duration: 1200,
-          gravity: "bottom",
-          position: "right",
-          style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
-        }).showToast();
-
-        setTimeout(() => window.location.reload(), 1300);
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.reload();
       }
     } catch (err) {
       Toastify({
@@ -645,15 +638,8 @@ document.addEventListener("DOMContentLoaded", () => {
       );
 
       if (response.data.success) {
-        Toastify({
-          text: response.data.message || "Product updated successfully!",
-          duration: 1200,
-          gravity: "bottom",
-          position: "right",
-          style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
-        }).showToast();
-
-        setTimeout(() => window.location.reload(), 1300);
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.reload();
       }
     } catch (err) {
       Toastify({

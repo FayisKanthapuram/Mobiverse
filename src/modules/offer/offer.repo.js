@@ -1,7 +1,20 @@
 import offerModel from "./offer.model.js";
 
-export const findAllOffers = (query = {}) => {
-  return offerModel.find(query).populate("productID").populate("brandID");
+export const findAllOffers = (query = {}, skip, limit) => {
+  return offerModel
+    .find(query)
+    .populate({
+      path: "productID",
+      populate: { path: "brandID" },
+    })
+    .populate("brandID")
+    .skip(skip)
+    .limit(limit)
+    .lean();
+};
+
+export const findOffersCount = (query = {}) => {
+  return offerModel.countDocuments(query);
 };
 
 export const findOfferById = (id) => {
@@ -11,7 +24,8 @@ export const findOfferById = (id) => {
       path: "productID",
       populate: { path: "brandID" },
     })
-    .populate("brandID");
+    .populate("brandID")
+    .lean();
 };
 
 export const findOfferByNameAndType = (offerName, offerType) => {
@@ -39,20 +53,20 @@ export const toggleOfferStatus = async (id) => {
   return offer;
 };
 
-export const getAvailableProductOffers=async (now)=>{
+export const getAvailableProductOffers = async (now) => {
   return offerModel.find({
-    offerType:'product',
-    startDate:{$lte:now},
-    endDate:{$gte:now},
-    isActive:true,
-  })
-}
+    offerType: "product",
+    startDate: { $lte: now },
+    endDate: { $gte: now },
+    isActive: true,
+  });
+};
 
-export const getAvailableBrandOffers=async (now)=>{
+export const getAvailableBrandOffers = async (now) => {
   return offerModel.find({
-    offerType:'brand',
-    startDate:{$lte:now},
-    endDate:{$gte:now},
-    isActive:true,
-  })
-}
+    offerType: "brand",
+    startDate: { $lte: now },
+    endDate: { $gte: now },
+    isActive: true,
+  });
+};

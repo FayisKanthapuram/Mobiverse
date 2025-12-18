@@ -1,230 +1,236 @@
 <!-- Offers Management Page -->
-<div class="page-container">
+<div class="max-w-7xl mx-auto">
   <!-- Page Header -->
-  <div class="page-header">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
-      <h1>Offers Management</h1>
-      <p class="subtitle">Create and manage product and brand offers for your marketplace.</p>
+      <h1 class="text-3xl font-bold m-0 text-gray-900">Offers Management</h1>
+      <p class="text-gray-500 text-sm mt-1 m-0">Create and manage product and brand offers for your marketplace.</p>
     </div>
-    <button class="btn-primary" onclick="openAddOfferModal()">
+    <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg" 
+            onclick="openAddOfferModal()">
       <i class="bi bi-plus-circle"></i>
       Add New Offer
     </button>
   </div>
 
   <!-- Analytics Cards -->
-  <div class="stats-grid">
-    <div class="stat-card stat-blue">
-      <div class="stat-icon">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="stat-card bg-white p-6 rounded-xl border border-gray-200 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-lg border-l-4 border-l-blue-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-blue-50 text-blue-600">
         <i class="bi bi-percent"></i>
       </div>
-      <div class="stat-content">
-        <div class="stat-label">Total Offers</div>
-        <div class="stat-value"><%= analytics.totalOffers || 0 %></div>
+      <div class="flex-1">
+        <div class="text-sm text-gray-500 mb-1">Total Offers</div>
+        <div class="text-3xl font-bold text-gray-900 leading-none"><%= analytics.totalOffers || 0 %></div>
       </div>
     </div>
 
-    <div class="stat-card stat-green">
-      <div class="stat-icon">
+    <div class="stat-card bg-white p-6 rounded-xl border border-gray-200 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-lg border-l-4 border-l-green-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-green-50 text-green-600">
         <i class="bi bi-check-circle"></i>
       </div>
-      <div class="stat-content">
-        <div class="stat-label">Active Offers</div>
-        <div class="stat-value"><%= analytics.activeOffers || 0 %></div>
+      <div class="flex-1">
+        <div class="text-sm text-gray-500 mb-1">Active Offers</div>
+        <div class="text-3xl font-bold text-gray-900 leading-none"><%= analytics.activeOffers || 0 %></div>
       </div>
     </div>
 
-    <div class="stat-card stat-purple">
-      <div class="stat-icon">
+    <div class="stat-card bg-white p-6 rounded-xl border border-gray-200 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-lg border-l-4 border-l-purple-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-purple-50 text-purple-600">
         <i class="bi bi-box-seam"></i>
       </div>
-      <div class="stat-content">
-        <div class="stat-label">Product Offers</div>
-        <div class="stat-value"><%= analytics.productOffers || 0 %></div>
+      <div class="flex-1">
+        <div class="text-sm text-gray-500 mb-1">Product Offers</div>
+        <div class="text-3xl font-bold text-gray-900 leading-none"><%= analytics.productOffers || 0 %></div>
       </div>
     </div>
 
-    <div class="stat-card stat-orange">
-      <div class="stat-icon">
+    <div class="stat-card bg-white p-6 rounded-xl border border-gray-200 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-lg border-l-4 border-l-orange-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-orange-50 text-orange-600">
         <i class="bi bi-tag"></i>
       </div>
-      <div class="stat-content">
-        <div class="stat-label">Brand Offers</div>
-        <div class="stat-value"><%= analytics.brandOffers || 0 %></div>
+      <div class="flex-1">
+        <div class="text-sm text-gray-500 mb-1">Brand Offers</div>
+        <div class="text-3xl font-bold text-gray-900 leading-none"><%= analytics.brandOffers || 0 %></div>
       </div>
     </div>
   </div>
 
   <!-- Tabs Navigation -->
-  <div class="tabs-container">
-    <button class="tab-btn <%= !offerType || offerType === 'product' ? 'active' : '' %>" onclick="switchTab('product')">
+  <div class="flex gap-2 mb-6 border-b-2 border-gray-200">
+    <button class="flex items-center gap-2 px-6 py-3.5 bg-transparent border-none border-b-3 border-b-transparent  font-semibold text-sm cursor-pointer transition-all -mb-0.5 <%= !offerType || offerType === 'product' ? 'text-blue-600 border-b-blue-600' : 'hover:text-blue-600 text-gray-500' %>" 
+            onclick="switchTab('product')">
       <i class="bi bi-box-seam"></i> Product Offers
     </button>
-    <button class="tab-btn <%= offerType === 'brand' ? 'active' : '' %>" onclick="switchTab('brand')">
+    <button class="flex items-center gap-2 px-6 py-3.5 bg-transparent border-none border-b-3 border-b-transparent font-semibold text-sm cursor-pointer transition-all -mb-0.5 <%= offerType === 'brand' ? 'text-blue-600 border-b-blue-600' : 'hover:text-blue-600 text-gray-500 ' %>" 
+            onclick="switchTab('brand')">
       <i class="bi bi-tag"></i> Brand Offers
     </button>
   </div>
 
   <!-- Filters Section -->
-  <div class="filters-container">
-    <div class="search-box">
-      <i class="bi bi-search"></i>
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Search offers..."
-        value="<%= searchQuery || '' %>"
-        onkeyup="handleSearch()"
-      />
+  <div class="bg-white p-5 rounded-xl border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+    <div class="flex-1 min-w-[250px] relative flex items-center">
+      <i class="bi bi-search absolute left-4 text-gray-500 pointer-events-none"></i>
+      <input type="text"
+             id="searchInput"
+             placeholder="Search offers..."
+             value="<%= searchQuery || '' %>"
+             onkeyup="handleSearch()"
+             class="w-full py-2.5 pl-11 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       <% if (searchQuery) { %>
-      <button class="clear-search-btn" onclick="clearSearch()" title="Clear search">
+      <button class="clear-search-btn absolute right-2 bg-transparent border-none text-gray-500 cursor-pointer p-1 flex items-center hover:text-red-600 transition-colors" 
+              onclick="clearSearch()" 
+              title="Clear search">
         <i class="bi bi-x-circle-fill"></i>
       </button>
       <% } %>
     </div>
 
-    <div class="filter-group">
-      <label>Status:</label>
-      <select id="statusFilter" class="filter-select" onchange="applyFilters()">
+    <div class="flex items-center gap-2">
+      <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">Status:</label>
+      <select id="statusFilter" 
+              class="px-3 py-2.5 pr-8 pl-3 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+              onchange="applyFilters()">
         <option value="">All</option>
         <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
         <option value="inactive" <%= statusFilter === 'inactive' ? 'selected' : '' %>>Inactive</option>
         <option value="expired" <%= statusFilter === 'expired' ? 'selected' : '' %>>Expired</option>
       </select>
     </div>
-
-    <div class="filter-group">
-      <label>Sort By:</label>
-      <select id="sortFilter" class="filter-select" onchange="applyFilters()">
-        <option value="recent" <%= sortFilter === 'recent' ? 'selected' : '' %>>Recent</option>
-        <option value="oldest" <%= sortFilter === 'oldest' ? 'selected' : '' %>>Oldest</option>
-        <option value="value-high" <%= sortFilter === 'value-high' ? 'selected' : '' %>>Discount (High to Low)</option>
-        <option value="value-low" <%= sortFilter === 'value-low' ? 'selected' : '' %>>Discount (Low to High)</option>
-      </select>
-    </div>
   </div>
 
   <!-- Offers Table -->
-  <div class="table-wrapper">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th><%= offerType === 'brand' ? 'Brand' : 'Product' %></th>
-          <th>Offer Name</th>
-          <th>Discount</th>
-          <th>Valid From</th>
-          <th>Valid Until</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (offers && offers.length > 0) { %>
-          <% offers.forEach(offer => { %>
-            <tr>
-              <td>
-                <div class="offer-item-info">
-                  <% if (offerType === 'brand') { %>
-                    <div class="brand-logo-small">
-                      <img src="<%= offer.brandID?.logo || '/images/placeholder-brand.png' %>" alt="<%= offer.brandID?.brandName %>">
-                    </div>
-                    <strong><%= offer.brandID?.brandName || 'N/A' %></strong>
-                  <% } else { %>
-                    <% if (Array.isArray(offer.productID) && offer.productID.length > 0) { %>
-                      <div class="product-image-small">
-                        <img src="<%= offer.productID[0]?.image || '/images/placeholder-product.png' %>" alt="<%= offer.productID[0]?.name %>">
+  <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-50 border-b-2 border-gray-200">
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider"><%= offerType === 'brand' ? 'Brand' : 'Product' %></th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Offer Name</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Discount</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Valid From</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Valid Until</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Status</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (offers && offers.length > 0) { %>
+            <% offers.forEach(offer => { %>
+              <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-4 align-middle">
+                  <div class="flex items-center gap-3">
+                    <% if (offerType === 'brand') { %>
+                      <div class="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                        <img src="<%= offer.brandID?.logo || '/images/placeholder-brand.png' %>" 
+                             alt="<%= offer.brandID?.brandName %>"
+                             class="w-full h-full object-cover">
                       </div>
-                      <div>
-                        <strong><%= offer.productID[0]?.name || 'N/A' %></strong>
-                        <% if (offer.productID.length > 1) { %>
-                          <div class="product-brand-small">+<%= offer.productID.length - 1 %> more product<%= offer.productID.length > 2 ? 's' : '' %></div>
-                        <% } else { %>
-                          <div class="product-brand-small"><%= offer.productID[0]?.brandID?.brandName || '' %></div>
-                        <% } %>
-                      </div>
+                      <strong class="text-gray-900"><%= offer.brandID?.brandName || 'N/A' %></strong>
                     <% } else { %>
-                      <div class="product-image-small">
-                        <img src="/images/placeholder-product.png" alt="N/A">
-                      </div>
-                      <strong>N/A</strong>
+                      <% if (Array.isArray(offer.productID) && offer.productID.length > 0) { %>
+                        <div class="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                          <img src="<%= offer.productID[0]?.image || '/images/placeholder-product.png' %>" 
+                               alt="<%= offer.productID[0]?.name %>"
+                               class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                          <strong class="text-gray-900 block"><%= offer.productID[0]?.name || 'N/A' %></strong>
+                          <% if (offer.productID.length > 1) { %>
+                            <div class="text-xs text-gray-500 mt-0.5">+<%= offer.productID.length - 1 %> more product<%= offer.productID.length > 2 ? 's' : '' %></div>
+                          <% } else { %>
+                            <div class="text-xs text-gray-500 mt-0.5"><%= offer.productID[0]?.brandID?.brandName || '' %></div>
+                          <% } %>
+                        </div>
+                      <% } else { %>
+                        <div class="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                          <img src="/images/placeholder-product.png" alt="N/A" class="w-full h-full object-cover">
+                        </div>
+                        <strong class="text-gray-900">N/A</strong>
+                      <% } %>
                     <% } %>
+                  </div>
+                </td>
+                <td class="px-4 py-4 align-middle"><strong class="text-gray-900"><%= offer.offerName %></strong></td>
+                <td class="px-4 py-4 align-middle">
+                  <% if (offer.discountType === 'percentage') { %>
+                    <span class="inline-block px-3 py-1.5 text-white rounded-md font-semibold text-sm bg-gradient-to-br from-green-600 to-teal-500">
+                      <%= offer.discountValue %>% OFF
+                    </span>
+                  <% } else { %>
+                    <span class="inline-block px-3 py-1.5 text-white rounded-md font-semibold text-sm bg-gradient-to-br from-blue-600 to-cyan-500">
+                      ₹<%= offer.discountValue %> OFF
+                    </span>
                   <% } %>
-                </div>
-              </td>
-              <td><strong><%= offer.offerName %></strong></td>
-              <td>
-                <% if (offer.discountType === 'percentage') { %>
-                  <span class="discount-badge discount-percentage">
-                    <%= offer.discountValue %>% OFF
+                </td>
+                <td class="px-4 py-4 align-middle text-sm text-gray-700"><%= new Date(offer.startDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                <td class="px-4 py-4 align-middle text-sm text-gray-700"><%= new Date(offer.endDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                <td class="px-4 py-4 align-middle">
+                  <% 
+                    let statusClass = '';
+                    let statusText = '';
+                    const now = new Date();
+                    const start = new Date(offer.startDate);
+                    const end = new Date(offer.endDate);
+                    
+                    if (!offer.isActive) {
+                      statusClass = 'bg-red-100 text-red-800';
+                      statusText = 'Inactive';
+                    } else if (now > end) {
+                      statusClass = 'bg-red-100 text-red-800';
+                      statusText = 'Expired';
+                    } else if (now < start) {
+                      statusClass = 'bg-yellow-100 text-yellow-800';
+                      statusText = 'Scheduled';
+                    } else {
+                      statusClass = 'bg-green-100 text-green-800';
+                      statusText = 'Active';
+                    }
+                  %>
+                  <span class="inline-block px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide <%= statusClass %>">
+                    <%= statusText %>
                   </span>
-                <% } else { %>
-                  <span class="discount-badge discount-fixed">
-                    ₹<%= offer.discountValue %> OFF
-                  </span>
-                <% } %>
-              </td>
-              <td><%= new Date(offer.startDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-              <td><%= new Date(offer.endDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-              <td>
-                <% 
-                  let statusClass = '';
-                  let statusText = '';
-                  const now = new Date();
-                  const start = new Date(offer.startDate);
-                  const end = new Date(offer.endDate);
-                  
-                  if (!offer.isActive) {
-                    statusClass = 'status-blocked';
-                    statusText = 'Inactive';
-                  } else if (now > end) {
-                    statusClass = 'status-blocked';
-                    statusText = 'Expired';
-                  } else if (now < start) {
-                    statusClass = 'status-pending';
-                    statusText = 'Scheduled';
-                  } else {
-                    statusClass = 'status-active';
-                    statusText = 'Active';
-                  }
-                %>
-                <span class="status-badge <%= statusClass %>">
-                  <%= statusText %>
-                </span>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <button class="btn-icon btn-edit" onclick="editOffer('<%= offer._id %>')" title="Edit">
-                    <i class="bi bi-pencil"></i>
-                  </button>
-                  <button class="btn-icon <%= offer.isActive ? 'btn-block' : 'btn-activate' %>" 
-                          onclick="toggleOfferStatus('<%= offer._id %>', <%= offer.isActive %>)" 
-                          title="<%= offer.isActive ? 'Deactivate' : 'Activate' %>">
-                    <i class="bi <%= offer.isActive ? 'bi-x-circle' : 'bi-check-circle' %>"></i>
-                  </button>
-                  <button class="btn-icon btn-delete" onclick="deleteOffer('<%= offer._id %>')" title="Delete">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                </td>
+                <td class="px-4 py-4 align-middle">
+                  <div class="flex gap-2">
+                    <button class="w-9 h-9 flex items-center justify-center border-none rounded-md cursor-pointer transition-all text-base bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white" 
+                            onclick="editOffer('<%= offer._id %>')" 
+                            title="Edit">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="w-9 h-9 flex items-center justify-center border-none rounded-md cursor-pointer transition-all text-base <%= offer.isActive ? 'bg-yellow-50 text-yellow-600 hover:bg-yellow-400 hover:text-white' : 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white' %>" 
+                            onclick="toggleOfferStatus('<%= offer._id %>', <%= offer.isActive %>)" 
+                            title="<%= offer.isActive ? 'Deactivate' : 'Activate' %>">
+                      <i class="bi <%= offer.isActive ? 'bi-x-circle' : 'bi-check-circle' %>"></i>
+                    </button>
+                    <button class="w-9 h-9 flex items-center justify-center border-none rounded-md cursor-pointer transition-all text-base bg-red-50 text-red-600 hover:bg-red-600 hover:text-white" 
+                            onclick="deleteOffer('<%= offer._id %>')" 
+                            title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="p-12 text-center">
+                <div class="flex flex-col items-center gap-4">
+                  <i class="bi bi-percent text-6xl text-gray-300"></i>
+                  <p class="text-gray-500 text-lg m-0">No offers found</p>
                 </div>
               </td>
             </tr>
-          <% }); %>
-        <% } else { %>
-          <tr>
-            <td colspan="7" class="no-data">
-              <div class="empty-state">
-                <i class="bi bi-percent"></i>
-                <p>No offers found</p>
-              </div>
-            </td>
-          </tr>
-        <% } %>
-      </tbody>
-    </table>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Pagination -->
-  <div class="pagination-container">
-    <div class="pagination-info">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="text-gray-500 text-sm">
       <% if (offers && offers.length > 0) { %>
         <% const startItem = (currentPage - 1) * limit + 1; %>
         <% const endItem = Math.min((currentPage - 1) * limit + offers.length, totalOffers); %>
@@ -234,13 +240,15 @@
       <% } %>
     </div>
 
-    <div class="pagination-controls">
+    <div class="flex gap-2 items-center">
       <% if(currentPage > 1) { %>
-        <button class="page-btn" onclick="changePage(<%= currentPage - 1 %>)">
+        <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" 
+                onclick="changePage(<%= currentPage - 1 %>)">
           <i class="bi bi-chevron-left"></i>
         </button>
       <% } else { %>
-        <button class="page-btn" disabled>
+        <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md opacity-40 cursor-not-allowed" 
+                disabled>
           <i class="bi bi-chevron-left"></i>
         </button>
       <% } %>
@@ -256,34 +264,36 @@
       %>
       
       <% if (startPage > 1) { %>
-        <button class="page-btn" onclick="changePage(1)">1</button>
+        <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" 
+                onclick="changePage(1)">1</button>
         <% if (startPage > 2) { %>
-          <span class="pagination-dots">...</span>
+          <span class="px-1 text-gray-500">...</span>
         <% } %>
       <% } %>
       
       <% for(let i = startPage; i <= endPage; i++) { %>
-        <button 
-          class="page-btn <%= currentPage === i ? 'active' : '' %>" 
-          onclick="changePage(<%= i %>)"
-        >
+        <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border rounded-md cursor-pointer font-medium transition-all <%= currentPage === i ? 'bg-blue-600 text-white border-blue-600 font-semibold' : 'border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50' %>" 
+                onclick="changePage(<%= i %>)">
           <%= i %>
         </button>
       <% } %>
       
       <% if (endPage < totalPages) { %>
         <% if (endPage < totalPages - 1) { %>
-          <span class="pagination-dots">...</span>
+          <span class="px-1 text-gray-500">...</span>
         <% } %>
-        <button class="page-btn" onclick="changePage(<%= totalPages %>)"><%= totalPages %></button>
+        <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" 
+                onclick="changePage(<%= totalPages %>)"><%= totalPages %></button>
       <% } %>
       
       <% if(currentPage < totalPages) { %>
-        <button class="page-btn" onclick="changePage(<%= currentPage + 1 %>)">
+        <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" 
+                onclick="changePage(<%= currentPage + 1 %>)">
           <i class="bi bi-chevron-right"></i>
         </button>
       <% } else { %>
-        <button class="page-btn" disabled>
+        <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md opacity-40 cursor-not-allowed" 
+                disabled>
           <i class="bi bi-chevron-right"></i>
         </button>
       <% } %>
@@ -291,132 +301,4 @@
   </div>
 </div>
 
-<!-- Add/Edit Offer Modal -->
-<div id="offerModal" class="modal">
-  <div class="modal-content modal-large">
-    <div class="modal-header">
-      <h2 id="modalTitle">Add New Offer</h2>
-      <button class="modal-close" onclick="closeOfferModal()">
-        <i class="bi bi-x-lg"></i>
-      </button>
-    </div>
-    <form id="offerForm">
-      <input type="hidden" id="offerId" name="offerId">
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="offerType">Offer Type <span class="required">*</span></label>
-          <select id="offerTypeSelect" name="offerType" required onchange="handleOfferTypeChange()">
-            <option value="">Select Offer Type</option>
-            <option value="product">Product Offer</option>
-            <option value="brand">Brand Offer</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="offerName">Offer Name <span class="required">*</span></label>
-          <input type="text" id="offerName" name="offerName" placeholder="e.g., Summer Sale 2025" required>
-        </div>
-      </div>
-
-      <!-- Product Selection (shown when product offer is selected) -->
-      <div id="productSelectionSection" class="form-section" style="display: none;">
-        <div class="form-group">
-          <label for="productSearch">Select Products <span class="required">*</span></label>
-          <div class="search-select-wrapper">
-            <input 
-              type="text" 
-              id="productSearch" 
-              placeholder="Search and add products..." 
-              autocomplete="off"
-              oninput="searchProducts(this.value)"
-            >
-            <i class="bi bi-search search-icon"></i>
-          </div>
-          <div id="productSearchResults" class="search-results"></div>
-          
-          <!-- Selected Products Display -->
-          <div id="selectedProductsContainer" class="selected-products-container" style="display: none;">
-            <div class="selected-products-header">
-              <span class="selected-count">0 products selected</span>
-              <button type="button" class="btn-link" onclick="clearAllProducts()">Clear All</button>
-            </div>
-            <div id="selectedProductsList" class="selected-products-list"></div>
-          </div>
-          
-          <input type="hidden" id="productIDs" name="productIDs">
-        </div>
-      </div>
-
-      <!-- Brand Selection (shown when brand offer is selected) -->
-      <div id="brandSelectionSection" class="form-section" style="display: none;">
-        <div class="form-group">
-          <label for="brandID">Select Brand <span class="required">*</span></label>
-          <select id="brandID" name="brandID">
-            <option value="">Choose a brand</option>
-            <% if (typeof brands !== 'undefined' && brands) { %>
-              <% brands.forEach(brand => { %>
-                <option value="<%= brand._id %>"><%= brand.brandName %></option>
-              <% }); %>
-            <% } %>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="discountType">Discount Type <span class="required">*</span></label>
-          <select id="discountType" name="discountType" required onchange="handleDiscountTypeChange()">
-            <option value="">Select Discount Type</option>
-            <option value="percentage">Percentage (%)</option>
-            <option value="fixed">Fixed Amount (₹)</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="discountValue">Discount Value <span class="required">*</span></label>
-          <div class="input-with-icon">
-            <input 
-              type="number" 
-              id="discountValue" 
-              name="discountValue" 
-              placeholder="Enter value" 
-              min="1"
-              required
-            >
-            <span class="input-icon" id="discountIcon">%</span>
-          </div>
-          <small class="form-help" id="discountHelp">Enter discount percentage (1-90%)</small>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="startDate">Start Date <span class="required">*</span></label>
-          <input type="date" id="startDate" name="startDate" required>
-        </div>
-
-        <div class="form-group">
-          <label for="endDate">End Date <span class="required">*</span></label>
-          <input type="date" id="endDate" name="endDate" required>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="isActive">Status</label>
-        <select id="isActive" name="isActive">
-          <option value="true">Active</option>
-          <option value="false">Inactive</option>
-        </select>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn-secondary" onclick="closeOfferModal()">Cancel</button>
-        <button type="submit" class="btn-primary" id="submitBtn">
-          <i class="bi bi-check-circle"></i>
-          <span id="submitBtnText">Create Offer</span>
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
+<%- include('../partials/admin/offers/offerModal') %>

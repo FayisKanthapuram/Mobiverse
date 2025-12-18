@@ -29,7 +29,6 @@ export const loadProducts = async (req, res) => {
 
   res.status(HttpStatus.OK).render("admin/products", {
     pageTitle: "Products",
-    // pageCss: "products",
     pageJs: "products",
     products: result.products,
     brands: result.brands,
@@ -91,6 +90,7 @@ export const toggleProduct = async (req, res) => {
 export const getProducts = async (req, res) => {
   const q = req.query.q || "";
   const products = await getProductsBySearch(q);
+  // console.log(products);
 
   res.status(HttpStatus.OK).json({
     success: true,
