@@ -1,87 +1,83 @@
 import { getDeliveredSalesReportService } from "./sales.report.service.js";
 import { generateSalesReportExcel } from "./utils/sales.report.excel.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { AppError } from "../../shared/utils/app.error.js";
 
-export const loadSalesReport = async (req, res,next) => {
-  try {
-    const {
-      reportType = "daily",
-      startDate,
-      endDate,
-      page = 1,
-      limit = 4,
-    } = req.query;
-  
-    const data = await getDeliveredSalesReportService({
-      reportType,
-      startDate,
-      endDate,
-      page: Number(page),
-      limit: Number(limit),
-    });
-  
-    res.render("admin/sales-report", {
-      pageTitle: "Sales Report",
-      pageCss: "sales-report",
-      pageJs: "sales-report",
-      ...data,
-      reportType,
-      startDate,
-      endDate,
-    });
-  } catch (error) {
-    next(error)
-  }
+/* ----------------------------------------------------
+   LOAD SALES REPORT PAGE
+---------------------------------------------------- */
+export const loadSalesReport = async (req, res) => {
+  const {
+    reportType = "daily",
+    startDate,
+    endDate,
+    page = 1,
+    limit = 4,
+  } = req.query;
+
+  const data = await getDeliveredSalesReportService({
+    reportType,
+    startDate,
+    endDate,
+    page: Number(page),
+    limit: Number(limit),
+  });
+
+  res.status(HttpStatus.OK).render("admin/sales-report", {
+    pageTitle: "Sales Report",
+    pageJs: "sales-report",
+    ...data,
+    reportType,
+    startDate,
+    endDate,
+  });
 };
 
-export const loadSalesReportDownload = async (req, res, next) => {
-  try {
-    const {
-      reportType = "daily",
-      startDate,
-      endDate,
-      format = "pdf",
-    } = req.query;
+/* ----------------------------------------------------
+   DOWNLOAD SALES REPORT (EXCEL)
+---------------------------------------------------- */
+export const loadSalesReportDownload = async (req, res) => {
+  const {
+    reportType = "daily",
+    startDate,
+    endDate,
+    format = "excel",
+  } = req.query;
 
-    // fetch ALL data (no pagination)
-    const data = await getDeliveredSalesReportService({
-      reportType,
-      startDate,
-      endDate,
-      page: 1,
-      limit: 100000, // big number to fetch all
-    });
+  const data = await getDeliveredSalesReportService({
+    reportType,
+    startDate,
+    endDate,
+    page: 1,
+    limit: 100000, // fetch all
+  });
 
-
-    if (format === "excel") {
-      return generateSalesReportExcel(res, data.salesData);
-    }
-
-    res.status(400).send("Invalid format");
-  } catch (error) {
-    next(error);
+  if (format === "excel") {
+    return generateSalesReportExcel(res, data.salesData);
   }
+
+  throw new AppError("Invalid format", HttpStatus.BAD_REQUEST);
 };
 
-export const loadSalesReportPDF = async (req, res, next) => {
-  try {
-    const { reportType = "daily", startDate, endDate } = req.query;
+/* ----------------------------------------------------
+   RENDER SALES REPORT PDF PAGE
+---------------------------------------------------- */
+export const loadSalesReportPDF = async (req, res) => {
+  const { reportType = "daily", startDate, endDate } = req.query;
 
-    const data = await getDeliveredSalesReportService({
-      reportType,
-      startDate,
-      endDate,
-      page: 1,
-      limit: 100000, // all data
-    });
+  const data = await getDeliveredSalesReportService({
+    reportType,
+    startDate,
+    endDate,
+    page: 1,
+    limit: 100000,
+  });
 
-    res.render("admin/sales-report-pdf", {
-      layout: false, // IMPORTANT
-      salesData: data.salesData,
-      reportType,
-      startDate,
-      endDate,
-    });
-  } catch (err) {
-    next(err);
-  }
+  res.status(HttpStatus.OK).render("admin/sales-report-pdf", {
+    layout: false,
+    salesData: data.salesData,
+    reportType,
+    startDate,
+    endDate,
+  });
 };

@@ -56,14 +56,7 @@ export const loginAdmin = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LOAD DASHBOARD
----------------------------------------------------- */
-export const loadDashboard = (req, res) => {
-  res.status(HttpStatus.OK).render("admin/dashboard", {
-    pageTitle: "Dashboard",
-  });
-};
+
 
 /* ----------------------------------------------------
    LOGOUT ADMIN

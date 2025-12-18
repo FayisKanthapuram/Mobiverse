@@ -16,7 +16,6 @@ export const loadOrders = async (req, res) => {
 
   res.status(HttpStatus.OK).render("admin/orders/orders", {
     pageTitle: "Orders",
-    // pageCss: "orders",
     pageJs: "orders",
     analytics: data.analytics,
     orders: data.orders,

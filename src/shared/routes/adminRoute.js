@@ -5,6 +5,7 @@ import orderRoutes from "../../modules/order/routes/admin.order.routes.js";
 import referralRoutes from "../../modules/referral/routes/admin.referral.routes.js";
 
 import adminAuthRoutes from "../../modules/admin-auth/admin.auth.routes.js"
+import dashboardRoutes from "../../modules/dashboard/dashboard.routes.js"
 import usersRoutes from "../../modules/user-management/user.managment.routes.js"
 import couponRoutes from "../../modules/coupon/coupon.routes.js";
 import brandRoutes from "../../modules/brand/brand.routes.js";
@@ -17,8 +18,8 @@ const router = express.Router();
 
 router.use(setLayout("admin"));
 
-router.use(adminAuthRoutes);
-
+router.use('/',adminAuthRoutes);
+router.use("/dashboard",dashboardRoutes);
 router.use('/users',usersRoutes)
 router.use("/coupons", couponRoutes);
 router.use("/sales-report",salesRoutes);

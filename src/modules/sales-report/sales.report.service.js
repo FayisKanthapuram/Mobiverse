@@ -2,6 +2,8 @@ import {
   getOrderTransations,
   getOrderTransationsTotal,
 } from "../order/repo/order.repo.js";
+import { AppError } from "../../shared/utils/app.error.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 
 export const getDeliveredSalesReportService = async ({
   reportType,
@@ -10,12 +12,13 @@ export const getDeliveredSalesReportService = async ({
   page,
   limit,
 }) => {
-  
-  // ---------------- DATE FILTER ----------------
+  /* ----------------------------------------------------
+     DATE FILTER
+  ---------------------------------------------------- */
   let dateFilter = {};
-  const today = new Date();
-  console.log()
+
   if (reportType === "daily") {
+    const today = new Date();
     today.setHours(0, 0, 0, 0);
     dateFilter = { createdAt: { $gte: today } };
   }
@@ -41,7 +44,14 @@ export const getDeliveredSalesReportService = async ({
     dateFilter = { createdAt: { $gte: yearAgo } };
   }
 
-  if (reportType === "custom" && startDate && endDate) {
+  if (reportType === "custom") {
+    if (!startDate || !endDate) {
+      throw new AppError(
+        "Start date and end date are required for custom report",
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
     dateFilter = {
       createdAt: {
         $gte: new Date(startDate),
@@ -52,11 +62,12 @@ export const getDeliveredSalesReportService = async ({
 
   const skip = (page - 1) * limit;
 
-  // ---------------- AGGREGATION ----------------
+  /* ----------------------------------------------------
+     AGGREGATION PIPELINE
+  ---------------------------------------------------- */
   const basePipeline = [
     { $match: dateFilter },
 
-    // Join user
     {
       $lookup: {
         from: "users",
@@ -67,10 +78,8 @@ export const getDeliveredSalesReportService = async ({
     },
     { $unwind: "$user" },
 
-    // Flatten items
     { $unwind: "$orderedItems" },
 
-    // 🔥 ONLY DELIVERED ITEMS
     {
       $match: {
         "orderedItems.itemStatus": {
@@ -79,16 +88,15 @@ export const getDeliveredSalesReportService = async ({
       },
     },
 
-    // ---------------- CALCULATIONS PER ITEM ----------------
     {
       $addFields: {
         itemGrossTotal: {
           $multiply: [
             {
               $cond: {
-                if: { $ne: ["$orderedItems.regularPrice", 0] }, // if regularPrice != 0
-                then: "$orderedItems.regularPrice", // use regularPrice
-                else: "$orderedItems.price", // else use price
+                if: { $ne: ["$orderedItems.regularPrice", 0] },
+                then: "$orderedItems.regularPrice",
+                else: "$orderedItems.price",
               },
             },
             "$orderedItems.quantity",
@@ -122,7 +130,6 @@ export const getDeliveredSalesReportService = async ({
       },
     },
 
-    // ---------------- GROUP BY ORDER ----------------
     {
       $group: {
         _id: "$_id",
@@ -131,11 +138,9 @@ export const getDeliveredSalesReportService = async ({
         customerName: { $first: "$user.username" },
         customerEmail: { $first: "$user.email" },
         paymentMethod: { $first: "$paymentMethod" },
-
         itemCount: { $sum: "$orderedItems.quantity" },
-
         totalAmount: { $sum: "$itemNetTotal" },
-        discount: { $sum: "$itemDiscountTotal" }, 
+        discount: { $sum: "$itemDiscountTotal" },
       },
     },
 
@@ -145,11 +150,9 @@ export const getDeliveredSalesReportService = async ({
   const transactions = await getOrderTransations(basePipeline, skip, limit);
 
   const totalsAgg = await getOrderTransationsTotal(basePipeline);
-
   const totals = totalsAgg[0] || {};
 
   const totalTransactions = totals.totalOrders || 0;
-  const totalPages = Math.ceil(totalTransactions / limit);
 
   return {
     salesData: {
@@ -162,7 +165,7 @@ export const getDeliveredSalesReportService = async ({
         totals.totalOrders > 0 ? totals.totalSales / totals.totalOrders : 0,
     },
     totalTransactions,
-    totalPages,
+    totalPages: Math.ceil(totalTransactions / limit),
     currentPage: page,
     limit,
   };
