@@ -8,7 +8,6 @@ import {
   updateTempOrder,
 } from "../../repo/temp.order.repo.js";
 import crypto from "crypto";
-import { decrementProductStock } from "../../../product/repo/product.repo.js";
 import { decrementVariantStock } from "../../../product/repo/variant.repo.js";
 import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
 import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
@@ -62,7 +61,6 @@ export const verifyRazorpayPaymentService = async ({
     );
 
     for (let item of tempOrder.orderedItems) {
-      await decrementProductStock(item.productId._id, item.quantity, session);
       await decrementVariantStock(item.variantId._id, item.quantity, session);
     }
 

@@ -8,7 +8,6 @@ import {
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderItemsSchema } from "../../order.validator.js";
 import { incrementVariantStock } from "../../../product/repo/variant.repo.js";
-import { incrementProductStock } from "../../../product/repo/product.repo.js";
 import {
   findUserById,
   updateUserWalletBalance,
@@ -96,7 +95,6 @@ export const cancelOrderItemsService = async (orderId, body) => {
 
     if (isSelected) {
       // Restore Stock
-      await incrementProductStock(item.productId, item.quantity);
       await incrementVariantStock(item.variantId, item.quantity);
 
       // Update Item

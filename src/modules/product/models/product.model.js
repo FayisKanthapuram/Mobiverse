@@ -10,11 +10,6 @@ const productSchema = new mongoose.Schema(
       maxlength: [100, "Product name cannot exceed 100 characters"],
     },
 
-    image: {
-      type: String,
-      required: true,
-    },
-
     brandID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "brand",
@@ -37,24 +32,6 @@ const productSchema = new mongoose.Schema(
     isFeatured: {
       type: Boolean,
       default: false,
-    },
-
-    totalStock: {
-      type: Number,
-      default: 0,
-      min: [0, "Stock cannot be negative"],
-    },
-
-    minPrice: {
-      type: Number,
-      default: 0,
-      min: [0, "Minimum price cannot be negative"],
-    },
-
-    maxPrice: {
-      type: Number,
-      default: 0,
-      min: [0, "Maximum price cannot be negative"],
     },
 
     isListed: {

@@ -4,7 +4,6 @@ import { findBrandById } from "../../../brand/brand.repo.js";
 import { cloudinaryUpload } from "../../../../shared/middlewares/upload.js";
 import {
   rollbackCloudinary,
-  calcMinMaxStock,
 } from "../../helpers/admin.product.helper.js";
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
@@ -60,18 +59,12 @@ export const addProductService = async (body, files) => {
       throw new AppError("Invalid brand ID", HttpStatus.BAD_REQUEST);
     }
 
-    const { minPrice, maxPrice, totalStock } = calcMinMaxStock(finalVariants);
-
     const product = await createProduct({
       name: body.productName,
-      image: finalVariants[0].images[0],
       brandID: brand._id,
       description: body.description || "",
       isFeatured: Boolean(body.isFeatured),
       isListed: body.isListed === "true" || body.isListed === true,
-      minPrice,
-      maxPrice,
-      totalStock,
     });
 
     await Promise.all(

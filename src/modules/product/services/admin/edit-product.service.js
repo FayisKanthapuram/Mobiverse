@@ -8,7 +8,6 @@ import { cloudinaryUpload } from "../../../../shared/middlewares/upload.js";
 import {
   rollbackCloudinary,
   getPublicIdFromUrl,
-  calcMinMaxStock,
 } from "../../helpers/admin.product.helper.js";
 import cloudinary from "../../../../config/cloudinary.js";
 import { AppError } from "../../../../shared/utils/app.error.js";
@@ -81,21 +80,12 @@ export const editProductService = async (productId, body, files = []) => {
       }
     }
 
-    const mainImage = variants.find((v) => v.existingImages.length)
-      ?.existingImages[0];
-
-    const { minPrice, maxPrice, totalStock } = calcMinMaxStock(variants);
-
     await updateProductById(productId, {
       name: body.productName,
       brandID: body.brand,
       description: body.description,
       isFeatured: Boolean(body.isFeatured),
       isListed: body.isListed === "true" || body.isListed === true,
-      image: mainImage,
-      minPrice,
-      maxPrice,
-      totalStock,
     });
 
     await Promise.all(

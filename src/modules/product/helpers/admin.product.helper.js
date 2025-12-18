@@ -25,24 +25,5 @@ export async function rollbackCloudinary(uploadedPublicIds = []) {
   await deleteCloudinaryPublicIds(uploadedPublicIds);
 }
 
-export function calcMinMaxStock(variants = []) {
-  let minPrice = Infinity;
-  let maxPrice = -Infinity;
-  let totalStock = 0;
 
-  for (const v of variants) {
-    const price = Number(v.salePrice ?? v.salePrice);
-    const stock = Number(v.stockQuantity ?? v.stock ?? 0);
-    if (!Number.isNaN(price)) {
-      minPrice = Math.min(minPrice, price);
-      maxPrice = Math.max(maxPrice, price);
-    }
-    totalStock += isFinite(stock) ? stock : 0;
-  }
-
-  if (minPrice === Infinity) minPrice = 0;
-  if (maxPrice === -Infinity) maxPrice = 0;
-
-  return { minPrice, maxPrice, totalStock };
-}
 

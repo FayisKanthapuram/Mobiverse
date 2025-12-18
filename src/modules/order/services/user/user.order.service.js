@@ -4,10 +4,6 @@ import { orderValidation } from "../../order.validator.js";
 import { findAddressById } from "../../../address/address.repo.js";
 import { createOrder, findOrderByOrderId } from "../../repo/order.repo.js";
 import {
-  decrementProductStock,
-  incrementProductStock,
-} from "../../../product/repo/product.repo.js";
-import {
   decrementVariantStock,
   incrementVariantStock,
 } from "../../../product/repo/variant.repo.js";
@@ -221,7 +217,6 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     // 3. Reduce Stock
     // -------------------------------
     for (let item of items) {
-      await decrementProductStock(item.productId._id, item.quantity, session);
       await decrementVariantStock(item.variantId._id, item.quantity, session);
     }
 
@@ -313,7 +308,6 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
 
         // Restore stock
         for (let item of orderedItems) {
-          await incrementProductStock(item.productId, item.quantity, session);
           await incrementVariantStock(item.variantId, item.quantity, session);
         }
 
