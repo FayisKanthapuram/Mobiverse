@@ -7,6 +7,7 @@ import {
 } from "../../helpers/admin.product.helper.js";
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
+import { ProductMessages } from "../../../../shared/constants/messages/productMessages.js";
 
 export const addProductService = async (body, files) => {
   const uploadedPublicIds = [];
@@ -14,11 +15,11 @@ export const addProductService = async (body, files) => {
   try {
     const variants = JSON.parse(body.variants || "[]");
     if (!Array.isArray(variants) || variants.length === 0) {
-      throw new AppError("Variants data required", HttpStatus.BAD_REQUEST);
+      throw new AppError(ProductMessages.VARIANTS_DATA_REQUIRED, HttpStatus.BAD_REQUEST);
     }
 
     if (!files || files.length === 0) {
-      throw new AppError("No images uploaded", HttpStatus.BAD_REQUEST);
+      throw new AppError(ProductMessages.NO_IMAGES_UPLOADED, HttpStatus.BAD_REQUEST);
     }
 
     const imagesByVariant = {};
@@ -38,7 +39,7 @@ export const addProductService = async (body, files) => {
     for (let i = 0; i < variants.length; i++) {
       if (!imagesByVariant[i] || imagesByVariant[i].length < 3) {
         throw new AppError(
-          `Variant ${i + 1} must have at least 3 images`,
+          ProductMessages.VARIANT_MIN_IMAGES.replace("{index}", String(i + 1)),
           HttpStatus.BAD_REQUEST
         );
       }
@@ -51,12 +52,12 @@ export const addProductService = async (body, files) => {
 
     const existing = await findProducts({ name: body.productName }, {}, 0, 1);
     if (existing.length) {
-      throw new AppError("Product name already exists", HttpStatus.BAD_REQUEST);
+      throw new AppError(ProductMessages.PRODUCT_NAME_EXISTS, HttpStatus.BAD_REQUEST);
     }
 
     const brand = await findBrandById(body.brand);
     if (!brand) {
-      throw new AppError("Invalid brand ID", HttpStatus.BAD_REQUEST);
+      throw new AppError(ProductMessages.INVALID_BRAND_ID, HttpStatus.BAD_REQUEST);
     }
 
     const product = await createProduct({

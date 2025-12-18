@@ -1,23 +1,25 @@
-import { findAndUpdateCoupon, findCouponByCode, findCouponById } from "../repo/coupon.repo.js";
+import {
+  findAndUpdateCoupon,
+  findCouponByCode,
+  findCouponById,
+} from "../repo/coupon.repo.js";
+import { AppError } from "../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
+import { CouponMessages } from "../../../shared/constants/messages/couponMessages.js";
 
-export const editCouponService = async (data,couponId) => {
-  try {
-    const coupon=await findCouponById(couponId);
-    
-    if(coupon.code!==data.code){
-      //exist
-      const existing = await findCouponByCode(data.code);
-      if (existing) {
-        const error = new Error("Coupon code already in use");
-        error.status = 400;
-        throw error;
-      }
-    }
-  
-    await findAndUpdateCoupon(couponId,data);
-  
-    return;
-  } catch (error) {
-    throw error;
+export const editCouponService = async (data, couponId) => {
+  const coupon = await findCouponById(couponId);
+  if (!coupon) {
+    throw new AppError(CouponMessages.COUPON_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
+
+  if (coupon.code !== data.code) {
+    const existing = await findCouponByCode(data.code);
+    if (existing) {
+      throw new AppError(CouponMessages.COUPON_CODE_EXISTS, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  await findAndUpdateCoupon(couponId, data);
+  return true;
 };

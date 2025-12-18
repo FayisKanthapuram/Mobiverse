@@ -9,6 +9,7 @@ import {
 import { productValidationSchema } from "../product.validator.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { AppError } from "../../../shared/utils/app.error.js";
+import { ProductMessages } from "../../../shared/constants/messages/productMessages.js";
 
 /* ----------------------------------------------------
    LOAD PRODUCTS PAGE
@@ -53,7 +54,7 @@ export const addProduct = async (req, res) => {
 
   res.status(HttpStatus.CREATED).json({
     success: true,
-    message: "Product added successfully",
+    message: ProductMessages.PRODUCT_ADDED,
     product,
   });
 };
@@ -71,7 +72,7 @@ export const editProduct = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Product updated successfully",
+    message: ProductMessages.PRODUCT_UPDATED,
   });
 };
 

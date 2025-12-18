@@ -1,0 +1,310 @@
+<!-- Add/Edit Coupon Modal -->
+<div id="couponModal" class="modal hidden fixed z-[1000] left-0 top-0 w-full h-full overflow-auto bg-black bg-opacity-50 backdrop-blur-sm">
+  <div class="modal-content bg-white rounded-2xl w-[90%] max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl my-12 mx-auto animate-slideDown">
+    <div class="flex justify-between items-center px-6 py-6 border-b border-gray-200">
+      <h2 id="modalTitle" class="m-0 text-2xl text-gray-900 font-semibold">Add New Coupon</h2>
+      <button class="modal-close bg-transparent border-none text-2xl cursor-pointer text-gray-500 w-8 h-8 flex items-center justify-center rounded-md transition-all hover:bg-red-50 hover:text-red-600" 
+              onclick="closeCouponModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <form id="couponForm" class="px-6 py-6">
+      <input type="hidden" id="couponId" name="couponId">
+      
+      <!-- Basic Info -->
+      <div class="mb-6 pb-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4">
+            <label for="code" class="block mb-2 font-semibold text-gray-700 text-sm">Coupon Code <span class="text-red-600">*</span></label>
+            <input 
+              type="text" 
+              id="code" 
+              name="code" 
+              placeholder="e.g., SAVE20" 
+              required
+              maxlength="20"
+              style="text-transform: uppercase"
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            >
+            <small class="block mt-1.5 text-xs text-gray-500">Alphanumeric only, auto-converts to uppercase</small>
+          </div>
+
+          <div class="mb-4">
+            <label for="name" class="block mb-2 font-semibold text-gray-700 text-sm">Coupon Name <span class="text-red-600">*</span></label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              placeholder="e.g., Summer Sale Discount" 
+              required
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            >
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="description" class="block mb-2 font-semibold text-gray-700 text-sm">Description</label>
+          <textarea 
+            id="description" 
+            name="description" 
+            rows="2" 
+            placeholder="Describe the purpose of this coupon..."
+            class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Discount Settings -->
+      <div class="mb-6 pb-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Discount Settings</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4">
+            <label for="type" class="block mb-2 font-semibold text-gray-700 text-sm">Discount Type <span class="text-red-600">*</span></label>
+            <select 
+              id="type" 
+              name="type" 
+              required 
+              onchange="handleTypeChange()"
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="">Select Type</option>
+              <option value="percentage">Percentage (%)</option>
+              <option value="fixed">Fixed Amount (₹)</option>
+            </select>
+          </div>
+
+          <div class="mb-4 hidden" id="discountValueGroup">
+            <label for="discountValue" class="block mb-2 font-semibold text-gray-700 text-sm">Discount Value <span class="text-red-600">*</span></label>
+            <div class="relative">
+              <input 
+                type="number" 
+                id="discountValue" 
+                name="discountValue"
+                min="1"
+                class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              >
+              <span class="input-icon absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold pointer-events-none" id="discountIcon"></span>
+            </div>
+            <small class="block mt-1.5 text-xs text-gray-500" id="discountHelp"></small>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4" id="maxDiscountGroup" style="display: none;">
+            <label for="maxDiscount" class="block mb-2 font-semibold text-gray-700 text-sm">Maximum Discount (₹)</label>
+            <input 
+              type="number" 
+              id="maxDiscount" 
+              name="maxDiscount" 
+              placeholder="e.g., 1000"
+              min="1"
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            >
+            <small class="block mt-1.5 text-xs text-gray-500">Cap the maximum discount amount</small>
+          </div>
+
+          <div class="mb-4">
+            <label for="minPurchaseAmount" class="block mb-2 font-semibold text-gray-700 text-sm">Minimum Purchase Amount (₹) <span class="text-red-600">*</span></label>
+            <input 
+              type="number" 
+              id="minPurchaseAmount" 
+              name="minPurchaseAmount" 
+              placeholder="e.g., 500"
+              min="0"
+              required
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Usage Limits -->
+      <div class="mb-6 pb-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Usage Limits</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4">
+            <label for="usageLimitPerUser" class="block mb-2 font-semibold text-gray-700 text-sm">Usage Limit per User</label>
+            <div class="flex gap-3 items-center">
+              <input 
+                type="number" 
+                id="usageLimitPerUser" 
+                name="usageLimitPerUser" 
+                placeholder="e.g., 3"
+                min="0"
+                value="1"
+                class="flex-1 px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              >
+              <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                <input type="checkbox" id="unlimitedPerUser" onchange="toggleUnlimitedPerUser()" class="cursor-pointer">
+                <span class="text-sm font-normal">Unlimited</span>
+              </label>
+            </div>
+            <small class="block mt-1.5 text-xs text-gray-500">How many times one user can use this coupon</small>
+          </div>
+
+          <div class="mb-4">
+            <label for="totalUsageLimit" class="block mb-2 font-semibold text-gray-700 text-sm">Total Usage Limit</label>
+            <div class="flex gap-3 items-center">
+              <input 
+                type="number" 
+                id="totalUsageLimit" 
+                name="totalUsageLimit" 
+                placeholder="e.g., 100"
+                min="0"
+                value="100"
+                class="flex-1 px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              >
+              <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                <input type="checkbox" id="unlimitedTotal" onchange="toggleUnlimitedTotal()" class="cursor-pointer">
+                <span class="text-sm font-normal">Unlimited</span>
+              </label>
+            </div>
+            <small class="block mt-1.5 text-xs text-gray-500">Total times this coupon can be used</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Eligibility -->
+      <div class="mb-6 pb-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">User Eligibility</h3>
+        
+        <div class="mb-4">
+          <label for="userEligibility" class="block mb-2 font-semibold text-gray-700 text-sm">Who can use this coupon? <span class="text-red-600">*</span></label>
+          <select 
+            id="userEligibility" 
+            name="userEligibility" 
+            required 
+            onchange="handleEligibilityChange()"
+            class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+          >
+            <option value="all">All Users</option>
+            <option value="new_users">New Users Only</option>
+            <option value="specific">Specific Users</option>
+          </select>
+        </div>
+
+        <div id="specificUsersSection" class="mb-4" style="display: none;">
+          <label for="userSearch" class="block mb-2 font-semibold text-gray-700 text-sm">Select Users <span class="text-red-600">*</span></label>
+          <div class="search-select-wrapper relative">
+            <input 
+              type="text" 
+              id="userSearch" 
+              placeholder="Search users by name or email..." 
+              autocomplete="off"
+              oninput="searchUsers(this.value)"
+              class="w-full px-3 py-3 pl-11 border border-gray-300 rounded-lg text-sm relative z-[2] focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            >
+            <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none z-[1]"></i>
+            <div id="userSearchResults" class="search-results absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg max-h-[300px] overflow-y-auto shadow-xl z-[1001] hidden"></div>
+          </div>
+          
+          <div id="selectedUsersContainer" class="mt-4 border border-gray-300 rounded-lg overflow-hidden hidden">
+            <div class="flex justify-between items-center px-4 py-3 bg-gray-50 border-b border-gray-300">
+              <span class="selected-count font-semibold text-gray-700 text-sm">0 users selected</span>
+              <button type="button" 
+                      class="bg-transparent border-none text-red-600 font-semibold text-xs cursor-pointer p-0 hover:text-red-700 hover:underline transition-colors" 
+                      onclick="clearAllUsers()">Clear All</button>
+            </div>
+            <div id="selectedUsersList" class="max-h-[200px] overflow-y-auto"></div>
+          </div>
+          
+          <input type="hidden" id="specificUsers" name="specificUsers">
+        </div>
+      </div>
+
+      <!-- Validity Period -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Validity Period</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="mb-4">
+            <label for="startDate" class="block mb-2 font-semibold text-gray-700 text-sm">Start Date <span class="text-red-600">*</span></label>
+            <input 
+              type="date" 
+              id="startDate" 
+              name="startDate" 
+              required
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            >
+          </div>
+
+          <div class="mb-4">
+            <label for="endDate" class="block mb-2 font-semibold text-gray-700 text-sm">End Date <span class="text-red-600">*</span></label>
+            <input 
+              type="date" 
+              id="endDate" 
+              name="endDate" 
+              required
+              class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            >
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="isActive" class="block mb-2 font-semibold text-gray-700 text-sm">Status</label>
+          <select 
+            id="isActive" 
+            name="isActive"
+            class="w-full px-3 py-3 border border-gray-300 rounded-lg text-sm transition-colors focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+          >
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+        <button type="button" 
+                class="px-6 py-3 bg-gray-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-colors hover:bg-gray-700" 
+                onclick="closeCouponModal()">Cancel</button>
+        <button type="submit" 
+                class="px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 flex items-center gap-2" 
+                id="submitBtn">
+          <i class="bi bi-check-circle"></i>
+          <span id="submitBtnText">Create Coupon</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-slideDown {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  .modal.show {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  
+  .search-results.show {
+    display: block !important;
+  }
+  
+  #selectedUsersContainer.hidden {
+    display: none;
+  }
+  
+  #selectedUsersContainer:not(.hidden) {
+    display: block;
+  }
+</style>

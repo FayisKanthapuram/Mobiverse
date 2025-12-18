@@ -10,6 +10,7 @@ import {
 
 import { getAppliedOffer, groupVariantsByColor } from "../../helpers/user.product.helper.js";
 import { getLatestProducts } from "../product.common.service.js";
+import { ProductMessages } from "../../../../shared/constants/messages/productMessages.js";
 
 export const loadProductDetailsService = async (params, query,userId=null) => {
 
@@ -24,7 +25,7 @@ export const loadProductDetailsService = async (params, query,userId=null) => {
   selectedVariant=selectedVariant[0]
 
   if (!selectedVariant) {
-    const error = new Error("Variant not found");
+    const error = new Error(ProductMessages.VARIANT_NOT_FOUND);
     error.status = 404;
     throw error;
   }
@@ -32,7 +33,7 @@ export const loadProductDetailsService = async (params, query,userId=null) => {
   // 2. Fetch product with variants
   const productData = await getSingleProductAgg(selectedVariant.productId,userId);
   if (!productData.length) {
-    const error = new Error("Product not found");
+    const error = new Error(ProductMessages.PRODUCT_NOT_FOUND);
     error.status = 404;
     throw error;
   }

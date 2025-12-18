@@ -12,6 +12,7 @@ import {
 import cloudinary from "../../../../config/cloudinary.js";
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
+import { ProductMessages } from "../../../../shared/constants/messages/productMessages.js";
 
 export const editProductService = async (productId, body, files = []) => {
   const uploadedPublicIds = [];
@@ -19,12 +20,12 @@ export const editProductService = async (productId, body, files = []) => {
   try {
     const variants = JSON.parse(body.variants || "[]");
     if (!Array.isArray(variants) || variants.length === 0) {
-      throw new AppError("Variants data required", HttpStatus.BAD_REQUEST);
+      throw new AppError(ProductMessages.VARIANTS_DATA_REQUIRED, HttpStatus.BAD_REQUEST);
     }
 
     const dbVariants = await findVariantsByProduct(productId);
     if (!dbVariants.length) {
-      throw new AppError("Product not found", HttpStatus.NOT_FOUND);
+      throw new AppError(ProductMessages.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
     const newImagesMapping = {};
@@ -74,7 +75,7 @@ export const editProductService = async (productId, body, files = []) => {
         variants[i].existingImages.length < 3
       ) {
         throw new AppError(
-          `Variant ${i + 1} must have at least 3 images`,
+          ProductMessages.VARIANT_MIN_IMAGES.replace("{index}", String(i + 1)),
           HttpStatus.BAD_REQUEST
         );
       }
