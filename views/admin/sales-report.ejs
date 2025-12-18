@@ -1,31 +1,28 @@
 <!-- Delivered Sales Report Page -->
-<div class="page-container">
-
+<div class="max-w-7xl mx-auto">
   <!-- Page Header -->
-  <div class="page-header">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
-      <h1>Delivered Sales Report</h1>
-      <p class="subtitle">
-        Sales analytics based only on successfully delivered orders.
-      </p>
+      <h1 class="text-3xl font-bold m-0 text-gray-900">Delivered Sales Report</h1>
+      <p class="text-gray-500 text-sm mt-1 m-0">Sales analytics based only on successfully delivered orders.</p>
     </div>
-    <div style="display: flex; gap: 12px;">
-      <button class="btn-primary" onclick="downloadPDF()">
+    <div class="flex gap-3 flex-wrap">
+      <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg" onclick="downloadPDF()">
         <i class="bi bi-file-pdf"></i>
         Download PDF
       </button>
-      <button class="btn-primary" onclick="downloadExcel()">
+      <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg" onclick="downloadExcel()">
         <i class="bi bi-file-excel"></i>
         Download Excel
       </button>
     </div>
   </div>
 
-  <!-- Filters -->
-  <div class="filters-container">
-    <div class="filter-group">
-      <label>Report Type:</label>
-      <select id="reportType" class="filter-select" onchange="applyFilters()">
+  <!-- Filters Section -->
+  <div class="bg-white p-5 rounded-xl border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+    <div class="flex items-center gap-2">
+      <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">Report Type:</label>
+      <select id="reportType" class="px-3 py-2.5 pr-8 pl-3 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
         <option value="daily" <%= reportType === 'daily' ? 'selected' : '' %>>Daily</option>
         <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
         <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
@@ -34,181 +31,237 @@
       </select>
     </div>
 
-    <div class="filter-group" id="customDateRange" style="<%= reportType === 'custom' ? '' : 'display:none;' %>">
-      <label>From:</label>
-      <input
-        type="date"
-        id="startDate"
-        class="filter-select"
-        value="<%= startDate || '' %>"
-        onchange="applyFilters()"
-      />
+    <div id="customDateRange" class="flex items-center gap-2 <%= reportType === 'custom' ? '' : 'hidden' %>">
+      <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">From:</label>
+      <input type="date" id="startDate" value="<%= startDate || '' %>" onchange="applyFilters()" class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
     </div>
 
-    <div class="filter-group" id="customDateRange2" style="<%= reportType === 'custom' ? '' : 'display:none;' %>">
-      <label>To:</label>
-      <input
-        type="date"
-        id="endDate"
-        class="filter-select"
-        value="<%= endDate || '' %>"
-        onchange="applyFilters()"
-      />
+    <div id="customDateRange2" class="flex items-center gap-2 <%= reportType === 'custom' ? '' : 'hidden' %>">
+      <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">To:</label>
+      <input type="date" id="endDate" value="<%= endDate || '' %>" onchange="applyFilters()" class="px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
     </div>
 
     <% if (reportType !== 'daily') { %>
-      <button class="btn-clear-filters" onclick="clearFilters()">
-        <i class="bi bi-x-circle"></i>
-        Clear Filters
-      </button>
+    <button class="flex items-center gap-2 px-4 py-2.5 bg-red-100 text-red-700 border border-red-200 rounded-lg font-semibold text-sm cursor-pointer transition-colors hover:bg-red-200 hover:border-red-300 whitespace-nowrap" onclick="clearFilters()">
+      <i class="bi bi-x-circle"></i>
+      Clear Filters
+    </button>
     <% } %>
   </div>
 
-  <!-- Stats -->
-  <div class="stats-grid">
-    <div class="stat-card stat-blue">
-      <div class="stat-icon"><i class="bi bi-cart-check"></i></div>
-      <div class="stat-content">
-        <div class="stat-label">Total Sales</div>
-        <div class="stat-value">
-          ₹<%= (salesData.totalSales || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+  <!-- Analytics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 items-stretch">
+
+    <!-- Total Sales -->
+    <div class="bg-white p-1 rounded-xl border border-gray-200 
+              flex items-center gap-5 min-h-[110px]
+              transition-all hover:-translate-y-0.5 hover:shadow-lg
+              border-l-4 border-l-blue-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center 
+                text-2xl flex-shrink-0 bg-blue-50 text-blue-600">
+        <i class="bi bi-cart-check"></i>
+      </div>
+      <div class="flex flex-col justify-center flex-1">
+        <div class="text-sm text-gray-500 mb-1 leading-none">
+          Total Sales
+        </div>
+        <div class="text-xl font-bold text-gray-900 leading-tight whitespace-nowrap">
+          ₹<%= (salesData.totalSales || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 }) %>
         </div>
       </div>
     </div>
 
-    <div class="stat-card stat-green">
-      <div class="stat-icon"><i class="bi bi-receipt"></i></div>
-      <div class="stat-content">
-        <div class="stat-label">Delivered Orders</div>
-        <div class="stat-value"><%= salesData.totalOrders || 0 %></div>
+    <!-- Delivered Orders -->
+    <div class="bg-white p-6 rounded-xl border border-gray-200 
+              flex items-center gap-5 min-h-[110px]
+              transition-all hover:-translate-y-0.5 hover:shadow-lg
+              border-l-4 border-l-green-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center 
+                text-2xl flex-shrink-0 bg-green-50 text-green-600">
+        <i class="bi bi-receipt"></i>
       </div>
-    </div>
-
-    <div class="stat-card stat-purple">
-      <div class="stat-icon"><i class="bi bi-graph-up"></i></div>
-      <div class="stat-content">
-        <div class="stat-label">Average Order Value</div>
-        <div class="stat-value">
-          ₹<%= (salesData.averageOrderValue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+      <div class="flex flex-col justify-center flex-1">
+        <div class="text-sm text-gray-500 mb-1 leading-none">
+          Delivered Orders
+        </div>
+        <div class="text-xl font-bold text-gray-900 leading-tight">
+          <%= salesData.totalOrders || 0 %>
         </div>
       </div>
     </div>
 
-    <div class="stat-card stat-orange">
-      <div class="stat-icon"><i class="bi bi-percent"></i></div>
-      <div class="stat-content">
-        <div class="stat-label">Total Discounts</div>
-        <div class="stat-value">
-          ₹<%= (salesData.totalDiscounts || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+    <!-- Average Order Value -->
+    <div class="bg-white p-1 rounded-xl border border-gray-200 
+              flex items-center gap-5 min-h-[110px]
+              transition-all hover:-translate-y-0.5 hover:shadow-lg
+              border-l-4 border-l-purple-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center 
+                text-2xl flex-shrink-0 bg-purple-50 text-purple-600">
+        <i class="bi bi-graph-up"></i>
+      </div>
+      <div class="flex flex-col justify-center flex-1">
+        <div class="text-sm text-gray-500 mb-1 leading-none">
+          Average Order Value
+        </div>
+        <div class="text-xl font-bold text-gray-900 leading-tight whitespace-nowrap">
+          ₹<%= (salesData.averageOrderValue || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 }) %>
         </div>
       </div>
     </div>
 
-    <div class="stat-card stat-blue">
-      <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
-      <div class="stat-content">
-        <div class="stat-label">Products Sold</div>
-        <div class="stat-value"><%= salesData.productsSold || 0 %></div>
+    <!-- Total Discounts -->
+    <div class="bg-white p-1 rounded-xl border border-gray-200 
+              flex items-center gap-5 min-h-[110px]
+              transition-all hover:-translate-y-0.5 hover:shadow-lg
+              border-l-4 border-l-orange-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center 
+                text-2xl flex-shrink-0 bg-orange-50 text-orange-600">
+        <i class="bi bi-percent"></i>
+      </div>
+      <div class="flex flex-col justify-center flex-1">
+        <div class="text-sm text-gray-500 mb-1 leading-none">
+          Total Discounts
+        </div>
+        <div class="text-xl font-bold text-gray-900 leading-tight whitespace-nowrap">
+          ₹<%= (salesData.totalDiscounts || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 }) %>
+        </div>
       </div>
     </div>
+
+    <!-- Products Sold -->
+    <div class="bg-white p-6 rounded-xl border border-gray-200 
+              flex items-center gap-5 min-h-[110px]
+              transition-all hover:-translate-y-0.5 hover:shadow-lg
+              border-l-4 border-l-blue-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center 
+                text-2xl flex-shrink-0 bg-blue-50 text-blue-600">
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <div class="flex flex-col justify-center flex-1">
+        <div class="text-sm text-gray-500 mb-1 leading-none">
+          Products Sold
+        </div>
+        <div class="text-xl font-bold text-gray-900 leading-tight">
+          <%= salesData.productsSold || 0 %>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Transactions Table -->
-  <div class="summary-section">
-    <h2 class="section-title">Delivered Sales Transactions</h2>
 
-    <div class="table-wrapper">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Placed Date</th>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Items</th>
-            <th>Amount</th>
-            <th>Discount</th>
-            <th>Payment</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (salesData.transactions.length > 0) { %>
+  <!-- Transactions Table -->
+  <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-5 m-0">Delivered Sales Transactions</h2>
+
+    <div class="overflow-hidden rounded-lg border border-gray-200">
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-50 border-b-2 border-gray-200">
+              <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Placed Date</th>
+              <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Order ID</th>
+              <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Customer</th>
+              <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Items</th>
+              <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Amount</th>
+              <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Discount</th>
+              <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Payment</th>
+              <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (salesData.transactions.length > 0) { %>
             <% salesData.transactions.forEach(t => { %>
-              <tr>
-                <td><%= new Date(t.createdAt).toLocaleDateString('en-IN') %></td>
-                <td><strong class="order-id">#<%= t.orderId %></strong></td>
-                <td>
-                  <div class="customer-info">
-                    <div class="customer-name"><%= t.customerName %></div>
-                    <div class="customer-email"><%= t.customerEmail %></div>
-                  </div>
-                </td>
-                <td><%= t.itemCount %></td>
-                <td>
-                  <strong class="amount">
-                    ₹<%= t.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
-                  </strong>
-                </td>
-                <td class="text-green">
-                  -₹<%= t.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
-                </td>
-                <td><%= t.paymentMethod || 'N/A' %></td>
-                <td>
-                  <span class="status-badge status-active">Delivered</span>
-                </td>
-              </tr>
+            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-4 align-middle text-sm text-gray-700">
+                <%= new Date(t.createdAt).toLocaleDateString('en-IN') %>
+              </td>
+              <td class="px-4 py-4 align-middle">
+                <strong class="text-blue-600 font-medium">#<%= t.orderId %></strong>
+              </td>
+              <td class="px-4 py-4 align-middle">
+                <div class="flex flex-col gap-1">
+                  <div class="font-medium text-gray-900"><%= t.customerName %></div>
+                  <div class="text-xs text-gray-500"><%= t.customerEmail %></div>
+                </div>
+              </td>
+              <td class="px-4 py-4 align-middle text-sm text-gray-700">
+                <%= t.itemCount %>
+              </td>
+              <td class="px-4 py-4 align-middle">
+                <strong class="text-gray-900 font-semibold">
+                  ₹<%= t.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+                </strong>
+              </td>
+              <td class="px-4 py-4 align-middle text-sm text-green-600 font-medium">
+                -₹<%= t.discount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+              </td>
+              <td class="px-4 py-4 align-middle text-sm text-gray-700">
+                <%= t.paymentMethod || 'N/A' %>
+              </td>
+              <td class="px-4 py-4 align-middle">
+                <span class="inline-block px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide bg-green-100 text-green-800">
+                  Delivered
+                </span>
+              </td>
+            </tr>
             <% }) %>
-          <% } else { %>
+            <% } else { %>
             <tr>
-              <td colspan="8" class="no-data">
-                <div class="empty-state">
-                  <i class="bi bi-inbox"></i>
-                  <p>No delivered sales found for this period</p>
+              <td colspan="8" class="p-12 text-center">
+                <div class="flex flex-col items-center gap-4">
+                  <i class="bi bi-inbox text-6xl text-gray-300"></i>
+                  <p class="text-gray-500 text-lg m-0">No delivered sales found for this period</p>
                 </div>
               </td>
             </tr>
-          <% } %>
-        </tbody>
-      </table>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <!-- Pagination -->
   <% if (totalPages > 1) { %>
-    <div class="pagination-container">
-      <div class="pagination-info">
-        Showing
-        <%= (currentPage - 1) * limit + 1 %>
-        to
-        <%= Math.min(currentPage * limit, totalTransactions) %>
-        of
-        <%= totalTransactions %>
-        results
-      </div>
-
-      <div class="pagination-controls">
-        <% if (currentPage > 1) { %>
-          <button class="page-btn" onclick="changePage(<%= currentPage - 1 %>)">
-            <i class="bi bi-chevron-left"></i>
-          </button>
-        <% } %>
-
-        <% for (let i = 1; i <= totalPages; i++) { %>
-          <button
-            class="page-btn <%= currentPage === i ? 'active' : '' %>"
-            onclick="changePage(<%= i %>)"
-          >
-            <%= i %>
-          </button>
-        <% } %>
-
-        <% if (currentPage < totalPages) { %>
-          <button class="page-btn" onclick="changePage(<%= currentPage + 1 %>)">
-            <i class="bi bi-chevron-right"></i>
-          </button>
-        <% } %>
-      </div>
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="text-gray-500 text-sm">
+      Showing
+      <%= (currentPage - 1) * limit + 1 %>
+      to
+      <%= Math.min(currentPage * limit, totalTransactions) %>
+      of
+      <%= totalTransactions %>
+      results
     </div>
-  <% } %>
 
+    <div class="flex gap-2 items-center">
+      <% if (currentPage > 1) { %>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" onclick="changePage(<%= currentPage - 1 %>)">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <% } else { %>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md opacity-40 cursor-not-allowed" disabled>
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border rounded-md cursor-pointer font-medium transition-all <%= currentPage === i ? 'bg-blue-600 text-white border-blue-600 font-semibold' : 'border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50' %>" onclick="changePage(<%= i %>)">
+        <%= i %>
+      </button>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" onclick="changePage(<%= currentPage + 1 %>)">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+      <% } else { %>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md opacity-40 cursor-not-allowed" disabled>
+        <i class="bi bi-chevron-right"></i>
+      </button>
+      <% } %>
+    </div>
+  </div>
+  <% } %>
 </div>
