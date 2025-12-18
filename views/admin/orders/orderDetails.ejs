@@ -1,22 +1,22 @@
 <!-- Order Details Page -->
-<div class="page-container" data-order-id="<%= order._id %>">
+<div class="max-w-7xl mx-auto" data-order-id="<%= order._id %>">
   <!-- Header with Back Button -->
-  <div class="page-header">
-    <div class="header-left">
-      <a href="/admin/orders" class="back-btn">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div class="flex items-center gap-4">
+      <a href="/admin/orders" class="w-10 h-10 flex items-center justify-center bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all">
         <i class="bi bi-arrow-left"></i>
       </a>
       <div>
-        <h1>Order Details</h1>
-        <p class="subtitle">Order ID: <strong>#<%= order.orderId %></strong></p>
+        <h1 class="text-3xl font-bold m-0 text-gray-900">Order Details</h1>
+        <p class="text-gray-500 text-sm mt-1 m-0">Order ID: <strong class="text-blue-600">#<%= order.orderId %></strong></p>
       </div>
     </div>
-    <div class="header-actions">
-      <button class="btn-secondary" onclick="printOrder()">
+    <div class="flex gap-3 flex-wrap">
+      <button class="flex items-center gap-2 px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-gray-50 hover:border-gray-400" onclick="printOrder()">
         <i class="bi bi-printer"></i>
         Print
       </button>
-      <button class="btn-primary" onclick="downloadInvoice()">
+      <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg" onclick="downloadInvoice()">
         <i class="bi bi-download"></i>
         Invoice
       </button>
@@ -24,51 +24,53 @@
   </div>
 
   <!-- Main Content Grid -->
-  <div class="details-grid">
-    <!-- Left Column -->
-    <div class="left-column">
-      <!-- Return Requests Alert (if any) -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left Column (2 cols) -->
+    <div class="lg:col-span-2 flex flex-col gap-6">
+      <!-- Return Requests Alert -->
       <% 
         const hasReturnRequests = order.orderedItems.some(item => item.itemStatus === 'ReturnRequested');
         const hasApprovedReturns = order.orderedItems.some(item => item.itemStatus === 'ReturnApproved');
       %>
 
       <% if (hasReturnRequests) { %>
-      <div class="alert alert-warning">
-        <i class="bi bi-exclamation-triangle-fill"></i>
-        <div class="alert-content">
-          <strong>Return Requests Pending</strong>
-          <p>There are items waiting for your return approval decision.</p>
+      <div class="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+        <i class="bi bi-exclamation-triangle-fill text-yellow-600 text-xl flex-shrink-0 mt-0.5"></i>
+        <div class="flex-1">
+          <strong class="block text-sm font-semibold text-yellow-900 mb-1">Return Requests Pending</strong>
+          <p class="text-sm text-yellow-800 m-0">There are items waiting for your return approval decision.</p>
         </div>
       </div>
       <% } %>
 
       <% if (hasApprovedReturns) { %>
-      <div class="alert alert-info">
-        <i class="bi bi-box-seam"></i>
-        <div class="alert-content">
-          <strong>Approved Returns</strong>
-          <p>Items are approved for return. Mark them as returned once received.</p>
+      <div class="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+        <i class="bi bi-box-seam text-blue-600 text-xl flex-shrink-0 mt-0.5"></i>
+        <div class="flex-1">
+          <strong class="block text-sm font-semibold text-blue-900 mb-1">Approved Returns</strong>
+          <p class="text-sm text-blue-800 m-0">Items are approved for return. Mark them as returned once received.</p>
         </div>
       </div>
       <% } %>
 
       <!-- Order Status Card -->
-      <div class="card">
-        <div class="card-header">
-          <h3>Order Status</h3>
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="flex justify-between items-center px-6 py-5 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 m-0">Order Status</h3>
           <% 
             let statusClass = '';
-            if (order.orderStatus === 'Delivered') statusClass = 'status-active';
-            else if (order.orderStatus === 'Shipped' || order.orderStatus === 'Out for Delivery') statusClass = 'status-shipping';
-            else if (order.orderStatus === 'Pending') statusClass = 'status-pending';
-            else if (order.orderStatus === 'Confirmed' || order.orderStatus === 'Processing') statusClass = 'status-processing';
-            else if (order.orderStatus === 'Cancelled') statusClass = 'status-blocked';
-            else if (order.orderStatus === 'Returned' || order.orderStatus === 'Partially Returned') statusClass = 'status-returned';
+            if (order.orderStatus === 'Delivered') statusClass = 'bg-green-100 text-green-800';
+            else if (order.orderStatus === 'Shipped' || order.orderStatus === 'Out for Delivery') statusClass = 'bg-blue-100 text-blue-800';
+            else if (order.orderStatus === 'Pending') statusClass = 'bg-yellow-100 text-yellow-800';
+            else if (order.orderStatus === 'Confirmed' || order.orderStatus === 'Processing') statusClass = 'bg-indigo-100 text-indigo-800';
+            else if (order.orderStatus === 'Cancelled') statusClass = 'bg-red-100 text-red-800';
+            else if (order.orderStatus === 'Returned' || order.orderStatus === 'Partially Returned') statusClass = 'bg-orange-100 text-orange-800';
           %>
-          <span class="status-badge <%= statusClass %>"><%= order.orderStatus %></span>
+          <span class="inline-block px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide <%= statusClass %>">
+            <%= order.orderStatus %>
+          </span>
         </div>
-        <div class="card-body">
+        <div class="p-6">
           <%
             const activeItemExists = order.orderedItems.some(item =>
               ["Pending", "Confirmed", "Processing", "Shipped", "Out for Delivery"]
@@ -76,10 +78,10 @@
             );
           %>
           <% if (activeItemExists) { %>
-          <div class="status-update-section">
-            <label for="statusSelect">Update Order Status</label>
-            <div class="status-update-controls">
-              <select id="statusSelect" class="form-select">
+          <div class="mb-6 pb-6 border-b border-gray-200">
+            <label for="statusSelect" class="block text-sm font-medium text-gray-700 mb-2">Update Order Status</label>
+            <div class="flex gap-3">
+              <select id="statusSelect" class="flex-1 px-3 py-3 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <option value="Pending" <%= order.orderStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
                 <option value="Confirmed" <%= order.orderStatus === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
                 <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
@@ -87,93 +89,117 @@
                 <option value="Out for Delivery" <%= order.orderStatus === 'Out for Delivery' ? 'selected' : '' %>>Out for Delivery</option>
                 <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
               </select>
-              <button class="btn-primary" onclick="updateOrderStatus()">Update</button>
+              <button class="px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-colors hover:bg-blue-700" onclick="updateOrderStatus()">Update</button>
             </div>
-            <p class="status-note"><i class="bi bi-info-circle"></i> Cancel and Return are user-initiated actions</p>
+            <p class="flex items-center gap-2 mt-2 text-xs text-gray-500 m-0">
+              <i class="bi bi-info-circle"></i>
+              Cancel and Return are user-initiated actions
+            </p>
           </div>
           <% } %>
 
           <!-- Order Timeline -->
-          <div class="timeline">
-            <div class="timeline-item <%= order.createdAt ? 'completed' : '' %>">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Order Placed</div>
+          <div class="flex flex-col gap-4">
+            <div class="flex gap-4 relative <%= order.createdAt ? 'opacity-100' : 'opacity-40' %>">
+              <div class="relative">
+                <div class="w-6 h-6 rounded-full border-3 <%= order.createdAt ? 'border-green-500 bg-green-500' : 'border-gray-300 bg-white' %> flex-shrink-0 z-10 relative"></div>
+                <div class="absolute left-3 top-6 bottom-0 w-0.5 bg-gray-200 -mb-4"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="font-medium text-gray-900 text-sm <%= order.createdAt ? 'text-green-600' : '' %>">Order Placed</div>
                 <% if (order.createdAt) { %>
-                <div class="timeline-date"><%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
 
-            <div class="timeline-item <%= order.statusTimeline?.confirmedAt ? 'completed' : '' %>">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Confirmed</div>
+            <div class="flex gap-4 relative <%= order.statusTimeline?.confirmedAt ? 'opacity-100' : 'opacity-40' %>">
+              <div class="relative">
+                <div class="w-6 h-6 rounded-full border-3 <%= order.statusTimeline?.confirmedAt ? 'border-green-500 bg-green-500' : 'border-gray-300 bg-white' %> flex-shrink-0 z-10 relative"></div>
+                <div class="absolute left-3 top-6 bottom-0 w-0.5 bg-gray-200 -mb-4"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="font-medium text-gray-900 text-sm <%= order.statusTimeline?.confirmedAt ? 'text-green-600' : '' %>">Confirmed</div>
                 <% if (order.statusTimeline?.confirmedAt) { %>
-                <div class="timeline-date"><%= new Date(order.statusTimeline.confirmedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= new Date(order.statusTimeline.confirmedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
 
-            <div class="timeline-item <%= order.statusTimeline?.processedAt ? 'completed' : '' %>">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Processing</div>
+            <div class="flex gap-4 relative <%= order.statusTimeline?.processedAt ? 'opacity-100' : 'opacity-40' %>">
+              <div class="relative">
+                <div class="w-6 h-6 rounded-full border-3 <%= order.statusTimeline?.processedAt ? 'border-green-500 bg-green-500' : 'border-gray-300 bg-white' %> flex-shrink-0 z-10 relative"></div>
+                <div class="absolute left-3 top-6 bottom-0 w-0.5 bg-gray-200 -mb-4"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="font-medium text-gray-900 text-sm <%= order.statusTimeline?.processedAt ? 'text-green-600' : '' %>">Processing</div>
                 <% if (order.statusTimeline?.processedAt) { %>
-                <div class="timeline-date"><%= new Date(order.statusTimeline.processedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= new Date(order.statusTimeline.processedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
 
-            <div class="timeline-item <%= order.statusTimeline?.shippedAt ? 'completed' : '' %>">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Shipped</div>
+            <div class="flex gap-4 relative <%= order.statusTimeline?.shippedAt ? 'opacity-100' : 'opacity-40' %>">
+              <div class="relative">
+                <div class="w-6 h-6 rounded-full border-3 <%= order.statusTimeline?.shippedAt ? 'border-green-500 bg-green-500' : 'border-gray-300 bg-white' %> flex-shrink-0 z-10 relative"></div>
+                <div class="absolute left-3 top-6 bottom-0 w-0.5 bg-gray-200 -mb-4"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="font-medium text-gray-900 text-sm <%= order.statusTimeline?.shippedAt ? 'text-green-600' : '' %>">Shipped</div>
                 <% if (order.statusTimeline?.shippedAt) { %>
-                <div class="timeline-date"><%= new Date(order.statusTimeline.shippedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= new Date(order.statusTimeline.shippedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
 
-            <div class="timeline-item <%= order.statusTimeline?.outForDeliveryAt ? 'completed' : '' %>">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Out for Delivery</div>
+            <div class="flex gap-4 relative <%= order.statusTimeline?.outForDeliveryAt ? 'opacity-100' : 'opacity-40' %>">
+              <div class="relative">
+                <div class="w-6 h-6 rounded-full border-3 <%= order.statusTimeline?.outForDeliveryAt ? 'border-green-500 bg-green-500' : 'border-gray-300 bg-white' %> flex-shrink-0 z-10 relative"></div>
+                <div class="absolute left-3 top-6 bottom-0 w-0.5 bg-gray-200 -mb-4"></div>
+              </div>
+              <div class="flex-1 pb-2">
+                <div class="font-medium text-gray-900 text-sm <%= order.statusTimeline?.outForDeliveryAt ? 'text-green-600' : '' %>">Out for Delivery</div>
                 <% if (order.statusTimeline?.outForDeliveryAt) { %>
-                <div class="timeline-date"><%= new Date(order.statusTimeline.outForDeliveryAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= new Date(order.statusTimeline.outForDeliveryAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
 
-            <div class="timeline-item <%= order.statusTimeline?.deliveredAt ? 'completed' : '' %>">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Delivered</div>
+            <div class="flex gap-4 relative <%= order.statusTimeline?.deliveredAt ? 'opacity-100' : 'opacity-40' %>">
+              <div class="relative">
+                <div class="w-6 h-6 rounded-full border-3 <%= order.statusTimeline?.deliveredAt ? 'border-green-500 bg-green-500' : 'border-gray-300 bg-white' %> flex-shrink-0 z-10"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-gray-900 text-sm <%= order.statusTimeline?.deliveredAt ? 'text-green-600' : '' %>">Delivered</div>
                 <% if (order.statusTimeline?.deliveredAt) { %>
-                <div class="timeline-date"><%= new Date(order.statusTimeline.deliveredAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= new Date(order.statusTimeline.deliveredAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
 
             <% if (order.orderStatus === 'Cancelled' || order.statusTimeline?.cancelledAt) { %>
-            <div class="timeline-item completed cancelled">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Cancelled</div>
+            <div class="flex gap-4 relative">
+              <div class="relative">
+                <div class="w-6 h-6 rounded-full border-3 border-red-500 bg-red-500 flex-shrink-0 z-10"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-red-600 text-sm">Cancelled</div>
                 <% if (order.statusTimeline?.cancelledAt) { %>
-                <div class="timeline-date"><%= new Date(order.statusTimeline.cancelledAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= new Date(order.statusTimeline.cancelledAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
             <% } %>
 
             <% if (order.orderStatus === 'Returned' || order.statusTimeline?.returnedAt) { %>
-            <div class="timeline-item completed returned">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Returned</div>
+            <div class="flex gap-4 relative">
+              <div class="relative">
+                <div class="w-6 h-6 rounded-full border-3 border-orange-500 bg-orange-500 flex-shrink-0 z-10"></div>
+              </div>
+              <div class="flex-1">
+                <div class="font-medium text-orange-600 text-sm">Returned</div>
                 <% if (order.statusTimeline?.returnedAt) { %>
-                <div class="timeline-date"><%= new Date(order.statusTimeline.returnedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+                <div class="text-xs text-gray-500 mt-1"><%= new Date(order.statusTimeline.returnedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
                 <% } %>
               </div>
             </div>
@@ -182,128 +208,127 @@
         </div>
       </div>
 
-      <!-- Ordered Items -->
-      <div class="card">
-        <div class="card-header">
-          <h3>Ordered Items (<%= order.orderedItems.length %>)</h3>
+      <!-- Ordered Items Card -->
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 m-0">Ordered Items (<%= order.orderedItems.length %>)</h3>
         </div>
-        <div class="card-body">
-          <div class="items-list">
+        <div class="p-6">
+          <div class="flex flex-col gap-4">
             <% order.orderedItems.forEach(item => { %>
-            <div class="item-card <%= item.itemStatus === 'ReturnRequested' ? 'return-requested' : '' %> <%= item.itemStatus === 'ReturnApproved' ? 'return-approved' : '' %>">
-              <div class="item-main-content">
-                <div class="item-image">
+            <div class="rounded-lg border-2 <%= item.itemStatus === 'ReturnRequested' ? 'border-yellow-300 bg-yellow-50' : item.itemStatus === 'ReturnApproved' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-gray-50' %> p-4 transition-all">
+              <!-- Main Item Content -->
+              <div class="flex gap-4">
+                <!-- Item Image -->
+                <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-white border border-gray-200">
                   <% if (item.variantId.images && item.variantId.images.length > 0) { %>
-                  <img src="<%= item.variantId.images[0] %>" alt="<%= item.productId.name %>">
+                  <img src="<%= item.variantId.images[0] %>" alt="<%= item.productId.name %>" class="w-full h-full object-cover">
                   <% } else { %>
-                  <div class="no-image">
+                  <div class="w-full h-full flex items-center justify-center text-gray-300 text-3xl">
                     <i class="bi bi-image"></i>
                   </div>
                   <% } %>
                 </div>
-                <div class="item-details">
-                  <div class="item-name"><%= item.productId?.name || 'Product' %></div>
-                  <div class="item-variant">
+
+                <!-- Item Details -->
+                <div class="flex-1 flex flex-col gap-1.5">
+                  <div class="text-sm font-medium text-gray-900"><%= item.productId?.name || 'Product' %></div>
+
+                  <div class="flex flex-wrap gap-2 text-xs text-gray-600">
                     <% if (item.variantId?.color) { %>
-                    <span>Color: <%= item.variantId.color %></span>
+                    <span class="px-2 py-1 bg-white rounded border border-gray-200">Color: <%= item.variantId.color %></span>
                     <% } %>
                     <% if (item.variantId?.storage) { %>
-                    <span>Storage: <%= item.variantId.storage %></span>
+                    <span class="px-2 py-1 bg-white rounded border border-gray-200">Storage: <%= item.variantId.storage %></span>
                     <% } %>
                     <% if (item.variantId?.ram) { %>
-                    <span>RAM: <%= item.variantId.ram %></span>
+                    <span class="px-2 py-1 bg-white rounded border border-gray-200">RAM: <%= item.variantId.ram %></span>
                     <% } %>
                   </div>
-                  <div class="item-quantity">Quantity: <strong><%= item.quantity %></strong></div>
+
+                  <div class="text-xs text-gray-600">Quantity: <strong class="text-gray-900"><%= item.quantity %></strong></div>
+
                   <% if (item.itemStatus) { %>
-                  <div class="item-status-row">
+                  <div class="flex items-center gap-2 text-xs text-gray-600">
                     Status:
                     <% 
-                          let itemStatusClass = '';
-                          if (item.itemStatus === 'Delivered') itemStatusClass = 'status-active';
-                          else if (item.itemStatus === 'Shipped') itemStatusClass = 'status-shipping';
-                          else if (item.itemStatus === 'Pending') itemStatusClass = 'status-pending';
-                          else if (item.itemStatus === 'Confirmed' || item.itemStatus === 'Processing') itemStatusClass = 'status-processing';
-                          else if (item.itemStatus === 'Cancelled') itemStatusClass = 'status-blocked';
-                          else if (item.itemStatus === 'Returned') itemStatusClass = 'status-returned';
-                          else if (item.itemStatus === 'ReturnRequested' || item.itemStatus === 'ReturnApproved') itemStatusClass = 'status-refunded';
-                          else if (item.itemStatus === 'ReturnRejected') itemStatusClass = 'status-blocked';
-                        %>
-                    <span class="status-badge <%= itemStatusClass %>"><%= item.itemStatus %></span>
+                      let itemStatusClass = '';
+                      if (item.itemStatus === 'Delivered') itemStatusClass = 'bg-green-100 text-green-800';
+                      else if (item.itemStatus === 'Shipped') itemStatusClass = 'bg-blue-100 text-blue-800';
+                      else if (item.itemStatus === 'Pending') itemStatusClass = 'bg-yellow-100 text-yellow-800';
+                      else if (item.itemStatus === 'Confirmed' || item.itemStatus === 'Processing') itemStatusClass = 'bg-indigo-100 text-indigo-800';
+                      else if (item.itemStatus === 'Cancelled') itemStatusClass = 'bg-red-100 text-red-800';
+                      else if (item.itemStatus === 'Returned') itemStatusClass = 'bg-orange-100 text-orange-800';
+                      else if (item.itemStatus === 'ReturnRequested' || item.itemStatus === 'ReturnApproved') itemStatusClass = 'bg-purple-100 text-purple-800';
+                      else if (item.itemStatus === 'ReturnRejected') itemStatusClass = 'bg-red-100 text-red-800';
+                    %>
+                    <span class="inline-block px-2 py-1 rounded text-xs font-semibold <%= itemStatusClass %>">
+                      <%= item.itemStatus %>
+                    </span>
                   </div>
                   <% } %>
                 </div>
-                <div class="item-price">
 
+                <!-- Item Price -->
+                <div class="text-right flex flex-col justify-start">
                   <% 
-                    // MRP per unit
                     const mrp = item.regularPrice || item.price;
-
-                    // Effective selling price per unit
                     const sale = item.price || 0;
                     const offer = item.offer || 0;
                     const selling = sale - offer;
-
                     const mrpTotal = mrp * item.quantity;
                     const sellingTotal = selling * item.quantity;
                   %>
 
-                  <!-- Selling total (final price admin charged) -->
-                  <div class="price-value font-bold text-gray-900 text-lg">
+                  <div class="text-lg font-bold text-gray-900">
                     ₹<%= sellingTotal.toLocaleString('en-IN') %>
                   </div>
 
-                  <!-- MRP total if different -->
                   <% if (mrpTotal !== sellingTotal) { %>
                   <div class="text-sm text-gray-500 line-through">
                     MRP: ₹<%= mrpTotal.toLocaleString('en-IN') %>
                   </div>
                   <% } %>
 
-                  <!-- Per-unit pricing -->
-                  <div class="price-per-unit text-xs text-gray-600 mt-1">
-                    <% if (offer > 0) { %>
-                    <span class="text-gray-900 font-semibold">
-                      ₹<%= selling.toLocaleString('en-IN') %>
-                    </span> each
-                    <% } else { %>
-                    <span class="text-gray-900 font-semibold">
-                      ₹<%= selling.toLocaleString('en-IN') %>
-                    </span> each
-                    <% } %>
+                  <div class="text-xs text-gray-600 mt-1">
+                    <span class="font-semibold text-gray-900">₹<%= selling.toLocaleString('en-IN') %></span> each
                   </div>
-
                 </div>
-
               </div>
 
               <!-- Return Request Section -->
               <% if (item.itemStatus === 'ReturnRequested') { %>
-              <div class="return-request-section">
-                <div class="return-header">
+              <div class="mt-4 pt-4 border-t-2 border-dashed border-gray-300">
+                <div class="flex items-center gap-2 px-3 py-2 bg-yellow-100 text-yellow-900 rounded-lg text-sm font-semibold mb-3">
                   <i class="bi bi-arrow-return-left"></i>
                   <strong>Return Request</strong>
                 </div>
-                <div class="return-reason">
-                  <label>Customer Reason:</label>
-                  <p><%= item.reason || 'No reason provided' %></p>
+
+                <div class="mb-3">
+                  <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Customer Reason:</label>
+                  <p class="m-0 p-3 bg-white border-l-4 border-yellow-400 rounded text-sm text-gray-800 leading-relaxed">
+                    <%= item.reason || 'No reason provided' %>
+                  </p>
                 </div>
+
                 <% if (item.itemTimeline?.returnRequestedAt) { %>
-                <div class="return-date">
+                <div class="text-xs text-gray-500 mb-3">
                   Requested: <%= new Date(item.itemTimeline.returnRequestedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
                 </div>
                 <% } %>
-                <div class="return-actions">
-                  <div class="admin-note-input">
-                    <label for="adminNote_<%= item._id %>">Admin Note (Optional)</label>
-                    <textarea id="adminNote_<%= item._id %>" class="form-textarea" rows="2" placeholder="Add a note for approval/rejection..."></textarea>
+
+                <div class="flex flex-col gap-3">
+                  <div>
+                    <label for="adminNote_<%= item._id %>" class="block text-xs font-medium text-gray-700 mb-1.5">Admin Note (Optional)</label>
+                    <textarea id="adminNote_<%= item._id %>" rows="2" placeholder="Add a note for approval/rejection..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                   </div>
-                  <div class="return-buttons">
-                    <button class="btn-reject" onclick="handleReturn('<%= order._id %>', '<%= item._id %>', 'reject')">
+
+                  <div class="flex gap-2 justify-end">
+                    <button class="flex items-center gap-1.5 px-4 py-2 bg-red-100 text-red-700 border-none rounded-lg text-sm font-medium cursor-pointer transition-colors hover:bg-red-200" onclick="handleReturn('<%= order._id %>', '<%= item._id %>', 'reject')">
                       <i class="bi bi-x-circle"></i>
                       Reject
                     </button>
-                    <button class="btn-approve" onclick="handleReturn('<%= order._id %>', '<%= item._id %>', 'approve')">
+                    <button class="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white border-none rounded-lg text-sm font-medium cursor-pointer transition-colors hover:bg-green-700" onclick="handleReturn('<%= order._id %>', '<%= item._id %>', 'approve')">
                       <i class="bi bi-check-circle"></i>
                       Approve
                     </button>
@@ -314,23 +339,37 @@
 
               <!-- Approved Return Section -->
               <% if (item.itemStatus === 'ReturnApproved') { %>
-              <div class="approved-return-section">
-                <div class="approved-header">
+              <div class="mt-4 pt-4 border-t-2 border-dashed border-gray-300">
+                <div class="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-900 rounded-lg text-sm font-semibold mb-3">
                   <i class="bi bi-check-circle-fill"></i>
                   <strong>Return Approved</strong>
                 </div>
+
                 <% if (item.reason) { %>
-                <div class="approved-reason">
-                  <label>Reason:</label>
-                  <p><%= item.reason %></p>
+                <div class="mb-3">
+                  <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Reason:</label>
+                  <p class="m-0 p-3 bg-white border-l-4 border-blue-400 rounded text-sm text-gray-800 leading-relaxed">
+                    <%= item.reason %>
+                  </p>
                 </div>
                 <% } %>
+
+                <% if (item.adminNote) { %>
+                <div class="mb-3">
+                  <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Reason:</label>
+                  <p class="m-0 p-3 bg-white border-l-4 border-blue-400 rounded text-sm text-gray-800 leading-relaxed">
+                    <%= item.adminNote %>
+                  </p>
+                </div>
+                <% } %>
+
                 <% if (item.itemTimeline?.returnApprovedAt) { %>
-                <div class="approved-date">
+                <div class="text-xs text-gray-500 mb-3">
                   Approved: <%= new Date(item.itemTimeline.returnApprovedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
                 </div>
                 <% } %>
-                <button class="btn-mark-returned" onclick="markItemReturned('<%= order._id %>', '<%= item._id %>')">
+
+                <button class="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white border-none rounded-lg text-sm font-medium cursor-pointer transition-colors hover:bg-blue-700" onclick="markItemReturned('<%= order._id %>', '<%= item._id %>')">
                   <i class="bi bi-box-seam"></i>
                   Mark as Returned
                 </button>
@@ -339,17 +378,21 @@
 
               <!-- Cancelled Item Info -->
               <% if (item.itemStatus === 'Cancelled' && item.reason) { %>
-              <div class="cancelled-section">
-                <div class="cancelled-header">
+              <div class="mt-4 pt-4 border-t-2 border-dashed border-gray-300">
+                <div class="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-900 rounded-lg text-sm font-semibold mb-3">
                   <i class="bi bi-x-circle-fill"></i>
                   <strong>Cancelled by Customer</strong>
                 </div>
-                <div class="cancelled-reason">
-                  <label>Reason:</label>
-                  <p><%= item.reason %></p>
+
+                <div class="mb-3">
+                  <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Reason:</label>
+                  <p class="m-0 p-3 bg-white border-l-4 border-red-400 rounded text-sm text-gray-800 leading-relaxed">
+                    <%= item.reason %>
+                  </p>
                 </div>
+
                 <% if (item.itemTimeline?.cancelledAt) { %>
-                <div class="cancelled-date">
+                <div class="text-xs text-gray-500">
                   Cancelled: <%= new Date(item.itemTimeline.cancelledAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
                 </div>
                 <% } %>
@@ -358,17 +401,29 @@
 
               <!-- Returned Item Info -->
               <% if (item.itemStatus === 'Returned' && item.reason) { %>
-              <div class="returned-section">
-                <div class="returned-header">
+              <div class="mt-4 pt-4 border-t-2 border-dashed border-gray-300">
+                <div class="flex items-center gap-2 px-3 py-2 bg-orange-100 text-orange-900 rounded-lg text-sm font-semibold mb-3">
                   <i class="bi bi-arrow-return-left"></i>
                   <strong>Item Returned</strong>
                 </div>
-                <div class="returned-reason">
-                  <label>Reason:</label>
-                  <p><%= item.reason %></p>
+
+                <div class="mb-3">
+                  <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Reason:</label>
+                  <p class="m-0 p-3 bg-white border-l-4 border-orange-400 rounded text-sm text-gray-800 leading-relaxed">
+                    <%= item.reason %>
+                  </p>
                 </div>
+                <% if(item.adminNote){ %>
+                  <div class="mb-3">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Admin Note:</label>
+                    <p class="m-0 p-3 bg-white border-l-4 border-orange-400 rounded text-sm text-gray-800 leading-relaxed">
+                      <%= item.adminNote %>
+                    </p>
+                  </div>
+                <% } %>
+
                 <% if (item.itemTimeline?.returnedAt) { %>
-                <div class="returned-date">
+                <div class="text-xs text-gray-500">
                   Returned: <%= new Date(item.itemTimeline.returnedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
                 </div>
                 <% } %>
@@ -377,17 +432,30 @@
 
               <!-- Rejected Return Info -->
               <% if (item.itemStatus === 'ReturnRejected' && item.reason) { %>
-              <div class="rejected-section">
-                <div class="rejected-header">
+              <div class="mt-4 pt-4 border-t-2 border-dashed border-gray-300">
+                <div class="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-900 rounded-lg text-sm font-semibold mb-3">
                   <i class="bi bi-x-circle-fill"></i>
                   <strong>Return Rejected</strong>
                 </div>
-                <div class="rejected-reason">
-                  <label>Reason:</label>
-                  <p><%= item.reason %></p>
+
+                <div class="mb-3">
+                  <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Reason:</label>
+                  <p class="m-0 p-3 bg-white border-l-4 border-red-400 rounded text-sm text-gray-800 leading-relaxed">
+                    <%= item.reason %>
+                  </p>
                 </div>
+
+                <% if (item.adminNote) { %>
+                <div class="mb-3">
+                  <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Admin Note:</label>
+                  <p class="m-0 p-3 bg-white border-l-4 border-red-400 rounded text-sm text-gray-800 leading-relaxed">
+                    <%= item.adminNote %>
+                  </p>
+                </div>
+                <% } %>
+                
                 <% if (item.itemTimeline?.returnRejectedAt) { %>
-                <div class="rejected-date">
+                <div class="text-xs text-gray-500">
                   Rejected: <%= new Date(item.itemTimeline.returnRejectedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
                 </div>
                 <% } %>
@@ -400,64 +468,66 @@
       </div>
     </div>
 
-    <!-- Right Column -->
-    <div class="right-column">
+    <!-- Right Column (Sidebar) -->
+    <div class="flex flex-col gap-6">
       <!-- Customer Information -->
-      <div class="card">
-        <div class="card-header">
-          <h3>Customer Information</h3>
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 m-0">Customer Information</h3>
         </div>
-        <div class="card-body">
-          <div class="info-row">
-            <span class="info-label">Name</span>
-            <span class="info-value"><%= order.userId?.username || 'N/A' %></span>
+        <div class="p-6">
+          <div class="flex justify-between items-center py-3 border-b border-gray-100">
+            <span class="text-sm text-gray-600">Name</span>
+            <span class="text-sm text-gray-900 font-medium text-right"><%= order.userId?.username || 'N/A' %></span>
           </div>
-          <div class="info-row">
-            <span class="info-label">Email</span>
-            <span class="info-value"><%= order.userId?.email || 'N/A' %></span>
+          <div class="flex justify-between items-center py-3 border-b border-gray-100">
+            <span class="text-sm text-gray-600">Email</span>
+            <span class="text-sm text-gray-900 font-medium text-right"><%= order.userId?.email || 'N/A' %></span>
           </div>
-          <div class="info-row">
-            <span class="info-label">Phone</span>
-            <span class="info-value"><%= order.userId?.phone || order.shippingAddress?.phone || 'N/A' %></span>
+          <div class="flex justify-between items-center py-3">
+            <span class="text-sm text-gray-600">Phone</span>
+            <span class="text-sm text-gray-900 font-medium text-right"><%= order.userId?.phone || order.shippingAddress?.phone || 'N/A' %></span>
           </div>
         </div>
       </div>
 
       <!-- Shipping Address -->
-      <div class="card">
-        <div class="card-header">
-          <h3>Shipping Address</h3>
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-gray-900 m-0">Shipping Address</h3>
           <% if (order.shippingAddress?.addressType) { %>
-          <span class="address-type-badge"><%= order.shippingAddress.addressType %></span>
+          <span class="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium capitalize">
+            <%= order.shippingAddress.addressType %>
+          </span>
           <% } %>
         </div>
-        <div class="card-body">
-          <div class="address-content">
-            <div class="address-name"><%= order.shippingAddress?.fullName || 'N/A' %></div>
-            <div class="address-phone"><%= order.shippingAddress?.phone || 'N/A' %></div>
-            <div class="address-line"><%= order.shippingAddress?.address1 || '' %></div>
+        <div class="p-6">
+          <div class="leading-relaxed">
+            <div class="text-base font-semibold text-gray-900 mb-1"><%= order.shippingAddress?.fullName || 'N/A' %></div>
+            <div class="text-sm text-gray-600 mb-2"><%= order.shippingAddress?.phone || 'N/A' %></div>
+            <div class="text-sm text-gray-600 mb-0.5"><%= order.shippingAddress?.address1 || '' %></div>
             <% if (order.shippingAddress?.address2) { %>
-            <div class="address-line"><%= order.shippingAddress.address2 %></div>
+            <div class="text-sm text-gray-600 mb-0.5"><%= order.shippingAddress.address2 %></div>
             <% } %>
-            <div class="address-line">
+            <div class="text-sm text-gray-600 mb-0.5">
               <%= order.shippingAddress?.city || '' %>,
               <%= order.shippingAddress?.state || '' %> -
               <%= order.shippingAddress?.pincode || '' %>
             </div>
-            <div class="address-line"><%= order.shippingAddress?.country || '' %></div>
+            <div class="text-sm text-gray-600"><%= order.shippingAddress?.country || '' %></div>
           </div>
         </div>
       </div>
 
       <!-- Payment Information -->
-      <div class="card">
-        <div class="card-header">
-          <h3>Payment Information</h3>
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 m-0">Payment Information</h3>
         </div>
-        <div class="card-body">
-          <div class="info-row">
-            <span class="info-label">Payment Method</span>
-            <span class="info-value payment-method">
+        <div class="p-6">
+          <div class="flex justify-between items-center py-3 border-b border-gray-100">
+            <span class="text-sm text-gray-600">Payment Method</span>
+            <span class="text-sm text-gray-900 font-medium text-right flex items-center gap-1.5">
               <% if (order.paymentMethod === 'razorpay') { %>
               <i class="bi bi-credit-card"></i> Razorpay
               <% } else if (order.paymentMethod === 'cod') { %>
@@ -467,73 +537,75 @@
               <% } %>
             </span>
           </div>
-          <div class="info-row">
-            <span class="info-label">Payment Status</span>
+          <div class="flex justify-between items-center py-3 border-b border-gray-100">
+            <span class="text-sm text-gray-600">Payment Status</span>
             <% 
               let paymentClass = '';
-              if (order.paymentStatus === 'Paid') paymentClass = 'status-active';
-              else if (order.paymentStatus === 'Pending') paymentClass = 'status-pending';
-              else if (order.paymentStatus === 'Failed') paymentClass = 'status-blocked';
-              else if (order.paymentStatus === 'Refunded') paymentClass = 'status-refunded';
+              if (order.paymentStatus === 'Paid') paymentClass = 'bg-green-100 text-green-800';
+              else if (order.paymentStatus === 'Pending') paymentClass = 'bg-yellow-100 text-yellow-800';
+              else if (order.paymentStatus === 'Failed') paymentClass = 'bg-red-100 text-red-800';
+              else if (order.paymentStatus === 'Refunded') paymentClass = 'bg-purple-100 text-purple-800';
             %>
-            <span class="status-badge <%= paymentClass %>"><%= order.paymentStatus %></span>
+            <span class="inline-block px-2 py-1 rounded text-xs font-semibold <%= paymentClass %>">
+              <%= order.paymentStatus %>
+            </span>
           </div>
 
           <% if (order.paymentInfo?.razorpayPaymentId) { %>
-          <div class="info-row">
-            <span class="info-label">Payment ID</span>
-            <span class="info-value payment-id"><%= order.paymentInfo.razorpayPaymentId %></span>
+          <div class="flex justify-between items-center py-3 border-b border-gray-100">
+            <span class="text-sm text-gray-600">Payment ID</span>
+            <span class="text-xs text-gray-900 font-mono break-all text-right max-w-[60%]"><%= order.paymentInfo.razorpayPaymentId %></span>
           </div>
           <% } %>
           <% if (order.paymentInfo?.razorpayOrderId) { %>
-          <div class="info-row">
-            <span class="info-label">Razorpay Order ID</span>
-            <span class="info-value payment-id"><%= order.paymentInfo.razorpayOrderId %></span>
+          <div class="flex justify-between items-center py-3 border-b border-gray-100">
+            <span class="text-sm text-gray-600">Razorpay Order ID</span>
+            <span class="text-xs text-gray-900 font-mono break-all text-right max-w-[60%]"><%= order.paymentInfo.razorpayOrderId %></span>
           </div>
           <% } %>
           <% if (order.paymentInfo?.walletTransactionId) { %>
-          <div class="info-row">
-            <span class="info-label">Transaction ID</span>
-            <span class="info-value payment-id"><%= order.paymentInfo.walletTransactionId %></span>
+          <div class="flex justify-between items-center py-3">
+            <span class="text-sm text-gray-600">Transaction ID</span>
+            <span class="text-xs text-gray-900 font-mono break-all text-right max-w-[60%]"><%= order.paymentInfo.walletTransactionId %></span>
           </div>
           <% } %>
         </div>
       </div>
 
       <!-- Order Summary -->
-      <div class="card">
-        <div class="card-header">
-          <h3>Order Summary</h3>
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 m-0">Order Summary</h3>
         </div>
-        <div class="card-body">
-          <div class="summary-row">
+        <div class="p-6">
+          <div class="flex justify-between items-center py-3 text-sm text-gray-600">
             <span>Subtotal</span>
             <span>₹<%= order.subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
           </div>
           <% if (order.discount > 0) { %>
-          <div class="summary-row discount">
+          <div class="flex justify-between items-center py-3 text-sm text-green-600">
             <span>Discount</span>
             <span>-₹<%= order.discount.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
           </div>
           <% } %>
           <% if (order.couponDiscount > 0) { %>
-          <div class="summary-row discount">
+          <div class="flex justify-between items-center py-3 text-sm text-green-600">
             <span>Coupon Applied</span>
             <span>-₹<%= order.couponDiscount.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
           </div>
           <% } %>
-          <div class="summary-row">
+          <div class="flex justify-between items-center py-3 text-sm text-gray-600">
             <span>Delivery Charge</span>
             <span>
               <% if (order.deliveryCharge === 0) { %>
-              <span class="free-delivery">FREE</span>
+              <span class="text-green-600 font-semibold">FREE</span>
               <% } else { %>
               ₹<%= order.deliveryCharge.toLocaleString('en-IN', {minimumFractionDigits: 2}) %>
               <% } %>
             </span>
           </div>
-          <div class="summary-divider"></div>
-          <div class="summary-row total">
+          <div class="h-px bg-gray-200 my-3"></div>
+          <div class="flex justify-between items-center py-3 text-base font-bold text-gray-900">
             <span>Total Amount</span>
             <span>₹<%= order.finalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
           </div>
@@ -542,21 +614,21 @@
 
       <!-- Delivery Information -->
       <% if (order.expectedDelivery || order.deliveredDate) { %>
-      <div class="card">
-        <div class="card-header">
-          <h3>Delivery Information</h3>
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 m-0">Delivery Information</h3>
         </div>
-        <div class="card-body">
+        <div class="p-6">
           <% if (order.expectedDelivery) { %>
-          <div class="info-row">
-            <span class="info-label">Expected Delivery</span>
-            <span class="info-value"><%= new Date(order.expectedDelivery).toLocaleDateString('en-IN', { dateStyle: 'long' }) %></span>
+          <div class="flex justify-between items-center py-3 border-b border-gray-100">
+            <span class="text-sm text-gray-600">Expected Delivery</span>
+            <span class="text-sm text-gray-900 font-medium text-right"><%= new Date(order.expectedDelivery).toLocaleDateString('en-IN', { dateStyle: 'long' }) %></span>
           </div>
           <% } %>
           <% if (order.deliveredDate) { %>
-          <div class="info-row">
-            <span class="info-label">Delivered On</span>
-            <span class="info-value"><%= new Date(order.deliveredDate).toLocaleDateString('en-IN', { dateStyle: 'long' }) %></span>
+          <div class="flex justify-between items-center py-3">
+            <span class="text-sm text-gray-600">Delivered On</span>
+            <span class="text-sm text-gray-900 font-medium text-right"><%= new Date(order.deliveredDate).toLocaleDateString('en-IN', { dateStyle: 'long' }) %></span>
           </div>
           <% } %>
         </div>

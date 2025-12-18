@@ -118,7 +118,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     if (paymentMethod === "wallet") {
       const wallet = await findWalletByUserId(userId, session);
 
-      if (!wallet || wallet.balance - wallet.holdBalance < finalAmount) {
+        if (!wallet || wallet.balance - wallet.holdBalance < finalAmount) {
         throw {
           status: HttpStatus.BAD_REQUEST,
           message: "Insufficient wallet balance",

@@ -7,106 +7,86 @@ import {
   findVariantById,
   saveVariant,
 } from "../../../product/repo/variant.repo.js";
-import { findWalletByUserId, updateWalletBalanceAndCredit } from "../../../wallet/repo/wallet.repo.js";
+import {
+  findWalletByUserId,
+  updateWalletBalanceAndCredit,
+} from "../../../wallet/repo/wallet.repo.js";
 import { updateUserWalletBalance } from "../../../user/user.repo.js";
 import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
+import { AppError } from "../../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../../shared/constants/statusCode.js";
+import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
 
 export const markItemReturnedService = async (orderId, body) => {
   const { itemId } = body;
-
   if (!itemId) {
-    const err = new Error("Missing itemId");
-    err.status = 400;
-    throw err;
+    throw new AppError(OrderMessages.MISSING_ITEM_ID, HttpStatus.BAD_REQUEST);
   }
 
   const order = await findOrderById(orderId);
   if (!order) {
-    const err = new Error("Order not found");
-    err.status = 404;
-    throw err;
+    throw new AppError(OrderMessages.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  // Find item
   const item = order.orderedItems.find((i) => i._id.toString() === itemId);
 
   if (!item) {
-    const err = new Error("Ordered item not found");
-    err.status = 404;
-    throw err;
+    throw new AppError(OrderMessages.ORDERED_ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  // Already returned?
   if (item.itemStatus === "Returned") {
-    const err = new Error("Item already marked as returned");
-    err.status = 400;
-    throw err;
+    throw new AppError(
+      OrderMessages.ITEM_ALREADY_MARKED_RETURNED,
+      HttpStatus.BAD_REQUEST
+    );
   }
 
-  // Find product + variant
   const variant = await findVariantById(item.variantId);
   const product = await findProductById(item.productId);
 
   if (!variant || !product) {
-    const err = new Error("Product or variant not found");
-    err.status = 400;
-    throw err;
+    throw new AppError(OrderMessages.PRODUCT_OR_VARIANT_NOT_FOUND, HttpStatus.BAD_REQUEST);
   }
 
-  // Restore stock
   product.totalStock += item.quantity;
   variant.stock += item.quantity;
 
   await saveProduct(product);
   await saveVariant(variant);
 
-  // Update item status
   const now = new Date();
   item.itemStatus = "Returned";
-
-  if (!item.itemTimeline) item.itemTimeline = {};
+  item.itemTimeline ||= {};
   item.itemTimeline.returnedAt = now;
 
-  // ORDER LEVEL STATUS
-  const allReturned = order.orderedItems.every(
-    (i) => i.itemStatus === "Returned"
-  );
-
-  const allReturnedOrCancelled=order.orderedItems.every((i)=>i.itemStatus==='Cancelled'||i.itemStatus==='Returned')
-
-  const anyReturned = order.orderedItems.some(
-    (i) => i.itemStatus === "Returned"
-  );
-
-  const refundAmount=item.price-item.couponShare-item.offer
+  const refundAmount = item.price - item.couponShare - item.offer;
 
   if (order.paymentStatus === "Paid") {
     await updateWalletBalanceAndCredit(order.userId, refundAmount);
     const wallet = await findWalletByUserId(order.userId);
     await updateUserWalletBalance(order.userId, wallet.balance);
+
     await createLedgerEntry({
       walletId: wallet._id,
       userId: order.userId,
       amount: refundAmount,
       type: "CREDIT",
       referenceId: order.orderId,
-      note: `Refund of ₹${refundAmount} has been processed for the refund order: ${order.orderId}`,
+      note: `Refund of ₹${refundAmount} for order ${order.orderId}`,
       balanceAfter: wallet.balance,
     });
   }
 
-  if (allReturned) {
-    order.orderStatus = "Returned";
-    order.statusTimeline = order.statusTimeline || {};
-    order.statusTimeline.returnedAt = now;
-  } else if (anyReturned) {
-    order.orderStatus = "Partially Returned";
-  }
+  const allReturnedOrCancelled = order.orderedItems.every(
+    (i) => i.itemStatus === "Cancelled" || i.itemStatus === "Returned"
+  );
 
-  if(allReturnedOrCancelled){
+  if (allReturnedOrCancelled) {
     order.paymentStatus = "Refunded";
+    order.orderStatus = "Returned";
+    order.statusTimeline ||= {};
+    order.statusTimeline.returnedAt = now;
   }
-
 
   order.markModified("orderedItems");
   await saveOrder(order);

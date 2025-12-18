@@ -1,13 +1,12 @@
 import { findOrderDetailsById } from "../../repo/order.repo.js";
+import { AppError } from "../../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../../shared/constants/statusCode.js";
+import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
 
 export const loadOrderDetailsService = async (orderId) => {
   const order = await findOrderDetailsById(orderId);
-
   if (!order) {
-    const err = new Error("Order not found");
-    err.status = 404;
-    throw err;
+    throw new AppError(OrderMessages.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
-
   return order;
 };

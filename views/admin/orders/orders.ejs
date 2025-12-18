@@ -1,91 +1,96 @@
 <!-- Orders Management Page -->
-<div class="page-container">
+<div class="max-w-7xl mx-auto">
   <!-- Page Header -->
-  <div class="page-header">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
-      <h1>Orders Management</h1>
-      <p class="subtitle">Manage and monitor all orders in your marketplace.</p>
+      <h1 class="text-3xl font-bold m-0 text-gray-900">Orders Management</h1>
+      <p class="text-gray-500 text-sm mt-1 m-0">Manage and monitor all orders in your marketplace.</p>
     </div>
-    <button class="btn-primary" onclick="exportOrders()">
+    <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg" onclick="exportOrders()">
       <i class="bi bi-download"></i>
       Export Orders
     </button>
   </div>
 
   <!-- Analytics Cards -->
-  <div class="stats-grid">
-    <div class="stat-card stat-blue">
-      <div class="stat-icon">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-xl border border-gray-200 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-lg border-l-4 border-l-blue-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-blue-50 text-blue-600">
         <i class="bi bi-cart3"></i>
       </div>
-      <div class="stat-content">
-        <div class="stat-label">Total Orders</div>
-        <div class="stat-value"><%= analytics.totalOrders || 0 %></div>
+      <div class="flex-1">
+        <div class="text-sm text-gray-500 mb-1">Total Orders</div>
+        <div class="text-3xl font-bold text-gray-900 leading-none"><%= analytics.totalOrders || 0 %></div>
       </div>
     </div>
 
-    <div class="stat-card stat-green">
-      <div class="stat-icon">
+    <div class="bg-white p-6 rounded-xl border border-gray-200 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-lg border-l-4 border-l-green-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-green-50 text-green-600">
         <i class="bi bi-check-circle"></i>
       </div>
-      <div class="stat-content">
-        <div class="stat-label">Active Orders</div>
-        <div class="stat-value"><%= analytics.activeOrders || 0 %></div>
+      <div class="flex-1">
+        <div class="text-sm text-gray-500 mb-1">Active Orders</div>
+        <div class="text-3xl font-bold text-gray-900 leading-none"><%= analytics.activeOrders || 0 %></div>
       </div>
     </div>
 
-    <div class="stat-card stat-orange">
-      <div class="stat-icon">
+    <div class="bg-white p-6 rounded-xl border border-gray-200 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-lg border-l-4 border-l-orange-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-orange-50 text-orange-600">
         <i class="bi bi-arrow-return-left"></i>
       </div>
-      <div class="stat-content">
-        <div class="stat-label">Returned Orders</div>
-        <div class="stat-value"><%= analytics.returnedOrders || 0 %></div>
+      <div class="flex-1">
+        <div class="text-sm text-gray-500 mb-1">Returned Orders</div>
+        <div class="text-3xl font-bold text-gray-900 leading-none"><%= analytics.returnedOrders || 0 %></div>
       </div>
     </div>
 
-    <div class="stat-card stat-red">
-      <div class="stat-icon">
+    <div class="bg-white p-6 rounded-xl border border-gray-200 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-lg border-l-4 border-l-red-600">
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-red-50 text-red-600">
         <i class="bi bi-x-circle"></i>
       </div>
-      <div class="stat-content">
-        <div class="stat-label">Cancelled Orders</div>
-        <div class="stat-value"><%= analytics.cancelledOrders || 0 %></div>
+      <div class="flex-1">
+        <div class="text-sm text-gray-500 mb-1">Cancelled Orders</div>
+        <div class="text-3xl font-bold text-gray-900 leading-none"><%= analytics.cancelledOrders || 0 %></div>
       </div>
     </div>
 
-    <div class="stat-card stat-purple">
-      <div class="stat-icon">
+    <div class="bg-white p-6 rounded-xl border border-gray-200 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-lg border-l-4 border-l-purple-600">
+
+      <div class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 bg-purple-50 text-purple-600">
         <i class="bi bi-currency-rupee"></i>
       </div>
-      <div class="stat-content">
-        <div class="stat-label">Total Revenue</div>
-        <div class="stat-value">₹<%= (analytics.totalRevenue || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+
+      <!-- KEY FIX -->
+      <div class="flex-1 min-w-0">
+        <div class="text-sm text-gray-500 mb-1">Total Revenue</div>
+
+        <div class="font-bold text-gray-900 text-base sm:text-lg whitespace-nowrap">
+          ₹<%= (analytics.totalRevenue || 0).toLocaleString('en-IN', {
+            maximumFractionDigits: 0
+          }) %>
+        </div>
       </div>
+
     </div>
+
+
   </div>
 
   <!-- Filters Section -->
-  <div class="filters-container">
-    <div class="search-box">
-      <i class="bi bi-search"></i>
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Search order ID, customer name or email..."
-        value="<%= searchQuery || '' %>"
-        onkeyup="handleSearch()"
-      />
+  <div class="bg-white p-5 rounded-xl border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+    <div class="flex-1 min-w-[250px] relative flex items-center">
+      <i class="bi bi-search absolute left-4 text-gray-500 pointer-events-none"></i>
+      <input type="text" id="searchInput" placeholder="Search order ID, customer name or email..." value="<%= searchQuery || '' %>" onkeyup="handleSearch()" class="w-full py-2.5 pl-11 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
       <% if (searchQuery) { %>
-      <button class="clear-search-btn" onclick="clearSearch()" title="Clear search">
+      <button class="clear-search-btn absolute right-2 bg-transparent border-none text-gray-500 cursor-pointer p-1 flex items-center hover:text-red-600 transition-colors" onclick="clearSearch()" title="Clear search">
         <i class="bi bi-x-circle-fill"></i>
       </button>
       <% } %>
     </div>
 
-    <div class="filter-group">
-      <label>Status:</label>
-      <select id="statusFilter" class="filter-select" onchange="applyFilters()">
+    <div class="flex items-center gap-2">
+      <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">Status:</label>
+      <select id="statusFilter" class="px-3 py-2.5 pr-8 pl-3 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
         <option value="">All</option>
         <option value="Pending" <%= statusFilter === 'Pending' ? 'selected' : '' %>>Pending</option>
         <option value="Confirmed" <%= statusFilter === 'Confirmed' ? 'selected' : '' %>>Confirmed</option>
@@ -98,9 +103,9 @@
       </select>
     </div>
 
-    <div class="filter-group">
-      <label>Payment:</label>
-      <select id="paymentStatusFilter" class="filter-select" onchange="applyFilters()">
+    <div class="flex items-center gap-2">
+      <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">Payment:</label>
+      <select id="paymentStatusFilter" class="px-3 py-2.5 pr-8 pl-3 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
         <option value="">All</option>
         <option value="Pending" <%= paymentStatusFilter === 'Pending' ? 'selected' : '' %>>Pending</option>
         <option value="Paid" <%= paymentStatusFilter === 'Paid' ? 'selected' : '' %>>Paid</option>
@@ -109,201 +114,189 @@
       </select>
     </div>
 
-    <div class="filter-group">
-      <label>Sort By:</label>
-      <select id="sortFilter" class="filter-select" onchange="applyFilters()">
+    <div class="flex items-center gap-2">
+      <label class="text-sm font-semibold text-gray-700 whitespace-nowrap">Sort:</label>
+      <select id="sortFilter" class="px-3 py-2.5 pr-8 pl-3 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
         <option value="recent" <%= sortFilter === 'recent' ? 'selected' : '' %>>Recent</option>
         <option value="oldest" <%= sortFilter === 'oldest' ? 'selected' : '' %>>Oldest</option>
         <option value="amount-high" <%= sortFilter === 'amount-high' ? 'selected' : '' %>>Amount (High to Low)</option>
         <option value="amount-low" <%= sortFilter === 'amount-low' ? 'selected' : '' %>>Amount (Low to High)</option>
       </select>
     </div>
-
-    <% const hasActiveFilters = statusFilter || paymentStatusFilter || (sortFilter && sortFilter !== 'recent'); %>
   </div>
 
   <!-- Active Filters Display -->
+  <% const hasActiveFilters = statusFilter || paymentStatusFilter || (sortFilter && sortFilter !== 'recent'); %>
   <% if (searchQuery || hasActiveFilters) { %>
-  <div class="active-filters-bar">
-    <span class="filter-label">Active Filters:</span>
-    <div class="filter-tags">
+  <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6 flex flex-wrap items-center gap-3">
+    <span class="text-sm font-semibold text-gray-700">Active Filters:</span>
+    <div class="flex flex-wrap gap-2 flex-1">
       <% if (searchQuery) { %>
-      <span class="filter-tag">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
         Search: "<%= searchQuery %>"
-        <button onclick="clearSearch()" class="tag-remove">
-          <i class="bi bi-x"></i>
+        <button onclick="clearSearch()" class="hover:text-blue-900 transition-colors">
+          <i class="bi bi-x text-base"></i>
         </button>
       </span>
       <% } %>
       <% if (statusFilter) { %>
-      <span class="filter-tag">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
         Status: <%= statusFilter %>
-        <button onclick="removeFilter('status')" class="tag-remove">
-          <i class="bi bi-x"></i>
+        <button onclick="removeFilter('status')" class="hover:text-blue-900 transition-colors">
+          <i class="bi bi-x text-base"></i>
         </button>
       </span>
       <% } %>
       <% if (paymentStatusFilter) { %>
-      <span class="filter-tag">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
         Payment: <%= paymentStatusFilter %>
-        <button onclick="removeFilter('paymentStatus')" class="tag-remove">
-          <i class="bi bi-x"></i>
+        <button onclick="removeFilter('paymentStatus')" class="hover:text-blue-900 transition-colors">
+          <i class="bi bi-x text-base"></i>
         </button>
       </span>
       <% } %>
       <% if (sortFilter && sortFilter !== 'recent') { %>
-      <span class="filter-tag">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
         Sort: <%= sortFilter.replace('-', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') %>
-        <button onclick="removeFilter('sort')" class="tag-remove">
-          <i class="bi bi-x"></i>
+        <button onclick="removeFilter('sort')" class="hover:text-blue-900 transition-colors">
+          <i class="bi bi-x text-base"></i>
         </button>
       </span>
       <% } %>
     </div>
-    <button class="clear-all-link" onclick="clearAllFiltersAndSearch()">Clear All</button>
+    <button class="text-sm font-semibold text-red-600 hover:text-red-700 hover:underline transition-colors whitespace-nowrap" onclick="clearAllFiltersAndSearch()">Clear All</button>
   </div>
   <% } %>
 
   <!-- Orders Table -->
-  <div class="table-wrapper">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Customer</th>
-          <th>Date</th>
-          <th>Items</th>
-          <th>Amount</th>
-          <th>Payment</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (orders && orders.length > 0) { %>
+  <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-50 border-b-2 border-gray-200">
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Order ID</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Customer</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Date</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Items</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Amount</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Payment</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Status</th>
+            <th class="px-4 py-4 text-left font-semibold text-xs text-gray-700 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (orders && orders.length > 0) { %>
           <% orders.forEach(order => { %>
-            <tr>
-              <td>
-                <strong class="order-id">#<%= order.orderId %></strong>
-              </td>
-              <td>
-                <div class="customer-info">
-                  <div class="customer-name"><%= order.userId.username || 'N/A' %></div>
-                  <div class="customer-email"><%= order.userId.email || '' %></div>
-                </div>
-              </td>
-              <td><%= new Date(order.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-              <td><%= order.orderedItems.length %></td>
-              <td>
-                <% 
-                  const mrpTotal = (order.orderedItems || []).reduce((sum, it) => {
-                    const mrp = it.regularPrice || it.price;
-                    return sum + (mrp * it.quantity);
-                  }, 0);
+          <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+            <td class="px-4 py-4 align-middle">
+              <strong class="text-blue-600 font-medium">#<%= order.orderId %></strong>
+            </td>
+            <td class="px-4 py-4 align-middle">
+              <div class="flex flex-col gap-1">
+                <div class="font-medium text-gray-900"><%= order.userId.username || 'N/A' %></div>
+                <div class="text-xs text-gray-500"><%= order.userId.email || '' %></div>
+              </div>
+            </td>
+            <td class="px-4 py-4 align-middle text-sm text-gray-700"><%= new Date(order.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+            <td class="px-4 py-4 align-middle text-sm text-gray-700"><%= order.orderedItems.length %></td>
+            <td class="px-4 py-4 align-middle">
+              <% 
+                    const mrpTotal = (order.orderedItems || []).reduce((sum, it) => {
+                      const mrp = it.regularPrice || it.price;
+                      return sum + (mrp * it.quantity);
+                    }, 0);
 
-                  const sellingTotal = (order.orderedItems || []).reduce((sum, it) => {
-                    const sale = it.price || 0;
-                    const offer = it.offer || 0;
-                    const effective = sale - offer;
-                    return sum + (effective * it.quantity);
-                  }, 0)-order.couponDiscount;
+                    const sellingTotal = (order.orderedItems || []).reduce((sum, it) => {
+                      const sale = it.price || 0;
+                      const offer = it.offer || 0;
+                      const effective = sale - offer;
+                      return sum + (effective * it.quantity);
+                    }, 0)-order.couponDiscount;
 
-                  const savings = mrpTotal - sellingTotal;
-                %>
-
-                <!-- Selling Price Total -->
-                <strong class="amount text-gray-900">
-                  ₹<%= sellingTotal.toLocaleString('en-IN') %>
-                </strong>
-
-                <!-- MRP Total -->
-                <div class="text-xs text-gray-500">
-                  MRP: ₹<%= mrpTotal.toLocaleString('en-IN') %>
-                </div>
-
-                <!-- Savings -->
-                <% if (savings > 0) { %>
-                  <div class="text-xs text-green-600 font-semibold">
-                    Discount: ₹<%= savings.toLocaleString('en-IN') %>
-                  </div>
-                <% } %>
-              </td>
-
-              <td>
-                <% 
-                  let paymentClass = '';
-                  if (order.paymentStatus === 'Paid') paymentClass = 'status-active';
-                  else if (order.paymentStatus === 'Pending') paymentClass = 'status-pending';
-                  else if (order.paymentStatus === 'Failed') paymentClass = 'status-blocked';
-                  else if (order.paymentStatus === 'Refunded') paymentClass = 'status-refunded';
-                %>
-                <span class="status-badge <%= paymentClass %>">
-                  <%= order.paymentStatus %>
-                </span>
-              </td>
-              <td>
-                <% 
-                  let statusClass = '';
-                  if (order.orderStatus === 'Delivered') statusClass = 'status-active';
-                  else if (order.orderStatus === 'Shipped' || order.orderStatus === 'Out for Delivery') statusClass = 'status-shipping';
-                  else if (order.orderStatus === 'Pending') statusClass = 'status-pending';
-                  else if (order.orderStatus === 'Confirmed' || order.orderStatus === 'Processing') statusClass = 'status-processing';
-                  else if (order.orderStatus === 'Cancelled') statusClass = 'status-blocked';
-                  else if (order.orderStatus === 'Returned') statusClass = 'status-returned';
-                %>
-                <span class="status-badge <%= statusClass %>">
-                  <%= order.orderStatus %>
-                </span>
-              </td>
-              <td>
-                <a href="/admin/orders/<%= order._id %>" class="btn-view">
-                  View Details
-                </a>
-              </td>
-            </tr>
+                    const savings = mrpTotal - sellingTotal;
+                  %>
+              <strong class="text-gray-900 block">₹<%= sellingTotal.toLocaleString('en-IN') %></strong>
+              <div class="text-xs text-gray-500">MRP: ₹<%= mrpTotal.toLocaleString('en-IN') %></div>
+              <% if (savings > 0) { %>
+              <div class="text-xs text-green-600 font-semibold">Discount: ₹<%= savings.toLocaleString('en-IN') %></div>
+              <% } %>
+            </td>
+            <td class="px-4 py-4 align-middle">
+              <% 
+                    let paymentClass = '';
+                    if (order.paymentStatus === 'Paid') paymentClass = 'bg-green-100 text-green-800';
+                    else if (order.paymentStatus === 'Pending') paymentClass = 'bg-yellow-100 text-yellow-800';
+                    else if (order.paymentStatus === 'Failed') paymentClass = 'bg-red-100 text-red-800';
+                    else if (order.paymentStatus === 'Refunded') paymentClass = 'bg-purple-100 text-purple-800';
+                  %>
+              <span class="inline-block px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide <%= paymentClass %>">
+                <%= order.paymentStatus %>
+              </span>
+            </td>
+            <td class="px-4 py-4 align-middle">
+              <% 
+                    let statusClass = '';
+                    if (order.orderStatus === 'Delivered') statusClass = 'bg-green-100 text-green-800';
+                    else if (order.orderStatus === 'Shipped' || order.orderStatus === 'Out for Delivery') statusClass = 'bg-blue-100 text-blue-800';
+                    else if (order.orderStatus === 'Pending') statusClass = 'bg-yellow-100 text-yellow-800';
+                    else if (order.orderStatus === 'Confirmed' || order.orderStatus === 'Processing') statusClass = 'bg-indigo-100 text-indigo-800';
+                    else if (order.orderStatus === 'Cancelled') statusClass = 'bg-red-100 text-red-800';
+                    else if (order.orderStatus === 'Returned') statusClass = 'bg-orange-100 text-orange-800';
+                  %>
+              <span class="inline-block px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide <%= statusClass %>">
+                <%= order.orderStatus %>
+              </span>
+            </td>
+            <td class="px-4 py-4 align-middle">
+              <a href="/admin/orders/<%= order._id %>" class="text-blue-600 hover:text-blue-700 hover:underline font-medium text-sm transition-colors">
+                View Details
+              </a>
+            </td>
+          </tr>
           <% }); %>
-        <% } else { %>
+          <% } else { %>
           <tr>
-            <td colspan="8" class="no-data">
-              <div class="empty-state">
-                <i class="bi bi-inbox"></i>
-                <p>No orders found</p>
+            <td colspan="8" class="p-12 text-center">
+              <div class="flex flex-col items-center gap-4">
+                <i class="bi bi-inbox text-6xl text-gray-300"></i>
+                <p class="text-gray-500 text-lg m-0">No orders found</p>
                 <% if (searchQuery || hasActiveFilters) { %>
-                <button class="btn-primary" onclick="clearAllFiltersAndSearch()" style="margin-top: 16px;">
+                <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700" onclick="clearAllFiltersAndSearch()">
                   Clear All Filters
                 </button>
                 <% } %>
               </div>
             </td>
           </tr>
-        <% } %>
-      </tbody>
-    </table>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- Pagination -->
-  <div class="pagination-container">
-    <div class="pagination-info">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="text-gray-500 text-sm">
       <% if (orders && orders.length > 0) { %>
-        <% const startItem = (currentPage - 1) * limit + 1; %>
-        <% const endItem = Math.min((currentPage - 1) * limit + orders.length, totalOrders); %>
-        Showing <%= startItem %> to <%= endItem %> of <%= totalOrders %> results
+      <% const startItem = (currentPage - 1) * limit + 1; %>
+      <% const endItem = Math.min((currentPage - 1) * limit + orders.length, totalOrders); %>
+      Showing <%= startItem %> to <%= endItem %> of <%= totalOrders %> results
       <% } else { %>
-        No results found
+      No results found
       <% } %>
     </div>
 
-    <div class="pagination-controls">
+    <div class="flex gap-2 items-center">
       <% if(currentPage > 1) { %>
-        <button class="page-btn" onclick="changePage(<%= currentPage - 1 %>)">
-          <i class="bi bi-chevron-left"></i>
-        </button>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" onclick="changePage(<%= currentPage - 1 %>)">
+        <i class="bi bi-chevron-left"></i>
+      </button>
       <% } else { %>
-        <button class="page-btn" disabled>
-          <i class="bi bi-chevron-left"></i>
-        </button>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md opacity-40 cursor-not-allowed" disabled>
+        <i class="bi bi-chevron-left"></i>
+      </button>
       <% } %>
-      
+
       <% 
         const maxPagesToShow = 5;
         let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
@@ -313,38 +306,35 @@
           startPage = Math.max(1, endPage - maxPagesToShow + 1);
         }
       %>
-      
+
       <% if (startPage > 1) { %>
-        <button class="page-btn" onclick="changePage(1)">1</button>
-        <% if (startPage > 2) { %>
-          <span class="pagination-dots">...</span>
-        <% } %>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" onclick="changePage(1)">1</button>
+      <% if (startPage > 2) { %>
+      <span class="px-1 text-gray-500">...</span>
       <% } %>
-      
+      <% } %>
+
       <% for(let i = startPage; i <= endPage; i++) { %>
-        <button 
-          class="page-btn <%= currentPage === i ? 'active' : '' %>" 
-          onclick="changePage(<%= i %>)"
-        >
-          <%= i %>
-        </button>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border rounded-md cursor-pointer font-medium transition-all <%= currentPage === i ? 'bg-blue-600 text-white border-blue-600 font-semibold' : 'border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50' %>" onclick="changePage(<%= i %>)">
+        <%= i %>
+      </button>
       <% } %>
-      
+
       <% if (endPage < totalPages) { %>
-        <% if (endPage < totalPages - 1) { %>
-          <span class="pagination-dots">...</span>
-        <% } %>
-        <button class="page-btn" onclick="changePage(<%= totalPages %>)"><%= totalPages %></button>
+      <% if (endPage < totalPages - 1) { %>
+      <span class="px-1 text-gray-500">...</span>
       <% } %>
-      
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" onclick="changePage(<%= totalPages %>)"><%= totalPages %></button>
+      <% } %>
+
       <% if(currentPage < totalPages) { %>
-        <button class="page-btn" onclick="changePage(<%= currentPage + 1 %>)">
-          <i class="bi bi-chevron-right"></i>
-        </button>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md cursor-pointer font-medium transition-all hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50" onclick="changePage(<%= currentPage + 1 %>)">
+        <i class="bi bi-chevron-right"></i>
+      </button>
       <% } else { %>
-        <button class="page-btn" disabled>
-          <i class="bi bi-chevron-right"></i>
-        </button>
+      <button class="min-w-[36px] h-9 flex items-center justify-center px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-md opacity-40 cursor-not-allowed" disabled>
+        <i class="bi bi-chevron-right"></i>
+      </button>
       <% } %>
     </div>
   </div>

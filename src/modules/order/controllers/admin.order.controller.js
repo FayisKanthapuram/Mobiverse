@@ -1,118 +1,84 @@
-import { handleReturnRequestService, loadOrderDetailsService, loadOrdersService, markItemReturnedService, updateOrderStatusService } from "../services/index.js";
+import {
+  handleReturnRequestService,
+  loadOrderDetailsService,
+  loadOrdersService,
+  markItemReturnedService,
+  updateOrderStatusService,
+} from "../services/index.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
+import { OrderMessages } from "../../../shared/constants/messages/orderMessages.js";
 
-export const loadOrders = async (req, res, next) => {
-  try {
-    const data = await loadOrdersService(req.query);
-    res.status(HttpStatus.OK).render("admin/orders/orders", {
-      pageTitle: "Orders",
-      pageCss: "orders",
-      pageJs: "orders",
+/* ----------------------------------------------------
+   LOAD ORDERS
+---------------------------------------------------- */
+export const loadOrders = async (req, res) => {
+  const data = await loadOrdersService(req.query);
 
-      // Data from service
-      analytics: data.analytics,
-      orders: data.orders,
-
-      // Pagination
-      currentPage: data.pagination.currentPage,
-      totalPages: data.pagination.totalPages,
-      totalOrders: data.pagination.totalOrders,
-      limit: data.pagination.limit,
-
-      // Filters
-      sortFilter: data.filters.sortFilter,
-      statusFilter: data.filters.statusFilter,
-      paymentStatusFilter: data.filters.paymentStatusFilter,
-      searchQuery: data.filters.searchQuery,
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).render("admin/orders/orders", {
+    pageTitle: "Orders",
+    // pageCss: "orders",
+    pageJs: "orders",
+    analytics: data.analytics,
+    orders: data.orders,
+    currentPage: data.pagination.currentPage,
+    totalPages: data.pagination.totalPages,
+    totalOrders: data.pagination.totalOrders,
+    limit: data.pagination.limit,
+    sortFilter: data.filters.sortFilter,
+    statusFilter: data.filters.statusFilter,
+    paymentStatusFilter: data.filters.paymentStatusFilter,
+    searchQuery: data.filters.searchQuery,
+  });
 };
 
-export const loadOrderDetails = async (req, res, next) => {
-  try {
-    const orderId = req.params.id;
+/* ----------------------------------------------------
+   LOAD ORDER DETAILS
+---------------------------------------------------- */
+export const loadOrderDetails = async (req, res) => {
+  const order = await loadOrderDetailsService(req.params.id);
 
-    const order = await loadOrderDetailsService(orderId);
-
-    res.status(HttpStatus.OK).render("admin/orders/orderDetails", {
-      pageTitle: "Orders",
-      pageJs: "orderDetails",
-      pageCss: "orderDetails",
-      order,
-    });
-
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).render("admin/orders/orderDetails", {
+    pageTitle: "Orders",
+    pageJs: "orders",
+    order,
+  });
 };
 
+/* ----------------------------------------------------
+   UPDATE ORDER STATUS
+---------------------------------------------------- */
 export const updateOrderStatus = async (req, res) => {
-  try {
-    const orderId = req.params.id;
-    const { status } = req.body;
+  const order = await updateOrderStatusService(req.params.id, req.body.status);
 
-    const updatedOrder = await updateOrderStatusService(orderId, status);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Order status updated successfully",
-      order: updatedOrder,
-    });
-  } catch (error) {
-    console.log("Order Status Update Error:", error);
-
-    res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Server error while updating order status",
-    });
-  }
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: OrderMessages.ORDER_STATUS_UPDATED,
+    order,
+  });
 };
 
-// Handle Return Request (Approve / Reject)
+/* ----------------------------------------------------
+   HANDLE RETURN REQUEST (APPROVE / REJECT)
+---------------------------------------------------- */
 export const handleReturnRequest = async (req, res) => {
-  try {
-    const orderId = req.params.id;
+  const order = await handleReturnRequestService(req.params.id, req.body);
 
-    const updatedOrder = await handleReturnRequestService(orderId, req.body);
-
-    return res.status(HttpStatus.OK).json({
-      success: true,
-      message: `Return request ${req.body.action}d successfully`,
-      order: updatedOrder,
-    });
-
-  } catch (error) {
-    console.error("Return Request Error:", error);
-
-    return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Server error while processing return request",
-    });
-  }
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: OrderMessages.RETURN_REQUEST_ACTION.replace("{action}", req.body.action),
+    order,
+  });
 };
 
-
-// Mark Item Returned (Admin confirms receipt of returned item)
+/* ----------------------------------------------------
+   MARK ITEM RETURNED
+---------------------------------------------------- */
 export const markItemReturned = async (req, res) => {
-  try {
-    const orderId = req.params.id;
+  const order = await markItemReturnedService(req.params.id, req.body);
 
-    const updatedOrder = await markItemReturnedService(orderId, req.body);
-
-    return res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Item marked returned",
-      order: updatedOrder,
-    });
-
-  } catch (error) {
-    console.error("Mark Item Returned Error:", error);
-
-    return res.status(error.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Server error while marking item returned",
-    });
-  }
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: OrderMessages.ITEM_MARKED_RETURNED,
+    order,
+  });
 };

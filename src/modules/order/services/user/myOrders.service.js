@@ -17,6 +17,7 @@ import {
   updateWalletBalanceAndCredit,
 } from "../../../wallet/repo/wallet.repo.js";
 import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
+import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
 
 export const loadMyOrdersService = async (userId, queryParams) => {
   const status = queryParams.status || "";
@@ -83,7 +84,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
     return {
       status: HttpStatus.NOT_FOUND,
       success: false,
-      message: "Order not found.",
+      message: OrderMessages.ORDER_NOT_FOUND,
     };
   }
 
@@ -138,7 +139,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
   return {
     status: HttpStatus.OK,
     success: true,
-    message: "Order cancelled successfully",
+    message: OrderMessages.ORDER_CANCELLED_SUCCESSFULLY,
   };
 };
 
@@ -162,7 +163,7 @@ export const returnOrderItemsService = async (orderId, body) => {
     return {
       status: HttpStatus.NOT_FOUND,
       success: false,
-      message: "Order not found.",
+      message: OrderMessages.ORDER_NOT_FOUND,
     };
   }
 
@@ -197,7 +198,7 @@ export const returnOrderItemsService = async (orderId, body) => {
   return {
     status: HttpStatus.OK,
     success: true,
-    message: "Return request submitted successfully.",
+    message: OrderMessages.RETURN_REQUEST_SUBMITTED,
   };
 };
 
@@ -205,7 +206,7 @@ export const loadOrderDetailsService = async (orderId) => {
   const order = await findOrderByIdWithItems(orderId);
 
   if (!order) {
-    const err = new Error("Order not found");
+    const err = new Error(OrderMessages.ORDER_NOT_FOUND);
     err.status = 404;
     throw err;
   }
@@ -217,7 +218,7 @@ export const loadInvoiceService = async (orderId) => {
   const order = await findOrderByOrderIdWithUser(orderId);
 
   if (!order) {
-    const err = new Error("Order not found");
+    const err = new Error(OrderMessages.ORDER_NOT_FOUND);
     err.status = 404;
     throw err;
   }

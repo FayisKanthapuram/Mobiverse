@@ -1,69 +1,54 @@
 import { findOrderById, saveOrder } from "../../repo/order.repo.js";
+import { AppError } from "../../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../../shared/constants/statusCode.js";
+import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
 
 export const handleReturnRequestService = async (orderId, body) => {
   const { itemId, action, adminNote } = body;
 
+
   if (!itemId || !action) {
-    const err = new Error("Missing itemId or action");
-    err.status = 400;
-    throw err;
+    throw new AppError(OrderMessages.MISSING_ITEM_OR_ACTION, HttpStatus.BAD_REQUEST);
   }
 
-  const validActions = ["approve", "reject"];
-  if (!validActions.includes(action)) {
-    const err = new Error("Invalid action");
-    err.status = 400;
-    throw err;
+  if (!["approve", "reject"].includes(action)) {
+    throw new AppError(OrderMessages.INVALID_ACTION, HttpStatus.BAD_REQUEST);
   }
 
   const order = await findOrderById(orderId);
   if (!order) {
-    const err = new Error("Order not found");
-    err.status = 404;
-    throw err;
+    throw new AppError(OrderMessages.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  // Find item
-  const item = order.orderedItems.id
-    ? order.orderedItems.id(itemId)
-    : order.orderedItems.find((i) => i._id.toString() === itemId);
+  const item =
+    order.orderedItems.id?.(itemId) ||
+    order.orderedItems.find((i) => i._id.toString() === itemId);
 
   if (!item) {
-    const err = new Error("Ordered item not found");
-    err.status = 404;
-    throw err;
+    throw new AppError(OrderMessages.ORDERED_ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
+  }
+
+  if (["Cancelled", "Returned"].includes(item.itemStatus)) {
+    throw new AppError(
+      OrderMessages.CANNOT_CHANGE_RETURN_STATUS,
+      HttpStatus.BAD_REQUEST
+    );
   }
 
   const now = new Date();
 
-  // Prevent changing terminal statuses
-  const terminalStatuses = ["Cancelled", "Returned"];
-  if (terminalStatuses.includes(item.itemStatus)) {
-    const err = new Error("Cannot change return status for this item");
-    err.status = 400;
-    throw err;
-  }
+  if (!item.itemTimeline) item.itemTimeline = {};
 
-  // ------------------------
-  // APPLY ACTION
-  // ------------------------
   if (action === "approve") {
     item.itemStatus = "ReturnApproved";
-    if (!item.itemTimeline) item.itemTimeline = {};
     item.itemTimeline.returnApprovedAt = now;
-
-    if (adminNote) item.adminNote = adminNote;
   } else {
     item.itemStatus = "ReturnRejected";
-    if (!item.itemTimeline) item.itemTimeline = {};
     item.itemTimeline.returnRejectedAt = now;
-
-    if (adminNote) item.adminNote = adminNote;
   }
 
-  // ------------------------
-  // UPDATE ORDER STATUS
-  // ------------------------
+  if (adminNote) item.adminNote = adminNote;
+
   const allReturned = order.orderedItems.every(
     (i) => i.itemStatus === "Returned"
   );
@@ -72,14 +57,10 @@ export const handleReturnRequestService = async (orderId, body) => {
     (i) => i.itemStatus === "ReturnApproved" || i.itemStatus === "Returned"
   );
 
-  if (allReturned) {
-    order.orderStatus = "Returned";
-  } else if (anyReturnFlow) {
-    order.orderStatus = "Partially Returned";
-  }
+  if (allReturned) order.orderStatus = "Returned";
+  else if (anyReturnFlow) order.orderStatus = "Partially Returned";
 
   order.markModified("orderedItems");
-
   await saveOrder(order);
 
   return order;

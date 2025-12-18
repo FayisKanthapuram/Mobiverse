@@ -1,18 +1,21 @@
 import { completeReferralReward } from "../../../referral/referral.service.js";
 import { findOrderById, saveOrder } from "../../repo/order.repo.js";
+import { AppError } from "../../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../../shared/constants/statusCode.js";
+import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
 
 export const updateOrderStatusService = async (orderId, newStatus) => {
   const order = await findOrderById(orderId);
 
   if (!order) {
-    const err = new Error("Order not found");
-    err.status = 404;
-    throw err;
+    throw new AppError(OrderMessages.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   const now = new Date();
 
-  // Initialize timeline
+  /* ----------------------------------------------------
+     INITIALIZE TIMELINE
+  ---------------------------------------------------- */
   if (!order.statusTimeline) {
     order.statusTimeline = {};
   }
@@ -48,14 +51,12 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
   ];
 
   if (!validStatuses.includes(newStatus)) {
-    const err = new Error("Invalid order status");
-    err.status = 400;
-    throw err;
+    throw new AppError(OrderMessages.INVALID_ORDER_STATUS, HttpStatus.BAD_REQUEST);
   }
 
-  // -------------------------------------------------
-  // SPECIAL CASES: CANCELLED
-  // -------------------------------------------------
+  /* ----------------------------------------------------
+     SPECIAL CASE: CANCELLED
+  ---------------------------------------------------- */
   if (newStatus === "Cancelled") {
     timeline.cancelledAt = now;
     order.orderStatus = "Cancelled";
@@ -63,7 +64,7 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
     order.orderedItems.forEach((item) => {
       if (item.itemStatus !== "Cancelled") {
         item.itemStatus = "Cancelled";
-        if (!item.itemTimeline) item.itemTimeline = {};
+        item.itemTimeline ||= {};
         item.itemTimeline.cancelledAt = now;
       }
     });
@@ -72,9 +73,9 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
     return order;
   }
 
-  // -------------------------------------------------
-  // SPECIAL CASES: RETURNED
-  // -------------------------------------------------
+  /* ----------------------------------------------------
+     SPECIAL CASE: RETURNED
+  ---------------------------------------------------- */
   if (newStatus === "Returned") {
     timeline.returnedAt = now;
     order.orderStatus = "Returned";
@@ -82,7 +83,7 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
     order.orderedItems.forEach((item) => {
       if (item.itemStatus !== "Returned") {
         item.itemStatus = "Returned";
-        if (!item.itemTimeline) item.itemTimeline = {};
+        item.itemTimeline ||= {};
         item.itemTimeline.returnedAt = now;
       }
     });
@@ -91,14 +92,15 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
     return order;
   }
 
-  // -------------------------------------------------
-  // NORMAL FLOW: AUTO-FILL TIMELINE
-  // -------------------------------------------------
+  /* ----------------------------------------------------
+     NORMAL FLOW (AUTO TIMELINE FILL)
+  ---------------------------------------------------- */
   const stepIndex = statusFlow.indexOf(newStatus);
   if (stepIndex === -1) {
-    const err = new Error("Invalid sequential order status");
-    err.status = 400;
-    throw err;
+    throw new AppError(
+      OrderMessages.INVALID_SEQUENTIAL_ORDER_STATUS,
+      HttpStatus.BAD_REQUEST
+    );
   }
 
   for (let i = 1; i <= stepIndex; i++) {
@@ -111,19 +113,20 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
 
   order.orderStatus = newStatus;
 
-  // Update item-level timeline
+  /* ----------------------------------------------------
+     ITEM LEVEL STATUS UPDATE
+  ---------------------------------------------------- */
   order.orderedItems.forEach((item) => {
     if (
       item.itemStatus === "Cancelled" ||
       item.itemStatus === "Returned" ||
       item.itemStatus === "ReturnApproved"
     ) {
-      return; // don't modify cancelled/returned items
+      return;
     }
 
     item.itemStatus = newStatus;
-
-    if (!item.itemTimeline) item.itemTimeline = {};
+    item.itemTimeline ||= {};
 
     const timeKey = timelineMap[newStatus];
     if (timeKey && !item.itemTimeline[timeKey]) {
@@ -131,17 +134,20 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
     }
   });
 
+  /* ----------------------------------------------------
+     DELIVERED CASE
+  ---------------------------------------------------- */
   if (newStatus === "Delivered") {
     order.deliveredDate = now;
-    order.paymentStatus='Paid';
-    //complete referral reward
-    await completeReferralReward(order.userId,order._id)
+    order.paymentStatus = "Paid";
+
+    // Complete referral reward
+    await completeReferralReward(order.userId, order._id);
   }
 
   order.markModified("statusTimeline");
   order.markModified("orderedItems");
 
   await saveOrder(order);
-
   return order;
 };
