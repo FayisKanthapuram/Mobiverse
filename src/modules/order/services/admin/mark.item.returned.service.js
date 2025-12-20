@@ -16,6 +16,7 @@ import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
+import { calculateOrderStatus } from "../../order.helper.js";
 
 export const markItemReturnedService = async (orderId, body) => {
   const { itemId } = body;
@@ -83,10 +84,10 @@ export const markItemReturnedService = async (orderId, body) => {
 
   if (allReturnedOrCancelled) {
     order.paymentStatus = "Refunded";
-    order.orderStatus = "Returned";
-    order.statusTimeline ||= {};
-    order.statusTimeline.returnedAt = now;
   }
+
+  order.orderStatus = calculateOrderStatus(order.orderedItems);
+  
 
   order.markModified("orderedItems");
   await saveOrder(order);

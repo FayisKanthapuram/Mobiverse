@@ -1,6 +1,29 @@
 document.addEventListener("DOMContentLoaded", () => {
   const otpInputs = document.querySelectorAll(".otp-input");
   const resendLink = document.getElementById("resend-otp-link");
+  /* ============================
+    OTP PASTE HANDLING
+  ============================ */
+  otpInputs.forEach((input, index) => {
+    input.addEventListener("paste", (e) => {
+      e.preventDefault();
+
+      const pastedData = e.clipboardData.getData("text").replace(/\D/g, ""); // allow only digits
+
+      if (!pastedData) return;
+
+      pastedData.split("").forEach((digit, i) => {
+        if (otpInputs[i]) {
+          otpInputs[i].value = digit;
+        }
+      });
+
+      // Focus last filled input
+      const lastIndex = Math.min(pastedData.length, otpInputs.length) - 1;
+      otpInputs[lastIndex]?.focus();
+    });
+  });
+
 
   /* ============================
      OTP INPUT AUTO MOVE
@@ -41,7 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
             background: "linear-gradient(to right, #00b09b, #96c93d)",
           },
         }).showToast();
-
       } catch (error) {
         Toastify({
           text: error.response?.data?.message || "Login failed",
@@ -115,7 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = response.data.redirect;
         }, 600);
       }
-
     } catch (error) {
       Toastify({
         text: error.response?.data?.message || "Something went wrong",

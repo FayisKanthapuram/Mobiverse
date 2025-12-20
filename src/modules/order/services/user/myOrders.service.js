@@ -18,6 +18,7 @@ import {
 } from "../../../wallet/repo/wallet.repo.js";
 import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
+import { calculateOrderStatus } from "../../order.helper.js";
 
 export const loadMyOrdersService = async (userId, queryParams) => {
   const status = queryParams.status || "";
@@ -113,10 +114,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
 
   // 4. Update Order Status
   if (isAllCancelled) {
-    order.orderStatus = "Cancelled";
     order.paymentStatus = "Refunded";
-  } else {
-    order.orderStatus = "Partially Cancelled";
   }
 
   if (order.paymentStatus === "Paid" || order.paymentMethod !== "cod") {
@@ -133,6 +131,8 @@ export const cancelOrderItemsService = async (orderId, body) => {
       balanceAfter: wallet.balance,
     });
   }
+
+  order.orderStatus = calculateOrderStatus(order.orderedItems);
 
   await saveOrder(order);
 
@@ -174,6 +174,7 @@ export const returnOrderItemsService = async (orderId, body) => {
   for (const item of order.orderedItems) {
     if (itemIds.includes(item._id.toString())) {
       item.itemStatus = "ReturnRequested";
+      item.itemTimeline.returnRequestedAt=Date.now();
       item.reason = `${reason}, ${comments}`;
       anyItemUpdated = true;
     }
@@ -188,8 +189,7 @@ export const returnOrderItemsService = async (orderId, body) => {
   }
 
   // 4. Update order status
-
-  order.orderStatus = "Partially Returned";
+  order.orderStatus = calculateOrderStatus(order.orderedItems);
 
   // 5. Save order
 

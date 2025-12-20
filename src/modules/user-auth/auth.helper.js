@@ -1,14 +1,71 @@
 import { generateOtp } from "../../shared/utils/otp.js";
-import { sendVerificationEmail } from "../../shared/utils/gmail.js";
+import { sendEmail } from "../../shared/utils/mailer.util.js";
+import { renderEmailTemplate } from "../../shared/utils/emailRenderer.util.js";
+import { LOGONAME } from "../../config/cloudinaryDefaults.js";
 
 export const createOtp = () => ({
   otp: generateOtp(),
   expiry: Date.now() + 1 * 60 * 1000
 });
 
-export const sendOtpEmail = async (email, otp) => {
-  return await sendVerificationEmail(email, otp);
+
+export const sendOtpEmail = async ( email, otp, type = "signup" ) => {
+  if (!email) {
+    console.error("❌ sendOtpEmail failed: email is missing");
+    return false;
+  }
+
+  const configMap = {
+    signup: {
+      subject: "Verify your Mobiverse account",
+      title: "Verify Your Mobiverse Account",
+      message:
+        "Welcome to Mobiverse! Use the code below to verify your account.",
+    },
+    resend: {
+      subject: "Your Mobiverse verification code",
+      title: "Verify Your Mobiverse Account",
+      message: "Here is your new verification code.",
+    },
+    forgot: {
+      subject: "Reset your Mobiverse password",
+      title: "Reset Your Password",
+      message: "Use the code below to reset your Mobiverse password.",
+    },
+    changeEmail: {
+      subject: "Confirm your new email address",
+      title: "Confirm Email Change",
+      message: "Use the code below to confirm your new email address.",
+    },
+    resendChangeEmail: {
+      subject: "Confirm your new email address",
+      title: "Confirm Email Change",
+      message: "Here is your new code to confirm your email address change.",
+    },
+  };
+
+  const config = configMap[type];
+  if (!config) throw new Error("Invalid OTP email type");
+
+  const html = renderEmailTemplate("otp-email.html", {
+    TITLE: config.title,
+    MESSAGE: config.message,
+    OTP: otp,
+    YEAR: new Date().getFullYear(),
+    LOGO_URL: LOGONAME,
+  });
+
+  if (!html) return false;
+
+  return await sendEmail({
+    to: email, // ✅ guaranteed now
+    subject: config.subject,
+    text: `${config.title}: ${otp}`,
+    html,
+  });
 };
+
+
 
 export function generateReferralCode(name) {
   return (

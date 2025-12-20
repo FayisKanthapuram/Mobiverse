@@ -2,6 +2,7 @@ import { findOrderById, saveOrder } from "../../repo/order.repo.js";
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
+import { calculateOrderStatus } from "../../order.helper.js";
 
 export const handleReturnRequestService = async (orderId, body) => {
   const { itemId, action, adminNote } = body;
@@ -49,16 +50,7 @@ export const handleReturnRequestService = async (orderId, body) => {
 
   if (adminNote) item.adminNote = adminNote;
 
-  const allReturned = order.orderedItems.every(
-    (i) => i.itemStatus === "Returned"
-  );
-
-  const anyReturnFlow = order.orderedItems.some(
-    (i) => i.itemStatus === "ReturnApproved" || i.itemStatus === "Returned"
-  );
-
-  if (allReturned) order.orderStatus = "Returned";
-  else if (anyReturnFlow) order.orderStatus = "Partially Returned";
+  order.orderStatus = calculateOrderStatus(order.orderedItems);
 
   order.markModified("orderedItems");
   await saveOrder(order);

@@ -30,7 +30,7 @@ export const registerUserService = async (body, session) => {
 
   const { otp, expiry } = createOtp();
 
-  const sent = await sendOtpEmail(email, otp);
+  const sent = await sendOtpEmail(email, otp, "signup");
   console.log(otp)
   if (!sent) throw new Error("Failed to send OTP");
 
@@ -124,7 +124,7 @@ export const resendOtpService = async (session) => {
   session.otp = otp;
   session.otpExpiry = expiry;
 
-  const sent = await sendOtpEmail(email, otp);
+  const sent = await sendOtpEmail(email, otp, "resend");
   console.log(otp)
   if (!sent) throw new Error("Failed to resend OTP");
 
@@ -154,7 +154,7 @@ export const sendRecoverOtpService = async (email, session) => {
 
   const { otp, expiry } = createOtp();
 
-  const sent = await sendOtpEmail(email, otp);
+  const sent = await sendOtpEmail(email, otp, "forgot");
   if (!sent) throw new Error("Failed to send OTP");
 
   session.recoveryOtp = otp;

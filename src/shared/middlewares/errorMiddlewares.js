@@ -19,9 +19,7 @@ export function notFound(req, res, next) {
 export function errorHandler(err, req, res, next) {
   
   const status = err.status || 500;
-  if(status>=500){
-    console.error("❌ ERROR:", err);
-  }
+  console.error("❌ ERROR:", err);
   /* ----------------------------------------------------
      🔥 AJAX / API REQUESTS (Axios, Fetch, XHR)
   ---------------------------------------------------- */

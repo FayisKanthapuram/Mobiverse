@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import { findUserByEmail, findUserById, saveUser } from "./user.repo.js";
-import { createOtpPayload, sendOtpEmail } from "./user.helper.js";
 import { cloudinaryUpload } from "../../shared/middlewares/upload.js";
 import cloudinary from "../../config/cloudinary.js";
 import { DEFAULT_USER_AVATAR } from "../../config/cloudinaryDefaults.js";
+import { createOtp, sendOtpEmail } from "../user-auth/auth.helper.js";
 
 export const getUserProfileService = async (userId) => {
   return await findUserById(userId);
@@ -47,9 +47,9 @@ export const requestEmailChangeService = async (
     throw new Error("User already exist with this email");
   }
 
-  const { otp, expiry } = createOtpPayload();
+  const { otp, expiry } = createOtp();
 
-  const sent = await sendOtpEmail(newEmail, otp);
+  const sent = await sendOtpEmail(newEmail, otp, "changeEmail");
   if (!sent) throw new Error("Failed to send OTP");
 
   session.oldEmail = oldEmail;
@@ -83,8 +83,8 @@ export const verifyEmailOtpService = async (otp, session) => {
 export const resendEmailOtpService = async (session) => {
   if (!session.newEmail) throw new Error("User data not found");
 
-  const { otp, expiry } = createOtpPayload();
-  const sent = await sendOtpEmail(session.newEmail, otp);
+  const { otp, expiry } = createOtp();
+  const sent = await sendOtpEmail(session.newEmail, otp, "resendChangeEmail");
   if (!sent) throw new Error("Failed to resend OTP");
 
   session.otp = otp;

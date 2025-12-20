@@ -1,6 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
   const otpInputs = document.querySelectorAll(".otp-input");
 
+  /* ============================
+    OTP PASTE HANDLING
+  ============================ */
+  otpInputs.forEach((input) => {
+    input.addEventListener("paste", (e) => {
+      e.preventDefault();
+
+      const pastedData = e.clipboardData.getData("text").replace(/\D/g, "");
+
+      if (!pastedData) return;
+
+      pastedData.split("").forEach((digit, i) => {
+        if (otpInputs[i]) {
+          otpInputs[i].value = digit;
+        }
+      });
+
+      const lastIndex = Math.min(pastedData.length, otpInputs.length) - 1;
+      otpInputs[lastIndex]?.focus();
+    });
+  });
+
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", () => {
       if (input.value.length === 1 && index < otpInputs.length - 1) {
@@ -18,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resendLink = document.getElementById("resend-otp-link");
 
   if (resendLink) {
-    resendLink.addEventListener("click", async (e) =>{
+    resendLink.addEventListener("click", async (e) => {
       e.preventDefault();
       startCountdown();
       try {
