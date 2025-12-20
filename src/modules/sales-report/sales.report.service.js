@@ -83,7 +83,7 @@ export const getDeliveredSalesReportService = async ({
     {
       $match: {
         "orderedItems.itemStatus": {
-          $in: ["Delivered", "ReturnRejected"],
+          $in: ["Delivered", "ReturnRejected",'ReturnRequested'],
         },
       },
     },

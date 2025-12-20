@@ -7,17 +7,59 @@ import Product from "../product/models/product.model.js";
 ---------------------------------*/
 export const getDashboardStatsRepo = async () => {
   const revenueAgg = await Order.aggregate([
-    { $match: { orderStatus: "Delivered" } },
-    { $group: { _id: null, total: { $sum: "$finalAmount" } } },
+    // 🔹 Flatten items
+    { $unwind: "$orderedItems" },
+
+    // 🔹 Only revenue-valid items
+    {
+      $match: {
+        "orderedItems.itemStatus": {
+          $in: ["Delivered", "ReturnRequested", "ReturnRejected"],
+        },
+      },
+    },
+
+    // 🔹 Calculate net revenue
+    {
+      $group: {
+        _id: null,
+        total: {
+          $sum: {
+            $multiply: [
+              {
+                $max: [
+                  {
+                    $subtract: [
+                      "$orderedItems.price",
+                      {
+                        $add: [
+                          { $ifNull: ["$orderedItems.couponShare", 0] },
+                          { $ifNull: ["$orderedItems.offer", 0] },
+                        ],
+                      },
+                    ],
+                  },
+                  0, // prevent negative revenue
+                ],
+              },
+              "$orderedItems.quantity",
+            ],
+          },
+        },
+      },
+    },
   ]);
 
   return {
     revenue: revenueAgg[0]?.total || 0,
+
+    // These remain order-level
     orders: await Order.countDocuments(),
     users: await User.countDocuments({ isBlocked: false }),
     products: await Product.countDocuments({ isListed: true }),
   };
 };
+
 
 /* --------------------------------
    SALES CHART
@@ -26,19 +68,56 @@ export const getSalesChartRepo = async (startDate, groupFormat) => {
   return Order.aggregate([
     {
       $match: {
-        createdAt: { $gte: startDate },
-        orderStatus: "Delivered",
+        deliveredDate: { $gte: startDate },
       },
     },
+
+    // 🔹 Flatten ordered items
+    { $unwind: "$orderedItems" },
+
+    // 🔹 Include only revenue-valid item statuses
+    {
+      $match: {
+        "orderedItems.itemStatus": {
+          $in: ["Delivered", "ReturnRequested", "ReturnRejected"],
+        },
+      },
+    },
+
+    // 🔹 Group & calculate NET revenue
     {
       $group: {
         _id: groupFormat,
-        revenue: { $sum: "$finalAmount" },
+        revenue: {
+          $sum: {
+            $multiply: [
+              {
+                $max: [
+                  {
+                    $subtract: [
+                      "$orderedItems.price",
+                      {
+                        $add: [
+                          { $ifNull: ["$orderedItems.couponShare", 0] },
+                          { $ifNull: ["$orderedItems.offer", 0] },
+                        ],
+                      },
+                    ],
+                  },
+                  0, // ⛔ prevent negative revenue
+                ],
+              },
+              "$orderedItems.quantity",
+            ],
+          },
+        },
       },
     },
+
     { $sort: { _id: 1 } },
   ]);
 };
+
 
 /* --------------------------------
    ORDER STATUS

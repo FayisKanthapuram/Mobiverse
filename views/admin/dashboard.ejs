@@ -1,527 +1,406 @@
-<!-- Dashboard Header -->
-<div class="mb-8">
-  <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-  <p class="text-gray-600">Welcome back! Here's what's happening with your store today.</p>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+    <p class="text-gray-600">
+      Overview of your store's performance.
+    </p>
+  </div>
 </div>
 
-<!-- Stats Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  <!-- Total Revenue -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+
+  <div class="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition duration-300">
     <div class="flex items-center justify-between mb-4">
-      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+      <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
         <i class="bi bi-currency-rupee text-2xl text-blue-600"></i>
       </div>
-      <span class="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+12.5%</span>
     </div>
-    <h3 class="text-gray-600 text-sm font-medium mb-1">Total Revenue</h3>
-    <p class="text-2xl font-bold text-gray-900" id="total-revenue">
-      <span class="inline-block w-20 h-8 bg-gray-200 animate-pulse rounded"></span>
-    </p>
+    <h3 class="text-sm font-medium text-gray-500">Total Revenue</h3>
+    <div class="flex items-baseline gap-2 mt-1">
+      <p class="text-2xl font-bold text-gray-900">
+        ₹<%= stats.revenue.toLocaleString("en-IN") %>
+      </p>
+    </div>
   </div>
 
-  <!-- Total Orders -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+  <div class="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition duration-300">
     <div class="flex items-center justify-between mb-4">
-      <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+      <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center border border-purple-100">
         <i class="bi bi-cart-check text-2xl text-purple-600"></i>
       </div>
-      <span class="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+8.2%</span>
     </div>
-    <h3 class="text-gray-600 text-sm font-medium mb-1">Total Orders</h3>
-    <p class="text-2xl font-bold text-gray-900" id="total-orders">
-      <span class="inline-block w-16 h-8 bg-gray-200 animate-pulse rounded"></span>
+    <h3 class="text-sm font-medium text-gray-500">Total Orders</h3>
+    <p class="text-2xl font-bold text-gray-900 mt-1">
+      <%= stats.orders.toLocaleString() %>
     </p>
   </div>
 
-  <!-- Total Users -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+  <div class="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition duration-300">
     <div class="flex items-center justify-between mb-4">
-      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-        <i class="bi bi-people text-2xl text-green-600"></i>
+      <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center border border-orange-100">
+        <i class="bi bi-people text-2xl text-orange-600"></i>
       </div>
-      <span class="text-sm font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+15.3%</span>
     </div>
-    <h3 class="text-gray-600 text-sm font-medium mb-1">Total Users</h3>
-    <p class="text-2xl font-bold text-gray-900" id="total-users">
-      <span class="inline-block w-16 h-8 bg-gray-200 animate-pulse rounded"></span>
+    <h3 class="text-sm font-medium text-gray-500">Active Users</h3>
+    <p class="text-2xl font-bold text-gray-900 mt-1">
+      <%= stats.users.toLocaleString() %>
     </p>
   </div>
 
-  <!-- Total Products -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+  <div class="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition duration-300">
     <div class="flex items-center justify-between mb-4">
-      <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-        <i class="bi bi-phone text-2xl text-orange-600"></i>
+      <div class="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-100">
+        <i class="bi bi-box-seam text-2xl text-gray-600"></i>
       </div>
-      <span class="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">Active</span>
     </div>
-    <h3 class="text-gray-600 text-sm font-medium mb-1">Total Products</h3>
-    <p class="text-2xl font-bold text-gray-900" id="total-products">
-      <span class="inline-block w-16 h-8 bg-gray-200 animate-pulse rounded"></span>
+    <h3 class="text-sm font-medium text-gray-500">Listed Products</h3>
+    <p class="text-2xl font-bold text-gray-900 mt-1">
+      <%= stats.products.toLocaleString() %>
     </p>
   </div>
+
 </div>
 
-<!-- Charts Section -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-  <!-- Sales Chart -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <div class="flex items-center justify-between mb-6">
+
+  <div class="bg-white rounded-xl shadow-sm border p-6">
+    <div class="flex justify-between items-center mb-6">
       <div>
-        <h2 class="text-lg font-semibold text-gray-900 mb-1">Sales Overview</h2>
-        <p class="text-sm text-gray-600">Revenue and order trends</p>
+        <h2 class="font-bold text-lg text-gray-800">Sales Overview</h2>
+        <p class="text-sm text-gray-500">Gross sales over time</p>
       </div>
 
-      <select
-        id="sales-filter"
-        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white"
-      >
-        <option value="weekly">Weekly</option>
-        <option value="monthly">Monthly</option>
-        <option value="yearly">Yearly</option>
-      </select>
+      <div class="relative">
+        <select
+          onchange="location.href='?filter=' + this.value"
+          class="appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-xs font-semibold rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+        >
+        <option value="hourly" <%= filter === "hourly" ? "selected" : "" %>>
+  Today (Hourly)
+</option>
+          <option value="weekly" <%= filter === "weekly" ? "selected" : "" %>>Weekly</option>
+          <option value="monthly" <%= filter === "monthly" ? "selected" : "" %>>Monthly</option>
+          <option value="yearly" <%= filter === "yearly" ? "selected" : "" %>>Yearly</option>
+        </select>
+        
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+          <i class="bi bi-chevron-down text-[10px]"></i>
+        </div>
+      </div>
     </div>
 
-    <!-- 🔥 FIX: FIXED HEIGHT WRAPPER -->
-    <div class="relative h-[320px]">
-      <canvas id="salesChart"></canvas>
+    <div class="relative w-full min-h-[320px]">
+      <div id="salesChart"></div>
     </div>
   </div>
 
-
-  <!-- Order Status Chart -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <div class="mb-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-1">Order Status</h2>
-      <p class="text-sm text-gray-600">Distribution of order statuses</p>
-    </div>
-
-    <!-- 🔥 FIX -->
-    <div class="relative h-[320px]">
+  <div class="bg-white rounded-xl shadow-sm border p-6">
+    <h2 class="font-bold text-lg text-gray-800 mb-2">Order Status</h2>
+    <div class="relative h-[320px] flex items-center justify-center">
       <canvas id="orderStatusChart"></canvas>
     </div>
   </div>
+
 </div>
 
-
-
-
-<!-- Top Selling Section -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-  <!-- Top 10 Products -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-lg font-semibold text-gray-900">Top 10 Products</h2>
-      <i class="bi bi-trophy-fill text-2xl text-yellow-500"></i>
-    </div>
-    <div id="top-products" class="space-y-4">
-      <!-- Loading skeleton -->
-      <div class="text-center py-8">
-        <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-gray-500 text-sm mt-2">Loading...</p>
-      </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border p-6">
+    <h2 class="font-bold text-lg mb-4 flex items-center gap-2">
+      <i class="bi bi-trophy-fill text-yellow-500"></i>
+      Top Products
+    </h2>
+
+    <div class="space-y-4">
+      <% topProducts.forEach((p, i) => { %>
+        <div class="flex items-center justify-between group">
+          <div class="flex items-center gap-3 min-w-0">
+            
+            <span class="text-gray-400 font-bold text-sm w-3 text-center">
+              <%= p.rank %>
+            </span>
+
+            <div class="w-10 h-10 flex-shrink-0 rounded-lg border border-gray-200 bg-white p-1 flex items-center justify-center shadow-sm">
+              <img 
+                src="<%= p.logo %>" 
+                alt="<%= p.name %>" 
+                class="w-full h-full object-contain"
+              >
+            </div>
+
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-gray-800 truncate max-w-[140px] group-hover:text-blue-600 transition">
+                <%= p.name %>
+              </p>
+              <p class="text-xs text-gray-500">
+                <%= p.sales %> items sold
+              </p>
+            </div>
+          </div>
+
+          <span class="font-semibold text-gray-900 text-sm whitespace-nowrap">
+            ₹<%= p.revenue.toLocaleString("en-IN") %>
+          </span>
+        </div>
+      <% }) %>
     </div>
   </div>
 
-  <!-- Top 10 Brands -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-lg font-semibold text-gray-900">Top 10 Brands</h2>
-      <i class="bi bi-award-fill text-2xl text-blue-500"></i>
-    </div>
-    <div id="top-brands" class="space-y-4">
-      <!-- Loading skeleton -->
-      <div class="text-center py-8">
-        <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-gray-500 text-sm mt-2">Loading...</p>
-      </div>
+  <div class="bg-white rounded-2xl shadow-sm border p-6">
+    <h2 class="font-bold text-lg mb-4 flex items-center gap-2">
+      <i class="bi bi-patch-check-fill text-blue-600"></i>
+      Top Brands
+    </h2>
+
+    <div class="space-y-4">
+      <% topBrands.forEach((b, i) => { %>
+        <div class="flex items-center justify-between group">
+          <div class="flex items-center gap-3 min-w-0">
+            
+            <span class="text-gray-400 font-bold text-sm w-3 text-center">
+              <%= b.rank %>
+            </span>
+
+            <div class="w-10 h-10 flex-shrink-0 rounded-full border border-gray-200 bg-white p-1.5 flex items-center justify-center shadow-sm">
+              <img 
+                src="<%= b.logo %>" 
+                alt="<%= b.name %>" 
+                class="w-full h-full object-contain"
+              >
+            </div>
+
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-gray-800 truncate max-w-[140px] capitalize group-hover:text-blue-600 transition">
+                <%= b.name %>
+              </p>
+              <p class="text-xs text-gray-500">
+                <%= b.sales %> sales
+              </p>
+            </div>
+          </div>
+
+          <span class="font-semibold text-gray-900 text-sm whitespace-nowrap">
+            ₹<%= b.revenue.toLocaleString("en-IN") %>
+          </span>
+        </div>
+      <% }) %>
     </div>
   </div>
 
-  <!-- Recent Orders -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-lg font-semibold text-gray-900">Recent Orders</h2>
-      <a href="/admin/orders" class="text-sm text-blue-600 hover:text-blue-700 font-medium">View All</a>
+  <%
+  const statusMap = {
+    Pending: { label: "Pending", class: "bg-gray-100 text-gray-600 border-gray-200" },
+    Confirmed: { label: "Confirmed", class: "bg-blue-50 text-blue-600 border-blue-100" },
+    Processing: { label: "Processing", class: "bg-indigo-50 text-indigo-600 border-indigo-100" },
+    Shipped: { label: "Shipped", class: "bg-purple-50 text-purple-600 border-purple-100" },
+    "Out for Delivery": { label: "Out for Delivery", class: "bg-orange-50 text-orange-600 border-orange-100" },
+    Delivered: { label: "Delivered", class: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+    Cancelled: { label: "Cancelled", class: "bg-red-50 text-red-600 border-red-100" },
+    Returned: { label: "Returned", class: "bg-slate-100 text-slate-600 border-slate-200" }
+  };
+  %>
+
+  <div class="bg-white rounded-2xl shadow-sm border p-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="font-bold text-lg flex items-center gap-2">
+          <i class="bi bi-clock-history text-gray-400"></i>
+          Recent Orders
+        </h2>
+        <a href="/admin/orders" class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">View All</a>
     </div>
-    <div id="recent-orders" class="space-y-4">
-      <!-- Loading skeleton -->
-      <div class="text-center py-8">
-        <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-gray-500 text-sm mt-2">Loading...</p>
-      </div>
+
+    <div class="space-y-3">
+      <% recentOrders.forEach(o => { 
+          const status = statusMap[o.status] || { label: o.status, class: "bg-gray-100 text-gray-600" };
+      %>
+        <div onclick="location.href='/admin/orders/details/<%= o.id %>'" class="group relative p-3 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-white hover:shadow-md hover:border-blue-100 transition cursor-pointer">
+          
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-gray-900">#<%= o.id %></span>
+            <span class="px-2 py-0.5 text-[10px] uppercase tracking-wide rounded-full font-bold border <%= status.class %>">
+              <%= status.label %>
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center">
+             <div>
+                <p class="text-xs text-gray-500">Total Amount</p>
+                <p class="text-sm font-bold text-gray-900">₹<%= o.amount.toLocaleString("en-IN") %></p>
+             </div>
+             
+             <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <i class="bi bi-chevron-right text-xs"></i>
+             </div>
+          </div>
+        </div>
+      <% }) %>
     </div>
   </div>
+
 </div>
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 
 <script>
-// Global variables for charts
-let salesChart = null;
-let orderStatusChart = null;
-let referralChart = null;
 
-// Format currency
-function formatCurrency(amount) {
-  return '₹' + amount.toLocaleString('en-IN');
-}
 
-// Show error message
-function showError(message) {
-  Toastify({
-    text: message,
-    duration: 4000,
-    gravity: "bottom",
-    position: "right",
-    style: {
-      background: "#e74c3c",
+  // ==========================================
+  // 2. APEXCHARTS (Sales Area Chart)
+  // ==========================================
+  const salesData = <%- JSON.stringify(salesChart) %>;
+
+  const salesOptions = {
+    series: [{
+      name: 'Revenue',
+      data: salesData.data
+    }],
+    chart: {
+      type: 'area',
+      height: 320,
+      fontFamily: 'Inter, sans-serif',
+      toolbar: { show: false },
+      zoom: { enabled: false }
     },
-    close: true,
-  }).showToast();
-}
-
-// Fetch Dashboard Stats
-async function fetchDashboardStats() {
-  try {
-    const response = await axios.get('/admin/dashboard/api/stats');
-    
-    if (response.data.success) {
-      const { revenue, orders, users, products } = response.data.data;
-      
-      document.getElementById('total-revenue').textContent = formatCurrency(revenue);
-      document.getElementById('total-orders').textContent = orders.toLocaleString();
-      document.getElementById('total-users').textContent = users.toLocaleString();
-      document.getElementById('total-products').textContent = products.toLocaleString();
-    }
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-    showError('Failed to load dashboard statistics');
-  }
-}
-
-// Fetch Sales Chart Data
-async function fetchSalesChartData(filter = 'weekly') {
-  try {
-    const response = await axios.get(`/admin/dashboard/api/sales-chart?filter=${filter}`);
-    // console.log(response.data.data)
-    if (response.data.success) {
-      const { labels, data } = response.data.data;
-      
-      if (salesChart) {
-        salesChart.data.labels = labels;
-        salesChart.data.datasets[0].data = data;
-        salesChart.update();
-      } else {
-        initializeSalesChart(labels, data);
+    colors: ['#2563EB'], // Tailwind Blue-600
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.4,
+        opacityTo: 0.05,
+        stops: [0, 100]
+      }
+    },
+    dataLabels: { enabled: false },
+    stroke: {
+      curve: 'smooth',
+      width: 2
+    },
+    xaxis: {
+      categories: salesData.labels,
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: {
+        style: { colors: '#94a3b8', fontSize: '11px' }
+      },
+      crosshairs: {
+        show: true,
+        position: 'back',
+        stroke: { color: '#cbd5e1', width: 1, dashArray: 5 }
+      }
+    },
+    yaxis: {
+      labels: {
+        style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 500 },
+        formatter: function (value) {
+          if (value >= 1000) return '₹' + (value / 1000).toFixed(1) + 'k';
+          return '₹' + value;
+        }
+      }
+    },
+    grid: {
+      borderColor: '#f1f5f9',
+      strokeDashArray: 4,
+      yaxis: { lines: { show: true } },
+      padding: { top: 0, right: 0, bottom: 0, left: 10 }
+    },
+    tooltip: {
+      theme: 'light',
+      y: {
+        formatter: function (val) {
+          return "₹" + val.toLocaleString('en-IN');
+        }
       }
     }
-  } catch (error) {
-    console.error('Error fetching sales chart data:', error);
-    showError('Failed to load sales chart');
-  }
-}
+  };
 
-// Fetch Order Status Data
-async function fetchOrderStatusData() {
-  try {
-    const response = await axios.get('/admin/dashboard/api/order-status');
-    if (response.data.success) {
-      const { labels, data } = response.data.data;
-      initializeOrderStatusChart(labels, data);
+  const salesChart = new ApexCharts(document.querySelector("#salesChart"), salesOptions);
+  salesChart.render();
+
+
+  // ==========================================
+  // 3. CHART.JS (Order Status Doughnut)
+  // ==========================================
+  const rawOrderStatus = <%- JSON.stringify(orderStatus) %>;
+  
+  // Filter out zero values for cleaner chart
+  const filteredStatus = { labels: [], data: [] };
+  rawOrderStatus.data.forEach((value, index) => {
+    if (value > 0) {
+      filteredStatus.labels.push(rawOrderStatus.labels[index]);
+      filteredStatus.data.push(value);
     }
-  } catch (error) {
-    console.error('Error fetching order status data:', error);
-    showError('Failed to load order status chart');
-  }
-}
-
-// Fetch Top Products
-async function fetchTopProducts() {
-  try {
-    const response = await axios.get('/admin/dashboard/api/top-products');
-    
-    if (response.data.success) {
-      renderTopProducts(response.data.data);
-    }
-  } catch (error) {
-    console.error('Error fetching top products:', error);
-    document.getElementById('top-products').innerHTML = '<div class="text-center py-8 text-red-500">Failed to load products</div>';
-  }
-}
-
-// Fetch Top Brands
-async function fetchTopBrands() {
-  try {
-    const response = await axios.get('/admin/dashboard/api/top-brands');
-    
-    if (response.data.success) {
-      renderTopBrands(response.data.data);
-    }
-  } catch (error) {
-    console.error('Error fetching top brands:', error);
-    document.getElementById('top-brands').innerHTML = '<div class="text-center py-8 text-red-500">Failed to load brands</div>';
-  }
-}
-
-// Fetch Recent Orders
-async function fetchRecentOrders() {
-  try {
-    const response = await axios.get('/admin/dashboard/api/recent-orders');
-    
-    if (response.data.success) {
-      renderRecentOrders(response.data.data);
-    }
-  } catch (error) {
-    console.error('Error fetching recent orders:', error);
-    document.getElementById('recent-orders').innerHTML = '<div class="text-center py-8 text-red-500">Failed to load orders</div>';
-  }
-}
-
-// Initialize Sales Chart
-function initializeSalesChart(labels, data) {
-  const ctx = document.getElementById("salesChart");
-
-  if (salesChart) {
-    salesChart.destroy();
-  }
-
-  salesChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Revenue",
-          data,
-          tension: 0.4,
-          fill: true,
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-      },
-      scales: {
-        y: { beginAtZero: true },
-      },
-    },
   });
-}
 
-const ORDER_STATUS_COLORS = {
-  Pending: "#fb923c",              // orange-400
-  Confirmed: "#60a5fa",             // blue-400
-  Processing: "#facc15",            // yellow-400
-  Shipped: "#38bdf8",               // sky-400
-  "Out for Delivery": "#a78bfa",     // violet-400
-  Delivered: "#22c55e",             // green-500
-  Cancelled: "#ef4444",             // red-500
-  Returned: "#8b5cf6",              // purple-500
-  "Partially Delivered": "#10b981", // emerald-500
-  "Partially Cancelled": "#f97316", // orange-500
-  "Partially Returned": "#c084fc",  // purple-400
-};
+  const ctx = document.getElementById("orderStatusChart").getContext("2d");
+  
+  // Custom Center Text Plugin
+  const centerTextPlugin = {
+    id: "centerText",
+    beforeDraw(chart) {
+      const { ctx, width, height } = chart;
+      const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+      
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      
+      ctx.font = "bold 24px Inter, sans-serif";
+      ctx.fillStyle = "#111827";
+      ctx.fillText(total, width / 2, height / 2 - 8);
+      
+      ctx.font = "12px Inter, sans-serif";
+      ctx.fillStyle = "#6B7280";
+      ctx.fillText("Orders", width / 2, height / 2 + 14);
+      ctx.restore();
+    }
+  };
 
-// Initialize Order Status Chart
-function initializeOrderStatusChart(labels, data) {
-  const ctx = document.getElementById("orderStatusChart");
-
-  if (orderStatusChart) {
-    orderStatusChart.destroy();
-  }
-
-  // Map colors based on status labels
-  const backgroundColors = labels.map(
-    (status) => ORDER_STATUS_COLORS[status] || "#9ca3af" // gray-400 fallback
-  );
-
-  orderStatusChart = new Chart(ctx, {
+  new Chart(ctx, {
     type: "doughnut",
     data: {
-      labels,
-      datasets: [
-        {
-          data,
-          backgroundColor: backgroundColors,
-          borderWidth: 2,
-          borderColor: "#ffffff",
-          hoverOffset: 8,
-        },
-      ],
+      labels: filteredStatus.labels,
+      datasets: [{
+        data: filteredStatus.data,
+        backgroundColor: [
+            "#3b82f6", "#6366f1", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444", "#64748b"
+        ],
+        borderWidth: 0,
+        hoverOffset: 4,
+        cutout: "75%"
+      }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: "65%",
       plugins: {
         legend: {
           position: "bottom",
-          labels: {
-            usePointStyle: true,
-            boxWidth: 10,
-            padding: 16,
-            font: {
-              size: 12,
-              weight: "500",
-            },
-          },
+          labels: { 
+             usePointStyle: true, 
+             pointStyle: "circle", 
+             padding: 20,
+             font: { size: 11 }
+          }
         },
         tooltip: {
-          callbacks: {
-            label: function (context) {
-              return `${context.label}: ${context.raw}`;
-            },
-          },
-        },
-      },
+            backgroundColor: "#1f2937",
+            padding: 12,
+            cornerRadius: 8,
+            callbacks: {
+                label: function(context) {
+                    let label = context.label || '';
+                    if (label) { label += ': '; }
+                    let value = context.raw;
+                    let total = context.chart._metasets[context.datasetIndex].total;
+                    let percentage = ((value / total) * 100).toFixed(1) + "%";
+                    return label + value + ' (' + percentage + ')';
+                }
+            }
+        }
+      }
     },
+    plugins: [centerTextPlugin]
   });
-}
-
-// Initialize Referral Chart
-function initializeReferralChart(labels, referrals, conversions) {
-  const ctx = document.getElementById("referralChart");
-
-  if (referralChart) {
-    referralChart.destroy();
-  }
-
-  referralChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "New Referrals",
-          data: referrals,
-          borderRadius: 6,
-        },
-        {
-          label: "Conversions",
-          data: conversions,
-          borderRadius: 6,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: "top" },
-      },
-      scales: {
-        y: { beginAtZero: true },
-      },
-    },
-  });
-}
-
-// Render Top Products
-function renderTopProducts(products) {
-  const container = document.getElementById('top-products');
-  
-  if (products.length === 0) {
-    container.innerHTML = '<div class="text-center py-8 text-gray-500">No products data available</div>';
-    return;
-  }
-  
-  container.innerHTML = products.map(product => `
-    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
-      <div class="flex items-center gap-3 flex-1 min-w-0">
-        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-          ${product.rank}
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-900 truncate">${product.name}</p>
-          <p class="text-xs text-gray-500">${product.sales} sales</p>
-        </div>
-      </div>
-      <div class="text-right ml-2">
-        <p class="text-sm font-semibold text-gray-900">${formatCurrency(product.revenue)}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Render Top Brands
-function renderTopBrands(brands) {
-  const container = document.getElementById('top-brands');
-  
-  if (brands.length === 0) {
-    container.innerHTML = '<div class="text-center py-8 text-gray-500">No brands data available</div>';
-    return;
-  }
-  
-  const colors = ['blue', 'purple', 'green', 'orange', 'pink', 'indigo', 'red', 'yellow', 'teal', 'cyan'];
-  
-  container.innerHTML = brands.map((brand, index) => `
-    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
-      <div class="flex items-center gap-3 flex-1 min-w-0">
-        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-          ${brand.rank}
-        </div>
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-gray-900 truncate">${brand.name}</p>
-          <p class="text-xs text-gray-500">${brand.sales} sales</p>
-        </div>
-      </div>
-      <div class="text-right ml-2">
-        <p class="text-sm font-semibold text-gray-900">${formatCurrency(brand.revenue)}</p>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Render Recent Orders
-function renderRecentOrders(orders) {
-  const container = document.getElementById('recent-orders');
-  
-  if (orders.length === 0) {
-    container.innerHTML = '<div class="text-center py-8 text-gray-500">No recent orders</div>';
-    return;
-  }
-  
-  const statusColors = {
-    'Delivered': 'bg-green-100 text-green-700',
-    'Shipped': 'bg-blue-100 text-blue-700',
-    'Processing': 'bg-yellow-100 text-yellow-700',
-    'Pending': 'bg-orange-100 text-orange-700',
-    'Cancelled': 'bg-red-100 text-red-700',
-    'Returned': 'bg-purple-100 text-purple-700'
-  };
-  
-  container.innerHTML = orders.map(order => `
-    <div class="p-3 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100">
-      <div class="flex items-center justify-between mb-2">
-        <p class="text-sm font-semibold text-gray-900">${order.id}</p>
-        <span class="text-xs px-2 py-1 rounded-full font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-700'}">${order.status}</span>
-      </div>
-      <p class="text-xs text-gray-600 mb-1">${order.customer}</p>
-      <p class="text-sm font-semibold text-gray-900">${formatCurrency(order.amount)}</p>
-    </div>
-  `).join('');
-}
-
-// Filter event listeners
-document.getElementById('sales-filter').addEventListener('change', function(e) {
-  fetchSalesChartData(e.target.value);
-});
-
-// Initialize dashboard on page load
-document.addEventListener('DOMContentLoaded', function() {
-  // Fetch all data
-  fetchDashboardStats();
-  fetchSalesChartData();
-  fetchOrderStatusData();
-  fetchTopProducts();
-  fetchTopBrands();
-  fetchRecentOrders();
-});
 </script>

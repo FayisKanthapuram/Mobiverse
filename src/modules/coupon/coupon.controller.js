@@ -30,7 +30,6 @@ export const loadCoupons = async (req, res) => {
 
   res.status(HttpStatus.OK).render("admin/coupons", {
     pageTitle: "Coupons",
-    pageCss: "coupons",
     pageJs: "coupons",
     analytics,
     coupons,
