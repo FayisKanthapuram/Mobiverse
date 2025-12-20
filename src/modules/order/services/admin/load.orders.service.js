@@ -8,6 +8,7 @@ import {
 } from "../../repo/order.repo.js";
 
 export const loadOrdersService = async (queryParams) => {
+  const returnRequested = queryParams.returnRequested || false;
   const currentPage = parseInt(queryParams.page) || 1;
   const statusFilter = queryParams.status || "";
   const paymentStatusFilter = queryParams.paymentStatus || "";
@@ -15,6 +16,11 @@ export const loadOrdersService = async (queryParams) => {
   const searchQuery = queryParams.search || "";
 
   const query = {};
+
+  // ✅ FIXED RETURN REQUEST FILTER
+  if (returnRequested === "true") {
+    query["orderedItems.itemStatus"] = "ReturnRequested";
+  }
 
   if (statusFilter) query.orderStatus = statusFilter;
   if (paymentStatusFilter) query.paymentStatus = paymentStatusFilter;
@@ -34,7 +40,7 @@ export const loadOrdersService = async (queryParams) => {
   let orders = await findOrders(query, sort);
 
   // -------------------------
-  // SERVER-SIDE SEARCH
+  // SERVER-SIDE SEARCH (still JS-based)
   // -------------------------
   if (searchQuery) {
     const s = searchQuery.toLowerCase();
@@ -49,7 +55,6 @@ export const loadOrdersService = async (queryParams) => {
   const totalOrders = orders.length;
   const totalPages = Math.ceil(totalOrders / limit);
 
-  // Paginate results
   const paginatedOrders = orders.slice(skip, skip + limit);
 
   // -------------------------
@@ -81,6 +86,8 @@ export const loadOrdersService = async (queryParams) => {
       paymentStatusFilter,
       sortFilter,
       searchQuery,
+      returnRequested,
     },
   };
 };
+

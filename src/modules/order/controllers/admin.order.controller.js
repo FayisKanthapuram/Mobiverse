@@ -27,6 +27,7 @@ export const loadOrders = async (req, res) => {
     statusFilter: data.filters.statusFilter,
     paymentStatusFilter: data.filters.paymentStatusFilter,
     searchQuery: data.filters.searchQuery,
+    returnRequested:data.filters.returnRequested,
   });
 };
 

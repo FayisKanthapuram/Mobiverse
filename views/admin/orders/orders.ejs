@@ -6,10 +6,31 @@
       <h1 class="text-3xl font-bold m-0 text-gray-900">Orders Management</h1>
       <p class="text-gray-500 text-sm mt-1 m-0">Manage and monitor all orders in your marketplace.</p>
     </div>
-    <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg" onclick="exportOrders()">
-      <i class="bi bi-download"></i>
-      Export Orders
-    </button>
+    <div class="flex gap-3 flex-wrap">
+
+      <% if (returnRequested === 'true') { %>
+        <!-- 🔙 All Orders Button -->
+        <button
+          class="flex items-center gap-2 px-6 py-3 bg-gray-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-gray-700 hover:-translate-y-0.5 hover:shadow-lg"
+          onclick="window.location.href='/admin/orders'"
+        >
+          <i class="bi bi-list-ul"></i>
+          All Orders
+        </button>
+      <% } else { %>
+        <!-- 🔔 Return Requests Button -->
+        <button
+          class="flex items-center gap-2 px-6 py-3 bg-yellow-500 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-yellow-600 hover:-translate-y-0.5 hover:shadow-lg"
+          onclick="window.location.href='/admin/orders?returnRequested=true'"
+        >
+          <i class="bi bi-arrow-return-left"></i>
+          Return Requests
+        </button>
+      <% } %>
+
+    </div>
+
+
   </div>
 
   <!-- Analytics Cards -->
@@ -190,7 +211,12 @@
         <tbody>
           <% if (orders && orders.length > 0) { %>
           <% orders.forEach(order => { %>
-          <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+            <%
+              const hasReturnRequest = order.orderedItems?.some(
+                item => item.itemStatus === 'ReturnRequested'
+              );
+            %>
+          <tr class="border-b border-gray-100 transition-colors <%= hasReturnRequest ? 'bg-yellow-50 hover:bg-yellow-100' : 'hover:bg-gray-50' %>">
             <td class="px-4 py-4 align-middle">
               <strong class="text-blue-600 font-medium">#<%= order.orderId %></strong>
             </td>
@@ -236,7 +262,7 @@
                 <%= order.paymentStatus %>
               </span>
             </td>
-            <td class="px-4 py-4 align-middle">
+            <td class="px-4 py-4 align-middle space-y-1">
               <% 
                 let statusClass = '';
 
@@ -276,9 +302,18 @@
                   statusClass = 'bg-amber-100 text-amber-800';
                 }
               %>
+              <!-- ORDER STATUS -->
               <span class="inline-block px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide <%= statusClass %>">
                 <%= order.orderStatus %>
               </span>
+
+              <!-- 🔔 RETURN REQUEST INDICATOR -->
+              <% if (hasReturnRequest) { %>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-yellow-100 text-yellow-800 text-xs font-semibold mt-1">
+                  <i class="bi bi-arrow-return-left"></i>
+                  Return Requested
+                </div>
+              <% } %>
             </td>
             <td class="px-4 py-4 align-middle">
               <a href="/admin/orders/details/<%= order.orderId %>" class="text-blue-600 hover:text-blue-700 hover:underline font-medium text-sm transition-colors">
