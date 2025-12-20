@@ -3,7 +3,7 @@ import {
   loadOrderDetailsService,
   loadOrdersService,
   markItemReturnedService,
-  updateOrderStatusService,
+  updateItemStatusService,
 } from "../services/index.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { OrderMessages } from "../../../shared/constants/messages/orderMessages.js";
@@ -34,7 +34,7 @@ export const loadOrders = async (req, res) => {
    LOAD ORDER DETAILS
 ---------------------------------------------------- */
 export const loadOrderDetails = async (req, res) => {
-  const order = await loadOrderDetailsService(req.params.id);
+  const order = await loadOrderDetailsService(req.params.orderId);
 
   res.status(HttpStatus.OK).render("admin/orders/orderDetails", {
     pageTitle: "Orders",
@@ -43,18 +43,19 @@ export const loadOrderDetails = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   UPDATE ORDER STATUS
----------------------------------------------------- */
-export const updateOrderStatus = async (req, res) => {
-  const order = await updateOrderStatusService(req.params.id, req.body.status);
+export const updateItemStatus = async (req, res) => {
+  const { orderId, itemId } = req.params;
+  const { status } = req.body;
+
+  const order = await updateItemStatusService(orderId, itemId, status);
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: OrderMessages.ORDER_STATUS_UPDATED,
+    message: "Item status updated successfully",
     order,
   });
 };
+
 
 /* ----------------------------------------------------
    HANDLE RETURN REQUEST (APPROVE / REJECT)

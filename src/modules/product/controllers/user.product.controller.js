@@ -30,7 +30,6 @@ export const loadShop = async (req, res, next) => {
 
 export const loadProductDetails = async (req, res, next) => {
   try {
-    console.log(req.params)
     const data = await loadProductDetailsService(req.params, req.query,req.session.user);
     return res.status(HttpStatus.OK).render("user/products/productDetails", {
       ...data,

@@ -44,6 +44,7 @@ export const loadProductDetailsService = async (params, query,userId=null) => {
 
   // 3. Group variants by color
   const colorGroups = groupVariantsByColor(product.variants);
+  console.log(colorGroups)
 
   // 4. Get Related Products
   const relatedProducts = await getLatestProducts(6,userId);

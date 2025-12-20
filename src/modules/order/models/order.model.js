@@ -46,6 +46,7 @@ const orderedItemSchema = new mongoose.Schema({
     confirmedAt: Date,
     processedAt: Date,
     shippedAt: Date,
+    outForDeliveryAt:Date,
     deliveredAt: Date,
     cancelledAt: Date,
     returnRequestedAt: Date,
@@ -111,17 +112,6 @@ const orderSchema = new mongoose.Schema(
         "Partially Returned",
       ],
       default: "Pending",
-    },
-
-    // Order-level timeline (optional but useful)
-    statusTimeline: {
-      confirmedAt: Date,
-      processedAt: Date,
-      shippedAt: Date,
-      outForDeliveryAt: Date,
-      deliveredAt: Date,
-      cancelledAt: Date,
-      returnedAt: Date,
     },
 
     orderedItems: [orderedItemSchema], // updated schema

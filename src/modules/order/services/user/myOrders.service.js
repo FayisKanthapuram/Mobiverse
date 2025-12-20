@@ -101,6 +101,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
       // Update Item
       item.itemStatus = "Cancelled";
       item.reason = `${reason}, ${comments}`;
+      item.itemTimeline.cancelledAt=Date.now();
       refundAmount += item.price - item.couponShare - item.offer;
     }
 
@@ -114,7 +115,6 @@ export const cancelOrderItemsService = async (orderId, body) => {
   if (isAllCancelled) {
     order.orderStatus = "Cancelled";
     order.paymentStatus = "Refunded";
-    order.statusTimeline.cancelledAt = Date.now();
   } else {
     order.orderStatus = "Partially Cancelled";
   }

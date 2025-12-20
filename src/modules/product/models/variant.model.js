@@ -55,8 +55,6 @@ const productVariantSchema = new mongoose.Schema(
       required: true,
     },
     discount: { type: Number, default: 0, min: 0 },
-    reviewsCount: { type: Number, default: 0 },
-    isOnOffer: { type: Boolean, default: false, index: true },
 
     isListed: {
       type: Boolean, 
