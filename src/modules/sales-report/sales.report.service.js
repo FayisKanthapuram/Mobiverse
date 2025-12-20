@@ -12,10 +12,9 @@ export const getDeliveredSalesReportService = async ({
   page,
   limit,
 }) => {
-  /* ----------------------------------------------------
-     DATE FILTER
-  ---------------------------------------------------- */
+  /* ---------------- DATE FILTER ---------------- */
   let dateFilter = {};
+  const now = new Date();
 
   if (reportType === "daily") {
     const today = new Date();
@@ -25,21 +24,21 @@ export const getDeliveredSalesReportService = async ({
 
   if (reportType === "weekly") {
     const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
+    weekAgo.setDate(now.getDate() - 7);
     weekAgo.setHours(0, 0, 0, 0);
     dateFilter = { createdAt: { $gte: weekAgo } };
   }
 
   if (reportType === "monthly") {
     const monthAgo = new Date();
-    monthAgo.setMonth(monthAgo.getMonth() - 1);
+    monthAgo.setMonth(now.getMonth() - 1);
     monthAgo.setHours(0, 0, 0, 0);
     dateFilter = { createdAt: { $gte: monthAgo } };
   }
 
   if (reportType === "yearly") {
     const yearAgo = new Date();
-    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+    yearAgo.setFullYear(now.getFullYear() - 1);
     yearAgo.setHours(0, 0, 0, 0);
     dateFilter = { createdAt: { $gte: yearAgo } };
   }
@@ -47,24 +46,23 @@ export const getDeliveredSalesReportService = async ({
   if (reportType === "custom") {
     if (!startDate || !endDate) {
       throw new AppError(
-        "Start date and end date are required for custom report",
+        "Start date and end date are required",
         HttpStatus.BAD_REQUEST
       );
     }
 
-    dateFilter = {
-      createdAt: {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      },
-    };
+    const start = new Date(startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+
+    dateFilter = { createdAt: { $gte: start, $lte: end } };
   }
 
   const skip = (page - 1) * limit;
 
-  /* ----------------------------------------------------
-     AGGREGATION PIPELINE
-  ---------------------------------------------------- */
+  /* ---------------- AGGREGATION ---------------- */
   const basePipeline = [
     { $match: dateFilter },
 
@@ -77,13 +75,12 @@ export const getDeliveredSalesReportService = async ({
       },
     },
     { $unwind: "$user" },
-
     { $unwind: "$orderedItems" },
 
     {
       $match: {
         "orderedItems.itemStatus": {
-          $in: ["Delivered", "ReturnRejected",'ReturnRequested'],
+          $in: ["Delivered", "ReturnRejected", "ReturnRequested"],
         },
       },
     },
@@ -93,11 +90,11 @@ export const getDeliveredSalesReportService = async ({
         itemGrossTotal: {
           $multiply: [
             {
-              $cond: {
-                if: { $ne: ["$orderedItems.regularPrice", 0] },
-                then: "$orderedItems.regularPrice",
-                else: "$orderedItems.price",
-              },
+              $cond: [
+                { $gt: ["$orderedItems.regularPrice", 0] },
+                "$orderedItems.regularPrice",
+                "$orderedItems.price",
+              ],
             },
             "$orderedItems.quantity",
           ],
@@ -148,7 +145,6 @@ export const getDeliveredSalesReportService = async ({
   ];
 
   const transactions = await getOrderTransations(basePipeline, skip, limit);
-
   const totalsAgg = await getOrderTransationsTotal(basePipeline);
   const totals = totalsAgg[0] || {};
 

@@ -1,104 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sales Report</title>
+  <title>Delivered Sales Report</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      font-size: 13px;
-      margin: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .btn-print {
-      margin-bottom: 15px;
-      padding: 8px 14px;
-      background: #000;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-
-    th, td {
-      border: 1px solid #999;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background: #efefef;
-    }
-
-    .total-row td {
-      font-weight: bold;
-    }
-
     @media print {
-      .btn-print {
+      .no-print {
         display: none;
+      }
+      body {
+        padding: 24px;
       }
     }
   </style>
 </head>
 
-<body>
+<body class="bg-white text-gray-900 text-sm font-sans">
 
-<button class="btn-print" onclick="window.print()">Download PDF</button>
+  <!-- ================= HEADER ================= -->
+  <div class="relative border-b pb-6 mb-8">
 
-<h1>Delivered Sales Report</h1>
+    <!-- Print Button -->
+    <button
+      onclick="window.print()"
+      class="no-print absolute right-0 top-0 px-4 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800"
+    >
+      Download PDF
+    </button>
 
-<p>
-  <strong>Total Sales:</strong> ₹<%= salesData.totalSales.toLocaleString('en-IN') %><br>
-  <strong>Total Orders:</strong> <%= salesData.totalOrders %><br>
-  <strong>Total Discounts:</strong> ₹<%= salesData.totalDiscounts.toLocaleString('en-IN') %>
-</p>
+    <!-- Centered Logo -->
+    <div class="flex justify-center mb-4">
+      <img
+        src="<%= logoName %>"
+        alt="Brand Logo"
+        class="h-14 object-contain"
+      />
+    </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Date</th>
-      <th>Order ID</th>
-      <th>Customer</th>
-      <th>Items</th>
-      <th>Amount</th>
-      <th>Discount</th>
-      <th>Payment</th>
-    </tr>
-  </thead>
+    <!-- Title -->
+    <div class="text-center">
+      <h1 class="text-2xl font-bold">Sales Report</h1>
+      <p class="text-gray-500 text-sm mt-1">
+        Generated on <%= new Date().toLocaleDateString('en-IN') %>
+      </p>
+    </div>
+  </div>
 
-  <tbody>
-    <% salesData.transactions.forEach(t => { %>
-      <tr>
-        <td><%= new Date(t.createdAt).toLocaleDateString('en-IN') %></td>
-        <td>#<%= t.orderId %></td>
-        <td><%= t.customerName %></td>
-        <td><%= t.itemCount %></td>
-        <td>₹<%= t.totalAmount.toLocaleString('en-IN') %></td>
-        <td>- ₹<%= t.discount.toLocaleString('en-IN') %></td>
-        <td><%= t.paymentMethod %></td>
-      </tr>
-    <% }) %>
+  <!-- ================= SUMMARY ================= -->
+  <div class="grid grid-cols-3 gap-6 mb-10">
 
-    <tr class="total-row">
-      <td colspan="4">TOTAL</td>
-      <td>₹<%= salesData.totalSales.toLocaleString('en-IN') %></td>
-      <td>- ₹<%= salesData.totalDiscounts.toLocaleString('en-IN') %></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
+    <div class="border rounded-lg p-5 text-center">
+      <p class="text-gray-500 text-xs uppercase mb-1">Total Sales</p>
+      <p class="text-xl font-bold">
+        ₹<%= salesData.totalSales.toLocaleString('en-IN') %>
+      </p>
+    </div>
+
+    <div class="border rounded-lg p-5 text-center">
+      <p class="text-gray-500 text-xs uppercase mb-1">Total Orders</p>
+      <p class="text-xl font-bold">
+        <%= salesData.totalOrders %>
+      </p>
+    </div>
+
+    <div class="border rounded-lg p-5 text-center">
+      <p class="text-gray-500 text-xs uppercase mb-1">Total Discounts</p>
+      <p class="text-xl font-bold text-red-600">
+        - ₹<%= salesData.totalDiscounts.toLocaleString('en-IN') %>
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ================= TABLE ================= -->
+  <div class="overflow-hidden border rounded-lg mb-10">
+    <table class="w-full border-collapse">
+      <thead class="bg-gray-100">
+        <tr class="text-left text-xs uppercase text-gray-600">
+          <th class="px-4 py-3 border">Date</th>
+          <th class="px-4 py-3 border">Order ID</th>
+          <th class="px-4 py-3 border">Customer</th>
+          <th class="px-4 py-3 border text-center">Items</th>
+          <th class="px-4 py-3 border">Amount</th>
+          <th class="px-4 py-3 border">Discount</th>
+          <th class="px-4 py-3 border">Payment</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% salesData.transactions.forEach(t => { %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-2 border">
+              <%= new Date(t.createdAt).toLocaleDateString('en-IN') %>
+            </td>
+            <td class="px-4 py-2 border font-medium">#<%= t.orderId %></td>
+            <td class="px-4 py-2 border"><%= t.customerName %></td>
+            <td class="px-4 py-2 border text-center"><%= t.itemCount %></td>
+            <td class="px-4 py-2 border font-semibold">
+              ₹<%= t.totalAmount.toLocaleString('en-IN') %>
+            </td>
+            <td class="px-4 py-2 border text-red-600">
+              - ₹<%= t.discount.toLocaleString('en-IN') %>
+            </td>
+            <td class="px-4 py-2 border"><%= t.paymentMethod %></td>
+          </tr>
+        <% }) %>
+
+        <!-- TOTAL ROW -->
+        <tr class="bg-gray-100 font-bold">
+          <td colspan="4" class="px-4 py-3 border text-right">TOTAL</td>
+          <td class="px-4 py-3 border">
+            ₹<%= salesData.totalSales.toLocaleString('en-IN') %>
+          </td>
+          <td class="px-4 py-3 border text-red-600">
+            - ₹<%= salesData.totalDiscounts.toLocaleString('en-IN') %>
+          </td>
+          <td class="px-4 py-3 border"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <div class="text-xs text-gray-500 text-center">
+    This report includes only successfully delivered orders.
+  </div>
 
 </body>
 </html>

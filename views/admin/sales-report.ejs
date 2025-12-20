@@ -7,7 +7,7 @@
       <p class="text-gray-500 text-sm mt-1 m-0">Sales analytics based only on successfully delivered orders.</p>
     </div>
     <div class="flex gap-3 flex-wrap">
-      <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg" onclick="downloadPDF()">
+      <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white border-none rounded-lg font-semibold text-sm cursor-pointer transition-all hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg" onclick="openPdfModal()">
         <i class="bi bi-file-pdf"></i>
         Download PDF
       </button>
@@ -265,3 +265,51 @@
   </div>
   <% } %>
 </div>
+
+<!-- PDF DOWNLOAD MODAL -->
+<div id="pdfModal"
+     class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center">
+
+  <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-xl">
+    <h2 class="text-lg font-semibold text-gray-900 mb-2">
+      Download PDF Report
+    </h2>
+
+    <p class="text-sm text-gray-600 mb-4">
+      Large downloads may take time and impact server performance.
+    </p>
+
+    <!-- Order Limit -->
+    <label class="block text-sm font-medium text-gray-700 mb-2">
+      Number of orders to download
+    </label>
+
+    <select id="pdfLimit"
+     class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm mb-4">
+    </select>
+
+
+    <!-- Warning -->
+    <div id="pdfWarning"
+         class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+      ⚠️ Downloading large reports may take several minutes and can slow down the system.
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3">
+      <button onclick="closePdfModal()"
+              class="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100">
+        Cancel
+      </button>
+
+      <button onclick="confirmPdfDownload()"
+              class="px-5 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700">
+        Download PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.TOTAL_ORDERS = <%= totalTransactions %>;
+</script>

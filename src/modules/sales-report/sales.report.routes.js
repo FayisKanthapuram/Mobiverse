@@ -4,7 +4,7 @@ import {  loadSalesReport, loadSalesReportDownload, loadSalesReportPDF } from ".
 const router = express.Router();
 
 router.get("/", loadSalesReport);
-router.get("/download", loadSalesReportDownload);
+router.get("/excel", loadSalesReportDownload);
 router.get("/pdf", loadSalesReportPDF);
 
 

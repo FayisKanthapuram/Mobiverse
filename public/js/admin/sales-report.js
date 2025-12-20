@@ -1,3 +1,4 @@
+/* ---------------- APPLY FILTERS ---------------- */
 function applyFilters() {
   const reportType = document.getElementById("reportType").value;
   const startDate = document.getElementById("startDate")?.value || "";
@@ -25,24 +26,120 @@ function applyFilters() {
   window.location.href = "/admin/sales-report?" + params.toString();
 }
 
+/* ---------------- CLEAR FILTERS ---------------- */
 function clearFilters() {
   window.location.href = "/admin/sales-report";
 }
 
+/* ---------------- PAGINATION ---------------- */
 function changePage(page) {
   const params = new URLSearchParams(window.location.search);
   params.set("page", page);
   window.location.href = "/admin/sales-report?" + params.toString();
 }
 
+/* =================================================
+   PDF DOWNLOAD WITH MODAL
+================================================= */
+
+/* 🔹 Open modal instead of direct download */
 function downloadPDF() {
-  const params = new URLSearchParams(window.location.search);
-  window.open("/admin/sales-report/pdf?" + params.toString(), "_blank");
+  openPdfModal();
+}
+
+/* 🔹 Open modal */
+function openPdfModal() {
+  buildPdfLimitOptions();
+  document.getElementById("pdfModal").classList.remove("hidden");
 }
 
 
+/* 🔹 Close modal */
+function closePdfModal() {
+  document.getElementById("pdfModal").classList.add("hidden");
+}
+
+/* 🔹 Show warning for large limits */
+document.getElementById("pdfLimit")?.addEventListener("change", (e) => {
+  const limit = Number(e.target.value);
+  const warning = document.getElementById("pdfWarning");
+
+  if (limit >= 10000) {
+    warning.classList.remove("hidden");
+  } else {
+    warning.classList.add("hidden");
+  }
+});
+
+
+/* 🔹 Confirm & download PDF */
+function confirmPdfDownload() {
+  const limit = document.getElementById("pdfLimit").value;
+
+  const params = new URLSearchParams(window.location.search);
+  params.set("limit", limit);
+
+  closePdfModal();
+
+  window.location.href = `/admin/sales-report/pdf?${params.toString()}`;
+}
+
+/* ---------------- BUILD PDF LIMIT OPTIONS ---------------- */
+function buildPdfLimitOptions() {
+  const select = document.getElementById("pdfLimit");
+  const warning = document.getElementById("pdfWarning");
+
+  if (!select) return;
+
+  select.innerHTML = "";
+
+  const total = Number(window.TOTAL_ORDERS || 0);
+
+  // Edge case: no orders
+  if (total === 0) {
+    const opt = document.createElement("option");
+    opt.value = 0;
+    opt.textContent = "No orders available";
+    select.appendChild(opt);
+    select.disabled = true;
+    return;
+  }
+
+  const limits = [100, 500, 1000, 5000, 10000, 50000, 100000];
+
+  const validLimits = limits.filter(l => l <= total);
+
+  validLimits.forEach(l => {
+    const opt = document.createElement("option");
+    opt.value = l;
+    opt.textContent =
+      l >= 10000
+        ? `${l.toLocaleString()} orders ⚠️`
+        : `${l.toLocaleString()} orders`;
+
+    select.appendChild(opt);
+  });
+
+  // If total < 100, auto-select total
+  if (total < 100) {
+    const opt = document.createElement("option");
+    opt.value = total;
+    opt.textContent = `${total} orders (All)`;
+    select.appendChild(opt);
+    select.value = total;
+  } else {
+    select.value = validLimits[0];
+  }
+
+  warning.classList.add("hidden");
+  select.disabled = false;
+}
+
+
+/* =================================================
+   EXCEL DOWNLOAD (UNCHANGED)
+================================================= */
 function downloadExcel() {
   const params = new URLSearchParams(window.location.search);
-  params.set("format", "excel");
-  window.location.href = "/admin/sales-report/download?" + params.toString();
+  window.location.href = "/admin/sales-report/excel?" + params.toString();
 }
