@@ -151,7 +151,7 @@
 
                 <button type="button"
                         onclick="toggleBannerStatus('<%= banner._id %>', <%= banner.isActive %>)"
-                        class="inline-flex items-center gap-2 px-4 py-2 <%= banner.isActive ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700' %> text-white rounded-lg transition-colors">
+                        class="inline-flex items-center gap-2 px-4 py-2 <%= banner.isActive ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700' %> text-white rounded-lg transition-colors">
                   <i class="bi bi-<%= banner.isActive ? 'eye-slash' : 'eye' %>"></i>
                   <span><%= banner.isActive ? 'Deactivate' : 'Activate' %></span>
                 </button>

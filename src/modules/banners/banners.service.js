@@ -1,8 +1,9 @@
+import cloudinary from "../../config/cloudinary.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { cloudinaryUpload } from "../../shared/middlewares/upload.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { rollbackCloudinary } from "../product/helpers/admin.product.helper.js";
-import { createBanner, findBannerById, findBanners } from "./banners.repo.js";
+import { createBanner, findBannerById, findBanners, saveBanner } from "./banners.repo.js";
 
 export const loadBannersService = async () => {
 	const banners = await findBanners();
@@ -79,3 +80,88 @@ export const getEditFormService=async(id)=>{
   const banner = await findBannerById(id);
   return banner;
 }
+
+export const updateBannerService = async (bannerId, body, files) => {
+  const banner = await findBannerById(bannerId);
+
+  if (!banner) {
+    throw new AppError("Banner not found", HttpStatus.NOT_FOUND);
+  }
+
+  // ---- BASIC FIELD UPDATES ----
+  banner.title = body.title ?? banner.title;
+  banner.subtitle = body.subtitle ?? banner.subtitle;
+  banner.link = body.link ?? banner.link;
+  banner.backgroundColor = body.backgroundColor ?? banner.backgroundColor;
+  banner.order = Number(body.order ?? banner.order);
+  banner.isActive = body.isActive === "true" || body.isActive === true;
+  banner.isScheduled = body.isScheduled === "true" || body.isScheduled === true;
+
+  banner.scheduledStart = body.scheduledStart
+    ? new Date(body.scheduledStart)
+    : null;
+
+  banner.scheduledEnd = body.scheduledEnd ? new Date(body.scheduledEnd) : null;
+
+  // ---- IMAGE REPLACEMENT (Cloudinary-safe) ----
+
+  // Desktop (required image – replace if provided)
+  if (files?.imageDesktop?.[0]) {
+    const upload = await cloudinaryUpload(
+      files.imageDesktop[0].buffer,
+      "banners"
+    );
+
+    if (banner.images.desktop) {
+      const publicId = banner.images.desktop.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`ecommerce/banners/${publicId}`);
+    }
+
+    banner.images.desktop = upload.secure_url;
+  }
+
+  // Tablet (optional)
+  if (files?.imageTablet?.[0]) {
+    const upload = await cloudinaryUpload(
+      files.imageTablet[0].buffer,
+      "banners"
+    );
+
+    if (banner.images.tablet) {
+      const publicId = banner.images.tablet.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`ecommerce/banners/${publicId}`);
+    }
+
+    banner.images.tablet = upload.secure_url;
+  }
+
+  // Mobile (optional)
+  if (files?.imageMobile?.[0]) {
+    const upload = await cloudinaryUpload(
+      files.imageMobile[0].buffer,
+      "banners"
+    );
+
+    if (banner.images.mobile) {
+      const publicId = banner.images.mobile.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(`ecommerce/banners/${publicId}`);
+    }
+
+    banner.images.mobile = upload.secure_url;
+  }
+
+  await saveBanner(banner);
+  return banner;
+};
+
+export const toggleBannerStatusService = async (bannerId, body) => {
+  const { isActive } = body;
+
+  const banner = await findBannerById(bannerId);
+  if (!banner) {
+    throw new AppError("Banner not found", HttpStatus.NOT_FOUND);
+  }
+
+  banner.isActive = isActive === "true" || isActive === true;
+  await saveBanner(banner);
+};
