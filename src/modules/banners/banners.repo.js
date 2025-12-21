@@ -9,3 +9,7 @@ export const findBannerById = (id) => bannerModel.findById(id);
 export const createBanner = (data) => bannerModel.create(data);
 
 export const saveBanner = (banner) => banner.save();
+
+export const updateBannerOrder=(id,order)=>{
+  return bannerModel.findByIdAndUpdate(id, { order });
+}

@@ -3,7 +3,7 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { cloudinaryUpload } from "../../shared/middlewares/upload.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { rollbackCloudinary } from "../product/helpers/admin.product.helper.js";
-import { createBanner, findBannerById, findBanners, saveBanner } from "./banners.repo.js";
+import { createBanner, findBannerById, findBanners, saveBanner, updateBannerOrder } from "./banners.repo.js";
 
 export const loadBannersService = async () => {
 	const banners = await findBanners();
@@ -165,3 +165,20 @@ export const toggleBannerStatusService = async (bannerId, body) => {
   banner.isActive = isActive === "true" || isActive === true;
   await saveBanner(banner);
 };
+
+
+export const reorderBannersService = async (body) => {
+  const { banners } = body;
+
+  if (!Array.isArray(banners)) {
+    throw new AppError("Invalid data format", HttpStatus.BAD_REQUEST);
+  }
+
+  await Promise.all(
+    banners.map(({ id, order }) => {
+      if (!id || typeof order !== "number") return null;
+      return updateBannerOrder(id,order)
+    })
+  );
+};
+

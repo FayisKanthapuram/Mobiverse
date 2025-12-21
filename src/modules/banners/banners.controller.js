@@ -1,5 +1,5 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
-import { createBannerService, getEditFormService, loadBannersService, toggleBannerStatusService, updateBannerService } from "./banners.service.js";
+import { createBannerService, getEditFormService, loadBannersService, reorderBannersService, toggleBannerStatusService, updateBannerService } from "./banners.service.js";
 
 export const loadBanners = async (req, res) => {
   const banners = await loadBannersService();
@@ -58,5 +58,14 @@ export const toggleBannerStatus = async (req, res) => {
   res.status(HttpStatus.OK).json({
     success: true,
     message: "Banner status updated successfully",
+  });
+};
+
+export const reorderBanners = async (req, res) => {
+  await reorderBannersService(req.body);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: "Banner order updated successfully",
   });
 };
