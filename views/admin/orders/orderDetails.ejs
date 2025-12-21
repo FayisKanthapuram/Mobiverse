@@ -56,21 +56,21 @@
         }
         %>
 
-        <div>
-          <h1 class="text-3xl font-bold m-0 text-gray-900">Order Details</h1>
+      <div>
+        <h1 class="text-3xl font-bold m-0 text-gray-900">Order Details</h1>
 
-          <div class="flex items-center gap-3 mt-1 flex-wrap">
-            <p class="text-gray-500 text-sm m-0">
-              Order ID:
-              <strong class="text-blue-600">#<%= order.orderId %></strong>
-            </p>
+        <div class="flex items-center gap-3 mt-1 flex-wrap">
+          <p class="text-gray-500 text-sm m-0">
+            Order ID:
+            <strong class="text-blue-600">#<%= order.orderId %></strong>
+          </p>
 
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold <%= orderStatusClass %>">
-              <i class="bi bi-circle-fill text-[6px]"></i>
-              <%= order.orderStatus %>
-            </span>
-          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold <%= orderStatusClass %>">
+            <i class="bi bi-circle-fill text-[6px]"></i>
+            <%= order.orderStatus %>
+          </span>
         </div>
+      </div>
 
     </div>
     <div class="flex gap-3 flex-wrap">
@@ -122,31 +122,25 @@
           <div class="flex flex-col gap-4">
 
             <% order.orderedItems.forEach(item => { %>
-            <div
-              class="rounded-lg border-2
+            <div class="rounded-lg border-2
                 <%= item.itemStatus === 'ReturnRequested'
                   ? 'border-yellow-300 bg-yellow-50'
                   : item.itemStatus === 'ReturnApproved'
                   ? 'border-blue-300 bg-blue-50'
                   : 'border-gray-200 bg-gray-50'
                 %>
-                p-4 transition-all"
-            >
+                p-4 transition-all">
 
               <!-- ================= MAIN ITEM CONTENT ================= -->
               <div class="flex gap-4">
                 <!-- Item Image -->
                 <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-white border border-gray-200">
                   <% if (item.variantId?.images?.length) { %>
-                    <img
-                      src="<%= item.variantId.images[0] %>"
-                      alt="<%= item.productId?.name %>"
-                      class="w-full h-full object-cover"
-                    >
+                  <img src="<%= item.variantId.images[0] %>" alt="<%= item.productId?.name %>" class="w-full h-full object-cover">
                   <% } else { %>
-                    <div class="w-full h-full flex items-center justify-center text-gray-300 text-3xl">
-                      <i class="bi bi-image"></i>
-                    </div>
+                  <div class="w-full h-full flex items-center justify-center text-gray-300 text-3xl">
+                    <i class="bi bi-image"></i>
+                  </div>
                   <% } %>
                 </div>
 
@@ -158,13 +152,13 @@
 
                   <div class="flex flex-wrap gap-2 text-xs text-gray-600">
                     <% if (item.variantId?.color) { %>
-                      <span class="px-2 py-1 bg-white rounded border">Color: <%= item.variantId.color %></span>
+                    <span class="px-2 py-1 bg-white rounded border">Color: <%= item.variantId.color %></span>
                     <% } %>
                     <% if (item.variantId?.storage) { %>
-                      <span class="px-2 py-1 bg-white rounded border">Storage: <%= item.variantId.storage %></span>
+                    <span class="px-2 py-1 bg-white rounded border">Storage: <%= item.variantId.storage %></span>
                     <% } %>
                     <% if (item.variantId?.ram) { %>
-                      <span class="px-2 py-1 bg-white rounded border">RAM: <%= item.variantId.ram %></span>
+                    <span class="px-2 py-1 bg-white rounded border">RAM: <%= item.variantId.ram %></span>
                     <% } %>
                   </div>
 
@@ -223,12 +217,44 @@
                     }
                     %>
 
-                    <div class="flex items-center gap-2 text-xs text-gray-600">
-                      Status:
-                      <span class="px-2 py-1 rounded font-semibold <%= statusClass %>">
-                        <%= item.itemStatus %>
-                      </span>
-                    </div>
+                  <div class="flex items-center gap-2 text-xs text-gray-600">
+                    Status:
+                    <span class="px-2 py-1 rounded font-semibold <%= statusClass %>">
+                      <%= item.itemStatus %>
+                    </span>
+                  </div>
+                  <%
+                    let itemPaymentClass = "bg-gray-100 text-gray-700";
+
+                    switch (item.paymentStatus) {
+                      case "Paid":
+                        itemPaymentClass = "bg-green-100 text-green-800";
+                        break;
+
+                      case "Pending":
+                        itemPaymentClass = "bg-yellow-100 text-yellow-800";
+                        break;
+
+                      case "Refunded":
+                        itemPaymentClass = "bg-purple-100 text-purple-800";
+                        break;
+
+                      case "Failed":
+                        itemPaymentClass = "bg-red-100 text-red-800";
+                        break;
+
+                      case "Partially Paid":
+                        itemPaymentClass = "bg-blue-100 text-blue-800";
+                        break;
+                    }
+                  %>
+                  <div class="flex items-center gap-2 text-xs text-gray-600 mt-1">
+                    Payment:
+                    <span class="px-2 py-1 rounded font-semibold <%= itemPaymentClass %>">
+                      <%= item.paymentStatus || 'Pending' %>
+                    </span>
+                  </div>
+
 
 
                   <!-- Item Status Update -->
@@ -254,25 +280,19 @@
                     const nextStatuses = statusFlow.slice(currentIndex + 1);
                   %>
                   <% if (!lockItemStatus && item.itemStatus !== "Delivered" && nextStatuses.length) { %>
-                    <div class="flex gap-2 mt-2">
-                      <select
-                        class="item-status-select px-3 py-2 border rounded-lg text-sm"
-                        data-item-id="<%= item._id %>"
-                      >
-                        <% nextStatuses.forEach(status => { %>
-                          <option value="<%= status %>">
-                            <%= status %>
-                          </option>
-                        <% }) %>
-                      </select>
+                  <div class="flex gap-2 mt-2">
+                    <select class="item-status-select px-3 py-2 border rounded-lg text-sm" data-item-id="<%= item._id %>">
+                      <% nextStatuses.forEach(status => { %>
+                      <option value="<%= status %>">
+                        <%= status %>
+                      </option>
+                      <% }) %>
+                    </select>
 
-                      <button
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700"
-                        onclick="updateItemStatus('<%= order._id %>', '<%= item._id %>')"
-                      >
-                        Update Item
-                      </button>
-                    </div>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700" onclick="updateItemStatus('<%= order._id %>', '<%= item._id %>')">
+                      Update Item
+                    </button>
+                  </div>
                   <% } %>
                 </div>
 
@@ -288,9 +308,9 @@
                     ₹<%= (selling * item.quantity).toLocaleString('en-IN') %>
                   </div>
                   <% if (mrp !== selling) { %>
-                    <div class="text-sm text-gray-500 line-through">
-                      ₹<%= (mrp * item.quantity).toLocaleString('en-IN') %>
-                    </div>
+                  <div class="text-sm text-gray-500 line-through">
+                    ₹<%= (mrp * item.quantity).toLocaleString('en-IN') %>
+                  </div>
                   <% } %>
                 </div>
               </div>
@@ -324,17 +344,17 @@
                     ['Delivered','deliveredAt']
                   ].forEach(([label, key]) => { %>
 
-                    <div class="flex gap-3 <%= timeline[key] ? 'opacity-100' : 'opacity-40' %>">
-                      <div class="w-2.5 h-2.5 rounded-full bg-green-500 mt-1"></div>
-                      <div>
-                        <div class="text-sm font-medium"><%= label %></div>
-                        <% if (timeline[key]) { %>
-                          <div class="text-xs text-gray-500">
-                            <%= new Date(timeline[key]).toLocaleString('en-IN') %>
-                          </div>
-                        <% } %>
+                  <div class="flex gap-3 <%= timeline[key] ? 'opacity-100' : 'opacity-40' %>">
+                    <div class="w-2.5 h-2.5 rounded-full bg-green-500 mt-1"></div>
+                    <div>
+                      <div class="text-sm font-medium"><%= label %></div>
+                      <% if (timeline[key]) { %>
+                      <div class="text-xs text-gray-500">
+                        <%= new Date(timeline[key]).toLocaleString('en-IN') %>
                       </div>
+                      <% } %>
                     </div>
+                  </div>
 
                   <% }) %>
 
@@ -345,9 +365,9 @@
                     <div>
                       <div class="text-sm font-medium">Cancelled</div>
                       <% if (timeline.cancelledAt) { %>
-                        <div class="text-xs text-gray-500">
-                          <%= new Date(timeline.cancelledAt).toLocaleString('en-IN') %>
-                        </div>
+                      <div class="text-xs text-gray-500">
+                        <%= new Date(timeline.cancelledAt).toLocaleString('en-IN') %>
+                      </div>
                       <% } %>
                     </div>
                   </div>
@@ -360,9 +380,9 @@
                     <div>
                       <div class="text-sm font-medium">Returned</div>
                       <% if (timeline.returnedAt) { %>
-                        <div class="text-xs text-gray-500">
-                          <%= new Date(timeline.returnedAt).toLocaleString('en-IN') %>
-                        </div>
+                      <div class="text-xs text-gray-500">
+                        <%= new Date(timeline.returnedAt).toLocaleString('en-IN') %>
+                      </div>
                       <% } %>
                     </div>
                   </div>
@@ -490,12 +510,12 @@
                   </p>
                 </div>
                 <% if(item.adminNote){ %>
-                  <div class="mb-3">
-                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Admin Note:</label>
-                    <p class="m-0 p-3 bg-white border-l-4 border-orange-400 rounded text-sm text-gray-800 leading-relaxed">
-                      <%= item.adminNote %>
-                    </p>
-                  </div>
+                <div class="mb-3">
+                  <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Admin Note:</label>
+                  <p class="m-0 p-3 bg-white border-l-4 border-orange-400 rounded text-sm text-gray-800 leading-relaxed">
+                    <%= item.adminNote %>
+                  </p>
+                </div>
                 <% } %>
 
                 <% if (item.itemTimeline?.returnedAt) { %>
@@ -529,7 +549,7 @@
                   </p>
                 </div>
                 <% } %>
-                
+
                 <% if (item.itemTimeline?.returnRejectedAt) { %>
                 <div class="text-xs text-gray-500">
                   Rejected: <%= new Date(item.itemTimeline.returnRejectedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
@@ -540,7 +560,7 @@
             </div>
             <% }) %>
 
-            
+
           </div>
         </div>
       </div>

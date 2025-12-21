@@ -90,9 +90,18 @@
                     <div class="flex justify-between items-start gap-2">
                       <h4 class="font-semibold text-gray-900 line-clamp-1 flex-1"><%= item.productId.name %></h4>
                       <!-- Item Status Badge -->
-                      <span class="px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap <%= getItemStatusClass(item.itemStatus) %>">
-                        <%= item.itemStatus.replace(/([A-Z])/g, ' $1').trim() %>
-                      </span>
+                      <div class="flex gap-1 flex-wrap justify-end">
+                        <!-- Item Status -->
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap <%= getItemStatusClass(item.itemStatus) %>">
+                          <%= item.itemStatus.replace(/([A-Z])/g, ' $1').trim() %>
+                        </span>
+
+                        <!-- Item Payment Status -->
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap <%= getItemPaymentStatusClass(item.paymentStatus) %>">
+                          <%= item.paymentStatus %>
+                        </span>
+                      </div>
+
                     </div>
                     <div class="flex flex-wrap gap-1.5 mt-1">
                       <% if (item.variantId.colour) { %>
@@ -113,36 +122,36 @@
                     </div>
                     <div class="flex justify-between items-center mt-2">
                       <span class="text-sm text-gray-600">Qty: <%= item.quantity %></span>
-<div class="text-right leading-tight">
+                      <div class="text-right leading-tight">
 
-  <% 
-    const qty = item.quantity;
-    const sale = item.price;               // sale price snapshot
-    const regular = item.regularPrice;     // actual MRP snapshot
-    const offer = item.offer;              // offer snapshot
-    const finalPrice = offer ? (sale - offer) : sale;
-  %>
+                        <% 
+                          const qty = item.quantity;
+                          const sale = item.price;               // sale price snapshot
+                          const regular = item.regularPrice;     // actual MRP snapshot
+                          const offer = item.offer;              // offer snapshot
+                          const finalPrice = offer ? (sale - offer) : sale;
+                        %>
 
-  <!-- Final Price -->
-  <p class="font-bold <%= offer ? 'text-green-600' : 'text-gray-900' %>">
-    ₹<%= (finalPrice * qty).toLocaleString('en-IN') %>
-  </p>
+                        <!-- Final Price -->
+                        <p class="font-bold <%= offer ? 'text-green-600' : 'text-gray-900' %>">
+                          ₹<%= (finalPrice * qty).toLocaleString('en-IN') %>
+                        </p>
 
-  <!-- Show sale price strike if offer exists -->
-  <% if (offer) { %>
-    <p class="text-xs text-gray-500 line-through">
-      ₹<%= (sale * qty).toLocaleString('en-IN') %>
-    </p>
-  <% } %>
+                        <!-- Show sale price strike if offer exists -->
+                        <% if (offer) { %>
+                        <p class="text-xs text-gray-500 line-through">
+                          ₹<%= (sale * qty).toLocaleString('en-IN') %>
+                        </p>
+                        <% } %>
 
-  <!-- Show regular price strike if higher than sale -->
-  <% if (regular > sale) { %>
-    <p class="text-xs text-gray-500 line-through">
-      ₹<%= (regular * qty).toLocaleString('en-IN') %>
-    </p>
-  <% } %>
+                        <!-- Show regular price strike if higher than sale -->
+                        <% if (regular > sale) { %>
+                        <p class="text-xs text-gray-500 line-through">
+                          ₹<%= (regular * qty).toLocaleString('en-IN') %>
+                        </p>
+                        <% } %>
 
-</div>
+                      </div>
                     </div>
                     <!-- Item Cancel/Return Reason -->
                     <% if (item.reason && ['Cancelled', 'ReturnRequested', 'Returned'].includes(item.itemStatus)) { %>
@@ -192,7 +201,7 @@
 
               <!-- Order Actions -->
               <div class="flex flex-wrap gap-3">
-                <a href="/order/details/<%= order._id %>" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                <a href="/order/details/<%= order.orderId %>" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm">
                   <i class="bi bi-eye"></i> View Details
                 </a>
 
@@ -230,7 +239,7 @@
                 %>
 
                 <% if (hasTrackableItem) { %>
-                <button onclick="trackOrder('<%= order._id %>')" class="px-4 py-2 bg-green-50 text-green-600 font-semibold rounded-lg hover:bg-green-100 transition-colors text-sm">
+                <button onclick="trackOrder('<%= order.orderId %>')" class="px-4 py-2 bg-green-50 text-green-600 font-semibold rounded-lg hover:bg-green-100 transition-colors text-sm">
                   <i class="bi bi-geo-alt"></i> Track Order
                 </button>
                 <% } %>
@@ -550,4 +559,16 @@ function getItemStatusClass(status) {
   };
   return statusClasses[status] || 'bg-gray-100 text-gray-700';
 }
+
+function getItemPaymentStatusClass(status) {
+  const statusClasses = {
+    'Pending': 'bg-yellow-100 text-yellow-700',
+    'Paid': 'bg-green-100 text-green-700',
+    'Refunded': 'bg-blue-100 text-blue-700',
+    'Failed': 'bg-red-100 text-red-700',
+    'Cancelled': 'bg-gray-200 text-gray-700'
+  };
+  return statusClasses[status] || 'bg-gray-100 text-gray-700';
+}
+
 %>

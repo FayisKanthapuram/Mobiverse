@@ -2,7 +2,10 @@ import { completeReferralReward } from "../../../referral/referral.service.js";
 import { findOrderById, saveOrder } from "../../repo/order.repo.js";
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
-import { calculateOrderStatus } from "../../order.helper.js";
+import {
+  calculateOrderPaymentStatus,
+  calculateOrderStatus,
+} from "../../order.helper.js";
 
 export const updateItemStatusService = async (orderId, itemId, newStatus) => {
   const order = await findOrderById(orderId);
@@ -12,7 +15,7 @@ export const updateItemStatusService = async (orderId, itemId, newStatus) => {
   }
 
   const item = order.orderedItems.id(itemId);
-  console.log(order.orderedItems)
+  console.log(order.orderedItems);
   if (!item) {
     throw new AppError("Item not found", HttpStatus.NOT_FOUND);
   }
@@ -70,26 +73,23 @@ export const updateItemStatusService = async (orderId, itemId, newStatus) => {
     item.itemTimeline[timeKey] = now;
   }
 
-  // ✅ Delivered case (ITEM level)
   if (newStatus === "Delivered") {
-    // if all items delivered → order delivered
+    order.deliveredDate = now;
+  }
+  if (newStatus === "Delivered"&&order.paymentMethod==='cod') {
+    item.paymentStatus = "Paid";
     const allDelivered = order.orderedItems.every(
       (i) => i.itemStatus === "Delivered"
     );
 
     if (allDelivered) {
-      order.orderStatus = "Delivered";
-      order.deliveredDate = now;
-      order.paymentStatus = "Paid";
-
       await completeReferralReward(order.userId, order._id);
-    } else {
-      order.orderStatus = "Partially Delivered";
     }
   }
 
   // 🔁 Recalculate order status (generic)
   order.orderStatus = calculateOrderStatus(order.orderedItems);
+  order.paymentStatus = calculateOrderPaymentStatus(order.orderedItems);
 
   order.markModified("orderedItems");
   await saveOrder(order);

@@ -23,3 +23,24 @@ export function calculateOrderStatus(items) {
   // ✅ DEFAULT
   return "Pending";
 }
+
+export function calculateOrderPaymentStatus(items) {
+  const statuses = items.map((i) => i.paymentStatus);
+
+  const all = (s) => statuses.every((st) => st === s);
+  const any = (s) => statuses.includes(s);
+
+  // ✅ FINAL STATES (highest priority)
+  if (all("Refunded")) return "Refunded";
+  if (all("Paid")) return "Paid";
+  if (all("Failed")) return "Failed";
+  if (all("Cancelled")) return "Cancelled";
+
+  if (any("Refunded"))
+    // ✅ PARTIAL STATES
+    return "Partially Refunded";
+  if (any("Paid")) return "Partially Paid";
+
+  // ✅ DEFAULT
+  return "Pending";
+}

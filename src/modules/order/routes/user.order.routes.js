@@ -26,7 +26,7 @@ router.post("/order/:id/cancel-items", cancelOrderItems);
 router.post("/order/:id/return-items", returnOrderItems);
 router.get("/order/track/:id", requireLogin, loadTrackOrder);
 router.get("/order/details/:id", requireLogin, loadOrderDetails);
-router.get("/order/invoice/:orderId", requireLogin, downloadInvoice);
+router.get("/order/invoice/:id", requireLogin, downloadInvoice);
 router.post("/order/razorpay/verify", requireLogin, verifyRazorpayPayment);
 
 export default router;

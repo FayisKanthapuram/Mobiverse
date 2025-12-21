@@ -16,7 +16,10 @@ import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
-import { calculateOrderStatus } from "../../order.helper.js";
+import {
+  calculateOrderPaymentStatus,
+  calculateOrderStatus,
+} from "../../order.helper.js";
 
 export const markItemReturnedService = async (orderId, body) => {
   const { itemId } = body;
@@ -32,7 +35,10 @@ export const markItemReturnedService = async (orderId, body) => {
   const item = order.orderedItems.find((i) => i._id.toString() === itemId);
 
   if (!item) {
-    throw new AppError(OrderMessages.ORDERED_ITEM_NOT_FOUND, HttpStatus.NOT_FOUND);
+    throw new AppError(
+      OrderMessages.ORDERED_ITEM_NOT_FOUND,
+      HttpStatus.NOT_FOUND
+    );
   }
 
   if (item.itemStatus === "Returned") {
@@ -46,7 +52,10 @@ export const markItemReturnedService = async (orderId, body) => {
   const product = await findProductById(item.productId);
 
   if (!variant || !product) {
-    throw new AppError(OrderMessages.PRODUCT_OR_VARIANT_NOT_FOUND, HttpStatus.BAD_REQUEST);
+    throw new AppError(
+      OrderMessages.PRODUCT_OR_VARIANT_NOT_FOUND,
+      HttpStatus.BAD_REQUEST
+    );
   }
 
   product.totalStock += item.quantity;
@@ -59,10 +68,9 @@ export const markItemReturnedService = async (orderId, body) => {
   item.itemStatus = "Returned";
   item.itemTimeline ||= {};
   item.itemTimeline.returnedAt = now;
-
   const refundAmount = item.price - item.couponShare - item.offer;
 
-  if (order.paymentStatus === "Paid") {
+  if (item.paymentStatus === "Paid") {
     await updateWalletBalanceAndCredit(order.userId, refundAmount);
     const wallet = await findWalletByUserId(order.userId);
     await updateUserWalletBalance(order.userId, wallet.balance);
@@ -78,16 +86,12 @@ export const markItemReturnedService = async (orderId, body) => {
     });
   }
 
-  const allReturnedOrCancelled = order.orderedItems.every(
-    (i) => i.itemStatus === "Cancelled" || i.itemStatus === "Returned"
-  );
+  item.paymentStatus = "Refunded";
 
-  if (allReturnedOrCancelled) {
-    order.paymentStatus = "Refunded";
-  }
 
   order.orderStatus = calculateOrderStatus(order.orderedItems);
-  
+
+  order.paymentStatus = calculateOrderPaymentStatus(order.orderedItems);
 
   order.markModified("orderedItems");
   await saveOrder(order);

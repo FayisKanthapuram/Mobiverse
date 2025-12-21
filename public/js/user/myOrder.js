@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 -------------------------------------------- */
 function openCancelOrderModal(order) {
   currentOrderData = order;
-  document.getElementById("cancelItemOrderId").value = order._id;
+  document.getElementById("cancelItemOrderId").value = order.orderId;
 
   const cancelItemsList = document.getElementById("cancelItemsList");
   cancelItemsList.innerHTML = "";
@@ -141,7 +141,7 @@ document.getElementById("cancelItemForm").addEventListener("submit", async funct
 -------------------------------------------- */
 function openReturnOrderModal(order) {
   currentOrderData = order;
-  document.getElementById("returnItemOrderId").value = order._id;
+  document.getElementById("returnItemOrderId").value = order.orderId;
 
   const returnItemsList = document.getElementById("returnItemsList");
   returnItemsList.innerHTML = "";

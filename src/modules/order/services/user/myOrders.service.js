@@ -1,6 +1,5 @@
 import {
-  findOrderById,
-  findOrderByIdWithItems,
+  findOrderByOrderId,
   findOrderByOrderIdWithUser,
   findUserOrders,
   saveOrder,
@@ -18,7 +17,7 @@ import {
 } from "../../../wallet/repo/wallet.repo.js";
 import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
-import { calculateOrderStatus } from "../../order.helper.js";
+import { calculateOrderPaymentStatus, calculateOrderStatus } from "../../order.helper.js";
 
 export const loadMyOrdersService = async (userId, queryParams) => {
   const status = queryParams.status || "";
@@ -79,7 +78,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
 
   const { itemIds, reason, comments } = body;
 
-  const order = await findOrderById(orderId);
+  const order = await findOrderByOrderId(orderId);
 
   if (!order) {
     return {
@@ -89,7 +88,6 @@ export const cancelOrderItemsService = async (orderId, body) => {
     };
   }
 
-  let isAllCancelled = true;
   let refundAmount = 0;
 
   for (const item of order.orderedItems) {
@@ -101,23 +99,15 @@ export const cancelOrderItemsService = async (orderId, body) => {
 
       // Update Item
       item.itemStatus = "Cancelled";
+      item.paymentStatus =
+        order.paymentMethod === "cod" ? "Cancelled" : "Refunded";
       item.reason = `${reason}, ${comments}`;
-      item.itemTimeline.cancelledAt=Date.now();
+      item.itemTimeline.cancelledAt = Date.now();
       refundAmount += item.price - item.couponShare - item.offer;
     }
-
-    // Check if any item remains active
-    if (item.itemStatus !== "Cancelled") {
-      isAllCancelled = false;
-    }
   }
 
-  // 4. Update Order Status
-  if (isAllCancelled) {
-    order.paymentStatus = "Refunded";
-  }
-
-  if (order.paymentStatus === "Paid" || order.paymentMethod !== "cod") {
+  if (order.paymentMethod !== "cod") {
     await updateWalletBalanceAndCredit(order.userId, refundAmount);
     const wallet = await findWalletByUserId(order.userId);
     await updateUserWalletBalance(order.userId, wallet.balance);
@@ -133,6 +123,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
   }
 
   order.orderStatus = calculateOrderStatus(order.orderedItems);
+  order.paymentStatus=calculateOrderPaymentStatus(order.orderedItems);
 
   await saveOrder(order);
 
@@ -157,7 +148,7 @@ export const returnOrderItemsService = async (orderId, body) => {
   const { itemIds, reason, comments } = body;
 
   // 2. Fetch order
-  const order = await findOrderById(orderId);
+  const order = await findOrderByOrderId(orderId);
 
   if (!order) {
     return {
@@ -174,7 +165,7 @@ export const returnOrderItemsService = async (orderId, body) => {
   for (const item of order.orderedItems) {
     if (itemIds.includes(item._id.toString())) {
       item.itemStatus = "ReturnRequested";
-      item.itemTimeline.returnRequestedAt=Date.now();
+      item.itemTimeline.returnRequestedAt = Date.now();
       item.reason = `${reason}, ${comments}`;
       anyItemUpdated = true;
     }
@@ -203,7 +194,7 @@ export const returnOrderItemsService = async (orderId, body) => {
 };
 
 export const loadOrderDetailsService = async (orderId) => {
-  const order = await findOrderByIdWithItems(orderId);
+  const order = await findOrderByOrderIdWithUser(orderId);
 
   if (!order) {
     const err = new Error(OrderMessages.ORDER_NOT_FOUND);

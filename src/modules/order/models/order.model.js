@@ -17,10 +17,10 @@ const orderedItemSchema = new mongoose.Schema({
   },
 
   quantity: { type: Number, required: true, min: 1 },
-  regularPrice: { type: Number ,default:0},
-  offer: { type: Number ,default:0},
+  regularPrice: { type: Number, default: 0 },
+  offer: { type: Number, default: 0 },
   price: { type: Number, required: true }, // sale price at time of purchase
-  couponShare:{type:Number,default:0},// coupon share for each product
+  couponShare: { type: Number, default: 0 }, // coupon share for each product
 
   // Item-level status
   itemStatus: {
@@ -46,13 +46,20 @@ const orderedItemSchema = new mongoose.Schema({
     confirmedAt: Date,
     processedAt: Date,
     shippedAt: Date,
-    outForDeliveryAt:Date,
+    outForDeliveryAt: Date,
     deliveredAt: Date,
     cancelledAt: Date,
     returnRequestedAt: Date,
     returnRejectedAt: Date,
     returnApprovedAt: Date,
     returnedAt: Date,
+  },
+
+  //Item-level payment status
+  paymentStatus: {
+    type: String,
+    enum: ["Pending", "Paid", "Refunded", "Failed", "Cancelled"],
+    default: "Pending",
   },
 
   // Reason for cancel / return
@@ -126,7 +133,15 @@ const orderSchema = new mongoose.Schema(
 
     paymentStatus: {
       type: String,
-      enum: ["Pending", "Paid", "Failed", "Refunded"],
+      enum: [
+        "Pending",
+        "Paid",
+        "Failed",
+        "Refunded",
+        "Partially Refunded",
+        "Partially Paid",
+        "Cancelled",
+      ],
       default: "Pending",
     },
 

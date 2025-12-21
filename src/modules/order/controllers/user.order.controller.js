@@ -169,7 +169,7 @@ export const loadOrderDetails = async (req, res, next) => {
 
 export const downloadInvoice = async (req, res, next) => {
   try {
-    const orderId = req.params.orderId;
+    const orderId = req.params.id;
 
     const { order, user } = await loadInvoiceService(orderId);
 

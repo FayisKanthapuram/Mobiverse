@@ -98,7 +98,8 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       quantity: item.quantity,
       regularPrice: item.variantId.regularPrice ?? 0,
       offer: item.offer ?? 0,
-      price: item.variantId.salePrice ?? 0, // final sale price
+      price: item.variantId.salePrice ?? 0, // final sale price(copon or offer is not included)
+      paymentStatus: paymentMethod === "cod" ? "Pending" : "Paid",
       couponShare: appliedCoupon
         ? ((item.variantId.salePrice - (item.offer || 0)) / finalAmount) *
           appliedCoupon.discount
@@ -174,7 +175,6 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
             couponId: appliedCoupon?.couponId || null,
             finalAmount,
             paymentMethod: "razorpay",
-            paymentStatus: "Pending",
           },
           session
         );
