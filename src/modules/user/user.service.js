@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { findUserByEmail, findUserById, saveUser } from "./user.repo.js";
 import { cloudinaryUpload } from "../../shared/middlewares/upload.js";
 import cloudinary from "../../config/cloudinary.js";
-import { DEFAULT_USER_AVATAR } from "../../config/cloudinaryDefaults.js";
+import { DEFAULT_USER_AVATAR } from "../../shared/constants/assets.js";
 import { createOtp, sendOtpEmail } from "../user-auth/auth.helper.js";
 
 export const getUserProfileService = async (userId) => {

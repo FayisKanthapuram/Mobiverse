@@ -1,4 +1,4 @@
-import { DEFAULT_USER_AVATAR, LOGO, LOGONAME } from "../../config/cloudinaryDefaults.js";
+import { DEFAULT_USER_AVATAR, LOGO, LOGONAME } from "../constants/assets.js";
 
 export const setUser = (req, res, next) => {
   res.locals.defaultAvatar=DEFAULT_USER_AVATAR;

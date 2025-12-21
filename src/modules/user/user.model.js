@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { DEFAULT_USER_AVATAR } from "../../config/cloudinaryDefaults.js";
+import { DEFAULT_USER_AVATAR } from "../../shared/constants/assets.js";
 
 const userSchema = new mongoose.Schema(
   {

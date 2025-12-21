@@ -11,7 +11,7 @@ import couponRoutes from "../../modules/coupon/coupon.routes.js";
 import brandRoutes from "../../modules/brand/brand.routes.js";
 import offerRoutes from "../../modules/offer/offer.routes.js";
 import adminProductRoutes from "../../modules/product/routes/admin.product.routes.js";
-import bannerRoutes from "../../modules/banner/banner.routes.js"
+import bannerRoutes from "../../modules/banners/banners.routes.js"
 import salesRoutes from "../../modules/sales-report/sales.report.routes.js"
 
 const router = express.Router();

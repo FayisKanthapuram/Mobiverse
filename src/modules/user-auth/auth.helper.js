@@ -1,7 +1,7 @@
 import { generateOtp } from "../../shared/utils/otp.js";
 import { sendEmail } from "../../shared/utils/mailer.util.js";
 import { renderEmailTemplate } from "../../shared/utils/emailRenderer.util.js";
-import { LOGONAME } from "../../config/cloudinaryDefaults.js";
+import { LOGONAME } from "../../shared/constants/assets.js";
 
 export const createOtp = () => ({
   otp: generateOtp(),
