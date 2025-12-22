@@ -5,10 +5,11 @@ import {
   getLatestProducts,
 } from "../product/services/product.common.service.js";
 
+/* ----------------------------------------------------
+   LOAD HOME DATA
+---------------------------------------------------- */
 export const loadHomeService = async (userId = null) => {
-  // Static banner data
   const banners = await bannersModel.getActiveBanners();
-
   const latestProducts = await getLatestProducts(5, userId);
   const featuredProducts = await getFeaturedProducts(userId);
   const brands = await getHomeBrands();

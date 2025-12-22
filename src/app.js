@@ -15,7 +15,7 @@ import {
   notFound,
   staticFile404,
 } from "./shared/middlewares/errorMiddlewares.js";
-import { ipRateLimiter } from "./shared/middlewares/ratelimit.js";
+import { limiter } from "./shared/middlewares/ratelimit.js";
 
 dotenv.config();
 
@@ -34,7 +34,7 @@ app.use(flash())
 app.use(setUser);
 app.use(passport.initialize());
 app.use(passport.session());
-// app.use(ipRateLimiter);
+app.use(limiter);
 
 // Static + Views
 app.use(express.static(path.join(__dirname, "../public")));

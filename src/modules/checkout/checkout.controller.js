@@ -1,65 +1,55 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
-import {
-  applyCouponService,
-  loadCheckoutService,
-} from "./checkout.service.js";
+import { applyCouponService, loadCheckoutService } from "./checkout.service.js";
 
-export const laodCheckOut = async (req, res, next) => {
-  try {
-    const data = await loadCheckoutService(req.session.user);
-    const appliedCoupon = req.session.appliedCoupon || null;
+/* ----------------------------------------------------
+   LOAD CHECKOUT
+---------------------------------------------------- */
+export const loadCheckOut = async (req, res) => {
+  const data = await loadCheckoutService(req.session.user);
+  const appliedCoupon = req.session.appliedCoupon || null;
 
-    if (data.hasAdjustedItem) {
-      return res.redirect("/cart?message=adjested");
-    }
-
-    res.status(HttpStatus.OK).render("user/checkout", {
-      pageTitle: "check out",
-      pageJs: "checkout",
-      addresses: data.addresses,
-      user: data.user,
-      cart: data.cartTotals,
-      availableCoupons: data.availableCoupons,
-      appliedCoupon,
-    });
-  } catch (error) {
-    next(error);
+  if (data.hasAdjustedItem) {
+    return res.redirect("/cart?message=adjusted");
   }
+
+  res.status(HttpStatus.OK).render("user/checkout", {
+    pageTitle: "Checkout",
+    pageJs: "checkout",
+    addresses: data.addresses,
+    user: data.user,
+    cart: data.cartTotals,
+    availableCoupons: data.availableCoupons,
+    appliedCoupon,
+  });
 };
 
+/* ----------------------------------------------------
+   APPLY COUPON
+---------------------------------------------------- */
 export const applyCoupon = async (req, res) => {
-  try {
-    if(req.session.appliedCoupon)req.session.appliedCoupon=null;
-    const result = await applyCouponService(req.body, req.session.user);
-    if (!result.success) {
-      return res.status(result.status).json({
-        success: false,
-        message: result.message,
-      });
-    }
+  if (req.session.appliedCoupon) req.session.appliedCoupon = null;
 
-    req.session.appliedCoupon = {
-      couponId: result.data.couponId,
-      discount: result.data.discount,
-      finalAmount: result.data.finalAmount,
-      code: req.body.code.toUpperCase(),
-      couponType:result.data.couponType,
-      couponValue:result.data.couponValue,
-    };
+  const result = await applyCouponService(req.body, req.session.user);
 
-    return res.status(HttpStatus.OK).json({ success: true });
-  } catch (error) {
-    console.error("Error on add to cart", error);
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
-  }
+  req.session.appliedCoupon = {
+    couponId: result.couponId,
+    discount: result.discount,
+    finalAmount: result.finalAmount,
+    code: req.body.code.toUpperCase(),
+    couponType: result.couponType,
+    couponValue: result.couponValue,
+  };
+
+  res.status(HttpStatus.OK).json({ success: true });
 };
 
+/* ----------------------------------------------------
+   REMOVE COUPON
+---------------------------------------------------- */
 export const removeCoupon = (req, res) => {
   req.session.appliedCoupon = null;
-  return res.status(HttpStatus.OK).json({
+
+  res.status(HttpStatus.OK).json({
     success: true,
     message: "Coupon removed",
   });

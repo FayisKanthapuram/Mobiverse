@@ -6,7 +6,7 @@ import { getAllListedBrands } from "../../../brand/brand.repo.js";
 import { markWishlistStatus } from "../../../wishlist/wishlist.helper.js";
 import { fetchWishlistItems } from "../../../wishlist/wishlist.repo.js";
 
-export const loadShopService = async (query, userId) => {
+export const loadShopService = async (query, userId = null) => {
   const search = query.search || "";
   const brand = query.brand || "all";
   const sort = query.sort || "";
@@ -17,10 +17,10 @@ export const loadShopService = async (query, userId) => {
   const limit = 3;
   const skip = (currentPage - 1) * limit;
 
-  // MATCH conditions
+  // ---------------- MATCH ----------------
   const matchStage = {
-    "brands.isListed": true,
     isListed: true,
+    "brands.isListed": true,
   };
 
   if (brand !== "all") {
@@ -28,34 +28,35 @@ export const loadShopService = async (query, userId) => {
   }
 
   if (search) {
-    matchStage["name"] = { $regex: search.trim(), $options: "i" };
+    matchStage.name = { $regex: search.trim(), $options: "i" };
   }
 
-  // SORT conditions
+  // ---------------- SORT ----------------
   const sortStage = {};
   if (sort === "price-asc") sortStage["variants.salePrice"] = 1;
   else if (sort === "price-desc") sortStage["variants.salePrice"] = -1;
-  else if (sort === "a-z") sortStage["name"] = 1;
-  else if (sort === "z-a") sortStage["name"] = -1;
-  else if (sort === "latest") sortStage["updatedAt"] = -1;
+  else if (sort === "a-z") sortStage.name = 1;
+  else if (sort === "z-a") sortStage.name = -1;
+  else if (sort === "latest") sortStage.updatedAt = -1;
 
-  // PRICE filter
+  // ---------------- PRICE FILTER ----------------
   const priceStage = {};
-  if (minPrice) priceStage["$gte"] = Number(minPrice);
-  if (maxPrice) priceStage["$lte"] = Number(maxPrice);
+  if (minPrice) priceStage.$gte = Number(minPrice);
+  if (maxPrice) priceStage.$lte = Number(maxPrice);
 
-  // Base pipeline
+  // ---------------- BASE PIPELINE ----------------
   const basePipeline = [
     {
       $lookup: {
         from: "brands",
-        foreignField: "_id",
         localField: "brandID",
+        foreignField: "_id",
         as: "brands",
       },
     },
     { $unwind: "$brands" },
     { $match: matchStage },
+
     {
       $lookup: {
         from: "variants",
@@ -79,131 +80,17 @@ export const loadShopService = async (query, userId) => {
       },
     },
     { $unwind: "$variants" },
-    // Product Offer
-    {
-      $lookup: {
-        from: "offers",
-        let: {
-          productId: "$_id",
-          today: new Date(),
-          salePrice: "$variants.salePrice",
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$offerType", "product"] },
-                  { $in: ["$$productId", "$productID"] },
-                  { $lte: ["$startDate", "$$today"] },
-                  { $gte: ["$endDate", "$$today"] },
-                  { $eq: ["$isActive", true] },
-                ],
-              },
-            },
-          },
-          {
-            $project: {
-              _id: 0,
-              offer: {
-                $cond: {
-                  if: { $eq: ["$discountType", "percentage"] },
-                  then: { $multiply: ["$$salePrice", "$discountValue", 0.01] },
-                  else: "$discountValue",
-                },
-              },
-            },
-          },
-          { $sort: { offer: -1 } },
-          { $limit: 1 },
-        ],
-        as: "productOffer",
-      },
-    },
-    {
-      $unwind: {
-        path: "$productOffer",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    { $addFields: { productOffer: "$productOffer.offer" } },
-
-    // Brand Offer
-    {
-      $lookup: {
-        from: "offers",
-        let: {
-          brandID: "$brandID",
-          today: new Date(),
-          salePrice: "$variants.salePrice",
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$offerType", "brand"] },
-                  { $eq: ["$$brandID", "$brandID"] },
-                  { $lte: ["$startDate", "$$today"] },
-                  { $gte: ["$endDate", "$$today"] },
-                  { $eq: ["$isActive", true] },
-                ],
-              },
-            },
-          },
-          {
-            $project: {
-              _id: 0,
-              offer: {
-                $cond: {
-                  if: { $eq: ["$discountType", "percentage"] },
-                  then: { $multiply: ["$$salePrice", "$discountValue", 0.01] },
-                  else: "$discountValue",
-                },
-              },
-            },
-          },
-          { $sort: { offer: -1 } },
-          { $limit: 1 },
-        ],
-        as: "brandOffer",
-      },
-    },
-    {
-      $unwind: {
-        path: "$brandOffer",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    { $addFields: { brandOffer: "$brandOffer.offer" } },
-
-    // Final offer selection
-    {
-      $addFields: {
-        offer: {
-          $ceil: {
-            $cond: {
-              if: { $gte: ["$brandOffer", "$productOffer"] },
-              then: "$brandOffer",
-              else: "$productOffer",
-            },
-          },
-        },
-      },
-    },
   ];
 
-  // Add sorting
-  if (Object.keys(sortStage).length > 0) {
+  if (Object.keys(sortStage).length) {
     basePipeline.push({ $sort: sortStage });
   }
 
-  // Add price filter
-  if (Object.keys(priceStage).length > 0) {
+  if (Object.keys(priceStage).length) {
     basePipeline.push({ $match: { "variants.salePrice": priceStage } });
   }
 
-  // COUNT pipeline
+  // ---------------- COUNT ----------------
   const countPipeline = structuredClone(basePipeline);
   countPipeline.push({ $count: "totalDocuments" });
 
@@ -213,16 +100,13 @@ export const loadShopService = async (query, userId) => {
 
   const totalPages = Math.ceil(totalDocuments / limit);
 
-  // Add cart status only if user logged in
+  // ---------------- CART STATUS (LOGGED IN USER) ----------------
   if (userId) {
     basePipeline.push(
       {
         $lookup: {
           from: "carts",
-          let: {
-            productId: "$_id",
-            userId: userId,
-          },
+          let: { productId: "$_id", userId },
           pipeline: [
             {
               $match: {
@@ -239,28 +123,24 @@ export const loadShopService = async (query, userId) => {
           as: "cart",
         },
       },
-      {
-        $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
-      },
-      {
-        $addFields: { cart: "$cart._id" },
-      }
+      { $unwind: { path: "$cart", preserveNullAndEmptyArrays: true } },
+      { $addFields: { cart: "$cart._id" } }
     );
   }
-  // PAGINATED DATA
+
+  // ---------------- PAGINATION ----------------
   const productPipeline = structuredClone(basePipeline);
   productPipeline.push({ $skip: skip }, { $limit: limit });
 
   const products = await getShopProductsAgg(productPipeline);
 
-  const wishlistItems = await fetchWishlistItems(userId);
-  const shopProducts=await markWishlistStatus(products,wishlistItems);
+  const wishlistItems = userId ? await fetchWishlistItems(userId) : [];
+  const shopProducts = await markWishlistStatus(products, wishlistItems);
 
-  // BRANDS
   const brands = await getAllListedBrands();
 
   return {
-    products:shopProducts,
+    products: shopProducts,
     brands,
     pagination: {
       currentPage,

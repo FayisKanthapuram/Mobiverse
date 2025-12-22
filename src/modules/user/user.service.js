@@ -6,7 +6,7 @@ import { DEFAULT_USER_AVATAR } from "../../shared/constants/assets.js";
 import { createOtp, sendOtpEmail } from "../user-auth/auth.helper.js";
 
 export const getUserProfileService = async (userId) => {
-  return await findUserById(userId);
+  return await findUserById(userId).populate("referredBy");
 };
 
 export const updateUserInfoService = async (

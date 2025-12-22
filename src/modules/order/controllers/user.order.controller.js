@@ -4,183 +4,116 @@ import {
   placeOrderService,
   retryPaymentService,
 } from "../services/user/user.order.service.js";
-import { cancelOrderItemsService, loadInvoiceService, loadMyOrdersService, loadOrderDetailsService, returnOrderItemsService } from "../services/user/myOrders.service.js";
+import {
+  cancelOrderItemsService,
+  loadInvoiceService,
+  loadMyOrdersService,
+  loadOrderDetailsService,
+  returnOrderItemsService,
+} from "../services/user/myOrders.service.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
+/* ----------------------------------------------------
+   PLACE ORDER
+---------------------------------------------------- */
 export const placeOrder = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    const body = req.body;
+  const userId = req.session.user;
+  const appliedCoupon = req.session.appliedCoupon || null;
 
-    const appliedCoupon = req.session.appliedCoupon || null;
+  const result = await placeOrderService(userId, req.body, appliedCoupon);
 
-    const result = await placeOrderService(userId, body, appliedCoupon);
-    if (req.body.paymentMethod !== "razorpay") req.session.appliedCoupon = null;
-
-    return res.status(result.status).json(result);
-  } catch (err) {
-    console.log("Order Error:", err);
-
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something went wrong while placing the order.",
-    });
+  if (req.body.paymentMethod !== "razorpay") {
+    req.session.appliedCoupon = null;
   }
+
+  res.status(result.status).json(result);
 };
 
-export const retryPayment=async(req,res)=>{
-  try {
-    const tempOrderId = req.params.id;
-    const result = await retryPaymentService(tempOrderId);
-    console.log(result);
-    return res.status(result.status).json(result);
-  } catch (err) {
-    console.log("Order Error:", err);
-
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something went wrong while placing the order.",
-    });
-  }
-}
-
-export const loadOrderSuccess = async (req, res, next) => {
-  try {
-    const orderId = req.params.id;
-
-    const order = await loadOrderSuccessService(orderId);
-
-    res.status(HttpStatus.OK).render("user/orders/orderSuccess", {
-      pageTitle: "Success",
-      order,
-    });
-  } catch (error) {
-    next(error);
-  }
+/* ----------------------------------------------------
+   RETRY PAYMENT
+---------------------------------------------------- */
+export const retryPayment = async (req, res) => {
+  const result = await retryPaymentService(req.params.id);
+  res.status(result.status).json(result);
 };
 
-export const loadOrderFailure = async (req, res, next) => {
-  try {
-    const orderId = req.params.id;
+/* ----------------------------------------------------
+   ORDER SUCCESS / FAILURE
+---------------------------------------------------- */
+export const loadOrderSuccess = async (req, res) => {
+  const order = await loadOrderSuccessService(req.params.id);
 
-    const order = await loadOrderFailureService(orderId);
-    res.status(HttpStatus.OK).render("user/orders/orderFailed", {
-      pageTitle: "Order Failed",
-      order,
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).render("user/orders/orderSuccess", {
+    pageTitle: "Success",
+    order,
+  });
 };
 
-export const loadMyOrders = async (req, res, next) => {
-  try {
-    const userId = req.session.user;
+export const loadOrderFailure = async (req, res) => {
+  const order = await loadOrderFailureService(req.params.id);
 
-    const data = await loadMyOrdersService(userId, req.query);
-
-    return res.status(HttpStatus.OK).render("user/orders/myOrders", {
-      pageTitle: "My Orders",
-      pageJs: "myOrder",
-      user: data.user,
-      orders: data.orders,
-      query: req.query,
-
-      currentPage: data.pagination.currentPage,
-      totalDocuments: data.pagination.totalDocuments,
-      totalPages: data.pagination.totalPages,
-      limit: data.pagination.limit,
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).render("user/orders/orderFailed", {
+    pageTitle: "Order Failed",
+    order,
+  });
 };
 
+/* ----------------------------------------------------
+   MY ORDERS
+---------------------------------------------------- */
+export const loadMyOrders = async (req, res) => {
+  const data = await loadMyOrdersService(req.session.user, req.query);
+
+  res.status(HttpStatus.OK).render("user/orders/myOrders", {
+    pageTitle: "My Orders",
+    pageJs: "myOrder",
+    user: data.user,
+    orders: data.orders,
+    query: req.query,
+    ...data.pagination,
+  });
+};
+
+/* ----------------------------------------------------
+   CANCEL / RETURN ITEMS
+---------------------------------------------------- */
 export const cancelOrderItems = async (req, res) => {
-  try {
-    const orderId = req.params.id;
-    const body = req.body;
-
-    const result = await cancelOrderItemsService(orderId, body);
-
-    return res.status(result.status).json(result);
-
-  } catch (error) {
-    console.log("Cancel Order Error:", error);
-
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something went wrong while cancelling the order.",
-    });
-  }
+  const result = await cancelOrderItemsService(req.params.id, req.body);
+  res.status(result.status).json(result);
 };
 
 export const returnOrderItems = async (req, res) => {
-  try {
-    const orderId = req.params.id;
-    const body = req.body;
-
-    const result = await returnOrderItemsService(orderId, body);
-
-    return res.status(result.status).json(result);
-
-  } catch (error) {
-    console.log("Order Error:", error);
-
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something went wrong while returning the order.",
-    });
-  }
+  const result = await returnOrderItemsService(req.params.id, req.body);
+  res.status(result.status).json(result);
 };
 
+/* ----------------------------------------------------
+   TRACK / DETAILS / INVOICE
+---------------------------------------------------- */
+export const loadTrackOrder = async (req, res) => {
+  const order = await loadOrderDetailsService(req.params.id);
 
-export const loadTrackOrder = async (req, res, next) => {
-  try {
-    const orderId = req.params.id;
-
-    const order = await loadOrderDetailsService(orderId);
-
-    return res.status(HttpStatus.OK).render("user/orders/trackOrder", {
-      pageTitle: "My Orders",
-      order,
-    });
-
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).render("user/orders/trackOrder", {
+    pageTitle: "Track Order",
+    order,
+  });
 };
 
-export const loadOrderDetails = async (req, res, next) => {
-  try {
-    const orderId = req.params.id;
+export const loadOrderDetails = async (req, res) => {
+  const order = await loadOrderDetailsService(req.params.id);
 
-    const order = await loadOrderDetailsService(orderId);
-
-    return res.status(HttpStatus.OK).render("user/orders/orderDetails", {
-      pageTitle: "My Orders",
-      order,
-    });
-
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).render("user/orders/orderDetails", {
+    pageTitle: "Order Details",
+    order,
+  });
 };
 
-export const downloadInvoice = async (req, res, next) => {
-  try {
-    const orderId = req.params.id;
+export const downloadInvoice = async (req, res) => {
+  const { order, user } = await loadInvoiceService(req.params.id);
 
-    const { order, user } = await loadInvoiceService(orderId);
-
-    // Render invoice HTML (layout: false so it is a clean document)
-    return res.status(HttpStatus.OK).render("user/orders/invoice", {
-      layout: false,
-      order,
-      user,
-    });
-  } catch (error) {
-    // service throws a 404-error object when not found, pass to next
-    next(error);
-  }
+  res.status(HttpStatus.OK).render("user/orders/invoice", {
+    layout: false,
+    order,
+    user,
+  });
 };

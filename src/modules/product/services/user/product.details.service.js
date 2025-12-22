@@ -2,54 +2,62 @@ import {
   findVariantByColor,
   findVariantByIdAgg,
 } from "../../repo/variant.repo.js";
-
+import { getSingleProductAgg } from "../../repo/product.repo.js";
 import {
-  getSingleProductAgg,
-  getLatestProductsAgg,
-} from "../../repo/product.repo.js";
-
-import { getAppliedOffer, groupVariantsByColor } from "../../helpers/user.product.helper.js";
+  getAppliedOffer,
+  groupVariantsByColor,
+} from "../../helpers/user.product.helper.js";
 import { getLatestProducts } from "../product.common.service.js";
 import { ProductMessages } from "../../../../shared/constants/messages/productMessages.js";
+import { AppError } from "../../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 
-export const loadProductDetailsService = async (params, query,userId=null) => {
-
-  // 1. Determine selected variant
+export const loadProductDetailsService = async (
+  params,
+  query,
+  userId = null
+) => {
+  // 1. Resolve variant
   let selectedVariant;
 
   if (query.color) {
-    selectedVariant = await findVariantByColor(query.color,params.variantId,userId);
+    selectedVariant = await findVariantByColor(
+      query.color,
+      params.variantId,
+      userId
+    );
   } else {
-    selectedVariant = await findVariantByIdAgg(params.variantId,userId);
+    selectedVariant = await findVariantByIdAgg(params.variantId, userId);
   }
-  selectedVariant=selectedVariant[0]
+
+  selectedVariant = selectedVariant?.[0];
 
   if (!selectedVariant) {
-    const error = new Error(ProductMessages.VARIANT_NOT_FOUND);
-    error.status = 404;
-    throw error;
+    throw new AppError(ProductMessages.VARIANT_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  // 2. Fetch product with variants
-  const productData = await getSingleProductAgg(selectedVariant.productId,userId);
-  if (!productData.length) {
-    const error = new Error(ProductMessages.PRODUCT_NOT_FOUND);
-    error.status = 404;
-    throw error;
+  // 2. Fetch product
+  const productAgg = await getSingleProductAgg(
+    selectedVariant.productId,
+    userId
+  );
+
+  if (!productAgg.length) {
+    throw new AppError(ProductMessages.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  const product = productData[0];
+  const product = productAgg[0];
 
-  const offer=getAppliedOffer(product,selectedVariant.salePrice);
+  // 3. Offer calculation
+  const offer = getAppliedOffer(product, selectedVariant.salePrice);
 
-  // 3. Group variants by color
+  // 4. Variant grouping
   const colorGroups = groupVariantsByColor(product.variants);
-  console.log(colorGroups)
 
-  // 4. Get Related Products
-  const relatedProducts = await getLatestProducts(6,userId);
+  // 5. Related products
+  const relatedProducts = await getLatestProducts(6, userId);
 
-  // 5. Static reviews (temporary)
+  // 6. Temporary static reviews
   const reviews = [
     {
       userName: "Rahul Mehta",

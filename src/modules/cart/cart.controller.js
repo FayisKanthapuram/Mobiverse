@@ -5,80 +5,62 @@ import {
   loadCartService,
   updateCartItemService,
 } from "./cart.service.js";
+import { AppError } from "../../shared/utils/app.error.js";
 
-export const loadCart = async (req, res, next) => {
-  try {
-    if (req.session.appliedCoupon) req.session.appliedCoupon = null;
+/* ----------------------------------------------------
+   LOAD CART
+---------------------------------------------------- */
+export const loadCart = async (req, res) => {
+  if (req.session.appliedCoupon) req.session.appliedCoupon = null;
 
-    const data = await loadCartService(req.session.user);
-    return res.status(HttpStatus.OK).render("user/cart", {
-      pageTitle: "Cart",
-      pageJs: "cart",
-      cart: data.cart,
-      relatedProducts: data.relatedProducts,
-    });
-  } catch (error) {
-    next(error);
-  }
+  const data = await loadCartService(req.session.user);
+
+  res.status(HttpStatus.OK).render("user/cart", {
+    pageTitle: "Cart",
+    pageJs: "cart",
+    cart: data.cart,
+    relatedProducts: data.relatedProducts,
+  });
 };
 
+/* ----------------------------------------------------
+   ADD TO CART
+---------------------------------------------------- */
 export const addToCart = async (req, res) => {
-  try {
-    if (!req.session.user) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({
-        success: false,
-        message: "Please log in to add products to your cart.",
-      });
-    }
-
-    const result = await addToCartService(req.session.user, req.body);
-    return res.status(result.status).json(result);
-  } catch (error) {
-    console.error("Error on add to cart", error);
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
+  if (!req.session.user) {
+    throw new AppError(
+      "Please log in to add products to your cart.",
+      HttpStatus.UNAUTHORIZED
+    );
   }
+
+  const result = await addToCartService(req.session.user, req.body);
+  res.status(result.status).json(result);
 };
 
+/* ----------------------------------------------------
+   UPDATE CART ITEM
+---------------------------------------------------- */
 export const updateCartItem = async (req, res) => {
-  try {
-    const itemId = req.params.id;
-    const userId = req.session.user;
+  const itemId = req.params.id;
+  const userId = req.session.user;
 
-    const result = await updateCartItemService(itemId, userId, req.body);
-
-    return res.status(result.status).json(result);
-  } catch (error) {
-    console.error("Error while updating cart", error);
-
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
-  }
+  const result = await updateCartItemService(itemId, userId, req.body);
+  res.status(result.status).json(result);
 };
 
+/* ----------------------------------------------------
+   DELETE CART ITEM
+---------------------------------------------------- */
 export const deleteCartItem = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const item = await cartModel.findById(id);
-    if (!item) {
-      return res
-        .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "product is not found" });
-    }
-    await item.deleteOne();
+  const id = req.params.id;
 
-    return res.status(HttpStatus.OK).json({
-      success: true,
-    });
-  } catch (error) {
-    console.error("Error on delete", error);
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: error.message,
-    });
+  const item = await cartModel.findById(id);
+  if (!item) {
+    throw new AppError("Product not found", HttpStatus.NOT_FOUND);
   }
+
+  await item.deleteOne();
+
+  res.status(HttpStatus.OK).json({ success: true });
 };

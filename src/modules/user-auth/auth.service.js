@@ -57,17 +57,22 @@ export const verifySignUpOtpService = async (otp, session) => {
   //generate self referal code
   const referralCode = generateReferralCode(session.tempUser.username);
 
+  const code = session.tempUser.referralCode.toUpperCase();
+
+  // 1) Find the referrer
+  const referrer = await findUserByReferralId(code)||null;
+
   //create user
-  const user = await createUser({...session.tempUser,referralCode});
+  const user = await createUser({
+    ...session.tempUser,
+    referralCode,
+    referredBy:referrer._id,
+  });
 
   //create wallet
   await createWallet(user._id);
 
   if (session.tempUser.referralCode) {
-    const code = session.tempUser.referralCode.toUpperCase();
-
-    // 1) Find the referrer
-    const referrer = await findUserByReferralId(code)
 
     if (referrer && referrer._id.toString() !== user._id.toString()) {
       // 2) Create referral entry
