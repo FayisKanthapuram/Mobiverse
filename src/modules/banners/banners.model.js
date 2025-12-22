@@ -77,51 +77,51 @@ bannerSchema.index({ isActive: 1, order: 1 });
 bannerSchema.index({ scheduledStart: 1, scheduledEnd: 1 });
 
 // Virtual to check if banner should be displayed based on schedule
-// bannerSchema.virtual("isCurrentlyActive").get(function () {
-//   if (!this.isActive) return false;
-//   if (!this.isScheduled) return true;
+bannerSchema.virtual("isCurrentlyActive").get(function () {
+  if (!this.isActive) return false;
+  if (!this.isScheduled) return true;
 
-//   const now = new Date();
-//   const hasStarted = !this.scheduledStart || this.scheduledStart <= now;
-//   const hasNotEnded = !this.scheduledEnd || this.scheduledEnd >= now;
+  const now = new Date();
+  const hasStarted = !this.scheduledStart || this.scheduledStart <= now;
+  const hasNotEnded = !this.scheduledEnd || this.scheduledEnd >= now;
 
-//   return hasStarted && hasNotEnded;
-// });
+  return hasStarted && hasNotEnded;
+});
 
-// // Method to get active banners sorted by order (with scheduling support)
-// bannerSchema.statics.getActiveBanners = function () {
-//   const now = new Date();
+// Method to get active banners sorted by order (with scheduling support)
+bannerSchema.statics.getActiveBanners = function () {
+  const now = new Date();
 
-//   return this.find({
-//     isActive: true,
-//     $or: [
-//       { isScheduled: false },
-//       {
-//         isScheduled: true,
-//         $or: [
-//           { scheduledStart: null, scheduledEnd: null },
-//           { scheduledStart: { $lte: now }, scheduledEnd: null },
-//           { scheduledStart: null, scheduledEnd: { $gte: now } },
-//           { scheduledStart: { $lte: now }, scheduledEnd: { $gte: now } },
-//         ],
-//       },
-//     ],
-//   })
-//     .sort({ order: 1, createdAt: -1 })
-//     .select("-__v");
-// };
+  return this.find({
+    isActive: true,
+    $or: [
+      { isScheduled: false },
+      {
+        isScheduled: true,
+        $or: [
+          { scheduledStart: null, scheduledEnd: null },
+          { scheduledStart: { $lte: now }, scheduledEnd: null },
+          { scheduledStart: null, scheduledEnd: { $gte: now } },
+          { scheduledStart: { $lte: now }, scheduledEnd: { $gte: now } },
+        ],
+      },
+    ],
+  })
+    .sort({ order: 1, createdAt: -1 })
+    .select("-__v");
+};
 
-// // Instance method to check if banner is expired
-// bannerSchema.methods.isExpired = function () {
-//   if (!this.isScheduled || !this.scheduledEnd) return false;
-//   return new Date() > this.scheduledEnd;
-// };
+// Instance method to check if banner is expired
+bannerSchema.methods.isExpired = function () {
+  if (!this.isScheduled || !this.scheduledEnd) return false;
+  return new Date() > this.scheduledEnd;
+};
 
-// // Instance method to check if banner is upcoming
-// bannerSchema.methods.isUpcoming = function () {
-//   if (!this.isScheduled || !this.scheduledStart) return false;
-//   return new Date() < this.scheduledStart;
-// };
+// Instance method to check if banner is upcoming
+bannerSchema.methods.isUpcoming = function () {
+  if (!this.isScheduled || !this.scheduledStart) return false;
+  return new Date() < this.scheduledStart;
+};
 
 export default mongoose.model("Banner", bannerSchema);
 

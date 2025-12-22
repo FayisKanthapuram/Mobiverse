@@ -88,21 +88,21 @@ async function toggleBannerStatus(bannerId, currentStatus) {
 
 // Confirm delete banner
 function confirmDelete(bannerId) {
-  showConfirmModal(
-    'Delete Banner',
-    'Are you sure you want to delete this banner? This action cannot be undone.',
-    async () => {
+  openConfirmModal({
+    title: "Delete Banner",
+    message:
+      "Are you sure you want to delete this banner? This action cannot be undone.",
+    onConfirm: async () => {
       try {
         const response = await axios.delete(`/admin/banners/${bannerId}`);
-        
+
         if (response.data.success) {
-          sessionStorage.setItem('toastSuccess', 'Banner deleted successfully');
+          sessionStorage.setItem("toastSuccess", "Banner deleted successfully");
           window.location.reload();
         }
       } catch (error) {
-        console.error('Error deleting banner:', error);
         Toastify({
-          text: error.response?.data?.message || 'Failed to delete banner',
+          text: error.response?.data?.message || "Failed to delete banner",
           duration: 4000,
           gravity: "bottom",
           position: "right",
@@ -110,6 +110,6 @@ function confirmDelete(bannerId) {
           close: true,
         }).showToast();
       }
-    }
-  );
+    },
+  });
 }

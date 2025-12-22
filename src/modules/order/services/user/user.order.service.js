@@ -92,6 +92,14 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       cartTotals.deliveryCharge +
       cartTotals.tax;
 
+    
+    if (paymentMethod === "cod" && finalAmount >= 20000) {
+      return res.status(400).json({
+        success: false,
+        message: "Cash on Delivery is allowed only for orders below ₹20,000",
+      });
+    }
+
     const orderedItems = items.map((item) => ({
       productId: item.productId._id,
       variantId: item.variantId._id,

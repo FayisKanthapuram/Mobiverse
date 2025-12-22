@@ -3,7 +3,7 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { cloudinaryUpload } from "../../shared/middlewares/upload.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { rollbackCloudinary } from "../product/helpers/admin.product.helper.js";
-import { createBanner, findBannerById, findBanners, saveBanner, updateBannerOrder } from "./banners.repo.js";
+import { createBanner, deleteBannerById, findBannerById, findBanners, saveBanner, updateBannerOrder } from "./banners.repo.js";
 
 export const loadBannersService = async () => {
 	const banners = await findBanners();
@@ -182,3 +182,25 @@ export const reorderBannersService = async (body) => {
   );
 };
 
+export const deleteBannerService = async (bannerId) => {
+  const banner = await findBannerById(bannerId)
+
+  if (!banner) {
+    throw new AppError("Banner not found", HttpStatus.NOT_FOUND);
+  }
+
+  // Collect image URLs
+  const images = [
+    banner.images?.desktop,
+    banner.images?.tablet,
+    banner.images?.mobile,
+  ].filter(Boolean);
+
+  // Delete from Cloudinary
+  for (const url of images) {
+    const publicId = url.split("/").pop().split(".")[0];
+    await cloudinary.uploader.destroy(`ecommerce/banners/${publicId}`);
+  }
+
+  await deleteBannerById(bannerId);
+};

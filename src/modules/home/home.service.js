@@ -1,21 +1,20 @@
+import bannersModel from "../banners/banners.model.js";
 import { getHomeBrands } from "../brand/brand.repo.js";
-import { getFeaturedProducts, getLatestProducts } from "../product/services/product.common.service.js";
+import {
+  getFeaturedProducts,
+  getLatestProducts,
+} from "../product/services/product.common.service.js";
 
-export const loadHomeService = async (userId=null) => {
+export const loadHomeService = async (userId = null) => {
   // Static banner data
-  const heroData = {
-    title: "SAMSUNG GALAXY S23 ULTRA 5G",
-    subtitle: "The Future in Your Hand. Order now and get exclusive launch offers.",
-    link: "/shop/s23-ultra",
-    image: "/images/s23-ultra-hero.png",
-  };
+  const banners = await bannersModel.getActiveBanners();
 
-  const latestProducts = await getLatestProducts(5,userId)
+  const latestProducts = await getLatestProducts(5, userId);
   const featuredProducts = await getFeaturedProducts(userId);
   const brands = await getHomeBrands();
 
   return {
-    heroData,
+    banners,
     latestProducts,
     featuredProducts,
     brands,

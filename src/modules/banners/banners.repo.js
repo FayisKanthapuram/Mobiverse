@@ -13,3 +13,7 @@ export const saveBanner = (banner) => banner.save();
 export const updateBannerOrder=(id,order)=>{
   return bannerModel.findByIdAndUpdate(id, { order });
 }
+
+export const deleteBannerById=(id)=>{
+  return bannerModel.findByIdAndDelete(id);
+}
