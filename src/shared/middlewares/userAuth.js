@@ -19,7 +19,7 @@ export const requireLogin = async (req, res, next) => {
           console.log(err);
           return res.redirect("/home");
         }
-        res.clearCookie("user.sid");
+        res.clearCookie("app.sid");
         return res.redirect("/login?error=blocked");
       });
     }

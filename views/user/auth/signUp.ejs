@@ -1,3 +1,4 @@
+<!-- ================= SIGNUP FORM ================= -->
 <main class="flex justify-center items-center py-16 px-4 min-h-[70vh]">
   <div class="bg-white border border-gray-200 rounded-2xl shadow-lg px-10 py-12 w-full max-w-md">
 
@@ -5,30 +6,33 @@
       Create your Mobiverse account
     </h2>
 
-    <form id="registerForm" class="space-y-5">
+    <form id="registerForm" class="space-y-5" novalidate>
 
       <!-- Username -->
       <div>
-        <label for="username" class="block font-semibold text-sm mb-1">Username</label>
-        <input type="text" id="username" name="username" class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+        <label class="block font-semibold text-sm mb-1">Username</label>
+        <input type="text" id="username"
+          class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
         <p id="usernameError" class="text-red-500 text-xs mt-1 hidden"></p>
       </div>
 
-
       <!-- Email -->
       <div>
-        <label for="email" class="block font-semibold text-sm mb-1">Email</label>
-        <input type="email" id="email" name="email" class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+        <label class="block font-semibold text-sm mb-1">Email</label>
+        <input type="email" id="email"
+          class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
         <p id="emailError" class="text-red-500 text-xs mt-1 hidden"></p>
       </div>
 
-
       <!-- Password -->
       <div>
-        <label for="password" class="block font-semibold text-sm mb-1">Password</label>
+        <label class="block font-semibold text-sm mb-1">Password</label>
         <div class="relative">
-          <input type="password" id="password" name="password" class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-          <button type="button" onclick="toggleSignupPassword('password','eyeOpen1','eyeClosed1')" class="absolute inset-y-0 right-3 flex items-center">
+          <input type="password" id="password"
+            class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <button type="button"
+            onclick="toggleSignupPassword('password','eyeOpen1','eyeClosed1')"
+            class="absolute inset-y-0 right-3 flex items-center">
             <i id="eyeOpen1" class="bi bi-eye text-xl"></i>
             <i id="eyeClosed1" class="bi bi-eye-slash text-xl hidden"></i>
           </button>
@@ -36,108 +40,101 @@
         <p id="passwordError" class="text-red-500 text-xs mt-1 hidden"></p>
       </div>
 
-
       <!-- Confirm Password -->
       <div>
-        <label for="confirmPassword" class="block font-semibold text-sm mb-1">
-          Confirm Password
-        </label>
-
+        <label class="block font-semibold text-sm mb-1">Confirm Password</label>
         <div class="relative">
-          <input type="password" id="confirmPassword" name="confirmPassword" class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-
-          <button type="button" onclick="toggleSignupPassword('confirmPassword','eyeOpen2','eyeClosed2')" class="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700">
+          <input type="password" id="confirmPassword"
+            class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <button type="button"
+            onclick="toggleSignupPassword('confirmPassword','eyeOpen2','eyeClosed2')"
+            class="absolute inset-y-0 right-3 flex items-center">
             <i id="eyeOpen2" class="bi bi-eye text-xl"></i>
             <i id="eyeClosed2" class="bi bi-eye-slash text-xl hidden"></i>
           </button>
         </div>
-
-        <!-- INLINE ERROR -->
         <p id="confirmPasswordError" class="text-red-500 text-xs mt-1 hidden"></p>
       </div>
 
-
-
-      <!-- Referral Code -->
+      <!-- Referral -->
       <div>
         <label class="block font-semibold text-sm mb-1">
           Referral Code <span class="text-gray-400 text-xs">(Optional)</span>
         </label>
-        <input type="text" id="referralCode" name="referralCode" class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+        <input type="text" id="referralCode"
+          class="w-full px-4 py-3 border border-gray-300 bg-gray-50 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
         <p id="referralCodeError" class="text-red-500 text-xs mt-1 hidden"></p>
       </div>
 
-
-      <!-- Terms & Conditions -->
-      <div class="flex items-center gap-3 mt-2">
-        <input type="checkbox" id="terms" name="terms" required class="w-4 h-4">
-        <label for="terms" class="text-sm text-gray-600">
+      <!-- Terms -->
+      <div class="flex items-center gap-3">
+        <input type="checkbox" id="terms" class="w-4 h-4">
+        <label class="text-sm text-gray-600">
           I agree to the
-          <button type="button" class="text-blue-600 font-semibold hover:underline" id="open-terms-modal">
+          <button type="button" id="open-terms-modal"
+            class="text-blue-600 font-semibold hover:underline">
             Terms & Conditions
           </button>
         </label>
       </div>
 
       <!-- Submit -->
-      <button id="registerBtn" type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition">
+      <button id="registerBtn" type="submit"
+        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition">
         Sign Up
       </button>
     </form>
 
     <p class="text-center text-gray-500 mt-6">
       Already have an account?
-      <a href="/user/login" class="text-blue-600 font-semibold hover:underline">Log in</a>
+      <a href="/user/login" class="text-blue-600 font-semibold hover:underline">
+        Log in
+      </a>
     </p>
 
-    <!-- Divider -->
     <div class="flex items-center my-8 text-gray-400 text-sm">
       <span class="flex-1 border-t"></span>
       <span class="px-3">Or continue with</span>
       <span class="flex-1 border-t"></span>
     </div>
 
-    <!-- Google Button -->
-    <a href="/auth/google" class="flex items-center justify-center gap-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-lg py-3 font-medium transition">
+    <a href="/auth/google"
+      class="flex items-center justify-center gap-3 border border-gray-300 bg-gray-50 hover:bg-gray-100 rounded-lg py-3 font-medium">
       <img src="https://developers.google.com/identity/images/g-logo.png" class="w-5">
       Sign in with Google
     </a>
   </div>
 </main>
 
-<!-- TERMS & CONDITIONS MODAL -->
-<div id="terms-modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-[10000] opacity-0 invisible transition-opacity duration-300">
-  <div class="bg-white w-11/12 max-w-2xl max-h-[80vh] p-8 rounded-2xl shadow-xl relative transform scale-90 transition-all duration-300 overflow-y-auto">
-
-    <!-- Close Button -->
-    <button id="close-terms-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-xl">
+<!-- ================= TERMS MODAL (UNCHANGED) ================= -->
+<div id="terms-modal-overlay"
+  class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-[10000] opacity-0 invisible transition-opacity duration-300">
+  <div
+    class="bg-white w-11/12 max-w-2xl max-h-[80vh] p-8 rounded-2xl shadow-xl relative transform scale-90 transition-all duration-300 overflow-y-auto">
+    <button id="close-terms-modal"
+      class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-xl">
       <i class="bi bi-x-lg"></i>
     </button>
 
     <h2 class="text-2xl font-bold mb-4">Terms & Conditions</h2>
 
-    <div class="text-gray-700 leading-relaxed space-y-4">
-      <!-- Same content as your original T&C -->
+    <div class="text-gray-700 space-y-4">
       <p>Welcome to Mobiverse! These terms and conditions outline the rules...</p>
-
       <strong>1. Acceptance of Terms</strong>
       <p>By accessing this website...</p>
-
       <strong>2. Cookies</strong>
       <p>We employ the use of cookies...</p>
-
       <strong>3. License</strong>
       <p>Unless otherwise stated...</p>
-
       <ul class="list-disc pl-6">
-        <li>Republish material from Mobiverse</li>
-        <li>Sell, rent or sub-license material</li>
-        <li>Reproduce or copy material</li>
+        <li>Republish material</li>
+        <li>Sell or rent material</li>
+        <li>Copy material</li>
         <li>Redistribute content</li>
       </ul>
-
       <strong>4. User Accounts</strong>
       <p>You are responsible for maintaining...</p>
     </div>
   </div>
 </div>
+

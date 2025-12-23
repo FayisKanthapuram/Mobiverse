@@ -7,6 +7,7 @@ import {
 } from "../services/index.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { OrderMessages } from "../../../shared/constants/messages/orderMessages.js";
+import Order from "../models/order.model.js";
 
 /* ----------------------------------------------------
    LOAD ORDERS
@@ -30,6 +31,13 @@ export const loadOrders = async (req, res) => {
     returnRequested:data.filters.returnRequested,
   });
 };
+
+// export const review=async(req,res)=>{
+//   const orders = await Order.aggregate([
+//     { $match: { orderStatus: "Delivered" } },
+//     { $match: { finalAmount :{$expr:{$and:[{$gte:10000},{lte:30000}]}} },
+//   ]);
+// }
 
 /* ----------------------------------------------------
    LOAD ORDER DETAILS

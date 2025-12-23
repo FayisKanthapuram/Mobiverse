@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema(
     referredBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: null,
     },
     referralRewards: { type: Number, default: 0 },
   },

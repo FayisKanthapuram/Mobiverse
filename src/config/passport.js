@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../modules/user/user.model.js";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 import { createWallet } from "../modules/wallet/repo/wallet.repo.js";
 import { generateReferralCode } from "../modules/user-auth/auth.helper.js";
 dotenv.config({ quiet: true });
@@ -17,9 +17,7 @@ passport.use(
       try {
         // Extract email safely
         const email =
-          profile.emails && profile.emails[0]
-            ? profile.emails[0].value
-            : null;
+          profile.emails && profile.emails[0] ? profile.emails[0].value : null;
 
         let user = null;
 
@@ -28,13 +26,11 @@ passport.use(
           user = await User.findOne({ email });
         }
 
-        
-
         if (user) {
           // If user exists but doesn't have Google linked yet
           if (!user.googleId) {
             user.googleId = profile.id;
-            user.avatar=profile.photos?.[0]?.value || null;
+            user.avatar = profile.photos?.[0]?.value || null;
             await user.save();
           }
           return done(null, user);

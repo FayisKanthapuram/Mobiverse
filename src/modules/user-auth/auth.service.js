@@ -54,46 +54,58 @@ export const verifySignUpOtpService = async (otp, session) => {
     throw new Error("Incorrect OTP. Try again.");
   }
 
-  //generate self referal code
+  // Generate self referral code for new user
   const referralCode = generateReferralCode(session.tempUser.username);
 
-  const code = session.tempUser.referralCode.toUpperCase();
+  let referrer = null;
+  let referredBy = null;
+  let code = null;
 
-  // 1) Find the referrer
-  const referrer = await findUserByReferralId(code)||null;
-
-  //create user
-  const user = await createUser({
-    ...session.tempUser,
-    referralCode,
-    referredBy:referrer._id,
-  });
-
-  //create wallet
-  await createWallet(user._id);
-
+  // ✅ Only handle referral logic if referral code exists
   if (session.tempUser.referralCode) {
+    code = session.tempUser.referralCode.toUpperCase();
 
-    if (referrer && referrer._id.toString() !== user._id.toString()) {
-      // 2) Create referral entry
-      const entry = {
-        referrer: referrer._id,
-        referredUser: user._id,
-        referralCode: code,
-        status: "REGISTERED",
-      };
-      await createRefferalLog(entry);
-      // give 50 joining bonus to new user
-      await creditReferralBonusToNewUser(user._id, NEW_USER_REWARD);
+    // 1) Find the referrer
+    referrer = await findUserByReferralId(code);
+
+    if (referrer) {
+      referredBy = referrer._id;
     }
   }
 
+  // 2) Create user
+  const user = await createUser({
+    ...session.tempUser,
+    referralCode,
+    referredBy, // ✅ safe (null if no referrer)
+  });
+
+  // 3) Create wallet
+  await createWallet(user._id);
+
+  // 4) Referral rewards & logs
+  if (referrer && referrer._id.toString() !== user._id.toString()) {
+    const entry = {
+      referrer: referrer._id,
+      referredUser: user._id,
+      referralCode: code,
+      status: "REGISTERED",
+    };
+
+    await createRefferalLog(entry);
+
+    // Joining bonus for new user
+    await creditReferralBonusToNewUser(user._id, NEW_USER_REWARD);
+  }
+
+  // 5) Clear session
   session.tempUser = null;
   session.otp = null;
   session.otpExpiry = null;
 
   return true;
 };
+
 
 export const creditReferralBonusToNewUser = async (userId, amount) => {
   const wallet = await findWalletByUserId(userId);

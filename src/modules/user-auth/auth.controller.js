@@ -154,7 +154,7 @@ export const saveNewPassword = async (req, res) => {
 // LOGOUT
 export const logOutUser = (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie("user.sid");
+    res.clearCookie("app.sid");
     res.redirect("/login?error=logout");
   });
 };
@@ -166,7 +166,7 @@ export const googleLogin = async (req, res) => {
     }
 
     const userId = await googleLoginService(req.user);
-
+    console.log(userId)
     req.session.user = userId;
 
     return res.redirect("/home?message=login-success");

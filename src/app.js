@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import expressLayouts from "express-ejs-layouts";
-import { sessionConfig } from "./shared/middlewares/session.js";
+import { sessionMiddleware } from "./shared/middlewares/session.js";
 import { fileURLToPath } from "url";
 import adminRoutes from "./shared/routes/adminRoute.js";
 import userRoutes from "./shared/routes/userRoute.js";
@@ -29,8 +29,8 @@ const __dirname = path.dirname(__filename);
 app.use(logger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-sessionConfig(app);
-app.use(flash())
+app.use(sessionMiddleware);
+app.use(flash());
 app.use(setUser);
 app.use(passport.initialize());
 app.use(passport.session());
@@ -45,8 +45,6 @@ app.set("views", path.join(__dirname, "../views"));
 // Routes
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
-
-
 
 // Error Handlers
 app.use(staticFile404);

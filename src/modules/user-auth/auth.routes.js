@@ -35,18 +35,18 @@ router.post("/login", loginUser);
 
 // forgot-password
 router.get("/forgotPassword", isLogin, loadForgotPassword);
-router.post("/forgotPassword", sendRecoverOtp);
-router.get("/verifyRecoverOtp", isVerifyRecoveryOtp, loadRecoverOtp);
-router.post("/verifyRecoverOtp", verifyRecoverOtp);
-router.get("/resetPassword", isResetPass, loadResetPassword);
-router.post("/resetPassword", saveNewPassword);
+router.post("/forgotPassword", isLogin, sendRecoverOtp);
+router.get("/verifyRecoverOtp", isLogin, isVerifyRecoveryOtp, loadRecoverOtp);
+router.post("/verifyRecoverOtp", isLogin, verifyRecoverOtp);
+router.get("/resetPassword", isLogin, isResetPass, loadResetPassword);
+router.post("/resetPassword", isLogin, saveNewPassword);
 
 // signup
 router.get("/signup", isLogin, loadSignUp);
-router.post("/register", registerUser);
-router.get("/verifyOtp", isVerifyOtp, loadVerifyOtp);
-router.post("/verifyOtp", verifyOtp);
-router.post("/resendOtp", resendOtp);
+router.post("/register", isLogin, registerUser);
+router.get("/verifyOtp", isLogin, isVerifyOtp, loadVerifyOtp);
+router.post("/verifyOtp", isLogin, verifyOtp);
+router.post("/resendOtp", isLogin, resendOtp);
 
 // google auth
 router.get(

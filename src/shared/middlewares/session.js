@@ -3,38 +3,19 @@ dotenv.config();
 import session from "express-session";
 import MongoStore from "connect-mongo";
 
-const commonCookieOptions = {
-  maxAge: 1000 * 60 * 60 * 24, 
-  httpOnly: true,
-  secure: false,
-  sameSite: 'lax',    
-};
-
-const adminSession = session({
-  name: 'admin.sid',
+export const sessionMiddleware = session({
+  name: "app.sid",
   secret: process.env.SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
-    collectionName: 'adminSessions'
+    collectionName: "sessions",
   }),
-  cookie: commonCookieOptions
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    httpOnly: true,
+    secure: false, // true only in HTTPS production
+    sameSite: "lax",
+  },
 });
-
-const userSession = session({
-  name: 'user.sid',
-  secret: process.env.SECRET,
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-    collectionName: 'userSessions'
-  }),
-  cookie: commonCookieOptions
-});
-
-export function sessionConfig(app) {
-  app.use('/admin', adminSession);
-  app.use(userSession);
-}
