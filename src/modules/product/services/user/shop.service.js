@@ -113,7 +113,7 @@ export const loadShopService = async (query, userId = null) => {
                 $expr: {
                   $and: [
                     { $eq: ["$productId", "$$productId"] },
-                    { $eq: ["$userId", { $toObjectId: "$$userId" }] },
+                    { $eq: ["$userId",  "$$userId" ] },
                   ],
                 },
               },

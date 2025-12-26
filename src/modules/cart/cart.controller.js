@@ -27,11 +27,26 @@ export const loadCart = async (req, res) => {
    ADD TO CART
 ---------------------------------------------------- */
 export const addToCart = async (req, res) => {
-  if (!req?.user?._id) {
+  if (!req.isAuthenticated() || !req.user) {
     throw new AppError(
       "Please log in to add products to your cart.",
       HttpStatus.UNAUTHORIZED
     );
+  }
+
+  if (req.user.isBlocked) {
+    req.logout(() => {
+      req.session.destroy(() => {
+        res.clearCookie("user.sid");
+
+        return res.status(HttpStatus.FORBIDDEN).json({
+          success: false,
+          message: "Your account has been blocked. Please contact support.",
+          redirect: "/login",
+        });
+      });
+    });
+    return;
   }
 
   const result = await addToCartService(req?.user?._id, req.body);

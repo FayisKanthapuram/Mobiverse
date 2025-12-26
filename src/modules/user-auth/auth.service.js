@@ -30,6 +30,7 @@ import { rewardNewUserReferral } from "../referral/referral.service.js";
 /* ----------------------------------------------------
    SIGNUP – STEP 1
 ---------------------------------------------------- */
+const cooldownSeconds = 30;
 export const registerUserService = async (body, session) => {
   const { username, email, password, referralCode } = body;
 
@@ -56,10 +57,11 @@ export const registerUserService = async (body, session) => {
   if (!sent) {
     throw new AppError("Failed to send OTP", HttpStatus.INTERNAL_SERVER_ERROR);
   }
-  console.log(otp)
+  console.log(otp);
 
   session.otp = otp;
   session.otpExpiry = expiry;
+  session.otpCooldownEnd = Date.now() + cooldownSeconds * 1000;
 };
 
 /* ----------------------------------------------------
@@ -118,23 +120,73 @@ export const verifySignUpOtpService = async (otp, session) => {
    RESEND OTP
 ---------------------------------------------------- */
 export const resendOtpService = async (session) => {
-  if (!session.tempUser) {
-    throw new AppError("No signup session found", HttpStatus.BAD_REQUEST);
-  }
+  // ============================
+  // SERVER-SIDE COOLDOWN CHECK
+  // ============================
+  if (session.otpCooldownEnd && Date.now() < session.otpCooldownEnd) {
+    const remaining = Math.ceil((session.otpCooldownEnd - Date.now()) / 1000);
 
-  const { otp, expiry } = createOtp();
-  session.otp = otp;
-  session.otpExpiry = expiry;
-
-  const sent = await sendOtpEmail(session.tempUser.email, otp, "resend");
-  if (!sent) {
     throw new AppError(
-      "Failed to resend OTP",
-      HttpStatus.INTERNAL_SERVER_ERROR
+      `Please wait ${remaining}s before resending OTP`,
+      HttpStatus.TOO_MANY_REQUESTS
     );
   }
-  console.log(otp);
+
+  // ============================
+  // SIGNUP OTP FLOW
+  // ============================
+  if (session.tempUser) {
+    const { otp, expiry } = createOtp();
+
+    session.otp = otp;
+    session.otpExpiry = expiry;
+    session.otpCooldownEnd = Date.now() + cooldownSeconds * 1000;
+
+    const sent = await sendOtpEmail(session.tempUser.email, otp, "resend");
+
+    if (!sent) {
+      throw new AppError(
+        "Failed to resend OTP",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+
+    console.log("Signup OTP:", otp);
+    return;
+  }
+
+  // ============================
+  // RECOVERY OTP FLOW
+  // ============================
+  if (session.recoverEmail) {
+    const { otp, expiry } = createOtp();
+
+    session.recoveryOtp = otp;
+    session.recoveryOtpExpiry = expiry;
+    session.otpCooldownEnd = Date.now() + cooldownSeconds * 1000;
+
+    const sent = await sendOtpEmail(session.recoverEmail, otp, "forgot");
+
+    if (!sent) {
+      throw new AppError(
+        "Failed to resend OTP",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+
+    console.log("Recovery OTP:", otp);
+    return;
+  }
+
+  // ============================
+  // NO VALID OTP CONTEXT
+  // ============================
+  throw new AppError(
+    "No OTP session found. Please start again.",
+    HttpStatus.BAD_REQUEST
+  );
 };
+
 
 /* ----------------------------------------------------
    LOGIN
@@ -185,10 +237,12 @@ export const sendRecoverOtpService = async (email, session) => {
   if (!sent) {
     throw new AppError("Failed to send OTP", HttpStatus.INTERNAL_SERVER_ERROR);
   }
+  console.log(otp)
 
   session.recoveryOtp = otp;
   session.recoveryOtpExpiry = expiry;
   session.recoverEmail = email;
+  session.otpCooldownEnd = Date.now() + cooldownSeconds * 1000;
 };
 
 /* ----------------------------------------------------

@@ -69,6 +69,10 @@ async function addToCart(variantId) {
     }
 
   } catch (error) {
+    if (error?.response?.data?.redirect) {
+      sessionStorage.setItem("toastError", error.response?.data?.message);
+      window.location.href = error.response?.data?.redirect;
+    }
     Toastify({
       text: error.response?.data?.message || "Something went wrong",
       duration: 2000,

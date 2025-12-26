@@ -34,6 +34,7 @@ export const loadVerifyOtp = (req, res) =>
   res.status(HttpStatus.OK).render("user/auth/verifyOtp", {
     pageTitle: "Verify OTP",
     pageJs: "verifyOtp",
+    otpCooldownEnd: req.session.otpCooldownEnd || null,
   });
 
 export const loadForgotPassword = (req, res) =>
@@ -46,6 +47,7 @@ export const loadRecoverOtp = (req, res) =>
   res.status(HttpStatus.OK).render("user/auth/verifyOtp", {
     pageTitle: "Verify OTP",
     pageJs: "recoverOtp",
+    otpCooldownEnd: req.session.otpCooldownEnd || null,
   });
 
 export const loadResetPassword = (req, res) =>

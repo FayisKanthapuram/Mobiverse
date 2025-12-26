@@ -266,6 +266,10 @@
       }
 
     } catch (error) {
+      if(error?.response?.data?.redirect){
+        sessionStorage.setItem("toastSuccess", error.responce.data.message);
+        window.location.href = error.responce.data.redirect;
+      }
       Toastify({
         text: error.response?.data?.message || "Something went wrong",
         duration: 2000,

@@ -23,19 +23,8 @@ document
         referralCode
       });
       if (response.data.success) {
-        Toastify({
-          text: response.data.message,
-          duration: 1000,
-          gravity: "bottom",
-          position: "right",
-          style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
-          },
-        }).showToast();
-
-        setTimeout(() => {
-          window.location.href = response.data.redirect;
-        }, 1200);
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.href = response.data.redirect;
       }
     } catch (error) {
       Toastify({
