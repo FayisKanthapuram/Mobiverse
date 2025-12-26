@@ -8,7 +8,6 @@ import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderItemsSchema } from "../../order.validator.js";
 import { incrementVariantStock } from "../../../product/repo/variant.repo.js";
 import {
-  findUserById,
   updateUserWalletBalance,
 } from "../../../user/user.repo.js";
 import {
@@ -19,7 +18,7 @@ import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
 import { calculateOrderPaymentStatus, calculateOrderStatus } from "../../order.helper.js";
 
-export const loadMyOrdersService = async (userId, queryParams) => {
+export const loadMyOrdersService = async (user, queryParams) => {
   const status = queryParams.status || "";
   const search = queryParams.searchOrder || "";
   const currentPage = parseInt(queryParams.page) || 1;
@@ -27,13 +26,11 @@ export const loadMyOrdersService = async (userId, queryParams) => {
   const limit = 3;
   const skip = (currentPage - 1) * limit;
 
-  const orderQuery = { userId };
+  const orderQuery = { userId:user._id };
 
   if (status) {
     orderQuery.orderStatus = status;
   }
-
-  const user = await findUserById(userId);
 
   let orders = await findUserOrders(orderQuery);
 

@@ -1,40 +1,40 @@
-import dotenv from "dotenv";
-dotenv.config();
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import dotenv from "dotenv";
+dotenv.config()
 
-const commonCookieOptions = {
-  maxAge: 1000 * 60 * 60 * 24, 
-  httpOnly: true,
-  secure: false,
-  sameSite: 'lax',    
+const common = {
+  secret: process.env.SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 1000 * 60 * 60 * 24,
+  },
 };
 
-const adminSession = session({
-  name: 'admin.sid',
-  secret: process.env.SECRET,
-  resave: false,
-  saveUninitialized: false,
+// USER SESSION (Passport)
+export const userSession = session({
+  ...common,
+  name: "user.sid",
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
-    collectionName: 'adminSessions'
+    collectionName: "userSessions",
   }),
-  cookie: commonCookieOptions
 });
 
-const userSession = session({
-  name: 'user.sid',
-  secret: process.env.SECRET,
-  resave: false,
-  saveUninitialized: false,
+// ADMIN SESSION (No Passport)
+export const adminSession = session({
+  ...common,
+  name: "admin.sid",
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
-    collectionName: 'userSessions'
+    collectionName: "adminSessions",
   }),
-  cookie: commonCookieOptions
 });
 
-export function sessionConfig(app) {
-  app.use('/admin', adminSession);
-  app.use(userSession);
-}
+export const sessionConfig = (app) => {
+  app.use("/admin", adminSession); // admin only
+  app.use(userSession);          // for users + passport
+};

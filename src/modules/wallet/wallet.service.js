@@ -12,9 +12,11 @@ import {
   createWallet,
   findWalletByUserId,
   saveWallet,
+  updateWalletBalanceAndCredit,
 } from "./repo/wallet.repo.js";
 import { razorpayPaymentValidation } from "./wallet.validator.js";
 import crypto from "crypto";
+import { AppError } from "../../shared/utils/app.error.js";
 
 export const loadMyWalletService = async (userId, { page, type, limit }) => {
   const user = await findUserById(userId);
@@ -147,4 +149,26 @@ export const verifyPaymentService = async (data, userId) => {
       message: error.message,
     };
   }
+};
+
+export const creditReferralBonusToNewUser = async (userId, amount) => {
+  const wallet = await findWalletByUserId(userId);
+
+  if (!wallet) {
+    throw new AppError("Wallet not found", HttpStatus.NOT_FOUND);
+  }
+
+  const newBalance = wallet.balance + amount;
+
+  await updateWalletBalanceAndCredit(userId, amount);
+  await updateUserWalletBalance(userId, newBalance);
+
+  await createLedgerEntry({
+    walletId: wallet._id,
+    userId,
+    amount,
+    balanceAfter: newBalance,
+    type: "REFERRAL",
+    note: "Referral Signup Bonus",
+  });
 };

@@ -51,6 +51,7 @@ export const requestEmailChangeService = async (
 
   const sent = await sendOtpEmail(newEmail, otp, "changeEmail");
   if (!sent) throw new Error("Failed to send OTP");
+  console.log(otp)
 
   session.oldEmail = oldEmail;
   session.newEmail = newEmail;

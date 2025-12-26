@@ -15,7 +15,7 @@ export const loadWishlist = async (req, res, next) => {
       currentPage,
       limit,
       totalDocuments,
-    } = await loadWishlistService(req.session.user, req.query);
+    } = await loadWishlistService(req?.user?._id, req.query);
     res.status(HttpStatus.OK).render("user/wishlist", {
       pageTitle: "My Wishlist",
       pageJs: "wishlist",
@@ -33,12 +33,12 @@ export const loadWishlist = async (req, res, next) => {
 
 export const toggleWishlist = async (req, res) => {
   try {
-    if (!req.session.user) {
+    if (!req?.user?._id) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
       });
     }
-    const result = await toggleWishlistService(req.session.user,req.body);
+    const result = await toggleWishlistService(req?.user?._id,req.body);
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error on toogle wishlist:", error);
@@ -51,7 +51,7 @@ export const toggleWishlist = async (req, res) => {
 
 export const clearWishlist=async(req,res)=>{
   try {
-    const result = await clearWishlistService(req.session.user);
+    const result = await clearWishlistService(req?.user?._id);
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error on clear to wishlist:", error);
@@ -64,7 +64,7 @@ export const clearWishlist=async(req,res)=>{
 
 export const checkWishlist = async (req, res) => {
   try {
-    const result = await checkWishlistService(req.session.user, req.params);
+    const result = await checkWishlistService(req?.user?._id, req.params);
     return res.status(result.status).json(result);
   } catch (error) {
     console.error("Error on check wishlist:", error);

@@ -1,11 +1,18 @@
 import bcrypt from "bcrypt";
+import { AppError } from "../../shared/utils/app.error.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
+
 import {
   findUserByEmail,
   createUser,
-  updateUserPassword
+  updateUserPassword,
 } from "./auth.repo.js";
 
-import { createOtp, generateReferralCode, sendOtpEmail } from "./auth.helper.js";
+import {
+  createOtp,
+  generateReferralCode,
+  sendOtpEmail,
+} from "./auth.helper.js";
 import {
   createWallet,
   findWalletByUserId,
@@ -13,198 +20,209 @@ import {
 } from "../wallet/repo/wallet.repo.js";
 import { NEW_USER_REWARD } from "../../shared/constants/defaults.js";
 import { createLedgerEntry } from "../wallet/repo/wallet.ledger.repo.js";
-import { findUserByReferralId, updateUserWalletBalance } from "../user/user.repo.js";
+import {
+  findUserByReferralId,
+  updateUserWalletBalance,
+} from "../user/user.repo.js";
 import { createRefferalLog } from "../referral/referral.repo.js";
+import { rewardNewUserReferral } from "../referral/referral.service.js";
 
-// SIGNUP - STEP 1
+/* ----------------------------------------------------
+   SIGNUP – STEP 1
+---------------------------------------------------- */
 export const registerUserService = async (body, session) => {
   const { username, email, password, referralCode } = body;
 
   const exists = await findUserByEmail(email);
-  if (exists) throw new Error("User already exist with this email");
+  if (exists) {
+    throw new AppError(
+      "User already exists with this email",
+      HttpStatus.BAD_REQUEST
+    );
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Store temporary user
-  session.tempUser = { username, email, password: hashedPassword ,referralCode};
+  session.tempUser = {
+    username,
+    email,
+    password: hashedPassword,
+    referralCode,
+  };
 
   const { otp, expiry } = createOtp();
 
   const sent = await sendOtpEmail(email, otp, "signup");
+  if (!sent) {
+    throw new AppError("Failed to send OTP", HttpStatus.INTERNAL_SERVER_ERROR);
+  }
   console.log(otp)
-  if (!sent) throw new Error("Failed to send OTP");
 
   session.otp = otp;
   session.otpExpiry = expiry;
-
-  return true;
 };
 
-// SIGNUP - STEP 2 (Verify OTP)
+/* ----------------------------------------------------
+   SIGNUP – STEP 2 (VERIFY OTP)
+---------------------------------------------------- */
 export const verifySignUpOtpService = async (otp, session) => {
   if (!session.otp || !session.tempUser) {
-    throw new Error("OTP not found. Please signup again.");
+    throw new AppError(
+      "OTP not found. Please signup again.",
+      HttpStatus.BAD_REQUEST
+    );
   }
 
   if (Date.now() > session.otpExpiry) {
-    throw new Error("OTP expired. Please resend OTP.");
+    throw new AppError(
+      "OTP expired. Please resend OTP.",
+      HttpStatus.BAD_REQUEST
+    );
   }
 
   if (otp !== session.otp) {
-    throw new Error("Incorrect OTP. Try again.");
+    throw new AppError("Incorrect OTP", HttpStatus.BAD_REQUEST);
   }
 
-  //generate self referal code
   const referralCode = generateReferralCode(session.tempUser.username);
 
-  const code = session.tempUser.referralCode.toUpperCase();
+  let referrer = null;
+  if (session.tempUser.referralCode) {
+    referrer = await findUserByReferralId(
+      session.tempUser.referralCode.toUpperCase()
+    );
+  }
 
-  // 1) Find the referrer
-  const referrer = await findUserByReferralId(code)||null;
-
-  //create user
   const user = await createUser({
     ...session.tempUser,
     referralCode,
-    referredBy:referrer._id,
+    referredBy: referrer?._id,
   });
 
-  //create wallet
   await createWallet(user._id);
 
-  if (session.tempUser.referralCode) {
-
-    if (referrer && referrer._id.toString() !== user._id.toString()) {
-      // 2) Create referral entry
-      const entry = {
-        referrer: referrer._id,
-        referredUser: user._id,
-        referralCode: code,
-        status: "REGISTERED",
-      };
-      await createRefferalLog(entry);
-      // give 50 joining bonus to new user
-      await creditReferralBonusToNewUser(user._id, NEW_USER_REWARD);
-    }
+  if (referrer && referrer._id.toString() !== user._id.toString()) {
+    await rewardNewUserReferral({
+      userId: user._id,
+      referrer,
+      referralCode: session.tempUser.referralCode,
+    });
   }
 
   session.tempUser = null;
   session.otp = null;
   session.otpExpiry = null;
-
-  return true;
 };
 
-export const creditReferralBonusToNewUser = async (userId, amount) => {
-  const wallet = await findWalletByUserId(userId);
-  if (!wallet) throw new Error("Wallet not found");
-
-  const newBalance = wallet.balance + amount;
-
-  // Update wallet values
-  await updateWalletBalanceAndCredit(userId, amount);
-
-  await updateUserWalletBalance(userId,newBalance);
-
-  // Create ledger record
-  const ledger = await createLedgerEntry({
-    walletId: wallet._id,
-    userId,
-    amount,
-    balanceAfter: newBalance,
-    type: "REFERRAL",
-    note: "Referral Signup Bonus",
-  });
-
-  return ledger;
-};
-
-// RESEND OTP
+/* ----------------------------------------------------
+   RESEND OTP
+---------------------------------------------------- */
 export const resendOtpService = async (session) => {
-  if (!session.tempUser) throw new Error("No user data found");
-
-  const email = session.tempUser.email;
+  if (!session.tempUser) {
+    throw new AppError("No signup session found", HttpStatus.BAD_REQUEST);
+  }
 
   const { otp, expiry } = createOtp();
   session.otp = otp;
   session.otpExpiry = expiry;
 
-  const sent = await sendOtpEmail(email, otp, "resend");
-  console.log(otp)
-  if (!sent) throw new Error("Failed to resend OTP");
-
-  return true;
+  const sent = await sendOtpEmail(session.tempUser.email, otp, "resend");
+  if (!sent) {
+    throw new AppError(
+      "Failed to resend OTP",
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
+  }
+  console.log(otp);
 };
 
-// LOGIN
+/* ----------------------------------------------------
+   LOGIN
+---------------------------------------------------- */
 export const loginUserService = async (email, password) => {
   const user = await findUserByEmail(email);
-  if (!user) throw new Error("User is not found");
+  if (!user) {
+    throw new AppError("User not found", HttpStatus.UNAUTHORIZED);
+  }
 
-  if (user.isBlocked) throw new Error("Your account is blocked. Contact admin.");
+  if (user.isBlocked) {
+    throw new AppError(
+      "Your account is blocked. Contact admin.",
+      HttpStatus.FORBIDDEN
+    );
+  }
 
   const match = await bcrypt.compare(password, user.password);
-  if (!match) throw new Error("Invalid Password");
+  if (!match) {
+    throw new AppError("Invalid password", HttpStatus.UNAUTHORIZED);
+  }
 
   return user;
 };
 
-// FORGOT PASSWORD
+/* ----------------------------------------------------
+   FORGOT PASSWORD – SEND OTP
+---------------------------------------------------- */
 export const sendRecoverOtpService = async (email, session) => {
   const user = await findUserByEmail(email);
-  if (!user) throw new Error("No account found with this email");
+  if (!user) {
+    throw new AppError(
+      "No account found with this email",
+      HttpStatus.NOT_FOUND
+    );
+  }
 
-  if (!user.password)
-    throw new Error("Password change not available for Google users");
+  if (!user.password) {
+    throw new AppError(
+      "Password reset not available for Google users",
+      HttpStatus.BAD_REQUEST
+    );
+  }
 
   const { otp, expiry } = createOtp();
 
   const sent = await sendOtpEmail(email, otp, "forgot");
-  if (!sent) throw new Error("Failed to send OTP");
+  if (!sent) {
+    throw new AppError("Failed to send OTP", HttpStatus.INTERNAL_SERVER_ERROR);
+  }
 
   session.recoveryOtp = otp;
   session.recoveryOtpExpiry = expiry;
   session.recoverEmail = email;
-
-  return true;
 };
 
-// VERIFY RECOVERY OTP
+/* ----------------------------------------------------
+   VERIFY RECOVERY OTP
+---------------------------------------------------- */
 export const verifyRecoveryOtpService = async (otp, session) => {
-  if (!session.recoveryOtp) throw new Error("OTP not found");
-
-  if (Date.now() > session.recoveryOtpExpiry) {
-    throw new Error("OTP expired");
+  if (!session.recoveryOtp) {
+    throw new AppError("OTP not found", HttpStatus.BAD_REQUEST);
   }
 
-  if (otp !== session.recoveryOtp) throw new Error("Incorrect OTP");
+  if (Date.now() > session.recoveryOtpExpiry) {
+    throw new AppError("OTP expired", HttpStatus.BAD_REQUEST);
+  }
+
+  if (otp !== session.recoveryOtp) {
+    throw new AppError("Incorrect OTP", HttpStatus.BAD_REQUEST);
+  }
 
   session.recoveryOtp = null;
   session.recoveryOtpExpiry = null;
   session.resetPass = true;
-
-  return true;
 };
 
-// RESET PASSWORD
+/* ----------------------------------------------------
+   RESET PASSWORD
+---------------------------------------------------- */
 export const resetPasswordService = async (password, session) => {
-  if (!session.recoverEmail) throw new Error("User not found");
+  if (!session.recoverEmail || !session.resetPass) {
+    throw new AppError("Unauthorized password reset", HttpStatus.UNAUTHORIZED);
+  }
 
   const hashed = await bcrypt.hash(password, 10);
-
   await updateUserPassword(session.recoverEmail, hashed);
 
   session.resetPass = false;
-
-  return true;
-};
-
-export const googleLoginService = async (googleUser) => {
-  if (!googleUser) throw new Error("Google authentication failed");
-
-  if (googleUser.isBlocked) {
-    throw new Error("Your account is blocked. Contact admin.");
-  }
-
-  return googleUser._id;
+  session.recoverEmail = null;
 };

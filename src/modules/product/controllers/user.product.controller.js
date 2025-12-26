@@ -3,7 +3,7 @@ import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
 export const loadShop = async (req, res, next) => {
   try {
-    const data = await loadShopService(req.query,req.session.user);
+    const data = await loadShopService(req.query,req?.user?._id);
 
     return res.status(HttpStatus.OK).render("user/products/shop", {
       query: req.query,
@@ -30,7 +30,7 @@ export const loadShop = async (req, res, next) => {
 
 export const loadProductDetails = async (req, res, next) => {
   try {
-    const data = await loadProductDetailsService(req.params, req.query,req.session.user);
+    const data = await loadProductDetailsService(req.params, req.query,req?.user?._id);
     return res.status(HttpStatus.OK).render("user/products/productDetails", {
       ...data,
       pageTitle: data.product.name,

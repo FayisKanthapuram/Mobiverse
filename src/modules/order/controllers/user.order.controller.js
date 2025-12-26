@@ -17,7 +17,7 @@ import { HttpStatus } from "../../../shared/constants/statusCode.js";
    PLACE ORDER
 ---------------------------------------------------- */
 export const placeOrder = async (req, res) => {
-  const userId = req.session.user;
+  const userId = req.user._id;
   const appliedCoupon = req.session.appliedCoupon || null;
 
   const result = await placeOrderService(userId, req.body, appliedCoupon);
@@ -62,7 +62,7 @@ export const loadOrderFailure = async (req, res) => {
    MY ORDERS
 ---------------------------------------------------- */
 export const loadMyOrders = async (req, res) => {
-  const data = await loadMyOrdersService(req.session.user, req.query);
+  const data = await loadMyOrdersService(req.user, req.query);
 
   res.status(HttpStatus.OK).render("user/orders/myOrders", {
     pageTitle: "My Orders",

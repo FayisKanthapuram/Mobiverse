@@ -92,12 +92,15 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       cartTotals.deliveryCharge +
       cartTotals.tax;
 
-    
-    if (paymentMethod === "cod" && finalAmount >= 20000) {
-      return res.status(400).json({
+    if (
+      paymentMethod === "cod" &&
+      finalAmount - appliedCoupon.discount >= 20000
+    ) {
+      throw {
+        status: HttpStatus.BAD_REQUEST,
         success: false,
         message: "Cash on Delivery is allowed only for orders below ₹20,000",
-      });
+      };
     }
 
     const orderedItems = items.map((item) => ({
@@ -127,7 +130,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     if (paymentMethod === "wallet") {
       const wallet = await findWalletByUserId(userId, session);
 
-        if (!wallet || wallet.balance - wallet.holdBalance < finalAmount) {
+      if (!wallet || wallet.balance - wallet.holdBalance < finalAmount) {
         throw {
           status: HttpStatus.BAD_REQUEST,
           message: "Insufficient wallet balance",

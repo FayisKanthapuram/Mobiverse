@@ -6,30 +6,66 @@ import {
   sendRecoverOtpService,
   verifyRecoveryOtpService,
   resetPasswordService,
-  googleLoginService,
 } from "./auth.service.js";
-import { HttpStatus } from "../../shared/constants/statusCode.js";
 
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 import {
   userRegisterSchema,
   userLoginSchema,
-  resetPasswordSchema
+  resetPasswordSchema,
 } from "./auth.validator.js";
 
-// LOAD VIEWS
+/* ----------------------------------------------------
+   LOAD VIEWS
+---------------------------------------------------- */
 export const loadSignUp = (req, res) =>
-  res.status(HttpStatus.OK).render("user/auth/signUp", { pageTitle: "Sign Up", pageJs: "signUp" });
+  res.status(HttpStatus.OK).render("user/auth/signUp", {
+    pageTitle: "Sign Up",
+    pageJs: "signUp",
+  });
 
 export const loadLogin = (req, res) =>
-  res.status(HttpStatus.OK).render("user/auth/login", { pageTitle: "Login", pageJs: "login" });
+  res.status(HttpStatus.OK).render("user/auth/login", {
+    pageTitle: "Login",
+    pageJs: "login",
+  });
 
-// SIGNUP
-export const registerUser = async (req, res) => {
+export const loadVerifyOtp = (req, res) =>
+  res.status(HttpStatus.OK).render("user/auth/verifyOtp", {
+    pageTitle: "Verify OTP",
+    pageJs: "verifyOtp",
+  });
+
+export const loadForgotPassword = (req, res) =>
+  res.status(HttpStatus.OK).render("user/auth/forgotPassword", {
+    pageTitle: "Forgot Password",
+    pageJs: "forgotPassword",
+  });
+
+export const loadRecoverOtp = (req, res) =>
+  res.status(HttpStatus.OK).render("user/auth/verifyOtp", {
+    pageTitle: "Verify OTP",
+    pageJs: "recoverOtp",
+  });
+
+export const loadResetPassword = (req, res) =>
+  res.status(HttpStatus.OK).render("user/auth/resetPassword", {
+    pageTitle: "Reset Password",
+    pageJs: "resetPassword",
+  });
+
+/* ----------------------------------------------------
+   SIGNUP
+---------------------------------------------------- */
+export const registerUser = async (req, res, next) => {
   try {
-    console.log(req.body.referralCode);
     const { error } = userRegisterSchema.validate(req.body);
-    if (error)
-      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
+    if (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
 
     await registerUserService(req.body, req.session);
 
@@ -38,66 +74,77 @@ export const registerUser = async (req, res) => {
       redirect: "/verifyOtp",
       message: "OTP sent to email",
     });
-  } catch (err) {
-    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err.message });
+  } catch (error) {
+    next(error);
   }
 };
 
-export const loadVerifyOtp = (req, res) =>
-  res.status(HttpStatus.OK).render("user/auth/verifyOtp", { pageTitle: "Verify Otp", pageJs: "verifyOtp" });
-
-export const verifyOtp = async (req, res) => {
+/* ----------------------------------------------------
+   VERIFY SIGNUP OTP
+---------------------------------------------------- */
+export const verifyOtp = async (req, res, next) => {
   try {
     await verifySignUpOtpService(req.body.otp, req.session);
 
     res.status(HttpStatus.OK).json({
       success: true,
       redirect: "/login",
-      message: "OTP verified successfully!",
+      message: "OTP verified successfully",
     });
-  } catch (err) {
-    console.log(err)
-    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err.message });
+  } catch (error) {
+    next(error);
   }
 };
 
-// RESEND OTP
-export const resendOtp = async (req, res) => {
+/* ----------------------------------------------------
+   RESEND OTP
+---------------------------------------------------- */
+export const resendOtp = async (req, res, next) => {
   try {
     await resendOtpService(req.session);
 
-    res.status(HttpStatus.OK).json({ success: true, message: "OTP resent successfully" });
-  } catch (err) {
-    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: err.message });
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "OTP resent successfully",
+    });
+  } catch (error) {
+    next(error);
   }
 };
 
-// LOGIN
-export const loginUser = async (req, res) => {
+/* ----------------------------------------------------
+   LOGIN
+---------------------------------------------------- */
+export const loginUser = async (req, res, next) => {
   try {
     const { error } = userLoginSchema.validate(req.body);
-    if (error)
-      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.details[0].message });
+    if (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
 
     const user = await loginUserService(req.body.email, req.body.password);
 
-    req.session.user = user._id;
+    req.login(user, (err) => {
+      if (err) return next(err);
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      redirect: "/home",
-      message: "Logged in successfully",
+      res.status(HttpStatus.OK).json({
+        success: true,
+        redirect: "/home",
+        message: "Logged in successfully",
+      });
     });
-  } catch (err) {
-    res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: err.message });
+  } catch (error) {
+    next(error);
   }
 };
 
-// FORGOT PASSWORD
-export const loadForgotPassword = (req, res) =>
-  res.status(HttpStatus.OK).render("user/auth/forgotPassword", { pageTitle: "Forgot Password", pageJs: "forgotPassword" });
-
-export const sendRecoverOtp = async (req, res) => {
+/* ----------------------------------------------------
+   SEND RECOVERY OTP
+---------------------------------------------------- */
+export const sendRecoverOtp = async (req, res, next) => {
   try {
     await sendRecoverOtpService(req.body.email, req.session);
 
@@ -106,16 +153,15 @@ export const sendRecoverOtp = async (req, res) => {
       redirect: "/verifyRecoverOtp",
       message: "OTP sent to email",
     });
-  } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+  } catch (error) {
+    next(error);
   }
 };
 
-// VERIFY RECOVERY OTP
-export const loadRecoverOtp = (req, res) =>
-  res.status(HttpStatus.OK).render("user/auth/verifyOtp", { pageTitle: "Verify OTP", pageJs: "recoverOtp" });
-
-export const verifyRecoverOtp = async (req, res) => {
+/* ----------------------------------------------------
+   VERIFY RECOVERY OTP
+---------------------------------------------------- */
+export const verifyRecoverOtp = async (req, res, next) => {
   try {
     await verifyRecoveryOtpService(req.body.otp, req.session);
 
@@ -124,20 +170,23 @@ export const verifyRecoverOtp = async (req, res) => {
       redirect: "/resetPassword",
       message: "OTP verified successfully",
     });
-  } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+  } catch (error) {
+    next(error);
   }
 };
 
-// RESET PASSWORD
-export const loadResetPassword = (req, res) =>
-  res.status(HttpStatus.OK).render("user/auth/resetPassword", { pageTitle: "Reset Password", pageJs: "resetPassword" });
-
-export const saveNewPassword = async (req, res) => {
+/* ----------------------------------------------------
+   RESET PASSWORD
+---------------------------------------------------- */
+export const saveNewPassword = async (req, res, next) => {
   try {
     const { error } = resetPasswordSchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ success: false, message: error.details[0].message });
+    if (error) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
 
     await resetPasswordService(req.body.password, req.session);
 
@@ -146,32 +195,43 @@ export const saveNewPassword = async (req, res) => {
       redirect: "/login",
       message: "Password reset successfully",
     });
-  } catch (err) {
-    res.status(400).json({ success: false, message: err.message });
+  } catch (error) {
+    next(error);
   }
 };
 
-// LOGOUT
-export const logOutUser = (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie("user.sid");
-    res.redirect("/login?error=logout");
+/* ----------------------------------------------------
+   LOGOUT
+---------------------------------------------------- */
+export const logOutUser = (req, res, next) => {
+  req.logout((err) => {
+    if (err) return next(err);
+
+    req.session.destroy(() => {
+      res.clearCookie("user.sid");
+
+      res.status(200).json({
+        success: true,
+        message: "Logged out successfully",
+        redirect: "/login",
+      });
+    });
   });
 };
 
-export const googleLogin = async (req, res) => {
+/* ----------------------------------------------------
+   GOOGLE LOGIN
+---------------------------------------------------- */
+export const googleLogin = async (req, res, next) => {
   try {
-    if (!req.user) {
-      return res.redirect("/signup");
-    }
+    req.session.toast = {
+      type: "success",
+      message: "Login successful",
+    };
 
-    const userId = await googleLoginService(req.user);
-
-    req.session.user = userId;
-
-    return res.redirect("/home?message=login-success");
+    return res.redirect("/home");
   } catch (error) {
-    console.log(error);
-    return res.redirect("/login?error=google-auth-failed");
+    next(error);
   }
 };
+

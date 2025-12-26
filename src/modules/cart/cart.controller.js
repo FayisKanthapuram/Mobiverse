@@ -13,7 +13,7 @@ import { AppError } from "../../shared/utils/app.error.js";
 export const loadCart = async (req, res) => {
   if (req.session.appliedCoupon) req.session.appliedCoupon = null;
 
-  const data = await loadCartService(req.session.user);
+  const data = await loadCartService(req?.user?._id);
 
   res.status(HttpStatus.OK).render("user/cart", {
     pageTitle: "Cart",
@@ -27,14 +27,14 @@ export const loadCart = async (req, res) => {
    ADD TO CART
 ---------------------------------------------------- */
 export const addToCart = async (req, res) => {
-  if (!req.session.user) {
+  if (!req?.user?._id) {
     throw new AppError(
       "Please log in to add products to your cart.",
       HttpStatus.UNAUTHORIZED
     );
   }
 
-  const result = await addToCartService(req.session.user, req.body);
+  const result = await addToCartService(req?.user?._id, req.body);
   res.status(result.status).json(result);
 };
 
@@ -43,7 +43,7 @@ export const addToCart = async (req, res) => {
 ---------------------------------------------------- */
 export const updateCartItem = async (req, res) => {
   const itemId = req.params.id;
-  const userId = req.session.user;
+  const userId = req?.user?._id;
 
   const result = await updateCartItemService(itemId, userId, req.body);
   res.status(result.status).json(result);

@@ -22,6 +22,7 @@ import {
   isResetPass,
   isVerifyOtp,
   isVerifyRecoveryOtp,
+  requireLogin,
 } from "../../shared/middlewares/userAuth.js";
 import nocache from "nocache";
 
@@ -31,19 +32,19 @@ router.use(nocache());
 
 // auth routes
 router.get("/login", isLogin, loadLogin);
-router.post("/login", loginUser);
+router.post("/login", isLogin, loginUser);
 
 // forgot-password
 router.get("/forgotPassword", isLogin, loadForgotPassword);
-router.post("/forgotPassword", sendRecoverOtp);
-router.get("/verifyRecoverOtp", isVerifyRecoveryOtp, loadRecoverOtp);
-router.post("/verifyRecoverOtp", verifyRecoverOtp);
+router.post("/forgotPassword", isLogin, sendRecoverOtp);
+router.get("/verifyRecoverOtp", isLogin, isVerifyRecoveryOtp, loadRecoverOtp);
+router.post("/verifyRecoverOtp",isLogin, verifyRecoverOtp);
 router.get("/resetPassword", isResetPass, loadResetPassword);
-router.post("/resetPassword", saveNewPassword);
+router.post("/resetPassword",isLogin, saveNewPassword);
 
 // signup
 router.get("/signup", isLogin, loadSignUp);
-router.post("/register", registerUser);
+router.post("/register",isLogin, registerUser);
 router.get("/verifyOtp", isVerifyOtp, loadVerifyOtp);
 router.post("/verifyOtp", verifyOtp);
 router.post("/resendOtp", resendOtp);
@@ -55,11 +56,11 @@ router.get(
 );
 router.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/user/signup" }),
+  passport.authenticate("google", { failureRedirect: "/user/signup" }),requireLogin,
   googleLogin
 );
 
 // logout
-router.get("/logout", logOutUser);
+router.post("/logout", logOutUser);
 
 export default router;

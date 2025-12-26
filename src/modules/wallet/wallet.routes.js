@@ -5,7 +5,7 @@ import { addMoney, loadMyWallet, verifyPayment } from "./wallet.controller.js";
 const router = express.Router();
 
 router.get('/wallet',requireLogin,loadMyWallet);
-router.post('/wallet/add-money',addMoney);
+router.post('/wallet/add-money',requireLogin,addMoney);
 router.post("/wallet/verify-payment", verifyPayment);
 
 
