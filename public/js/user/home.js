@@ -101,12 +101,14 @@ async function toggleWishlist(variantId, event) {
         duration: 3000,
         gravity: "bottom",
         position: "right",
-        backgroundColor: isAdded ? "#10b981" : "#ef4444",
+        style: {
+          background: isAdded ? "#10b981" : "#ef4444",
+        },
         close: true,
       }).showToast();
 
       updateWishlistButton(variantId, isAdded);
-      updateWishlistBadge(response.data.itemCount);
+      updateWishlistBadge(response.data.wishlistCount);
     }
   } catch (error) {
     console.error("Wishlist error:", error);
@@ -117,7 +119,7 @@ async function toggleWishlist(variantId, event) {
         duration: 3000,
         gravity: "bottom",
         position: "right",
-        backgroundColor: "#ef4444",
+        style: { background: "#e74c3c" },
       }).showToast();
 
       setTimeout(() => (window.location.href = "/login"), 1200);
@@ -153,7 +155,6 @@ function updateWishlistButton(variantId, inWishlist) {
 function updateWishlistBadge(count) {
   const badge = document.querySelector('a[href="/wishlist"] span');
   if (!badge) return;
-
   badge.textContent = count;
 
   if (count > 0) badge.classList.remove("hidden");
@@ -194,7 +195,7 @@ async function addToCart(variantId) {
       duration: 2000,
       gravity: "bottom",
       position: "right",
-      backgroundColor: "#e74c3c",
+      style: { background: "#e74c3c" },
     }).showToast();
   }
 }

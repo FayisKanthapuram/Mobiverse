@@ -44,14 +44,13 @@ export const getLatestProductsAgg = (limit = 5, userId = null) => {
     { $sort: { updatedAt: -1 } },
     { $limit: limit },
 
-    // Product Offer
+    //product offer
     {
       $lookup: {
         from: "offers",
         let: {
           productId: "$_id",
           today: new Date(),
-          salePrice: "$variants.salePrice",
         },
         pipeline: [
           {
@@ -67,40 +66,17 @@ export const getLatestProductsAgg = (limit = 5, userId = null) => {
               },
             },
           },
-          {
-            $project: {
-              _id: 0,
-              offer: {
-                $cond: {
-                  if: { $eq: ["$discountType", "percentage"] },
-                  then: { $multiply: ["$$salePrice", "$discountValue", 0.01] },
-                  else: "$discountValue",
-                },
-              },
-            },
-          },
-          { $sort: { offer: -1 } },
-          { $limit: 1 },
         ],
         as: "productOffer",
       },
     },
-    {
-      $unwind: {
-        path: "$productOffer",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    { $addFields: { productOffer: "$productOffer.offer" } },
-
-    // Brand Offer
+    //brand offer
     {
       $lookup: {
         from: "offers",
         let: {
           brandID: "$brandID",
           today: new Date(),
-          salePrice: "$variants.salePrice",
         },
         pipeline: [
           {
@@ -116,78 +92,9 @@ export const getLatestProductsAgg = (limit = 5, userId = null) => {
               },
             },
           },
-          {
-            $project: {
-              _id: 0,
-              offer: {
-                $cond: {
-                  if: { $eq: ["$discountType", "percentage"] },
-                  then: { $multiply: ["$$salePrice", "$discountValue", 0.01] },
-                  else: "$discountValue",
-                },
-              },
-            },
-          },
-          { $sort: { offer: -1 } },
-          { $limit: 1 },
         ],
         as: "brandOffer",
       },
-    },
-    {
-      $unwind: {
-        path: "$brandOffer",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    { $addFields: { brandOffer: "$brandOffer.offer" } },
-
-    // Final offer selection
-    {
-      $addFields: {
-        offer: {
-          $ceil: {
-            $cond: {
-              if: { $gte: ["$brandOffer", "$productOffer"] },
-              then: "$brandOffer",
-              else: "$productOffer",
-            },
-          },
-        },
-      },
-    },
-
-    //is in cart
-    {
-      $lookup: {
-        from: "carts",
-        let: {
-          productId: "$_id",
-          userId: userId ? new mongoose.Types.ObjectId(userId) : null,
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$$productId", "$productId"] },
-                  { $eq: ["$$userId", "$userId"] },
-                ],
-              },
-            },
-          },
-          {
-            $project: { _id: 1 },
-          },
-        ],
-        as: "cart",
-      },
-    },
-    {
-      $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
-    },
-    {
-      $addFields: { cart: "$cart._id" },
     },
   ]);
 };
@@ -233,14 +140,13 @@ export const getFeaturedProductsAgg = (userId=null) => {
       },
     },
     { $unwind: "$variants" },
-    // Product Offer
+    //product offer
     {
       $lookup: {
         from: "offers",
         let: {
           productId: "$_id",
           today: new Date(),
-          salePrice: "$variants.salePrice",
         },
         pipeline: [
           {
@@ -256,40 +162,17 @@ export const getFeaturedProductsAgg = (userId=null) => {
               },
             },
           },
-          {
-            $project: {
-              _id: 0,
-              offer: {
-                $cond: {
-                  if: { $eq: ["$discountType", "percentage"] },
-                  then: { $multiply: ["$$salePrice", "$discountValue", 0.01] },
-                  else: "$discountValue",
-                },
-              },
-            },
-          },
-          { $sort: { offer: -1 } },
-          { $limit: 1 },
         ],
         as: "productOffer",
       },
     },
-    {
-      $unwind: {
-        path: "$productOffer",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    { $addFields: { productOffer: "$productOffer.offer" } },
-
-    // Brand Offer
+    //brand offer
     {
       $lookup: {
         from: "offers",
         let: {
           brandID: "$brandID",
           today: new Date(),
-          salePrice: "$variants.salePrice",
         },
         pipeline: [
           {
@@ -305,78 +188,9 @@ export const getFeaturedProductsAgg = (userId=null) => {
               },
             },
           },
-          {
-            $project: {
-              _id: 0,
-              offer: {
-                $cond: {
-                  if: { $eq: ["$discountType", "percentage"] },
-                  then: { $multiply: ["$$salePrice", "$discountValue", 0.01] },
-                  else: "$discountValue",
-                },
-              },
-            },
-          },
-          { $sort: { offer: -1 } },
-          { $limit: 1 },
         ],
         as: "brandOffer",
       },
-    },
-    {
-      $unwind: {
-        path: "$brandOffer",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    { $addFields: { brandOffer: "$brandOffer.offer" } },
-
-    // Final offer selection
-    {
-      $addFields: {
-        offer: {
-          $ceil: {
-            $cond: {
-              if: { $gte: ["$brandOffer", "$productOffer"] },
-              then: "$brandOffer",
-              else: "$productOffer",
-            },
-          },
-        },
-      },
-    },
-
-    //is in cart
-    {
-      $lookup: {
-        from: "carts",
-        let: {
-          productId: "$_id",
-          userId: userId ? new mongoose.Types.ObjectId(userId) : null,
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$$productId", "$productId"] },
-                  { $eq: ["$$userId", "$userId"] },
-                ],
-              },
-            },
-          },
-          {
-            $project: { _id: 1 },
-          },
-        ],
-        as: "cart",
-      },
-    },
-    {
-      $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
-    },
-    {
-      $addFields: { cart: "$cart._id" },
     },
   ]);
 };

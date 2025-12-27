@@ -27,7 +27,7 @@ export const loadWishlistService = async (userId, queryParams) => {
   const now = new Date();
   const productOffers = await getAvailableProductOffers(now);
   const brandOffers = await getAvailableBrandOffers(now);
-  if(wishlist.length>0){
+  if (wishlist.length > 0) {
     wishlist[0].items = wishlist[0].items.map((item) => {
       const brandOffer =
         brandOffers.filter(
@@ -38,7 +38,10 @@ export const loadWishlistService = async (userId, queryParams) => {
           .map((id) => id.toString())
           .includes(item.productId._id.toString())
       );
-      let offer = getAppliedOffer({ productOffer ,brandOffer}, item.variantId.salePrice);
+      let offer = getAppliedOffer(
+        { productOffer, brandOffer },
+        item.variantId.salePrice
+      );
       return {
         ...item,
         offer,
@@ -94,10 +97,13 @@ export const toggleWishlistService = async (userId, body) => {
     variantId
   );
 
+  const wishlistCount = await getWishlistItemsCount(userId);
+
   if (inWishlist) {
     await removeWishlistItem(userId, variant.productId._id, variant._id);
 
     return {
+      wishlistCount:wishlistCount-1,
       status: HttpStatus.CREATED,
       success: true,
       message: "Product removed from wishlist",
@@ -107,6 +113,7 @@ export const toggleWishlistService = async (userId, body) => {
   await createWishlistItem(userId, variant.productId._id, variant._id);
 
   return {
+    wishlistCount: wishlistCount + 1,
     status: HttpStatus.CREATED,
     success: true,
     action: "added",
@@ -122,46 +129,3 @@ export const clearWishlistService = async (userId) => {
   };
 };
 
-export const checkWishlistService = async (userId, params) => {
-  const { error } = addToWishlistSchema.validate(params);
-  if (error) {
-    return {
-      status: HttpStatus.UNPROCESSABLE_ENTITY,
-      success: false,
-      message: error.details[0].message,
-    };
-  }
-
-  const { variantId } = params;
-
-  // Fetch variant + product
-  const variant = await findVariantByIdWithProduct(variantId);
-  if (!variant) {
-    return {
-      status: HttpStatus.NOT_FOUND,
-      success: false,
-      message: "Product is not found",
-    };
-  }
-
-  const brand = await findBrandById(variant.productId.brandID);
-  if (!variant.isListed || !variant.productId.isListed || !brand?.isListed) {
-    return {
-      status: HttpStatus.NOT_FOUND,
-      success: false,
-      message: "Product is not found",
-    };
-  }
-
-  const inWishlist = await checkInWishlist(
-    userId,
-    variant.productId._id,
-    variantId
-  );
-
-  return {
-    status: HttpStatus.OK,
-    success: true,
-    inWishlist,
-  };
-};

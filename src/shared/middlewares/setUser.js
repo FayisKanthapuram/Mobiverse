@@ -1,6 +1,6 @@
 import { DEFAULT_USER_AVATAR, LOGO, LOGONAME } from "../constants/assets.js";
 
-export const setUser = (req, res, next) => {
+export const setUser = async(req, res, next) => {
   res.locals.defaultAvatar = DEFAULT_USER_AVATAR;
   res.locals.logoName = LOGONAME;
   res.locals.logo = LOGO;
@@ -8,6 +8,7 @@ export const setUser = (req, res, next) => {
 
   res.locals.toast = req.session.toast || null;
   delete req.session.toast;
+  res.locals.wishlistCount = req.session.wishlistCount || 0;
 
   res.set("Cache-Control", "no-store");
   next();

@@ -1,9 +1,12 @@
 <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
   <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+
+    <!-- Logo -->
     <a href="/home" class="flex items-center gap-2">
       <img src="<%= logoName %>" alt="Mobiverse Logo" class="h-8" />
     </a>
 
+    <!-- Desktop Nav -->
     <div class="hidden md:flex items-center gap-6">
       <a href="/home" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Home</a>
       <a href="/shop" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Shop</a>
@@ -11,11 +14,13 @@
       <a href="/contact" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Contact</a>
     </div>
 
-    <div class="flex items-center gap-3">
+    <!-- Right Icons -->
+    <div class="flex items-center gap-4">
+
       <!-- Desktop Search -->
-      <div class="relative">
+      <div class="relative hidden md:block">
         <input
-          value="<%= typeof query.search !== 'undefined' ? query.search : '' %>"
+          value="<%= typeof query?.search !== 'undefined' ? query.search : '' %>"
           id="product-search-input"
           type="text"
           placeholder="Search..."
@@ -24,7 +29,8 @@
         >
         <button
           id="clear-search-btn"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 <%= typeof query.search !== 'undefined' && query.search ? '' : 'hidden' %>"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600
+          <%= query?.search ? '' : 'hidden' %>"
           onclick="clearSearch()"
         >
           <i class="bi bi-x-circle-fill text-lg"></i>
@@ -36,9 +42,17 @@
         <i class="bi bi-person text-2xl"></i>
       </a>
 
-      <!-- Wishlist -->
-      <a href="/wishlist" class="text-gray-500 hover:text-red-500 transition-colors">
+      <!-- Wishlist (Desktop) -->
+      <a href="/wishlist" class="relative text-gray-500 hover:text-red-500 transition-colors">
         <i class="bi bi-heart text-xl"></i>
+
+        <span
+          class="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1
+                bg-red-500 text-white text-[11px] font-semibold
+                rounded-full flex items-center justify-center
+                <%= wishlistCount > 0 ? '' : 'hidden' %>">
+          <%= wishlistCount || 0 %>
+        </span>
       </a>
 
       <!-- Cart -->
@@ -55,22 +69,33 @@
 
   <!-- Mobile Menu -->
   <div id="mobile-menu" class="hidden bg-white border-t border-gray-200 md:hidden">
-    <div class="px-4 py-3 space-y-3">
-      <a href="/home" class="block text-base font-medium text-gray-700 hover:text-blue-600">Home</a>
-      <a href="/shop" class="block text-base font-medium text-gray-500 hover:text-blue-600">Shop</a>
-      <a href="/about" class="block text-base font-medium text-gray-500 hover:text-blue-600">About Us</a>
-      <a href="/contact" class="block text-base font-medium text-gray-500 hover:text-blue-600">Contact</a>
+    <div class="px-4 py-4 space-y-4">
+
+      <a href="/home" class="block font-medium text-gray-700 hover:text-blue-600">Home</a>
+      <a href="/shop" class="block font-medium text-gray-700 hover:text-blue-600">Shop</a>
+      <a href="/about" class="block font-medium text-gray-700 hover:text-blue-600">About Us</a>
+      <a href="/contact" class="block font-medium text-gray-700 hover:text-blue-600">Contact</a>
 
       <!-- Mobile Wishlist -->
-      <a href="/wishlist" class="flex items-center gap-2 text-gray-500 hover:text-red-500">
+      <a href="/wishlist" class="relative flex items-center gap-2 text-gray-700 hover:text-red-500">
         <i class="bi bi-heart text-xl"></i>
         <span>Wishlist</span>
+
+        <% if (wishlistCount > 0) { %>
+          <span
+            class="absolute right-0 top-1/2 -translate-y-1/2
+                   min-w-[18px] h-[18px] px-1
+                   bg-red-500 text-white text-[11px] font-semibold
+                   rounded-full flex items-center justify-center">
+            <%= wishlistCount %>
+          </span>
+        <% } %>
       </a>
 
       <!-- Mobile Search -->
       <div class="relative pt-2">
         <input
-          value="<%= typeof query.search !== 'undefined' ? query.search : '' %>"
+          value="<%= typeof query?.search !== 'undefined' ? query.search : '' %>"
           id="product-search-input-mobile"
           type="text"
           placeholder="Search..."
@@ -79,12 +104,14 @@
         />
         <button
           id="clear-search-btn-mobile"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 <%= typeof query.search !== 'undefined' && query.search ? '' : 'hidden' %>"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600
+          <%= query?.search ? '' : 'hidden' %>"
           onclick="clearSearch()"
         >
           <i class="bi bi-x-circle-fill text-lg"></i>
         </button>
       </div>
+
     </div>
   </div>
 </header>

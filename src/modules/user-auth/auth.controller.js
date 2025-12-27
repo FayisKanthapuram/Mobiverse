@@ -14,6 +14,7 @@ import {
   userLoginSchema,
   resetPasswordSchema,
 } from "./auth.validator.js";
+import { getWishlistItemsCount } from "../wishlist/wishlist.repo.js";
 
 /* ----------------------------------------------------
    LOAD VIEWS
@@ -128,9 +129,9 @@ export const loginUser = async (req, res, next) => {
     }
 
     const user = await loginUserService(req.body.email, req.body.password);
-
-    req.login(user, (err) => {
+    req.login(user, async (err) => {
       if (err) return next(err);
+      req.session.wishlistCount = await getWishlistItemsCount(user._id);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -226,6 +227,10 @@ export const logOutUser = (req, res, next) => {
 ---------------------------------------------------- */
 export const googleLogin = async (req, res, next) => {
   try {
+    if (typeof req.session.wishlistCount !== "number") {
+      req.session.wishlistCount = await getWishlistItemsCount(req.user._id);
+    }
+
     req.session.toast = {
       type: "success",
       message: "Login successful",
@@ -236,4 +241,3 @@ export const googleLogin = async (req, res, next) => {
     next(error);
   }
 };
-

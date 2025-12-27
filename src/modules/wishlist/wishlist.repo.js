@@ -186,3 +186,5 @@ export const checkInWishlist = (userId, productId, variantId) => {
 export const deleteWishlist = (userId) => {
   return wishlistModel.deleteOne({ userId });
 };
+
+

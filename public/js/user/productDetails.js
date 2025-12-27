@@ -205,23 +205,24 @@ async function toggleWishlist(variantId, event) {
   event?.stopPropagation();
 
   try {
-    const res = await axios.post("/wishlist/toggle", {
-      variantId,
-    });
+    const res = await axios.post("/wishlist/toggle", { variantId });
 
     const isAdded = res.data.action === "added";
+
+    // 🔥 UPDATE ALL ICONS EVERYWHERE
+    updateWishlistIconsEverywhere(variantId, isAdded);
+    updateWishlistBadge(res.data.wishlistCount);
 
     Toastify({
       text: res.data.message,
       duration: 3000,
       gravity: "bottom",
       position: "right",
-      backgroundColor: isAdded ? "#10b981" : "#ef4444",
+      style: {
+        background: isAdded ? "#10b981" : "#ef4444",
+      },
       close: true,
     }).showToast();
-
-    updateWishlistIcon(variantId, isAdded);
-    updateWishlistBadge(res.data.itemCount);
   } catch (err) {
     if (err.response?.status === 401) {
       Toastify({
@@ -229,7 +230,7 @@ async function toggleWishlist(variantId, event) {
         duration: 3000,
         gravity: "bottom",
         position: "right",
-        backgroundColor: "#ef4444",
+        style: { background: "#ef4444" },
       }).showToast();
 
       setTimeout(() => (window.location.href = "/login"), 1200);
@@ -237,31 +238,26 @@ async function toggleWishlist(variantId, event) {
   }
 }
 
-// Update wishlist heart icon
-function updateWishlistIcon(variantId, isAdded) {
-  const btn = document.querySelector(`[data-variant-id="${variantId}"]`);
-  if (!btn) return;
+function updateWishlistIconsEverywhere(variantId, isAdded) {
+  // Select ALL wishlist buttons for this variant
+  const buttons = document.querySelectorAll(`[data-variant-id="${variantId}"]`);
 
-  const icon = btn.querySelector(".wishlist-icon");
+  buttons.forEach((btn) => {
+    const icon = btn.querySelector(".wishlist-icon");
+    if (!icon) return;
 
-  if (isAdded) {
-    icon.classList.remove("bi-heart");
-    icon.classList.add("bi-heart-fill", "text-red-500");
-  } else {
-    icon.classList.add("bi-heart");
-    icon.classList.remove("bi-heart-fill", "text-red-500");
-  }
-}
-
-// Update badge in navbar
-function updateWishlistBadge(count) {
-  const badge = document.querySelector('a[href="/wishlist"] span');
-  if (!badge) return;
-
-  badge.textContent = count;
-
-  if (count > 0) badge.classList.remove("hidden");
-  else badge.classList.add("hidden");
+    if (isAdded) {
+      icon.classList.remove("bi-heart");
+      icon.classList.add("bi-heart-fill", "text-red-500");
+      btn.classList.add("text-red-500");
+      btn.dataset.inWishlist = "true";
+    } else {
+      icon.classList.add("bi-heart");
+      icon.classList.remove("bi-heart-fill", "text-red-500");
+      btn.dataset.inWishlist = "false";
+      btn.classList.remove("text-red-500");
+    }
+  });
 }
 
 // ----------------------------
@@ -277,7 +273,6 @@ async function addToCartItem(variantId) {
     if (response.data.success) {
       // Change Add → Go to Cart
       updateDetailCartButton(variantId);
-
 
       Toastify({
         text: "Added to cart",
@@ -300,7 +295,9 @@ async function addToCartItem(variantId) {
       duration: 3000,
       gravity: "bottom",
       position: "right",
-      backgroundColor: "#e74c3c",
+      backgroundCstyle: {
+        background: "#ef4444",
+      },
       close: true,
     }).showToast();
   }
@@ -338,28 +335,3 @@ function updateDetailCartButton(variantId) {
       </button>
     `;
 }
-
-
-// ----------------------------
-// CHECK WISHLIST STATUS ON LOAD
-// ----------------------------
-async function checkWishlistStatusDetailPage() {
-  const btn = document.querySelector(".wishlist-btn");
-  if (!btn) return;
-
-  const variantId = btn.getAttribute("data-variant-id");
-
-  try {
-    const res = await axios.get(`/wishlist/check/${variantId}`);
-
-    if (res.data.success && res.data.inWishlist) {
-      updateWishlistIcon(variantId, true);
-    }
-  } catch (err) {
-    console.error("Wishlist check failed:", err);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  checkWishlistStatusDetailPage();
-});

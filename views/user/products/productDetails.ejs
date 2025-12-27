@@ -193,9 +193,12 @@
         <% } %>
 
         <!-- WISHLIST BUTTON -->
-        <button class="wishlist-btn w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50" data-variant-id="<%= selectedVariant._id %>" onclick="event.preventDefault(); toggleWishlist('<%= selectedVariant._id %>', event)">
-          <i class="bi bi-heart wishlist-icon text-xl"></i>
+        <button class="wishlist-btn w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50" data-variant-id="<%= selectedVariant._id %>" data-in-wishlist="<%= isInWishlist %>" onclick="event.preventDefault(); toggleWishlist('<%= selectedVariant._id %>', event)">
+          <i class="bi wishlist-icon text-xl 
+            <%= isInWishlist ? 'bi-heart-fill text-red-500' : 'bi-heart' %>">
+          </i>
         </button>
+
 
       </div>
 

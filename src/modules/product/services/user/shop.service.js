@@ -79,58 +79,6 @@ export const loadShopService = async (query, userId = null) => {
       },
     },
     { $unwind: "$variants" },
-    //product offer
-    {
-      $lookup: {
-        from: "offers",
-        let: {
-          productId: "$_id",
-          today: new Date(),
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$offerType", "product"] },
-                  { $in: ["$$productId", "$productID"] },
-                  { $lte: ["$startDate", "$$today"] },
-                  { $gte: ["$endDate", "$$today"] },
-                  { $eq: ["$isActive", true] },
-                ],
-              },
-            },
-          },
-        ],
-        as: "productOffer",
-      },
-    },
-    //brand offer
-    {
-      $lookup: {
-        from: "offers",
-        let: {
-          brandID: "$brandID",
-          today: new Date(),
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$offerType", "brand"] },
-                  { $eq: ["$$brandID", "$brandID"] },
-                  { $lte: ["$startDate", "$$today"] },
-                  { $gte: ["$endDate", "$$today"] },
-                  { $eq: ["$isActive", true] },
-                ],
-              },
-            },
-          },
-        ],
-        as: "brandOffer",
-      },
-    },
   ];
 
   // ---------------- COUNT ----------------
