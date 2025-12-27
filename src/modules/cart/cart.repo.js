@@ -40,14 +40,13 @@ export const fetchCartItems = (userId) => {
     },
     { $unwind: "$brand" },
     { $match: { "brand.isListed": true } },
-    // Product Offer
+    //product offer
     {
       $lookup: {
         from: "offers",
         let: {
           productId: "$productId._id",
           today: new Date(),
-          salePrice: "$variantId.salePrice",
         },
         pipeline: [
           {
@@ -63,39 +62,17 @@ export const fetchCartItems = (userId) => {
               },
             },
           },
-          {
-            $project: {
-              _id: 0,
-              offer: {
-                $cond: {
-                  if: { $eq: ["$discountType", "percentage"] },
-                  then: { $multiply: ["$$salePrice", "$discountValue", 0.01] },
-                  else: "$discountValue",
-                },
-              },
-            },
-          },
-          { $sort: { offer: -1 } },
-          { $limit: 1 },
         ],
         as: "productOffer",
       },
     },
-    {
-      $unwind: {
-        path: "$productOffer",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    { $addFields: { productOffer: "$productOffer.offer" } },
-    // Brand Offer
+    //brand offer
     {
       $lookup: {
         from: "offers",
         let: {
           brandID: "$brand._id",
           today: new Date(),
-          salePrice: "$variantId.salePrice",
         },
         pipeline: [
           {
@@ -111,44 +88,8 @@ export const fetchCartItems = (userId) => {
               },
             },
           },
-          {
-            $project: {
-              _id: 0,
-              offer: {
-                $cond: {
-                  if: { $eq: ["$discountType", "percentage"] },
-                  then: { $multiply: ["$$salePrice", "$discountValue", 0.01] },
-                  else: "$discountValue",
-                },
-              },
-            },
-          },
-          { $sort: { offer: -1 } },
-          { $limit: 1 },
         ],
         as: "brandOffer",
-      },
-    },
-    {
-      $unwind: {
-        path: "$brandOffer",
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    { $addFields: { brandOffer: "$brandOffer.offer" } },
-
-    // Final offer selection
-    {
-      $addFields: {
-        offer: {
-          $ceil: {
-            $cond: {
-              if: { $gte: ["$brandOffer", "$productOffer"] },
-              then: "$brandOffer",
-              else: "$productOffer",
-            },
-          },
-        },
       },
     },
   ]);

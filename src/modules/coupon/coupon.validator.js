@@ -1,24 +1,14 @@
-import Joi from 'joi';
-import mongoose from 'mongoose';
+import Joi from "joi";
+import mongoose from "mongoose";
 
 export const couponSchema = Joi.object({
-  code: Joi.string()
-    .trim()
-    .uppercase()
-    .min(3)
-    .max(20)
-    .required(),
+  code: Joi.string().trim().uppercase().min(3).max(20).required(),
 
-  name: Joi.string()
-    .trim()
-    .required(),
+  name: Joi.string().trim().required(),
 
-  description: Joi.string()
-    .allow("", null),
+  description: Joi.string().allow("", null),
 
-  type: Joi.string()
-    .valid("percentage", "fixed")
-    .required(),
+  type: Joi.string().valid("percentage", "fixed").required(),
 
   discountValue: Joi.number()
     .min(1)
@@ -26,28 +16,18 @@ export const couponSchema = Joi.object({
     .when("type", {
       is: "percentage",
       then: Joi.number().max(90),
-      otherwise: Joi.number()
+      otherwise: Joi.number(),
     }),
 
-  maxDiscount: Joi.number()
-    .min(0)
-    .default(0),
+  maxDiscount: Joi.number().min(0).default(0),
 
-  minPurchaseAmount: Joi.number()
-    .min(0)
-    .default(0),
+  minPurchaseAmount: Joi.number().min(0).default(0),
 
-  usageLimitPerUser: Joi.number()
-    .min(0)
-    .default(1),
+  usageLimitPerUser: Joi.number().min(0).default(1),
 
-  totalUsageLimit: Joi.number()
-    .min(0)
-    .default(0),
+  totalUsageLimit: Joi.number().min(0).default(0),
 
-  currentUsageCount: Joi.number()
-    .min(0)
-    .default(0),
+  currentUsageCount: Joi.number().min(0).default(0),
 
   userEligibility: Joi.string()
     .valid("all", "new_users", "specific")
@@ -55,52 +35,55 @@ export const couponSchema = Joi.object({
 
   specificUsers: Joi.array()
     .items(
-      Joi.string()
-        .custom((value, helpers) => {
-          if (!mongoose.Types.ObjectId.isValid(value)) {
-            return helpers.error("any.invalid");
-          }
-          return value;
-        }, "ObjectId Validation")
+      Joi.string().custom((value, helpers) => {
+        if (!mongoose.Types.ObjectId.isValid(value)) {
+          return helpers.error("any.invalid");
+        }
+        return value;
+      }, "ObjectId Validation")
     )
     .default([]),
 
-  startDate: Joi.date()
-    .required(),
+  startDate: Joi.date().required(),
 
-  endDate: Joi.date()
-    .required(),
+  endDate: Joi.date().required(),
 
-  isActive: Joi.boolean()
-    .default(true)
-})
-.custom((data, helpers) => {
-  // Validate date range
-  if (data.startDate && data.endDate && new Date(data.startDate) > new Date(data.endDate)) {
-    return helpers.error("any.invalid", "Start date cannot be greater than end date");
+  isActive: Joi.boolean().default(true),
+}).custom((data, helpers) => {
+  // ❌ Invalid date range
+  if (
+    data.startDate &&
+    data.endDate &&
+    new Date(data.startDate) > new Date(data.endDate)
+  ) {
+    return helpers.message("Start date cannot be greater than end date");
   }
+
+  // ❌ Fixed discount rule
+  if (
+    data.type === "fixed" &&
+    data.minPurchaseAmount < data.discountValue * 1.1
+  ) {
+    return helpers.message(
+      "For fixed discounts, minimum purchase amount must be at least 1.1x the discount value"
+    );
+  }
+
   return data;
-}, "Date range validation");
+}, "Coupon business rules validation");
+
 
 export const applyCouponSchema = Joi.object({
-  code: Joi.string()
-    .trim()
-    .min(3)
-    .max(20)
-    .required()
-    .messages({
-      "string.empty": "Coupon code is required",
-      "any.required": "Coupon code is required",
-      "string.min": "Coupon code must be at least 3 characters",
-      "string.max": "Coupon code must be less than 20 characters",
-    }),
+  code: Joi.string().trim().min(3).max(20).required().messages({
+    "string.empty": "Coupon code is required",
+    "any.required": "Coupon code is required",
+    "string.min": "Coupon code must be at least 3 characters",
+    "string.max": "Coupon code must be less than 20 characters",
+  }),
 
-  totalAmount: Joi.number()
-    .positive()
-    .required()
-    .messages({
-      "number.base": "Total amount must be a number",
-      "number.positive": "Total amount must be positive",
-      "any.required": "Total amount is required",
-    }),
+  totalAmount: Joi.number().positive().required().messages({
+    "number.base": "Total amount must be a number",
+    "number.positive": "Total amount must be positive",
+    "any.required": "Total amount is required",
+  }),
 });

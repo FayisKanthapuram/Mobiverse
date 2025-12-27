@@ -21,6 +21,7 @@ import {
   removeWishlistItem,
 } from "../wishlist/wishlist.repo.js";
 import { getLatestProducts } from "../product/services/product.common.service.js";
+import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 
 /* ----------------------------------------------------
    LOAD CART SERVICE
@@ -28,6 +29,10 @@ import { getLatestProducts } from "../product/services/product.common.service.js
 export const loadCartService = async (userId) => {
   const relatedProducts = await getLatestProducts(5, userId);
   const items = await fetchCartItems(userId);
+  // ---------------- OFFERS ----------------
+  for (let item of items) {
+    item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
+  }
   const cartTotals = await calculateCartTotals(items);
   const cartCount=await getCartItemsCount(userId);
 

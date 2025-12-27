@@ -100,7 +100,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
         order.paymentMethod === "cod" ? "Cancelled" : "Refunded";
       item.reason = `${reason}, ${comments}`;
       item.itemTimeline.cancelledAt = Date.now();
-      refundAmount += item.price - item.couponShare - item.offer;
+      refundAmount += (item.price - item.couponShare - item.offer)*item.quantity;
     }
   }
 

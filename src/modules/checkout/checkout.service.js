@@ -14,6 +14,7 @@ import {
 } from "../coupon/repo/coupon.usage.repo.js";
 import { findUserById } from "../user/user.repo.js";
 import { AppError } from "../../shared/utils/app.error.js";
+import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 
 /* ----------------------------------------------------
    LOAD CHECKOUT SERVICE
@@ -26,6 +27,10 @@ export const loadCheckoutService = async (userId) => {
 
   const addresses = await findUserAddresses(userId);
   const items = await fetchCartItems(userId);
+  // ---------------- OFFERS ----------------
+  for (let item of items) {
+    item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
+  }
   const cartTotals = await calculateCartTotals(items);
 
   const hasAdjustedItem = items.some((item) => item.adjusted);
@@ -126,7 +131,8 @@ export const applyCouponService = async (body, userId) => {
       discount = Math.min(discount, coupon.maxDiscount);
     }
   } else {
-    discount = coupon.discountValue;
+    if(coupon.discountValue>totalAmount*.9)discount=totalAmount*.9;
+    else discount = coupon.discountValue;
   }
 
   const finalAmount = Math.max(totalAmount - discount, 0);
