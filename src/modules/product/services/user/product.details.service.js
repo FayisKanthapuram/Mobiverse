@@ -50,6 +50,7 @@ export const loadProductDetailsService = async (
 
   // 3. Offer calculation
   const offer = getAppliedOffer(product, selectedVariant.salePrice);
+  console.log(offer)
 
   // 4. Variant grouping
   const colorGroups = groupVariantsByColor(product.variants);

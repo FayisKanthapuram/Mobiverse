@@ -181,3 +181,7 @@ export const findCartItemById = (id) => {
   return cartModel.findById(id).populate("variantId");
 };
 
+export const fetchCart = async (userId) => {
+  return cartModel.find({ userId }).select("variantId").lean();
+};
+

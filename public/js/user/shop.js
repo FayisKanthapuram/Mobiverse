@@ -53,9 +53,6 @@ async function addToCart(variantId) {
       // Update cart button
       updateCartButton(variantId);
 
-      // REMOVE wishlist button completely
-      removeWishlistButton(variantId);
-
       Toastify({
         text: "Item added to cart",
         duration: 4000,
@@ -82,15 +79,6 @@ async function addToCart(variantId) {
     }).showToast();
   }
 }
-
-
-
-function removeWishlistButton(variantId) {
-  const buttons = document.querySelectorAll(`[data-variant-id="${variantId}"]`);
-  buttons.forEach(btn => btn.remove());
-}
-
-
 
 function updateCartButton(variantId) {
   const btn = document.querySelector(`[data-cart-variant-id="${variantId}"]`);

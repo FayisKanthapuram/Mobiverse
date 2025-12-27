@@ -46,7 +46,7 @@ export const addToCartService = async (userId, body) => {
     );
   }
 
-  const { variantId, quantity = 1 } = body;
+  const { variantId, quantity = 1,isMoveToCart } = body;
 
   const variant = await findVariantByIdWithProduct(variantId);
   if (!variant) {
@@ -62,32 +62,24 @@ export const addToCartService = async (userId, body) => {
     throw new AppError("Product is not in stock", HttpStatus.BAD_REQUEST);
   }
 
-  const inWishlist = await checkInWishlist(
-    userId,
-    variant.productId._id,
-    variant._id
-  );
-  if (inWishlist) {
-    await removeWishlistItem(userId, variant.productId._id, variant._id);
-  }
-
   const existing = await findCartItem(userId, variant._id);
   if (existing) {
-    if (existing.quantity + 1 > variant.stock) {
-      throw new AppError(
-        "Maximum stock limit reached",
-        HttpStatus.UNPROCESSABLE_ENTITY
-      );
-    }
-
-    existing.quantity += 1;
-    await saveCartItem(existing);
-
     return {
-      status: HttpStatus.OK,
+      status: HttpStatus.CONFLICT,
       success: true,
-      message: "Cart quantity updated",
+      message: "Product is  already in the cart",
     };
+  }
+
+  if (isMoveToCart) {
+    const inWishlist = await checkInWishlist(
+      userId,
+      variant.productId._id,
+      variant._id
+    );
+    if (inWishlist) {
+      await removeWishlistItem(userId, variant.productId._id, variant._id);
+    }
   }
 
   await createCartItem({
@@ -100,6 +92,9 @@ export const addToCartService = async (userId, body) => {
   return {
     status: HttpStatus.CREATED,
     success: true,
+    message: isMoveToCart
+      ? "Item moved to cart"
+      : "Item added to cart",
   };
 };
 

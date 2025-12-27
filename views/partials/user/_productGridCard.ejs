@@ -18,7 +18,8 @@
         }
 
         // Check if product is in cart
-        const isInCart = product?.cart ? true : false;
+        <!-- const isInCart = product?.cart ? true : false; -->
+         const isInCart=product?.variants?.isInCart ? true : false;
         // --- PRICING LOGIC END ---
       %>
 
@@ -27,7 +28,6 @@
         <img src="<%= product?.variants?.images[0] %>" alt="<%= product.name %>" class="h-52 w-auto object-contain transition-transform duration-500 group-hover:scale-110" />
 
         <!-- Wishlist Button -->
-        <% if (!isInCart) { %>
         <button 
           type="button"
           class="wishlist-btn absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-all hover:scale-110
@@ -42,7 +42,6 @@
           <% } %>
 
         </button>
-        <% } %>
 
 
         <!-- Discount Badge -->

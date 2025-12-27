@@ -1,7 +1,6 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 import { findBrandById } from "../brand/brand.repo.js";
-import { findCartItem } from "../cart/cart.repo.js";
 import {
   getAvailableBrandOffers,
   getAvailableProductOffers,
@@ -69,15 +68,6 @@ export const toggleWishlistService = async (userId, body) => {
   }
 
   const { variantId } = body;
-
-  const inCart = await findCartItem(userId, variantId);
-  if (inCart) {
-    return {
-      status: HttpStatus.FORBIDDEN,
-      success: false,
-      message: "Product is already on the cart",
-    };
-  }
 
   // Fetch variant + product
   const variant = await findVariantByIdWithProduct(variantId);

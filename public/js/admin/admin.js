@@ -1,9 +1,9 @@
 document.getElementById("logout-button").addEventListener("click", async () => {
   try {
-    const responce = await axios.post("/admin/logout");
-    if (responce.data.success) {
-      sessionStorage.setItem("toastSuccess", responce.data.message);
-      window.location.href = responce.data.redirect;
+    const response = await axios.post("/admin/logout");
+    if (response.data.success) {
+      sessionStorage.setItem("toastSuccess", response.data.message);
+      window.location.href = response.data.redirect;
     }
   } catch (error) {
     Toastify({

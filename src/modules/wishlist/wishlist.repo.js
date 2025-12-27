@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 import wishlistModel from "./wishlist.model.js";
 
+export const fetchWishlist = async (userId) => {
+  return wishlistModel
+    .findOne({ userId })
+    .select("items.variantId") // only what we need
+    .lean();
+};
+
+
 export const fetchWishlistItems = (userId, limit, skip) => {
   // Build dynamic project stage
   const projectStage = {

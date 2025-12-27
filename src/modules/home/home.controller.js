@@ -6,7 +6,7 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 ---------------------------------------------------- */
 export const loadHome = async (req, res) => {
   const data = await loadHomeService(req?.user?._id);
-
+  
   res.status(HttpStatus.OK).render("user/home", {
     ...data,
     pageTitle: "Home",

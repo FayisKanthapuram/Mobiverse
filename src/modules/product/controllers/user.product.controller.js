@@ -4,7 +4,6 @@ import { HttpStatus } from "../../../shared/constants/statusCode.js";
 export const loadShop = async (req, res, next) => {
   try {
     const data = await loadShopService(req.query,req?.user?._id);
-    // const data={};
     return res.status(HttpStatus.OK).render("user/products/shop", {
       query: req.query,
       products: data.products,
