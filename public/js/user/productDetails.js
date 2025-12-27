@@ -5,6 +5,7 @@ async function addToCart(variantId) {
     if (response.data.success) {
       // Update cart button
       updateCartButton(variantId);
+      updateCartBadge(response.data.cartCount);
 
       Toastify({
         text: "Item added to cart",
@@ -273,6 +274,7 @@ async function addToCartItem(variantId) {
     if (response.data.success) {
       // Change Add → Go to Cart
       updateDetailCartButton(variantId);
+      updateCartBadge(response.data.cartCount);
 
       Toastify({
         text: "Added to cart",

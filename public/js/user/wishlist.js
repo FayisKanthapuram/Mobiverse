@@ -5,15 +5,7 @@ async function removeFromWishlist(variantId) {
     });
 
     if (response.data.success) {
-      Toastify({
-        text: "Item removed from wishlist",
-        duration: 3000,
-        gravity: "bottom",
-        position: "right",
-        backgroundColor: "#ef4444",
-      }).showToast();
-
-      // Reload page to update wishlist
+      sessionStorage.setItem("toastSuccess", response.data.message);
       window.location.reload();
     }
   } catch (error) {
@@ -39,13 +31,7 @@ async function clearWishlist() {
     const response = await axios.delete("/wishlist/clear");
 
     if (response.data.success) {
-      Toastify({
-        text: "Wishlist cleared successfully",
-        duration: 3000,
-        gravity: "bottom",
-        position: "right",
-        backgroundColor: "#10b981",
-      }).showToast();
+      sessionStorage.setItem("toastSuccess", response.data.message);
 
       window.location.reload();
     }
@@ -67,7 +53,7 @@ async function moveToCart(itemId, variantId) {
     const response = await axios.post("/cart/add", {
       variantId,
       quantity: 1,
-      isMoveToCart:true
+      isMoveToCart: true,
     });
     if (response.data.success) {
       sessionStorage.setItem("toastSuccess", response.data.message);

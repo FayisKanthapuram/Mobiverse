@@ -185,3 +185,22 @@ export const fetchCart = async (userId) => {
   return cartModel.find({ userId }).select("variantId").lean();
 };
 
+export const getCartItemsCount = async (userId) => {
+  const result = await cartModel.aggregate([
+    { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+    {
+      $group: {
+        _id: null,
+        totalItems: { $sum: "$quantity" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalItems: 1,
+      },
+    },
+  ]);
+  return result[0]?.totalItems || 0;
+};
+

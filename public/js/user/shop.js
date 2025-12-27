@@ -52,6 +52,9 @@ async function addToCart(variantId) {
 
       // Update cart button
       updateCartButton(variantId);
+      
+      updateCartBadge(response.data.cartCount);
+
 
       Toastify({
         text: "Item added to cart",

@@ -124,6 +124,7 @@ export const toggleWishlistService = async (userId, body) => {
 export const clearWishlistService = async (userId) => {
   await deleteWishlist(userId);
   return {
+    message: "Wishlist cleared successfully",
     status: HttpStatus.OK,
     success: true,
   };

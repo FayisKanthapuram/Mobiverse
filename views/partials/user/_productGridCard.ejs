@@ -229,6 +229,44 @@
     }
   }
 
+  // ----------------------------
+  // 🛒 NAVBAR CART BADGE UPDATE
+  // ----------------------------
+  function updateCartBadge(count) {
+    // Desktop cart badge
+    const desktopBadge = document.querySelector(
+      'a[href="/cart"] span'
+    );
+
+    if (desktopBadge) {
+      desktopBadge.textContent = count;
+      count > 0
+        ? desktopBadge.classList.remove("hidden")
+        : desktopBadge.classList.add("hidden");
+    }
+
+    // Mobile cart badge
+    const mobileCartLink = document.querySelector(
+      '#mobile-menu a[href="/cart"]'
+    );
+
+    if (mobileCartLink) {
+      let mobileBadge = mobileCartLink.querySelector("span.absolute");
+
+      if (count > 0) {
+        if (!mobileBadge) {
+          mobileBadge = document.createElement("span");
+          mobileBadge.className =
+            "absolute right-0 top-1/2 -translate-y-1/2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[11px] font-semibold rounded-full flex items-center justify-center";
+          mobileCartLink.appendChild(mobileBadge);
+        }
+        mobileBadge.textContent = count;
+      } else if (mobileBadge) {
+        mobileBadge.remove();
+      }
+    }
+  }
+
   // Update wishlist button appearance
   function updateWishlistButton(variantId, inWishlist) {
     // Find all buttons for this variant

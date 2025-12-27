@@ -6,9 +6,11 @@ export const setUser = async(req, res, next) => {
   res.locals.logo = LOGO;
   res.locals.user = req.isAuthenticated() ? req.user : null;
 
+  res.locals.cartCount = req.session.cartCount || 0;
+  res.locals.wishlistCount = req.session.wishlistCount || 0;
+
   res.locals.toast = req.session.toast || null;
   delete req.session.toast;
-  res.locals.wishlistCount = req.session.wishlistCount || 0;
 
   res.set("Cache-Control", "no-store");
   next();

@@ -8,110 +8,132 @@
 
     <!-- Desktop Nav -->
     <div class="hidden md:flex items-center gap-6">
-      <a href="/home" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Home</a>
-      <a href="/shop" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Shop</a>
-      <a href="/about" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">About Us</a>
-      <a href="/contact" class="text-base font-medium text-gray-500 hover:text-blue-600 transition-colors">Contact</a>
+      <a href="/home" class="text-base font-medium text-gray-500 hover:text-blue-600">Home</a>
+      <a href="/shop" class="text-base font-medium text-gray-500 hover:text-blue-600">Shop</a>
+      <a href="/about" class="text-base font-medium text-gray-500 hover:text-blue-600">About Us</a>
+      <a href="/contact" class="text-base font-medium text-gray-500 hover:text-blue-600">Contact</a>
     </div>
 
-    <!-- Right Icons -->
-    <div class="flex items-center gap-4">
+    <!-- Right Section -->
+    <div class="flex items-center gap-5">
 
       <!-- Desktop Search -->
       <div class="relative hidden md:block">
-        <input
-          value="<%= typeof query?.search !== 'undefined' ? query.search : '' %>"
-          id="product-search-input"
-          type="text"
-          placeholder="Search..."
-          class="px-4 py-2 pr-10 w-full border border-gray-300 rounded-full text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          onkeyup="debounceSearch()"
-        >
-        <button
-          id="clear-search-btn"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600
-          <%= query?.search ? '' : 'hidden' %>"
-          onclick="clearSearch()"
-        >
-          <i class="bi bi-x-circle-fill text-lg"></i>
+        <input value="<%= typeof query?.search !== 'undefined' ? query.search : '' %>" type="text" placeholder="Search..." class="px-4 py-2 pr-10 w-64 border border-gray-300 rounded-full text-sm focus:ring-2 focus:ring-blue-500" onkeyup="debounceSearch()" />
+        <button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400
+          <%= query?.search ? '' : 'hidden' %>" onclick="clearSearch()">
+          <i class="bi bi-x-circle-fill"></i>
         </button>
       </div>
 
-      <!-- Profile -->
-      <a href="/personal-info" class="text-gray-500 hover:text-blue-600 transition-colors">
-        <i class="bi bi-person text-2xl"></i>
-      </a>
+      <!-- USER DROPDOWN -->
+      <% if (user) { %>
+      <div class="relative group">
 
-      <!-- Wishlist (Desktop) -->
-      <a href="/wishlist" class="relative text-gray-500 hover:text-red-500 transition-colors">
-        <i class="bi bi-heart text-xl"></i>
+        <!-- User Trigger -->
+        <button class="flex items-center gap-2 text-gray-700 font-medium hover:text-blue-600">
+          <i class="bi bi-person-circle text-2xl"></i>
+          <span><%= user.username %></span>
+          <i class="bi bi-chevron-down text-sm"></i>
+        </button>
 
-        <span
-          class="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1
-                bg-red-500 text-white text-[11px] font-semibold
-                rounded-full flex items-center justify-center
-                <%= wishlistCount > 0 ? '' : 'hidden' %>">
-          <%= wishlistCount || 0 %>
+        <!-- Dropdown -->
+        <div class="absolute right-0 mt-3 w-56 bg-white rounded-lg shadow-lg border
+                   opacity-0 invisible group-hover:opacity-100 group-hover:visible
+                   transition-all duration-200 z-50">
+          <ul class="py-2 text-sm text-gray-700">
+
+            <li>
+              <a href="/personal-info" class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100">
+                <i class="bi bi-person"></i> Personal Information
+              </a>
+            </li>
+
+            <li>
+              <a href="/manage-address" class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100">
+                <i class="bi bi-geo-alt"></i> Manage Address
+              </a>
+            </li>
+
+            <li>
+              <a href="/orders" class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100">
+                <i class="bi bi-box-seam"></i> My Orders
+              </a>
+            </li>
+
+            <li>
+              <a href="/wallet" class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100">
+                <i class="bi bi-wallet2"></i> My Wallet
+              </a>
+            </li>
+
+            <li>
+              <a href="/refer-earn" class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100">
+                <i class="bi bi-gift"></i> Refer & Earn
+              </a>
+            </li>
+
+            <li class="relative">
+              <a href="/wishlist" class="flex items-center gap-3 px-4 py-2 hover:bg-gray-100">
+                <i class="bi bi-heart"></i> My Wishlist
+                <% if (wishlistCount > 0) { %>
+                <span class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  <%= wishlistCount %>
+                </span>
+                <% } %>
+              </a>
+            </li>
+
+            <li class="border-t mt-2">
+              <a href="#" id="logout-button-navbar" class="flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </a>
+            </li>
+
+          </ul>
+        </div>
+      </div>
+      <% } else { %>
+      <a href="/login" class="text-blue-600 font-medium">Login</a>
+      <% } %>
+
+      <!-- CART -->
+      <a href="/cart" class="relative text-gray-600 hover:text-red-500">
+        <i class="bi bi-cart text-2xl"></i>
+        <span class="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1
+                 bg-red-500 text-white text-[11px] font-semibold
+                 rounded-full flex items-center justify-center
+                 <%= cartCount > 0 ? '' : 'hidden' %>">
+          <%= cartCount || 0 %>
         </span>
       </a>
 
-      <!-- Cart -->
-      <a href="/cart" class="text-gray-500 hover:text-blue-600 transition-colors">
-        <i class="bi bi-cart text-2xl"></i>
-      </a>
-
       <!-- Mobile Menu Button -->
-      <button id="mobile-menu-btn" class="md:hidden text-gray-600 text-2xl">
+      <button id="mobile-menu-btn" class="md:hidden text-2xl text-gray-600">
         <i class="bi bi-list"></i>
       </button>
+
     </div>
   </nav>
-
-  <!-- Mobile Menu -->
-  <div id="mobile-menu" class="hidden bg-white border-t border-gray-200 md:hidden">
-    <div class="px-4 py-4 space-y-4">
-
-      <a href="/home" class="block font-medium text-gray-700 hover:text-blue-600">Home</a>
-      <a href="/shop" class="block font-medium text-gray-700 hover:text-blue-600">Shop</a>
-      <a href="/about" class="block font-medium text-gray-700 hover:text-blue-600">About Us</a>
-      <a href="/contact" class="block font-medium text-gray-700 hover:text-blue-600">Contact</a>
-
-      <!-- Mobile Wishlist -->
-      <a href="/wishlist" class="relative flex items-center gap-2 text-gray-700 hover:text-red-500">
-        <i class="bi bi-heart text-xl"></i>
-        <span>Wishlist</span>
-
-        <% if (wishlistCount > 0) { %>
-          <span
-            class="absolute right-0 top-1/2 -translate-y-1/2
-                   min-w-[18px] h-[18px] px-1
-                   bg-red-500 text-white text-[11px] font-semibold
-                   rounded-full flex items-center justify-center">
-            <%= wishlistCount %>
-          </span>
-        <% } %>
-      </a>
-
-      <!-- Mobile Search -->
-      <div class="relative pt-2">
-        <input
-          value="<%= typeof query?.search !== 'undefined' ? query.search : '' %>"
-          id="product-search-input-mobile"
-          type="text"
-          placeholder="Search..."
-          class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-          onkeyup="debounceSearch()"
-        />
-        <button
-          id="clear-search-btn-mobile"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600
-          <%= query?.search ? '' : 'hidden' %>"
-          onclick="clearSearch()"
-        >
-          <i class="bi bi-x-circle-fill text-lg"></i>
-        </button>
-      </div>
-
-    </div>
-  </div>
 </header>
+
+<script>
+  document.getElementById("logout-button-navbar").addEventListener("click", async () => {
+    const confirmed = confirm("Are you sure you want to logout?");
+    if (!confirmed) return;
+
+    try {
+      const response = await axios.post("/logout");
+
+      if (response.data.success) {
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.href = response.data.redirect;
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+      sessionStorage.setItem("toastError", "Logout failed. Please try again.");
+      window.location.reload();
+    }
+  });
+</script>
+

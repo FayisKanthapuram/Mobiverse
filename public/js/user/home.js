@@ -162,6 +162,45 @@ function updateWishlistBadge(count) {
 }
 
 // ----------------------------
+// 🛒 NAVBAR CART BADGE UPDATE
+// ----------------------------
+function updateCartBadge(count) {
+  // Desktop cart badge
+  const desktopBadge = document.querySelector(
+    'a[href="/cart"] span'
+  );
+
+  if (desktopBadge) {
+    desktopBadge.textContent = count;
+    count > 0
+      ? desktopBadge.classList.remove("hidden")
+      : desktopBadge.classList.add("hidden");
+  }
+
+  // Mobile cart badge
+  const mobileCartLink = document.querySelector(
+    '#mobile-menu a[href="/cart"]'
+  );
+
+  if (mobileCartLink) {
+    let mobileBadge = mobileCartLink.querySelector("span.absolute");
+
+    if (count > 0) {
+      if (!mobileBadge) {
+        mobileBadge = document.createElement("span");
+        mobileBadge.className =
+          "absolute right-0 top-1/2 -translate-y-1/2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[11px] font-semibold rounded-full flex items-center justify-center";
+        mobileCartLink.appendChild(mobileBadge);
+      }
+      mobileBadge.textContent = count;
+    } else if (mobileBadge) {
+      mobileBadge.remove();
+    }
+  }
+}
+
+
+// ----------------------------
 // 🛒 ADD TO CART
 // ----------------------------
 async function addToCart(variantId) {
@@ -174,8 +213,11 @@ async function addToCart(variantId) {
     if (response.data.success) {
       updateCartButton(variantId);
 
+      // ✅ UPDATE CART COUNT
+      updateCartBadge(response.data.cartCount);
+
       Toastify({
-        text: "Item added to cart",
+        text: response.data.message || "Item added to cart",
         duration: 3000,
         gravity: "bottom",
         position: "right",
@@ -189,7 +231,9 @@ async function addToCart(variantId) {
     if (error?.response?.data?.redirect) {
       sessionStorage.setItem("toastError", error.response?.data?.message);
       window.location.href = error.response?.data?.redirect;
+      return;
     }
+
     Toastify({
       text: error.response?.data?.message || "Something went wrong",
       duration: 2000,
@@ -199,6 +243,7 @@ async function addToCart(variantId) {
     }).showToast();
   }
 }
+
 
 
 // ----------------------------

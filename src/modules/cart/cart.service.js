@@ -3,6 +3,7 @@ import {
   fetchCartItems,
   findCartItem,
   findCartItemById,
+  getCartItemsCount,
   saveCartItem,
 } from "./cart.repo.js";
 import {
@@ -16,6 +17,7 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import {
   checkInWishlist,
+  getWishlistItemsCount,
   removeWishlistItem,
 } from "../wishlist/wishlist.repo.js";
 import { getLatestProducts } from "../product/services/product.common.service.js";
@@ -27,8 +29,10 @@ export const loadCartService = async (userId) => {
   const relatedProducts = await getLatestProducts(5, userId);
   const items = await fetchCartItems(userId);
   const cartTotals = await calculateCartTotals(items);
+  const cartCount=await getCartItemsCount(userId);
 
   return {
+    cartCount,
     relatedProducts,
     cart: cartTotals,
   };
@@ -64,7 +68,11 @@ export const addToCartService = async (userId, body) => {
 
   const existing = await findCartItem(userId, variant._id);
   if (existing) {
+    const cartCount = await getCartItemsCount(userId);
+    const wishlistCount = await getWishlistItemsCount(userId);
     return {
+      cartCount,
+      wishlistCount,
       status: HttpStatus.CONFLICT,
       success: true,
       message: "Product is  already in the cart",
@@ -89,7 +97,12 @@ export const addToCartService = async (userId, body) => {
     quantity,
   });
 
+  const cartCount = await getCartItemsCount(userId);
+  const wishlistCount=await getWishlistItemsCount(userId);
+
   return {
+    wishlistCount,
+    cartCount,
     status: HttpStatus.CREATED,
     success: true,
     message: isMoveToCart
@@ -128,5 +141,27 @@ export const updateCartItemService = async (itemId, userId, body) => {
       stock: item.variantId.stock,
     },
     cartTotals: totals,
+  };
+};
+
+/* ----------------------------------------------------
+   DELETE CART ITEM SERVICE
+---------------------------------------------------- */
+export const deleteCartItemService = async (itemId,userId) => {
+  const item = await findCartItemById(itemId);
+  if (!item) {
+    throw new AppError("Product not found", HttpStatus.NOT_FOUND);
+  }
+
+  await item.deleteOne();
+
+  const cartCount = await getCartItemsCount(userId);
+
+
+  return {
+    status: HttpStatus.OK,
+    cartCount,
+    success: true,
+    message: "Item successfully removed from the cart.",
   };
 };
