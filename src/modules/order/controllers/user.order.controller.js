@@ -21,6 +21,7 @@ export const placeOrder = async (req, res) => {
   const appliedCoupon = req.session.appliedCoupon || null;
 
   const result = await placeOrderService(userId, req.body, appliedCoupon);
+  req.session.cartCount=0;
 
   if (req.body.paymentMethod !== "razorpay") {
     req.session.appliedCoupon = null;
@@ -87,17 +88,6 @@ export const returnOrderItems = async (req, res) => {
   res.status(result.status).json(result);
 };
 
-/* ----------------------------------------------------
-   TRACK / DETAILS / INVOICE
----------------------------------------------------- */
-export const loadTrackOrder = async (req, res) => {
-  const order = await loadOrderDetailsService(req.params.id);
-
-  res.status(HttpStatus.OK).render("user/orders/trackOrder", {
-    pageTitle: "Track Order",
-    order,
-  });
-};
 
 export const loadOrderDetails = async (req, res) => {
   const order = await loadOrderDetailsService(req.params.id);

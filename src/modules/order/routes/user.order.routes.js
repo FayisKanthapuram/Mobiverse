@@ -7,7 +7,6 @@ import {
   downloadInvoice,
   loadMyOrders,
   loadOrderDetails,
-  loadTrackOrder,
   returnOrderItems,
   loadOrderFailure,
   retryPayment,
@@ -28,7 +27,6 @@ router.get("/order/success/:id", requireLogin, loadOrderSuccess);
 router.get("/order/failure/:id",requireLogin,loadOrderFailure);
 router.post("/order/:id/cancel-items",requireLogin, cancelOrderItems);
 router.post("/order/:id/return-items", requireLogin, returnOrderItems);
-router.get("/order/track/:id", requireLogin, loadTrackOrder);
 router.get("/order/details/:id", requireLogin, loadOrderDetails);
 router.get("/order/invoice/:id", requireLogin, downloadInvoice);
 router.post("/order/razorpay/verify", requireLogin, verifyRazorpayPayment);

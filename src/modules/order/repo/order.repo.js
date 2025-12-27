@@ -58,6 +58,127 @@ export const findOrderByOrderIdWithUser = (orderId) => {
     .populate("userId");
 };
 
+export const findOrderByOrderIdWithDeliveredItems = (orderId) => {
+  return Order.aggregate([
+    // 1️⃣ Match order
+    {
+      $match: { orderId },
+    },
+
+    // 2️⃣ Keep only Delivered / ReturnRequested / ReturnRejected items
+    {
+      $addFields: {
+        orderedItems: {
+          $filter: {
+            input: "$orderedItems",
+            as: "item",
+            cond: {
+              $in: [
+                "$$item.itemStatus",
+                ["Delivered", "ReturnRejected", "ReturnRequested"],
+              ],
+            },
+          },
+        },
+      },
+    },
+
+    // 3️⃣ Ensure at least one matching item exists
+    {
+      $match: {
+        "orderedItems.0": { $exists: true },
+      },
+    },
+
+    // 4️⃣ Lookup products
+    {
+      $lookup: {
+        from: "products",
+        localField: "orderedItems.productId",
+        foreignField: "_id",
+        as: "products",
+      },
+    },
+
+    // 5️⃣ Lookup variants
+    {
+      $lookup: {
+        from: "variants",
+        localField: "orderedItems.variantId",
+        foreignField: "_id",
+        as: "variants",
+      },
+    },
+
+    // 6️⃣ Lookup user
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "userId",
+      },
+    },
+    {
+      $unwind: "$userId",
+    },
+
+    // 7️⃣ Attach product + variant into each orderedItem
+    {
+      $addFields: {
+        orderedItems: {
+          $map: {
+            input: "$orderedItems",
+            as: "item",
+            in: {
+              $mergeObjects: [
+                "$$item",
+                {
+                  productId: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: "$products",
+                          as: "p",
+                          cond: { $eq: ["$$p._id", "$$item.productId"] },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                  variantId: {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: "$variants",
+                          as: "v",
+                          cond: { $eq: ["$$v._id", "$$item.variantId"] },
+                        },
+                      },
+                      0,
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+
+    // 8️⃣ Cleanup
+    {
+      $project: {
+        products: 0,
+        variants: 0,
+      },
+    },
+  ]);
+};
+
+
+
+
 export const findOrders = (query, sort = {}) => {
   return Order.find(query).sort(sort).populate("userId", "username email");
 };

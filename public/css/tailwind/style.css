@@ -733,6 +733,14 @@ video {
   top: 100%;
 }
 
+.bottom-2 {
+  bottom: 0.5rem;
+}
+
+.left-1\.5 {
+  left: 0.375rem;
+}
+
 .z-10 {
   z-index: 10;
 }
@@ -976,6 +984,14 @@ video {
 
 .mt-auto {
   margin-top: auto;
+}
+
+.-mt-1 {
+  margin-top: -0.25rem;
+}
+
+.mr-1 {
+  margin-right: 0.25rem;
 }
 
 .line-clamp-1 {
