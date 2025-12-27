@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "path";
 import expressLayouts from "express-ejs-layouts";
-import { sessionMiddleware } from "./shared/middlewares/session.js";
+import { sessionConfig } from "./shared/middlewares/session.js";
 import { fileURLToPath } from "url";
 import adminRoutes from "./shared/routes/adminRoute.js";
 import userRoutes from "./shared/routes/userRoute.js";
@@ -47,13 +47,12 @@ app.use(expressLayouts);
 app.set("views", path.join(__dirname, "../views"));
 
 // Routes
-app.use("/", userRoutes);      
-app.use("/admin", adminRoutes); 
+app.use("/", userRoutes);
+app.use("/admin", adminRoutes);
 
 // Errors
 app.use(staticFile404);
 app.use(notFound);
 app.use(errorHandler);
-
 
 export default app;
