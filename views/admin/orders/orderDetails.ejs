@@ -299,17 +299,32 @@
                 <!-- Item Price -->
                 <div class="text-right">
                   <% 
-                    const mrp = item.regularPrice || item.price;
-                    const sale = item.price || 0;
-                    const offer = item.offer || 0;
-                    const selling = sale - offer;
+                    const qty = item.quantity;
+                    const sale = item.price;               // sale price snapshot
+                    const regular = item.regularPrice;     // actual MRP snapshot
+                    const offer = item.offer||0;              // offer snapshot
+                    const couponShare=item.couponShare;
+                    const finalPrice = offer ? (sale - offer-couponShare) : sale-couponShare;
                   %>
                   <div class="text-lg font-bold">
-                    ₹<%= (selling * item.quantity).toLocaleString('en-IN') %>
+                    ₹<%= (finalPrice * item.quantity).toLocaleString('en-IN') %>
                   </div>
-                  <% if (mrp !== selling) { %>
+                  
+                  <% if (couponShare) { %>
                   <div class="text-sm text-gray-500 line-through">
-                    ₹<%= (mrp * item.quantity).toLocaleString('en-IN') %>
+                    ₹<%= ((sale - offer) * item.quantity).toLocaleString('en-IN') %>
+                  </div>
+                  <% } %>
+
+                  <% if (offer) { %>
+                  <div class="text-sm text-gray-500 line-through">
+                    ₹<%= (sale * item.quantity).toLocaleString('en-IN') %>
+                  </div>
+                  <% } %>
+
+                  <% if (regular > sale) { %>
+                  <div class="text-sm text-gray-500 line-through">
+                    ₹<%= (regular * item.quantity).toLocaleString('en-IN') %>
                   </div>
                   <% } %>
                 </div>

@@ -5,7 +5,7 @@ import { applyCouponService, loadCheckoutService } from "./checkout.service.js";
    LOAD CHECKOUT
 ---------------------------------------------------- */
 export const loadCheckOut = async (req, res) => {
-  const data = await loadCheckoutService(req.session.user);
+  const data = await loadCheckoutService(req?.user?._id);
   const appliedCoupon = req.session.appliedCoupon || null;
 
   if (data.hasAdjustedItem) {
@@ -29,7 +29,7 @@ export const loadCheckOut = async (req, res) => {
 export const applyCoupon = async (req, res) => {
   if (req.session.appliedCoupon) req.session.appliedCoupon = null;
 
-  const result = await applyCouponService(req.body, req.session.user);
+  const result = await applyCouponService(req.body, req?.user?._id);
 
   req.session.appliedCoupon = {
     couponId: result.couponId,

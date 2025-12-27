@@ -1,5 +1,6 @@
 import {
   findOrderByOrderId,
+  findOrderByOrderIdWithDeliveredItems,
   findOrderByOrderIdWithUser,
   findUserOrders,
   saveOrder,
@@ -7,19 +8,19 @@ import {
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderItemsSchema } from "../../order.validator.js";
 import { incrementVariantStock } from "../../../product/repo/variant.repo.js";
-import {
-  findUserById,
-  updateUserWalletBalance,
-} from "../../../user/user.repo.js";
+import { updateUserWalletBalance } from "../../../user/user.repo.js";
 import {
   findWalletByUserId,
   updateWalletBalanceAndCredit,
 } from "../../../wallet/repo/wallet.repo.js";
 import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
-import { calculateOrderPaymentStatus, calculateOrderStatus } from "../../order.helper.js";
+import {
+  calculateOrderPaymentStatus,
+  calculateOrderStatus,
+} from "../../order.helper.js";
 
-export const loadMyOrdersService = async (userId, queryParams) => {
+export const loadMyOrdersService = async (user, queryParams) => {
   const status = queryParams.status || "";
   const search = queryParams.searchOrder || "";
   const currentPage = parseInt(queryParams.page) || 1;
@@ -27,13 +28,11 @@ export const loadMyOrdersService = async (userId, queryParams) => {
   const limit = 3;
   const skip = (currentPage - 1) * limit;
 
-  const orderQuery = { userId };
+  const orderQuery = { userId: user._id };
 
   if (status) {
     orderQuery.orderStatus = status;
   }
-
-  const user = await findUserById(userId);
 
   let orders = await findUserOrders(orderQuery);
 
@@ -103,7 +102,8 @@ export const cancelOrderItemsService = async (orderId, body) => {
         order.paymentMethod === "cod" ? "Cancelled" : "Refunded";
       item.reason = `${reason}, ${comments}`;
       item.itemTimeline.cancelledAt = Date.now();
-      refundAmount += item.price - item.couponShare - item.offer;
+      refundAmount +=
+        (item.price - item.couponShare - item.offer) * item.quantity;
     }
   }
 
@@ -123,7 +123,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
   }
 
   order.orderStatus = calculateOrderStatus(order.orderedItems);
-  order.paymentStatus=calculateOrderPaymentStatus(order.orderedItems);
+  order.paymentStatus = calculateOrderPaymentStatus(order.orderedItems);
 
   await saveOrder(order);
 
@@ -206,9 +206,19 @@ export const loadOrderDetailsService = async (orderId) => {
 };
 
 export const loadInvoiceService = async (orderId) => {
-  const order = await findOrderByOrderIdWithUser(orderId);
+  const output = await findOrderByOrderIdWithDeliveredItems(orderId);
+  const orders = output[0];
+  orders.subtotal = 0;
+  orders.discount = 0;
+  for (let order of orders.orderedItems) {
+    orders.subtotal += order.regularPrice * order.quantity;
+    orders.discount +=
+      (order.offer + order.regularPrice - order.price) * order.quantity;
+  }
 
-  if (!order) {
+  orders.finalAmount=orders.subtotal-orders.discount;
+
+  if (!orders) {
     const err = new Error(OrderMessages.ORDER_NOT_FOUND);
     err.status = 404;
     throw err;
@@ -216,7 +226,7 @@ export const loadInvoiceService = async (orderId) => {
 
   // prepare any extra invoice calculations here if needed (tax breakdown, formatted amounts)
   return {
-    order,
-    user: order.userId,
+    order: orders,
+    user: orders.userId,
   };
 };

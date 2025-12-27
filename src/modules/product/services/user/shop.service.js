@@ -4,15 +4,20 @@ import {
 } from "../../repo/product.repo.js";
 import { getAllListedBrands } from "../../../brand/brand.repo.js";
 import { markWishlistStatus } from "../../../wishlist/wishlist.helper.js";
-import { fetchWishlistItems } from "../../../wishlist/wishlist.repo.js";
+import { fetchWishlist } from "../../../wishlist/wishlist.repo.js";
+import { fetchCart } from "../../../cart/cart.repo.js";
+import { markCartStatus } from "../../../cart/helpers/cart.helper.js";
+import { getAppliedOffer } from "../../helpers/user.product.helper.js";
+
 
 export const loadShopService = async (query, userId = null) => {
+  // ---------------- NORMALIZE INPUT ----------------
   const search = query.search || "";
   const brand = query.brand || "all";
   const sort = query.sort || "";
   const minPrice = query.min;
   const maxPrice = query.max;
-  const currentPage = parseInt(query.page) || 1;
+  const currentPage = parseInt(query.page, 10) || 1;
 
   const limit = 3;
   const skip = (currentPage - 1) * limit;
@@ -23,13 +28,8 @@ export const loadShopService = async (query, userId = null) => {
     "brands.isListed": true,
   };
 
-  if (brand !== "all") {
-    matchStage["brands.brandName"] = brand;
-  }
-
-  if (search) {
-    matchStage.name = { $regex: search.trim(), $options: "i" };
-  }
+  if (brand !== "all") matchStage["brands.brandName"] = brand;
+  if (search) matchStage.name = { $regex: search.trim(), $options: "i" };
 
   // ---------------- SORT ----------------
   const sortStage = {};
@@ -56,7 +56,6 @@ export const loadShopService = async (query, userId = null) => {
     },
     { $unwind: "$brands" },
     { $match: matchStage },
-
     {
       $lookup: {
         from: "variants",
@@ -80,67 +79,97 @@ export const loadShopService = async (query, userId = null) => {
       },
     },
     { $unwind: "$variants" },
+    //product offer
+    {
+      $lookup: {
+        from: "offers",
+        let: {
+          productId: "$_id",
+          today: new Date(),
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$offerType", "product"] },
+                  { $in: ["$$productId", "$productID"] },
+                  { $lte: ["$startDate", "$$today"] },
+                  { $gte: ["$endDate", "$$today"] },
+                  { $eq: ["$isActive", true] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "productOffer",
+      },
+    },
+    //brand offer
+    {
+      $lookup: {
+        from: "offers",
+        let: {
+          brandID: "$brandID",
+          today: new Date(),
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$offerType", "brand"] },
+                  { $eq: ["$$brandID", "$brandID"] },
+                  { $lte: ["$startDate", "$$today"] },
+                  { $gte: ["$endDate", "$$today"] },
+                  { $eq: ["$isActive", true] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "brandOffer",
+      },
+    },
   ];
 
-  if (Object.keys(sortStage).length) {
-    basePipeline.push({ $sort: sortStage });
-  }
-
-  if (Object.keys(priceStage).length) {
-    basePipeline.push({ $match: { "variants.salePrice": priceStage } });
-  }
-
   // ---------------- COUNT ----------------
-  const countPipeline = structuredClone(basePipeline);
+  const countPipeline = [...basePipeline];
+  if (Object.keys(sortStage).length) countPipeline.push({ $sort: sortStage });
+  if (Object.keys(priceStage).length)
+    countPipeline.push({ $match: { "variants.salePrice": priceStage } });
   countPipeline.push({ $count: "totalDocuments" });
 
   const countResult = await countShopProductsAgg(countPipeline);
-  const totalDocuments =
-    countResult.length > 0 ? countResult[0].totalDocuments : 0;
-
+  const totalDocuments = countResult[0]?.totalDocuments || 0;
   const totalPages = Math.ceil(totalDocuments / limit);
 
-  // ---------------- CART STATUS (LOGGED IN USER) ----------------
-  if (userId) {
-    basePipeline.push(
-      {
-        $lookup: {
-          from: "carts",
-          let: { productId: "$_id", userId },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$productId", "$$productId"] },
-                    { $eq: ["$userId", { $toObjectId: "$$userId" }] },
-                  ],
-                },
-              },
-            },
-            { $project: { _id: 1 } },
-          ],
-          as: "cart",
-        },
-      },
-      { $unwind: { path: "$cart", preserveNullAndEmptyArrays: true } },
-      { $addFields: { cart: "$cart._id" } }
-    );
-  }
+  // ---------------- PRODUCTS ----------------
+  const productPipeline = [...basePipeline];
+  if (Object.keys(sortStage).length) productPipeline.push({ $sort: sortStage });
+  if (Object.keys(priceStage).length)
+    productPipeline.push({ $match: { "variants.salePrice": priceStage } });
 
-  // ---------------- PAGINATION ----------------
-  const productPipeline = structuredClone(basePipeline);
   productPipeline.push({ $skip: skip }, { $limit: limit });
 
   const products = await getShopProductsAgg(productPipeline);
 
-  const wishlistItems = userId ? await fetchWishlistItems(userId) : [];
-  const shopProducts = await markWishlistStatus(products, wishlistItems);
+  // ---------------- OFFERS ----------------
+  for (let product of products) {
+    product.offer = getAppliedOffer(product, product?.variants?.salePrice);
+  }
+
+  // ---------------- WISHLIST & CART ----------------
+  const wishlist = userId ? await fetchWishlist(userId) : null;
+  const cart = userId ? await fetchCart(userId) : null;
+
+  let finalProducts = markWishlistStatus(products, wishlist);
+  finalProducts = markCartStatus(finalProducts, cart);
 
   const brands = await getAllListedBrands();
 
   return {
-    products: shopProducts,
+    products: finalProducts,
     brands,
     pagination: {
       currentPage,
@@ -150,3 +179,5 @@ export const loadShopService = async (query, userId = null) => {
     },
   };
 };
+
+

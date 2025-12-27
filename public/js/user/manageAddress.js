@@ -77,7 +77,7 @@ document
       const response = await axios.delete(`/address/${deleteAddressId}`);
       if (response.data.success) {
         sessionStorage.setItem("toastSuccess", response.data.message);
-        window.location.href = "/address";
+        window.location.href = "/manage-address";
       }
     } catch (error) {
       Toastify({
@@ -98,7 +98,7 @@ async function setDefaultAddress(addressId) {
     const response = await axios.patch(`/address/${addressId}/set-default`);
     if (response.data.success) {
       sessionStorage.setItem("toastSuccess", response.data.message);
-      window.location.href = "/address";
+      window.location.href = "/manage-address";
     }
   } catch (error) {
     Toastify({
@@ -163,7 +163,7 @@ document
 
       if (response.data.success) {
         sessionStorage.setItem("toastSuccess", response.data.message);
-        window.location.href = "/address";
+        window.location.href = "/manage-address";
       }
     } catch (error) {
       Toastify({

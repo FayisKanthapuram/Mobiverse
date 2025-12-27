@@ -20,6 +20,8 @@ export function calculateOrderStatus(items) {
   if (any("Processing")) return "Processing";
   if (any("Confirmed")) return "Confirmed";
 
+  if (any("ReturnRequested")) return "Partially Returned";
+  if (any("ReturnRejected")) return "Delivered";
   // ✅ DEFAULT
   return "Pending";
 }

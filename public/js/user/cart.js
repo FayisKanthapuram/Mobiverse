@@ -96,7 +96,8 @@ async function removeFromCart(itemId) {
   try {
     const response = await axios.delete(`/cart/remove/${itemId}`);
     if (response.data.success) {
-      window.location.href='/cart?message=item-delete'
+      sessionStorage.setItem("toastSuccess", response.data.message);
+      window.location.reload();
     }
   } catch (error) {
     Toastify({
@@ -113,13 +114,15 @@ async function removeFromCart(itemId) {
 async function addToCart(variantId) {
   try {
     const response = await axios.post("/cart/add", { variantId, quantity: 1 });
-    if (response.data.success&&response.data.message) {
-      window.location.href = "/cart?message=cart-inc";
-    }else if (response.data.success) {
-      window.location.href = "/cart?message=cart-add";
+    if (response.data.success) {
+      sessionStorage.setItem("toastSuccess", response.data.message);
+      window.location.reload();
     }
   } catch (error) {
-    console.log(error);
+    if (error?.response?.data?.redirect) {
+      sessionStorage.setItem("toastError", error.response?.data?.message);
+      window.location.href = error.response?.data?.redirect;
+    }
     Toastify({
       text: error.response?.data?.message || "Something went wrong",
       duration: 2000,

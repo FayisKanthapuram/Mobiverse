@@ -52,9 +52,9 @@ async function addToCart(variantId) {
 
       // Update cart button
       updateCartButton(variantId);
+      
+      updateCartBadge(response.data.cartCount);
 
-      // REMOVE wishlist button completely
-      removeWishlistButton(variantId);
 
       Toastify({
         text: "Item added to cart",
@@ -69,6 +69,10 @@ async function addToCart(variantId) {
     }
 
   } catch (error) {
+    if (error?.response?.data?.redirect) {
+      sessionStorage.setItem("toastError", error.response?.data?.message);
+      window.location.href = error.response?.data?.redirect;
+    }
     Toastify({
       text: error.response?.data?.message || "Something went wrong",
       duration: 2000,
@@ -78,15 +82,6 @@ async function addToCart(variantId) {
     }).showToast();
   }
 }
-
-
-
-function removeWishlistButton(variantId) {
-  const buttons = document.querySelectorAll(`[data-variant-id="${variantId}"]`);
-  buttons.forEach(btn => btn.remove());
-}
-
-
 
 function updateCartButton(variantId) {
   const btn = document.querySelector(`[data-cart-variant-id="${variantId}"]`);

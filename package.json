@@ -26,7 +26,6 @@
     "caniuse-lite": "^1.0.30001760",
     "chalk": "^5.6.2",
     "cloudinary": "^2.8.0",
-    "connect-flash": "^0.1.1",
     "connect-mongo": "^5.1.0",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",

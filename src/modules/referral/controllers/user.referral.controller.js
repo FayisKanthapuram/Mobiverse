@@ -3,7 +3,6 @@ import {
   REFERRER_REWARD,
 } from "../../../shared/constants/defaults.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
-import { findUserById } from "../../user/user.repo.js";
 import {
   findReferralsByUserId,
   findTotalReferralsCount,
@@ -11,7 +10,7 @@ import {
 
 export const laodRefferAndEarn = async (req, res) => {
   const currentPage = parseInt(req.query.page) || 1;
-  const user = await findUserById(req.session.user);
+  const user = req.user;
   const limit = 5;
   const skip = (currentPage - 1) * limit;
   const referrals = await findReferralsByUserId(user._id, skip, limit);

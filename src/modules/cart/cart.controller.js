@@ -1,9 +1,9 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
-import cartModel from "./cart.model.js";
 import {
   addToCartService,
   loadCartService,
   updateCartItemService,
+  deleteCartItemService, // Add this line
 } from "./cart.service.js";
 import { AppError } from "../../shared/utils/app.error.js";
 
@@ -13,7 +13,8 @@ import { AppError } from "../../shared/utils/app.error.js";
 export const loadCart = async (req, res) => {
   if (req.session.appliedCoupon) req.session.appliedCoupon = null;
 
-  const data = await loadCartService(req.session.user);
+  const data = await loadCartService(req?.user?._id);
+  req.session.cartCount = data.cartCount;
 
   res.status(HttpStatus.OK).render("user/cart", {
     pageTitle: "Cart",
@@ -27,14 +28,32 @@ export const loadCart = async (req, res) => {
    ADD TO CART
 ---------------------------------------------------- */
 export const addToCart = async (req, res) => {
-  if (!req.session.user) {
+  if (!req.isAuthenticated() || !req.user) {
     throw new AppError(
       "Please log in to add products to your cart.",
       HttpStatus.UNAUTHORIZED
     );
   }
 
-  const result = await addToCartService(req.session.user, req.body);
+  if (req.user.isBlocked) {
+    req.logout(() => {
+      req.session.destroy(() => {
+        res.clearCookie("user.sid");
+
+        return res.status(HttpStatus.FORBIDDEN).json({
+          success: false,
+          message: "Your account has been blocked. Please contact support.",
+          redirect: "/login",
+        });
+      });
+    });
+    return;
+  }
+
+  const result = await addToCartService(req?.user?._id, req.body);
+  req.session.cartCount = result.cartCount;
+  req.session.wishlistCount=result.wishlistCount;
+
   res.status(result.status).json(result);
 };
 
@@ -43,7 +62,7 @@ export const addToCart = async (req, res) => {
 ---------------------------------------------------- */
 export const updateCartItem = async (req, res) => {
   const itemId = req.params.id;
-  const userId = req.session.user;
+  const userId = req?.user?._id;
 
   const result = await updateCartItemService(itemId, userId, req.body);
   res.status(result.status).json(result);
@@ -55,12 +74,8 @@ export const updateCartItem = async (req, res) => {
 export const deleteCartItem = async (req, res) => {
   const id = req.params.id;
 
-  const item = await cartModel.findById(id);
-  if (!item) {
-    throw new AppError("Product not found", HttpStatus.NOT_FOUND);
-  }
+  const result = await deleteCartItemService(id,req.user._id); // Use the new service
+  req.session.cartCount = result.cartCount;
 
-  await item.deleteOne();
-
-  res.status(HttpStatus.OK).json({ success: true });
+  res.status(result.status).json(result);
 };

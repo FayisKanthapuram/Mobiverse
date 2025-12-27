@@ -7,7 +7,6 @@ import { fileURLToPath } from "url";
 import adminRoutes from "./shared/routes/adminRoute.js";
 import userRoutes from "./shared/routes/userRoute.js";
 import passport from "./config/passport.js";
-import flash from "connect-flash";
 import { logger } from "./shared/utils/logger.js";
 import { setUser } from "./shared/middlewares/setUser.js";
 import {
@@ -21,34 +20,40 @@ dotenv.config();
 
 const app = express();
 
-// Fix __dirname in ES modules
+// Paths
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middlewares
+// Basic middleware
 app.use(logger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(sessionMiddleware);
-app.use(flash());
-app.use(setUser);
+
+// Sessions FIRST
+sessionConfig(app);
+
+// Passport AFTER sessions
 app.use(passport.initialize());
 app.use(passport.session());
+
+// user middleware
+app.use(setUser);
 app.use(limiter);
 
-// Static + Views
+// Static + views
 app.use(express.static(path.join(__dirname, "../public")));
 app.set("view engine", "ejs");
 app.use(expressLayouts);
 app.set("views", path.join(__dirname, "../views"));
 
 // Routes
-app.use("/", userRoutes);
-app.use("/admin", adminRoutes);
+app.use("/", userRoutes);      
+app.use("/admin", adminRoutes); 
 
-// Error Handlers
+// Errors
 app.use(staticFile404);
 app.use(notFound);
 app.use(errorHandler);
+
 
 export default app;

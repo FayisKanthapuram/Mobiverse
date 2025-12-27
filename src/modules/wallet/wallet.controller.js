@@ -11,7 +11,7 @@ export const loadMyWallet = async (req, res, next) => {
     const limit = 5;
 
     const { user, wallet, transactions, totalDocuments } =
-      await loadMyWalletService(req.session.user, { page, type, limit });
+      await loadMyWalletService(req?.user?._id, { page, type, limit });
 
     const totalPages = Math.ceil(totalDocuments / limit);
 
@@ -38,14 +38,6 @@ export const loadMyWallet = async (req, res, next) => {
 
 export const addMoney = async (req, res) => {
   try {
-    const userId = req.session.user;
-
-    if (!userId) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({
-        success: false,
-        message: "Please login for adding money to your wallet!",
-      });
-    }
 
     const result = await addMoneyService(req.body.amount);
     return res.status(result.status).json(result);
@@ -60,8 +52,7 @@ export const addMoney = async (req, res) => {
 
 export const verifyPayment = async (req, res) => {
   try {
-    console.log('hi')
-    const userId = req.session.user;
+    const userId = req?.user?._id;
 
     const result = await verifyPaymentService(req.body, userId);
     return res.status(result.status).json(result);

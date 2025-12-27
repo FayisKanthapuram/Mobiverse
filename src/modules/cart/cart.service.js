@@ -3,6 +3,7 @@ import {
   fetchCartItems,
   findCartItem,
   findCartItemById,
+  getCartItemsCount,
   saveCartItem,
 } from "./cart.repo.js";
 import {
@@ -16,9 +17,11 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import {
   checkInWishlist,
+  getWishlistItemsCount,
   removeWishlistItem,
 } from "../wishlist/wishlist.repo.js";
 import { getLatestProducts } from "../product/services/product.common.service.js";
+import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 
 /* ----------------------------------------------------
    LOAD CART SERVICE
@@ -26,9 +29,15 @@ import { getLatestProducts } from "../product/services/product.common.service.js
 export const loadCartService = async (userId) => {
   const relatedProducts = await getLatestProducts(5, userId);
   const items = await fetchCartItems(userId);
+  // ---------------- OFFERS ----------------
+  for (let item of items) {
+    item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
+  }
   const cartTotals = await calculateCartTotals(items);
+  const cartCount=await getCartItemsCount(userId);
 
   return {
+    cartCount,
     relatedProducts,
     cart: cartTotals,
   };
@@ -46,7 +55,7 @@ export const addToCartService = async (userId, body) => {
     );
   }
 
-  const { variantId, quantity = 1 } = body;
+  const { variantId, quantity = 1,isMoveToCart } = body;
 
   const variant = await findVariantByIdWithProduct(variantId);
   if (!variant) {
@@ -62,32 +71,28 @@ export const addToCartService = async (userId, body) => {
     throw new AppError("Product is not in stock", HttpStatus.BAD_REQUEST);
   }
 
-  const inWishlist = await checkInWishlist(
-    userId,
-    variant.productId._id,
-    variant._id
-  );
-  if (inWishlist) {
-    await removeWishlistItem(userId, variant.productId._id, variant._id);
-  }
-
   const existing = await findCartItem(userId, variant._id);
   if (existing) {
-    if (existing.quantity + 1 > variant.stock) {
-      throw new AppError(
-        "Maximum stock limit reached",
-        HttpStatus.UNPROCESSABLE_ENTITY
-      );
-    }
-
-    existing.quantity += 1;
-    await saveCartItem(existing);
-
+    const cartCount = await getCartItemsCount(userId);
+    const wishlistCount = await getWishlistItemsCount(userId);
     return {
-      status: HttpStatus.OK,
+      cartCount,
+      wishlistCount,
+      status: HttpStatus.CONFLICT,
       success: true,
-      message: "Cart quantity updated",
+      message: "Product is  already in the cart",
     };
+  }
+
+  if (isMoveToCart) {
+    const inWishlist = await checkInWishlist(
+      userId,
+      variant.productId._id,
+      variant._id
+    );
+    if (inWishlist) {
+      await removeWishlistItem(userId, variant.productId._id, variant._id);
+    }
   }
 
   await createCartItem({
@@ -97,9 +102,17 @@ export const addToCartService = async (userId, body) => {
     quantity,
   });
 
+  const cartCount = await getCartItemsCount(userId);
+  const wishlistCount=await getWishlistItemsCount(userId);
+
   return {
+    wishlistCount,
+    cartCount,
     status: HttpStatus.CREATED,
     success: true,
+    message: isMoveToCart
+      ? "Item moved to cart"
+      : "Item added to cart",
   };
 };
 
@@ -133,5 +146,27 @@ export const updateCartItemService = async (itemId, userId, body) => {
       stock: item.variantId.stock,
     },
     cartTotals: totals,
+  };
+};
+
+/* ----------------------------------------------------
+   DELETE CART ITEM SERVICE
+---------------------------------------------------- */
+export const deleteCartItemService = async (itemId,userId) => {
+  const item = await findCartItemById(itemId);
+  if (!item) {
+    throw new AppError("Product not found", HttpStatus.NOT_FOUND);
+  }
+
+  await item.deleteOne();
+
+  const cartCount = await getCartItemsCount(userId);
+
+
+  return {
+    status: HttpStatus.OK,
+    cartCount,
+    success: true,
+    message: "Item successfully removed from the cart.",
   };
 };

@@ -1,9 +1,13 @@
 // referral.service.js
 import { REFERRER_REWARD } from "../../shared/constants/defaults.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { AppError } from "../../shared/utils/app.error.js";
 import { findUserById, updateUserWalletBalance } from "../user/user.repo.js";
 import { createLedgerEntry } from "../wallet/repo/wallet.ledger.repo.js";
 import { findWalletByUserId, updateWalletBalanceAndCredit } from "../wallet/repo/wallet.repo.js";
+import { creditReferralBonusToNewUser } from "../wallet/wallet.service.js";
 import {
+  createRefferalLog,
   findPendingReferralForUser,
   findReferralByReferredUser,
   updateReferralOrderId,
@@ -62,4 +66,31 @@ export const completeReferralReward = async (
 
   //  Update referral status
   await updateReferralToCompleted(referral._id, ledger._id, session);
+};
+
+
+export const rewardNewUserReferral = async ({
+  userId,
+  referrer,
+  referralCode,
+}) => {
+  if (!referrer) return;
+
+  if (referrer._id.toString() === userId.toString()) {
+    throw new AppError(
+      "User cannot refer themselves",
+      HttpStatus.BAD_REQUEST
+    );
+  }
+
+  // 1️⃣ Create referral log
+  await createRefferalLog({
+    referrer: referrer._id,
+    referredUser: userId,
+    referralCode: referralCode.toUpperCase(),
+    status: "REGISTERED",
+  });
+
+  // 2️⃣ Credit referral bonus to new user
+  await creditReferralBonusToNewUser(userId, NEW_USER_REWARD);
 };

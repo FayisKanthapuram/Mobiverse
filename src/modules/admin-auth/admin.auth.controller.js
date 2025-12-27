@@ -62,13 +62,15 @@ export const loginAdmin = async (req, res) => {
    LOGOUT ADMIN
 ---------------------------------------------------- */
 export const logoutAdmin = async (req, res) => {
-  req.session.destroy();
+  delete req.session.admin; // ✅ remove admin only
+  res.clearCookie("admin.sid"); // ✅ clear admin cookie
 
   const result = logoutAdminService();
-  console.log(result)
+
   res.status(HttpStatus.OK).json({
     success: result.success,
     message: result.message,
     redirect: "/admin/login",
   });
 };
+

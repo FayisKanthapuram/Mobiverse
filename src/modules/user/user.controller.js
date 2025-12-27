@@ -16,7 +16,7 @@ import { passwordSchema } from "./validators/change.password.validator.js";
 // Load views
 export const loadPersonalInfo = async (req, res, next) => {
   try {
-    const user = await getUserProfileService(req.session.user);
+    const user = await getUserProfileService(req?.user?._id);
     res.status(HttpStatus.OK).render("user/user/personalInfo", { pageTitle: "Personal Information", user });
   } catch (error) {
     next(error);
@@ -25,8 +25,10 @@ export const loadPersonalInfo = async (req, res, next) => {
 
 export const loadEditInfo = async (req, res, next) => {
   try {
-    const user = await getUserProfileService(req.session.user);
-    res.status(HttpStatus.OK).render("user/user/editInfo", { pageTitle: "Edit Info", user, pageJs: "editInfo" });
+    res.status(HttpStatus.OK).render("user/user/editInfo", {
+      pageTitle: "Edit Info",
+      pageJs: "editInfo",
+    });
   } catch (error) {
     next(error);
   }
@@ -43,7 +45,7 @@ export const editInfo = async (req, res) => {
     const avatar = req.file ? req.file.buffer : null;
 
     await updateUserInfoService(
-      req.session.user,
+      req?.user?._id,
       req.body.username,
       avatar,
       req.body.removePhoto
@@ -58,8 +60,10 @@ export const editInfo = async (req, res) => {
 // Edit Email UI
 export const loadEditEmail = async (req, res, next) => {
   try {
-    const user = await getUserProfileService(req.session.user);
-    res.status(HttpStatus.OK).render("user/user/editEmail", { pageTitle: "Edit Email", user, pageJs: "editEmail" });
+    res.status(HttpStatus.OK).render("user/user/editEmail", {
+      pageTitle: "Edit Email",
+      pageJs: "editEmail",
+    });
   } catch (error) {
     next(error);
   }
@@ -106,8 +110,10 @@ export const reSendOtpToEditEmail = async (req, res) => {
 // Change password
 export const loadChangePassword = async (req, res, next) => {
   try {
-    const user = await getUserProfileService(req.session.user);
-    res.status(HttpStatus.OK).render("user/user/changePasswod", { pageTitle: "Change Password", user, pageJs: "changePassword" });
+    res.status(HttpStatus.OK).render("user/user/changePasswod", {
+      pageTitle: "Change Password",
+      pageJs: "changePassword",
+    });
   } catch (error) {
     next(error);
   }

@@ -21,7 +21,7 @@ export const getAppliedOffer=(data,salePrice)=>{
       let x=0
       if(productOffer.discountType==='percentage'){
         x=salePrice*productOffer.discountValue*0.01;
-      }else{
+      }else if(productOffer.discountValue<salePrice*.9){
         x=productOffer.discountValue;
       }
       offer=Math.max(x,offer);
@@ -32,8 +32,8 @@ export const getAppliedOffer=(data,salePrice)=>{
       let x=0
       if(brandOffer.discountType==='percentage'){
         x=salePrice*brandOffer.discountValue*0.01;
-      }else{
-        x=brandOffer.discountValue;
+      }else if (brandOffer.discountValue < salePrice * 0.9) {
+        x = brandOffer.discountValue;
       }
       offer=Math.max(x,offer);
     }

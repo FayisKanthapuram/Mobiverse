@@ -79,25 +79,192 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// ----------------------------
+// ❤️ TOGGLE WISHLIST
+// ----------------------------
+async function toggleWishlist(variantId, event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
+  try {
+    const response = await axios.post("/wishlist/toggle", {
+      variantId,
+    });
 
-const urlParams = new URLSearchParams(window.location.search);
-const message = urlParams.get("message");
-let text = "";
-if (message === "login-success") {
-  text = "User login successfully";
+    if (response.data.success) {
+      const isAdded = response.data.action === "added";
+
+      Toastify({
+        text: response.data.message,
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: isAdded ? "#10b981" : "#ef4444",
+        },
+        close: true,
+      }).showToast();
+
+      updateWishlistButton(variantId, isAdded);
+      updateWishlistBadge(response.data.wishlistCount);
+    }
+  } catch (error) {
+    console.error("Wishlist error:", error);
+
+    if (error.response?.status === 401) {
+      Toastify({
+        text: "Please login to add items to wishlist",
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        style: { background: "#e74c3c" },
+      }).showToast();
+
+      setTimeout(() => (window.location.href = "/login"), 1200);
+    }
+  }
 }
 
-if (message) {
-  Toastify({
-    text,
-    duration: 4000,
-    gravity: "bottom", // top or bottom
-    position: "right", // left, center, right
-    style: {
-      background: "linear-gradient(to right, #00b09b, #96c93d)",
-    },
-    close: true,
-    stopOnFocus: true,
-  }).showToast();
+// ----------------------------
+// ❤️ UPDATE WISHLIST ICON UI
+// ----------------------------
+function updateWishlistButton(variantId, inWishlist) {
+  const buttons = document.querySelectorAll(`[data-variant-id="${variantId}"]`);
+
+  buttons.forEach((btn) => {
+    const icon = btn.querySelector(".wishlist-icon");
+    if (!icon) return;
+
+    if (inWishlist) {
+      icon.classList.remove("bi-heart");
+      icon.classList.add("bi-heart-fill", "text-red-500");
+      btn.classList.add("text-red-500");
+    } else {
+      icon.classList.remove("bi-heart-fill", "text-red-500");
+      icon.classList.add("bi-heart");
+      btn.classList.remove("text-red-500");
+    }
+  });
+}
+
+// ----------------------------
+// ❤️ NAVBAR BADGE UPDATE
+// ----------------------------
+function updateWishlistBadge(count) {
+  const badge = document.querySelector('a[href="/wishlist"] span');
+  if (!badge) return;
+  badge.textContent = count;
+
+  if (count > 0) badge.classList.remove("hidden");
+  else badge.classList.add("hidden");
+}
+
+// ----------------------------
+// 🛒 NAVBAR CART BADGE UPDATE
+// ----------------------------
+function updateCartBadge(count) {
+  // Desktop cart badge
+  const desktopBadge = document.querySelector(
+    'a[href="/cart"] span'
+  );
+
+  if (desktopBadge) {
+    desktopBadge.textContent = count;
+    count > 0
+      ? desktopBadge.classList.remove("hidden")
+      : desktopBadge.classList.add("hidden");
+  }
+
+  // Mobile cart badge
+  const mobileCartLink = document.querySelector(
+    '#mobile-menu a[href="/cart"]'
+  );
+
+  if (mobileCartLink) {
+    let mobileBadge = mobileCartLink.querySelector("span.absolute");
+
+    if (count > 0) {
+      if (!mobileBadge) {
+        mobileBadge = document.createElement("span");
+        mobileBadge.className =
+          "absolute right-0 top-1/2 -translate-y-1/2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[11px] font-semibold rounded-full flex items-center justify-center";
+        mobileCartLink.appendChild(mobileBadge);
+      }
+      mobileBadge.textContent = count;
+    } else if (mobileBadge) {
+      mobileBadge.remove();
+    }
+  }
+}
+
+
+// ----------------------------
+// 🛒 ADD TO CART
+// ----------------------------
+async function addToCart(variantId) {
+  try {
+    const response = await axios.post("/cart/add", {
+      variantId,
+      quantity: 1,
+    });
+
+    if (response.data.success) {
+      updateCartButton(variantId);
+
+      // ✅ UPDATE CART COUNT
+      updateCartBadge(response.data.cartCount);
+
+      Toastify({
+        text: response.data.message || "Item added to cart",
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+        close: true,
+      }).showToast();
+    }
+  } catch (error) {
+    if (error?.response?.data?.redirect) {
+      sessionStorage.setItem("toastError", error.response?.data?.message);
+      window.location.href = error.response?.data?.redirect;
+      return;
+    }
+
+    Toastify({
+      text: error.response?.data?.message || "Something went wrong",
+      duration: 2000,
+      gravity: "bottom",
+      position: "right",
+      style: { background: "#e74c3c" },
+    }).showToast();
+  }
+}
+
+
+
+// ----------------------------
+// 🔄 UPDATE CART BUTTON (Add → Go to Cart)
+// ----------------------------
+function updateCartButton(variantId) {
+  console.log(variantId);
+  const btn = document.querySelectorAll(
+    `[data-cart-variant-id="${variantId}"]`
+  );
+  if (btn.length === 0) return;
+  btn.forEach((b) => {
+    b.outerHTML = `
+      <button 
+        type="button"
+        class="absolute left-0 bottom-0 w-full bg-white text-blue-600 border border-blue-600 
+               font-semibold py-3 rounded-b-2xl text-center"
+        onclick="event.preventDefault(); window.location.href='/cart'"
+      >
+        <i class="bi bi-arrow-right-circle"></i> Go to Cart
+      </button>
+    `;
+  });
 }

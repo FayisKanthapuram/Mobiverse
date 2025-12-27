@@ -68,7 +68,7 @@ export const markItemReturnedService = async (orderId, body) => {
   item.itemStatus = "Returned";
   item.itemTimeline ||= {};
   item.itemTimeline.returnedAt = now;
-  const refundAmount = item.price - item.couponShare - item.offer;
+  const refundAmount = (item.price - item.couponShare - item.offer)*item.quantity;
 
   if (item.paymentStatus === "Paid") {
     await updateWalletBalanceAndCredit(order.userId, refundAmount);

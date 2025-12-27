@@ -16,31 +16,29 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 /* ----------------------------------------------------
    LOAD MANAGE ADDRESS
 ---------------------------------------------------- */
-export const loadManageAddressService = async (userId) => {
-  const user = await userModel.findById(userId);
+export const loadManageAddressService = async (user) => {
   if (!user) {
     throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  const addresses = await findAddressesByUser(userId);
+  const addresses = await findAddressesByUser(user._id);
   return { user, addresses };
 };
 
 /* ----------------------------------------------------
    ADD ADDRESS
 ---------------------------------------------------- */
-export const addAddressService = async (userId, body) => {
-  const user = await userModel.findById(userId);
+export const addAddressService = async (user, body) => {
   if (!user) {
     throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  const addressData = { ...body, userId };
+  const addressData = { ...body, userId:user._id };
 
   if (body.setDefault) {
-    await unsetDefaultAddress(userId);
+    await unsetDefaultAddress(user._id);
   } else {
-    const checkDefault = await findAnotherAddress(userId, null);
+    const checkDefault = await findAnotherAddress(user._id, null);
     if (!checkDefault) addressData.setDefault = true;
   }
 
@@ -51,24 +49,23 @@ export const addAddressService = async (userId, body) => {
 /* ----------------------------------------------------
    EDIT ADDRESS
 ---------------------------------------------------- */
-export const editAddressService = async (userId, addressId, body) => {
+export const editAddressService = async (user, addressId, body) => {
   const address = await findAddressById(addressId);
   if (!address) {
     throw new AppError(AddressMessages.ADDRESS_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  const user = await userModel.findById(userId);
   if (!user) {
     throw new AppError(AddressMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  const updatedAddress = { ...body, userId };
+  const updatedAddress = { ...body, userId:user._id };
 
   if (body.setDefault) {
-    await unsetDefaultAddress(userId);
+    await unsetDefaultAddress(user._id);
     updatedAddress.setDefault = true;
   } else if (address.setDefault) {
-    const anotherAddress = await findAnotherAddress(userId, addressId);
+    const anotherAddress = await findAnotherAddress(user._id, addressId);
     if (anotherAddress) {
       await updateAddressById(anotherAddress._id, { setDefault: true });
     }
@@ -81,13 +78,13 @@ export const editAddressService = async (userId, addressId, body) => {
 /* ----------------------------------------------------
    SET DEFAULT ADDRESS
 ---------------------------------------------------- */
-export const setDefaultAddressService = async (userId, addressId) => {
+export const setDefaultAddressService = async (user, addressId) => {
   const address = await findAddressById(addressId);
   if (!address) {
     throw new AppError(AddressMessages.ADDRESS_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  await unsetDefaultAddress(userId);
+  await unsetDefaultAddress(user._id);
   await updateAddressById(addressId, { setDefault: true });
 
   return true;
@@ -96,14 +93,14 @@ export const setDefaultAddressService = async (userId, addressId) => {
 /* ----------------------------------------------------
    DELETE ADDRESS
 ---------------------------------------------------- */
-export const deleteAddressService = async (userId, addressId) => {
+export const deleteAddressService = async (user, addressId) => {
   const address = await findAddressById(addressId);
   if (!address) {
     throw new AppError(AddressMessages.ADDRESS_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   if (address.setDefault) {
-    const another = await findAnotherAddress(userId, addressId);
+    const another = await findAnotherAddress(user._id, addressId);
     if (another) {
       await updateAddressById(another._id, { setDefault: true });
     }

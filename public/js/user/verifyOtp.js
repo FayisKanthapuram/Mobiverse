@@ -1,14 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
   const otpInputs = document.querySelectorAll(".otp-input");
   const resendLink = document.getElementById("resend-otp-link");
+  const form = document.getElementById("loginForm");
+
   /* ============================
-    OTP PASTE HANDLING
+     OTP PASTE HANDLING
   ============================ */
-  otpInputs.forEach((input, index) => {
+  otpInputs.forEach((input) => {
     input.addEventListener("paste", (e) => {
       e.preventDefault();
 
-      const pastedData = e.clipboardData.getData("text").replace(/\D/g, ""); // allow only digits
+      const pastedData = e.clipboardData.getData("text").replace(/\D/g, "");
 
       if (!pastedData) return;
 
@@ -18,29 +20,39 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Focus last filled input
       const lastIndex = Math.min(pastedData.length, otpInputs.length) - 1;
       otpInputs[lastIndex]?.focus();
     });
   });
-
 
   /* ============================
      OTP INPUT AUTO MOVE
   ============================ */
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", () => {
-      if (input.value.length === 1 && index < otpInputs.length - 1) {
+      input.value = input.value.replace(/\D/g, "");
+
+      if (input.value && index < otpInputs.length - 1) {
         otpInputs[index + 1].focus();
       }
     });
 
     input.addEventListener("keydown", (e) => {
-      if (e.key === "Backspace" && input.value.length === 0 && index > 0) {
+      if (e.key === "Backspace" && !input.value && index > 0) {
         otpInputs[index - 1].focus();
       }
     });
   });
+
+  /* ============================
+     INITIAL COOLDOWN (FROM SERVER)
+     window.OTP_COOLDOWN_END injected via EJS
+  ============================ */
+  if (window.OTP_COOLDOWN_END) {
+    localStorage.setItem("otpCooldownEnd", window.OTP_COOLDOWN_END);
+  }
+
+  runCountdown();
 
   /* ============================
      RESEND OTP CLICK
@@ -49,7 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
     resendLink.addEventListener("click", async (e) => {
       e.preventDefault();
 
-      // Start countdown and save it in localStorage
+      if (resendLink.classList.contains("disabled")) return;
+
       startCountdown();
 
       try {
@@ -66,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }).showToast();
       } catch (error) {
         Toastify({
-          text: error.response?.data?.message || "Login failed",
+          text: error.response?.data?.message || "Failed to resend OTP",
           duration: 2000,
           gravity: "bottom",
           position: "right",
@@ -79,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ============================
-     COUNTDOWN WITH LOCALSTORAGE
+     COUNTDOWN LOGIC
   ============================ */
   function startCountdown() {
     const cooldownEnd = Date.now() + 30000; // 30 sec
@@ -89,11 +102,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function runCountdown() {
     const cooldownEnd = localStorage.getItem("otpCooldownEnd");
+    if (!cooldownEnd || !resendLink) return;
 
-    if (!cooldownEnd) return; // no timer saved
-
-    const now = Date.now();
-    const remaining = Math.floor((cooldownEnd - now) / 1000);
+    const remaining = Math.floor((cooldownEnd - Date.now()) / 1000);
 
     if (remaining > 0) {
       resendLink.classList.add("disabled");
@@ -106,40 +117,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Run countdown when page loads
-  runCountdown();
-
   /* ============================
      VERIFY OTP SUBMIT
   ============================ */
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const otp = [...document.querySelectorAll(".otp-input")]
-      .map((i) => i.value)
-      .join("");
+    const otp = [...otpInputs].map((i) => i.value).join("");
+
+    if (otp.length !== 6) {
+      Toastify({
+        text: "Please enter the 6-digit OTP",
+        duration: 2000,
+        gravity: "bottom",
+        position: "right",
+        style: { background: "#f39c12" },
+      }).showToast();
+      return;
+    }
 
     try {
       const response = await axios.post("/verifyOtp", { otp });
 
       if (response.data.success) {
-        Toastify({
-          text: response.data.message,
-          duration: 500,
-          gravity: "bottom",
-          position: "right",
-          style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
-          },
-        }).showToast();
-
-        setTimeout(() => {
-          window.location.href = response.data.redirect;
-        }, 600);
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.href = response.data.redirect;
       }
     } catch (error) {
       Toastify({
-        text: error.response?.data?.message || "Something went wrong",
+        text: error.response?.data?.message || "Invalid OTP",
         duration: 2000,
         gravity: "bottom",
         position: "right",

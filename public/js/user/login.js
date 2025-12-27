@@ -6,9 +6,9 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
   try {
     const response = await axios.post("/login", { email, password });
-    console.log(response);
     if (response.data.success) {
-      window.location.href = "/home?message=login-success";
+      sessionStorage.setItem("toastSuccess", response.data.message);
+      window.location.href = response.data.redirect;
     }
   } catch (error) {
     Toastify({
@@ -24,7 +24,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 });
 
 const urlParams = new URLSearchParams(window.location.search);
-const error = urlParams.get("error");
+const error = urlParams.get("message");
 
 if (error === "blocked") {
   Toastify({

@@ -128,14 +128,21 @@
                           const qty = item.quantity;
                           const sale = item.price;               // sale price snapshot
                           const regular = item.regularPrice;     // actual MRP snapshot
-                          const offer = item.offer;              // offer snapshot
-                          const finalPrice = offer ? (sale - offer) : sale;
+                          const offer = item.offer||0;              // offer snapshot
+                          const couponShare=item.couponShare;
+                          const finalPrice = offer ? (sale - offer-couponShare) : sale-couponShare;
                         %>
 
                         <!-- Final Price -->
                         <p class="font-bold <%= offer ? 'text-green-600' : 'text-gray-900' %>">
                           ₹<%= (finalPrice * qty).toLocaleString('en-IN') %>
                         </p>
+
+                        <% if (couponShare) { %>
+                          <p class="text-xs text-gray-500 line-through">
+                            ₹<%= ((sale-offer) * qty).toLocaleString('en-IN') %>
+                          </p>
+                        <% } %>
 
                         <!-- Show sale price strike if offer exists -->
                         <% if (offer) { %>
@@ -204,21 +211,24 @@
                 <a href="/order/details/<%= order.orderId %>" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm">
                   <i class="bi bi-eye"></i> View Details
                 </a>
+                
+                <% 
+                  const hasCancellableItems = order.orderedItems.some(item => 
+                    ['Pending', 'Confirmed', 'Processing'].includes(item.itemStatus)
+                  );
+                  const hasInvoiceEligibleItem = order.orderedItems.some(item =>
+                    ['Delivered', 'ReturnRequested', 'ReturnRejected'].includes(item.itemStatus)
+                  );
+                  const hasReturnableItems = order.orderedItems.some(item => 
+                    item.itemStatus === 'Delivered'
+                  );
+                %>
 
-                <% if (order.orderStatus === 'Delivered' || order.orderStatus === 'Partially Delivered') { %>
+                <% if (hasInvoiceEligibleItem) { %>
                 <button onclick="downloadInvoice('<%= order.orderId %>')" class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm">
                   <i class="bi bi-download"></i> Download Invoice
                 </button>
                 <% } %>
-
-                <% 
-                      const hasCancellableItems = order.orderedItems.some(item => 
-                        ['Pending', 'Confirmed', 'Processing'].includes(item.itemStatus)
-                      );
-                      const hasReturnableItems = order.orderedItems.some(item => 
-                        item.itemStatus === 'Delivered'
-                      );
-                    %>
 
                 <% if (hasCancellableItems) { %>
                 <button onclick='openCancelOrderModal(<%= JSON.stringify(order) %>)' class="px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-colors text-sm">
@@ -229,18 +239,6 @@
                 <% if (hasReturnableItems) { %>
                 <button onclick='openReturnOrderModal(<%= JSON.stringify(order) %>)' class="px-4 py-2 bg-orange-50 text-orange-600 font-semibold rounded-lg hover:bg-orange-100 transition-colors text-sm">
                   <i class="bi bi-arrow-return-left"></i> Return Items
-                </button>
-                <% } %>
-
-                <% 
-                  const hasTrackableItem = order.orderedItems.some(item => 
-                    ["Shipped", "Out for Delivery"].includes(item.itemStatus)
-                  );
-                %>
-
-                <% if (hasTrackableItem) { %>
-                <button onclick="trackOrder('<%= order.orderId %>')" class="px-4 py-2 bg-green-50 text-green-600 font-semibold rounded-lg hover:bg-green-100 transition-colors text-sm">
-                  <i class="bi bi-geo-alt"></i> Track Order
                 </button>
                 <% } %>
               </div>

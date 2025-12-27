@@ -15,7 +15,7 @@
         }
 
         // CART STATUS
-        const isInCart = product?.cart ? true : false;
+        const isInCart=product?.variants?.isInCart ? true : false;
       %>
 
       <!-- IMAGE + WISHLIST -->
@@ -23,21 +23,15 @@
 
         <img src="<%= product?.variants?.images[0] %>" alt="<%= product.name %>" class="h-full w-auto object-contain transition-all duration-300 group-hover:scale-105" />
 
-        <% if (!isInCart) { %>
-        <button 
-          class="wishlist-btn absolute top-4 right-4 w-10 h-10 rounded-full 
+        <button class="wishlist-btn absolute top-4 right-4 w-10 h-10 rounded-full 
           flex items-center justify-center shadow-md transition-all z-20 
-          <%= product.variants.isInWishlist ? 'text-red-500' : 'text-gray-500' %>"
-          data-variant-id="<%= product.variants._id %>"
-          onclick="event.preventDefault(); toggleWishlist('<%= product.variants._id %>', event)"
-        >
+          <%= product.variants.isInWishlist ? 'text-red-500' : 'text-gray-500' %>" data-variant-id="<%= product.variants._id %>" onclick="event.preventDefault(); toggleWishlist('<%= product.variants._id %>', event)">
           <% if (product.variants.isInWishlist) { %>
-            <i class="bi bi-heart-fill wishlist-icon text-red-500"></i>
+          <i class="bi bi-heart-fill wishlist-icon text-red-500"></i>
           <% } else { %>
-            <i class="bi bi-heart wishlist-icon"></i>
+          <i class="bi bi-heart wishlist-icon"></i>
           <% } %>
         </button>
-        <% } %>
 
         <% if (discountPercent > 0) { %>
         <div class="absolute top-4 left-4 bg-red-500 text-white px-2 py-1 rounded-md text-xs font-bold shadow">
@@ -152,156 +146,3 @@
     </div>
   </a>
 </div>
-
-<script>
-  // ----------------------------
-  // ❤️ TOGGLE WISHLIST
-  // ----------------------------
-  async function toggleWishlist(variantId, event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    try {
-      const response = await axios.post('/wishlist/toggle', {
-        variantId
-      });
-
-      if (response.data.success) {
-        const isAdded = response.data.action === 'added';
-
-        Toastify({
-          text: response.data.message,
-          duration: 3000,
-          gravity: "bottom",
-          position: "right",
-          backgroundColor: isAdded ? "#10b981" : "#ef4444",
-          close: true,
-        }).showToast();
-
-        updateWishlistButton(variantId, isAdded);
-        updateWishlistBadge(response.data.itemCount);
-      }
-
-    } catch (error) {
-      console.error('Wishlist error:', error);
-
-      if (error.response?.status === 401) {
-        Toastify({
-          text: "Please login to add items to wishlist",
-          duration: 3000,
-          gravity: "bottom",
-          position: "right",
-          backgroundColor: "#ef4444",
-        }).showToast();
-
-        setTimeout(() => window.location.href = '/login', 1200);
-      }
-    }
-  }
-
-  // ----------------------------
-  // ❤️ UPDATE WISHLIST ICON UI
-  // ----------------------------
-  function updateWishlistButton(variantId, inWishlist) {
-    const buttons = document.querySelectorAll(`[data-variant-id="${variantId}"]`);
-
-    buttons.forEach(btn => {
-      const icon = btn.querySelector('.wishlist-icon');
-      if (!icon) return;
-
-      if (inWishlist) {
-        icon.classList.remove('bi-heart');
-        icon.classList.add('bi-heart-fill', 'text-red-500');
-        btn.classList.add('text-red-500');
-      } else {
-        icon.classList.remove('bi-heart-fill', 'text-red-500');
-        icon.classList.add('bi-heart');
-        btn.classList.remove('text-red-500');
-      }
-    });
-  }
-
-  // ----------------------------
-  // ❤️ NAVBAR BADGE UPDATE
-  // ----------------------------
-  function updateWishlistBadge(count) {
-    const badge = document.querySelector('a[href="/wishlist"] span');
-    if (!badge) return;
-
-    badge.textContent = count;
-
-    if (count > 0) badge.classList.remove('hidden');
-    else badge.classList.add('hidden');
-  }
-
-  
-
-  // ----------------------------
-  // 🛒 ADD TO CART
-  // ----------------------------
-  async function addToCart(variantId) {
-    try {
-      const response = await axios.post("/cart/add", {
-        variantId,
-        quantity: 1
-      });
-
-      if (response.data.success) {
-
-        updateCartButton(variantId);
-        removeWishlistButton(variantId);
-
-        Toastify({
-          text: "Item added to cart",
-          duration: 3000,
-          gravity: "bottom",
-          position: "right",
-          style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)"
-          },
-          close: true
-        }).showToast();
-      }
-
-    } catch (error) {
-      Toastify({
-        text: error.response?.data?.message || "Something went wrong",
-        duration: 2000,
-        gravity: "bottom",
-        position: "right",
-        backgroundColor: "#e74c3c"
-      }).showToast();
-    }
-  }
-
-  // ----------------------------
-  // 🗑 REMOVE WISHLIST BUTTON ON ADD TO CART
-  // ----------------------------
-  function removeWishlistButton(variantId) {
-    const buttons = document.querySelectorAll(`[data-variant-id="${variantId}"]`);
-    buttons.forEach(btn => btn.remove());
-  }
-
-  // ----------------------------
-  // 🔄 UPDATE CART BUTTON (Add → Go to Cart)
-  // ----------------------------
-  function updateCartButton(variantId) {
-    console.log(variantId)
-    const btn = document.querySelectorAll(`[data-cart-variant-id="${variantId}"]`);
-    if (btn.length === 0) return;
-    btn.forEach(b => {
-      b.outerHTML = `
-      <button 
-        type="button"
-        class="absolute left-0 bottom-0 w-full bg-white text-blue-600 border border-blue-600 
-               font-semibold py-3 rounded-b-2xl text-center"
-        onclick="event.preventDefault(); window.location.href='/cart'"
-      >
-        <i class="bi bi-arrow-right-circle"></i> Go to Cart
-      </button>
-    `;
-    })
-  }
-</script>

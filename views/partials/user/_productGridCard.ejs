@@ -18,7 +18,7 @@
         }
 
         // Check if product is in cart
-        const isInCart = product?.cart ? true : false;
+         const isInCart=product?.variants?.isInCart ? true : false;
         // --- PRICING LOGIC END ---
       %>
 
@@ -27,13 +27,12 @@
         <img src="<%= product?.variants?.images[0] %>" alt="<%= product.name %>" class="h-52 w-auto object-contain transition-transform duration-500 group-hover:scale-110" />
 
         <!-- Wishlist Button -->
-        <% if (!isInCart) { %>
         <button 
           type="button"
           class="wishlist-btn absolute top-3 right-3 bg-white w-9 h-9 rounded-full flex items-center justify-center shadow-sm transition-all hover:scale-110
             <%= product?.variants?.isInWishlist ? 'text-red-500' : 'text-gray-500' %>"
           data-variant-id="<%= product?.variants?._id %>"
-          onclick="event.stopPropagation(); event.preventDefault(); toggleWishlist('<%= product?.variants?._id %>', event)">
+          onclick="event.stopPropagation(); event.preventDefault(); toggleWishlistCard('<%= product?.variants?._id %>', event)">
           
           <% if (product?.variants?.isInWishlist) { %>
             <i class="bi bi-heart-fill wishlist-icon text-lg text-red-500"></i>
@@ -42,7 +41,6 @@
           <% } %>
 
         </button>
-        <% } %>
 
 
         <!-- Discount Badge -->
@@ -173,7 +171,7 @@
 <!-- JavaScript for Wishlist Functionality -->
 <script>
   // Toggle wishlist (add/remove)
-  async function toggleWishlist(variantId, event) {
+  async function toggleWishlistCard(variantId, event) {
     // Prevent navigation
     if (event) {
       event.preventDefault();
@@ -201,7 +199,7 @@
         updateWishlistButton(variantId, isAdded);
 
         // Update navbar badge
-        updateWishlistBadge(response.data.itemCount);
+        updateWishlistBadge(response.data.wishlistCount);
       }
     } catch (error) {
       console.error('Error toggling wishlist:', error);
@@ -227,6 +225,44 @@
           position: "right",
           backgroundColor: "#ef4444",
         }).showToast();
+      }
+    }
+  }
+
+  // ----------------------------
+  // 🛒 NAVBAR CART BADGE UPDATE
+  // ----------------------------
+  function updateCartBadge(count) {
+    // Desktop cart badge
+    const desktopBadge = document.querySelector(
+      'a[href="/cart"] span'
+    );
+
+    if (desktopBadge) {
+      desktopBadge.textContent = count;
+      count > 0
+        ? desktopBadge.classList.remove("hidden")
+        : desktopBadge.classList.add("hidden");
+    }
+
+    // Mobile cart badge
+    const mobileCartLink = document.querySelector(
+      '#mobile-menu a[href="/cart"]'
+    );
+
+    if (mobileCartLink) {
+      let mobileBadge = mobileCartLink.querySelector("span.absolute");
+
+      if (count > 0) {
+        if (!mobileBadge) {
+          mobileBadge = document.createElement("span");
+          mobileBadge.className =
+            "absolute right-0 top-1/2 -translate-y-1/2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[11px] font-semibold rounded-full flex items-center justify-center";
+          mobileCartLink.appendChild(mobileBadge);
+        }
+        mobileBadge.textContent = count;
+      } else if (mobileBadge) {
+        mobileBadge.remove();
       }
     }
   }

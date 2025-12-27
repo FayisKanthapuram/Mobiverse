@@ -11,7 +11,7 @@ import { AddressMessages } from "../../shared/constants/messages/addressMessages
 
 // LOAD LIST PAGE
 export const loadManageAddress = async (req, res) => {
-  const { user, addresses } = await loadManageAddressService(req.session.user);
+  const { user, addresses } = await loadManageAddressService(req?.user);
 
   res.status(HttpStatus.OK).render("user/manageAddress", {
     pageTitle: "Manage Address",
@@ -30,7 +30,7 @@ export const addAddress = async (req, res) => {
     throw err;
   }
 
-  await addAddressService(req.session.user, req.body);
+  await addAddressService(req?.user, req.body);
 
   res.status(HttpStatus.OK).json({
     success: true,
@@ -49,7 +49,7 @@ export const editAddress = async (req, res) => {
     throw err;
   }
 
-  await editAddressService(req.session.user, addressId, req.body);
+  await editAddressService(req?.user, addressId, req.body);
 
   res.status(HttpStatus.OK).json({
     success: true,
@@ -59,7 +59,7 @@ export const editAddress = async (req, res) => {
 
 // SET DEFAULT ADDRESS
 export const setDefaultAddress = async (req, res) => {
-  await setDefaultAddressService(req.session.user, req.params.addressId);
+  await setDefaultAddressService(req?.user, req.params.addressId);
 
   res.status(HttpStatus.OK).json({
     success: true,
@@ -69,7 +69,7 @@ export const setDefaultAddress = async (req, res) => {
 
 // DELETE ADDRESS
 export const deleteAddress = async (req, res) => {
-  await deleteAddressService(req.session.user, req.params.addressId);
+  await deleteAddressService(req?.user, req.params.addressId);
 
   res.status(HttpStatus.OK).json({
     success: true,

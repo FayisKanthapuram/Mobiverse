@@ -35,6 +35,7 @@ import {
 } from "../../repo/temp.order.repo.js";
 import { createRazorpayOrderService } from "./payment.service.js";
 import { findTempOrderById } from "../../repo/temp.order.repo.js";
+import { getAppliedOffer } from "../../../product/helpers/user.product.helper.js";
 
 export const placeOrderService = async (userId, body, appliedCoupon) => {
   const session = await mongoose.startSession();
@@ -62,6 +63,10 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     // 2. Fetch Cart Items
     // -------------------------------
     const items = await fetchCartItems(userId);
+    // ---------------- OFFERS ----------------
+    for (let item of items) {
+      item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
+    }
     if (!items.length) throw { status: 400, message: "Your cart is empty" };
     const cartTotals = await calculateCartTotals(items);
     // -------------------------------
@@ -92,13 +97,18 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       cartTotals.deliveryCharge +
       cartTotals.tax;
 
-    
-    if (paymentMethod === "cod" && finalAmount >= 20000) {
-      return res.status(400).json({
+
+    if (
+      paymentMethod === "cod" &&
+      finalAmount - appliedCoupon?.discount >= 20000
+    ) {
+      throw {
+        status: HttpStatus.BAD_REQUEST,
         success: false,
         message: "Cash on Delivery is allowed only for orders below ₹20,000",
-      });
+      };
     }
+
 
     const orderedItems = items.map((item) => ({
       productId: item.productId._id,
@@ -114,6 +124,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
         : 0,
     }));
 
+
     if (appliedCoupon) {
       finalAmount = finalAmount - appliedCoupon.discount;
     }
@@ -127,7 +138,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     if (paymentMethod === "wallet") {
       const wallet = await findWalletByUserId(userId, session);
 
-        if (!wallet || wallet.balance - wallet.holdBalance < finalAmount) {
+      if (!wallet || wallet.balance - wallet.holdBalance < finalAmount) {
         throw {
           status: HttpStatus.BAD_REQUEST,
           message: "Insufficient wallet balance",
@@ -227,6 +238,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     for (let item of items) {
       await decrementVariantStock(item.variantId._id, item.quantity, session);
     }
+
 
     // -------------------------------
     // 8. Create Order (FULL FIELDS)
