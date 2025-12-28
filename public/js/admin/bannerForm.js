@@ -8,16 +8,6 @@ let croppedImages = {
   mobile: null,
 };
 
-// Color picker sync
-const colorPicker = document.getElementById("backgroundColor");
-const colorHex = document.getElementById("backgroundColorHex");
-
-if (colorPicker && colorHex) {
-  colorPicker.addEventListener("input", (e) => {
-    colorHex.value = e.target.value;
-  });
-}
-
 // Toggle scheduling fields
 function toggleScheduling() {
   const isScheduled = document.getElementById("isScheduled").checked;
@@ -199,6 +189,26 @@ function applyCrop() {
   });
 }
 
+// Convert IST datetime-local to UTC ISO string
+function convertISTToUTC(istDatetimeLocal) {
+  if (!istDatetimeLocal) return null;
+
+  // Parse the datetime-local value (which is in IST)
+  const [datePart, timePart] = istDatetimeLocal.split("T");
+  const [year, month, day] = datePart.split("-");
+  const [hour, minute] = timePart.split(":");
+
+  // Create date object with IST values
+  // Note: Month is 0-indexed in JS Date
+  const istDate = new Date(year, month - 1, day, hour, minute);
+
+  // Subtract 5:30 hours to convert IST to UTC
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const utcDate = new Date(istDate.getTime() - istOffset);
+
+  return utcDate.toISOString();
+}
+
 // Handle form submission
 const bannerForm = document.getElementById("banner-form");
 const isEditMode = window.location.pathname.includes("/edit/");
@@ -213,10 +223,6 @@ bannerForm.addEventListener("submit", async (e) => {
   formData.append("title", document.getElementById("title").value);
   formData.append("subtitle", document.getElementById("subtitle").value);
   formData.append("link", document.getElementById("link").value);
-  formData.append(
-    "backgroundColor",
-    document.getElementById("backgroundColor").value
-  );
   formData.append("order", document.getElementById("order").value);
   formData.append("isActive", document.getElementById("isActive").checked);
 
@@ -228,11 +234,14 @@ bannerForm.addEventListener("submit", async (e) => {
     const scheduledStart = document.getElementById("scheduledStart").value;
     const scheduledEnd = document.getElementById("scheduledEnd").value;
 
+    // Convert IST to UTC before sending to server
     if (scheduledStart) {
-      formData.append("scheduledStart", new Date(scheduledStart).toISOString());
+      const utcStart = convertISTToUTC(scheduledStart);
+      formData.append("scheduledStart", utcStart);
     }
     if (scheduledEnd) {
-      formData.append("scheduledEnd", new Date(scheduledEnd).toISOString());
+      const utcEnd = convertISTToUTC(scheduledEnd);
+      formData.append("scheduledEnd", utcEnd);
     }
   }
 

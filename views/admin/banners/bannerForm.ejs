@@ -1,4 +1,16 @@
-<% /* views/admin/banners/bannerForm.ejs */ %>
+<% 
+/* views/admin/banners/bannerForm.ejs */ 
+
+// Helper function to convert UTC to IST for datetime-local input
+function toISTDatetimeLocal(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  // Add 5:30 hours for IST
+  const istOffset = 5.5 * 60 * 60 * 1000;
+  const istDate = new Date(d.getTime() + istOffset);
+  return istDate.toISOString().slice(0, 16);
+}
+%>
 
 <div class="max-w-5xl mx-auto">
   <!-- Header -->
@@ -50,7 +62,7 @@
       </div>
 
       <!-- Link -->
-      <div class="mb-6">
+      <div>
         <label for="link" class="block text-sm font-semibold text-gray-700 mb-2">
           Banner Link
         </label>
@@ -61,26 +73,6 @@
                placeholder="e.g., /shop/s23-ultra or https://example.com"
                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         <p class="text-sm text-gray-500 mt-1">Leave empty if no link is needed</p>
-      </div>
-
-      <!-- Background Color -->
-      <div>
-        <label for="backgroundColor" class="block text-sm font-semibold text-gray-700 mb-2">
-          Background Color
-        </label>
-        <div class="flex items-center gap-3">
-          <input type="color" 
-                 id="backgroundColor" 
-                 name="backgroundColor" 
-                 value="<%= banner ? banner.backgroundColor : '#1f2937' %>"
-                 class="h-12 w-20 border border-gray-300 rounded cursor-pointer">
-          <input type="text" 
-                 id="backgroundColorHex" 
-                 value="<%= banner ? banner.backgroundColor : '#1f2937' %>"
-                 placeholder="#1f2937"
-                 class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                 readonly>
-        </div>
       </div>
     </div>
 
@@ -229,7 +221,7 @@
         <i class="bi bi-calendar-event text-blue-600"></i>
         Schedule Banner
       </h2>
-      <p class="text-sm text-gray-600 mb-6">Set start and end dates for automatic banner activation</p>
+      <p class="text-sm text-gray-600 mb-6">Set start and end dates for automatic banner activation (Times are in IST)</p>
 
       <!-- Enable Scheduling -->
       <div class="mb-6">
@@ -248,12 +240,12 @@
         <!-- Start Date -->
         <div>
           <label for="scheduledStart" class="block text-sm font-semibold text-gray-700 mb-2">
-            Start Date & Time
+            Start Date & Time (IST)
           </label>
           <input type="datetime-local" 
                  id="scheduledStart" 
                  name="scheduledStart" 
-                 value="<%= banner && banner.scheduledStart ? new Date(banner.scheduledStart).toISOString().slice(0, 16) : '' %>"
+                 value="<%= banner && banner.scheduledStart ? toISTDatetimeLocal(banner.scheduledStart) : '' %>"
                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <p class="text-sm text-gray-500 mt-1">Leave empty to activate immediately</p>
         </div>
@@ -261,12 +253,12 @@
         <!-- End Date -->
         <div>
           <label for="scheduledEnd" class="block text-sm font-semibold text-gray-700 mb-2">
-            End Date & Time
+            End Date & Time (IST)
           </label>
           <input type="datetime-local" 
                  id="scheduledEnd" 
                  name="scheduledEnd" 
-                 value="<%= banner && banner.scheduledEnd ? new Date(banner.scheduledEnd).toISOString().slice(0, 16) : '' %>"
+                 value="<%= banner && banner.scheduledEnd ? toISTDatetimeLocal(banner.scheduledEnd) : '' %>"
                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <p class="text-sm text-gray-500 mt-1">Leave empty for no end date</p>
         </div>

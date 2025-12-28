@@ -35,14 +35,6 @@ const bannerSchema = new mongoose.Schema(
         default: "",
       },
     },
-    backgroundColor: {
-      type: String,
-      default: "#1f2937",
-      match: [
-        /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/,
-        "Please provide a valid hex color code",
-      ],
-    },
     order: {
       type: Number,
       default: 1,
@@ -124,4 +116,3 @@ bannerSchema.methods.isUpcoming = function () {
 };
 
 export default mongoose.model("Banner", bannerSchema);
-

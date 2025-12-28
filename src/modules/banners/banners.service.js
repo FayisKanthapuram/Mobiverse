@@ -3,11 +3,19 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { cloudinaryUpload } from "../../shared/middlewares/upload.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { rollbackCloudinary } from "../product/helpers/admin.product.helper.js";
-import { createBanner, deleteBannerById, findBannerById, findBanners, saveBanner, updateBannerOrder } from "./banners.repo.js";
+import { toISTDate } from "./banner.helper.js";
+import {
+  createBanner,
+  deleteBannerById,
+  findBannerById,
+  findBanners,
+  saveBanner,
+  updateBannerOrder,
+} from "./banners.repo.js";
 
 export const loadBannersService = async () => {
-	const banners = await findBanners();
-	return banners;
+  const banners = await findBanners();
+  return banners;
 };
 
 export const createBannerService = async (body, files) => {
@@ -59,14 +67,11 @@ export const createBannerService = async (body, files) => {
         tablet: tabletUrl,
         mobile: mobileUrl,
       },
-      backgroundColor: body.backgroundColor || "#1f2937",
       order: Number(body.order) || 1,
       isActive: body.isActive === "true" || body.isActive === true,
       isScheduled: body.isScheduled === "true" || body.isScheduled === true,
-      scheduledStart: body.scheduledStart
-        ? new Date(body.scheduledStart)
-        : null,
-      scheduledEnd: body.scheduledEnd ? new Date(body.scheduledEnd) : null,
+      scheduledStart: toISTDate(body.scheduledStart),
+      scheduledEnd: toISTDate(body.scheduledEnd),
     };
 
     return await createBanner(bannerData);
@@ -76,10 +81,10 @@ export const createBannerService = async (body, files) => {
   }
 };
 
-export const getEditFormService=async(id)=>{
+export const getEditFormService = async (id) => {
   const banner = await findBannerById(id);
   return banner;
-}
+};
 
 export const updateBannerService = async (bannerId, body, files) => {
   const banner = await findBannerById(bannerId);
@@ -92,18 +97,13 @@ export const updateBannerService = async (bannerId, body, files) => {
   banner.title = body.title ?? banner.title;
   banner.subtitle = body.subtitle ?? banner.subtitle;
   banner.link = body.link ?? banner.link;
-  banner.backgroundColor = body.backgroundColor ?? banner.backgroundColor;
   banner.order = Number(body.order ?? banner.order);
   banner.isActive = body.isActive === "true" || body.isActive === true;
   banner.isScheduled = body.isScheduled === "true" || body.isScheduled === true;
 
   if (banner.isScheduled) {
-    banner.scheduledStart = body.scheduledStart
-      ? new Date(body.scheduledStart)
-      : null;
-    banner.scheduledEnd = body.scheduledEnd
-      ? new Date(body.scheduledEnd)
-      : null;
+    banner.scheduledStart = toISTDate(body.scheduledStart);
+    banner.scheduledEnd = toISTDate(body.scheduledEnd);
   } else {
     banner.scheduledStart = null;
     banner.scheduledEnd = null;
@@ -173,7 +173,6 @@ export const toggleBannerStatusService = async (bannerId, body) => {
   await saveBanner(banner);
 };
 
-
 export const reorderBannersService = async (body) => {
   const { banners } = body;
 
@@ -184,13 +183,13 @@ export const reorderBannersService = async (body) => {
   await Promise.all(
     banners.map(({ id, order }) => {
       if (!id || typeof order !== "number") return null;
-      return updateBannerOrder(id,order)
+      return updateBannerOrder(id, order);
     })
   );
 };
 
 export const deleteBannerService = async (bannerId) => {
-  const banner = await findBannerById(bannerId)
+  const banner = await findBannerById(bannerId);
 
   if (!banner) {
     throw new AppError("Banner not found", HttpStatus.NOT_FOUND);
