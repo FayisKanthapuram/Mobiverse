@@ -1,3 +1,34 @@
+function updateCartBadge(count) {
+  // Desktop cart badge
+  const desktopBadge = document.querySelector('a[href="/cart"] span');
+
+  if (desktopBadge) {
+    desktopBadge.textContent = count;
+    count > 0
+      ? desktopBadge.classList.remove("hidden")
+      : desktopBadge.classList.add("hidden");
+  }
+
+  // Mobile cart badge
+  const mobileCartLink = document.querySelector('#mobile-menu a[href="/cart"]');
+
+  if (mobileCartLink) {
+    let mobileBadge = mobileCartLink.querySelector("span.absolute");
+
+    if (count > 0) {
+      if (!mobileBadge) {
+        mobileBadge = document.createElement("span");
+        mobileBadge.className =
+          "absolute right-0 top-1/2 -translate-y-1/2 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[11px] font-semibold rounded-full flex items-center justify-center";
+        mobileCartLink.appendChild(mobileBadge);
+      }
+      mobileBadge.textContent = count;
+    } else if (mobileBadge) {
+      mobileBadge.remove();
+    }
+  }
+}
+
 // Update Quantity
 document.addEventListener("click", async (e) => {
   if (!e.target.closest(".qty-btn")) return;
@@ -17,16 +48,22 @@ async function updateQuantity(itemId, newQuantity) {
       quantity: newQuantity,
     });
 
+    updateCartBadge(response.data.cartCount);
+
     const updated = response.data.updatedItem;
     const cartTotals = response.data.cartTotals;
 
     document.querySelector(`#qty-${itemId}`).innerText = updated.quantity;
-    if(cartTotals.offer){
+    if (cartTotals.offer) {
       document.querySelector(`#offprice-${itemId}`).innerText =
-      "₹" + ((updated.salePrice-cartTotals.offer) * updated.quantity).toLocaleString("en-IN");
+        "₹" +
+        (
+          (updated.salePrice - cartTotals.offer) *
+          updated.quantity
+        ).toLocaleString("en-IN");
     }
     document.querySelector(`#price-${itemId}`).innerText =
-      "₹" + ((updated.salePrice) * updated.quantity).toLocaleString("en-IN");
+      "₹" + (updated.salePrice * updated.quantity).toLocaleString("en-IN");
     if (document.querySelector(`#regPrice-${itemId}`).innerText) {
       document.querySelector(`#regPrice-${itemId}`).innerHTML = `<del>₹${(
         updated.regularPrice * updated.quantity
@@ -37,8 +74,8 @@ async function updateQuantity(itemId, newQuantity) {
       "₹" + cartTotals.subtotal.toLocaleString("en-IN");
 
     document.querySelector("#total").innerText =
-      "₹" + (cartTotals.subtotal-cartTotals.discount).toLocaleString("en-IN");
-    console.log(cartTotals)
+      "₹" + (cartTotals.subtotal - cartTotals.discount).toLocaleString("en-IN");
+    console.log(cartTotals);
     if (cartTotals.discount > 0) {
       document.querySelector("#savings").innerText =
         cartTotals.discount.toLocaleString("en-IN");
@@ -135,18 +172,18 @@ async function addToCart(variantId) {
   }
 }
 
-
 const urlParams = new URLSearchParams(window.location.search);
 const message = urlParams.get("message");
 let text = "";
 if (message === "cart-add") {
   text = "Item added to cart";
-}else if(message==='item-delete'){
-  text="Item successfully removed from the cart."
-}else if(message==='cart-inc'){
-  text="Product already existed in cart, quantity incremented"
-}else if(message==='adjested'){
-  text="Cart quantity was adjusted due to stock limits. Please review your cart."
+} else if (message === "item-delete") {
+  text = "Item successfully removed from the cart.";
+} else if (message === "cart-inc") {
+  text = "Product already existed in cart, quantity incremented";
+} else if (message === "adjested") {
+  text =
+    "Cart quantity was adjusted due to stock limits. Please review your cart.";
 }
 
 if (message) {

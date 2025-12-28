@@ -134,9 +134,15 @@ export const updateCartItemService = async (itemId, userId, body) => {
   await saveCartItem(item);
 
   const items = await fetchCartItems(userId);
+  // ---------------- OFFERS ----------------
+  for (let item of items) {
+    item.offer = getAppliedOffer(item, item?.variantId?.salePrice) || 0;
+  }
   const totals = calculateBasicCartTotals(items, item._id);
+  const cartCount = await getCartItemsCount(userId);
 
   return {
+    cartCount,
     status: HttpStatus.ACCEPTED,
     success: true,
     updatedItem: {
