@@ -13,19 +13,10 @@ import {
   generateReferralCode,
   sendOtpEmail,
 } from "./auth.helper.js";
-import {
-  createWallet,
-  findWalletByUserId,
-  updateWalletBalanceAndCredit,
-} from "../wallet/repo/wallet.repo.js";
-import { NEW_USER_REWARD } from "../../shared/constants/defaults.js";
-import { createLedgerEntry } from "../wallet/repo/wallet.ledger.repo.js";
-import {
-  findUserByReferralId,
-  updateUserWalletBalance,
-} from "../user/user.repo.js";
-import { createRefferalLog } from "../referral/referral.repo.js";
+import { createWallet } from "../wallet/repo/wallet.repo.js";
+import { findUserByReferralId } from "../user/user.repo.js";
 import { rewardNewUserReferral } from "../referral/referral.service.js";
+import { createWishlist } from "../wishlist/wishlist.repo.js";
 
 /* ----------------------------------------------------
    SIGNUP – STEP 1
@@ -57,7 +48,7 @@ export const registerUserService = async (body, session) => {
   if (!sent) {
     throw new AppError("Failed to send OTP", HttpStatus.INTERNAL_SERVER_ERROR);
   }
-  console.log(otp);
+  console.log("Signup OTP:", otp);
 
   session.otp = otp;
   session.otpExpiry = expiry;
@@ -90,7 +81,7 @@ export const verifySignUpOtpService = async (otp, session) => {
 
   let referrer = null;
   if (session.tempUser.referralCode) {
-      referrer = await findUserByReferralId(                                 
+    referrer = await findUserByReferralId(
       session.tempUser.referralCode.toUpperCase()
     );
   }
@@ -102,6 +93,7 @@ export const verifySignUpOtpService = async (otp, session) => {
   });
 
   await createWallet(user._id);
+  await createWishlist(user._id);
 
   if (referrer && referrer._id.toString() !== user._id.toString()) {
     await rewardNewUserReferral({
@@ -151,7 +143,7 @@ export const resendOtpService = async (session) => {
       );
     }
 
-    console.log("Signup OTP:", otp);
+    console.log("Resend OTP For Signup OTP:", otp);
     return;
   }
 
@@ -174,7 +166,7 @@ export const resendOtpService = async (session) => {
       );
     }
 
-    console.log("Recovery OTP:", otp);
+    console.log("Resend OTP For Recovery OTP:", otp);
     return;
   }
 
@@ -186,7 +178,6 @@ export const resendOtpService = async (session) => {
     HttpStatus.BAD_REQUEST
   );
 };
-
 
 /* ----------------------------------------------------
    LOGIN
@@ -237,7 +228,7 @@ export const sendRecoverOtpService = async (email, session) => {
   if (!sent) {
     throw new AppError("Failed to send OTP", HttpStatus.INTERNAL_SERVER_ERROR);
   }
-  console.log(otp)
+  console.log("Recovery OTP:", otp);
 
   session.recoveryOtp = otp;
   session.recoveryOtpExpiry = expiry;

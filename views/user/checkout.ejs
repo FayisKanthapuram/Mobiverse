@@ -720,7 +720,6 @@
     // Check wallet balance if wallet selected
     if (paymentMethod === 'wallet') {
       const walletBalance = <%= user.walletBalance || 0 %>;
-      const totalAmount = <%= cart?.subtotal+cart?.tax+cart?.deliveryCharge-cart?.discount %>;
       if (walletBalance < totalAmount) {
         Toastify({
           text: "Insufficient wallet balance. Please select another payment method.",

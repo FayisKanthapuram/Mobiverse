@@ -50,6 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
   ============================ */
   if (window.OTP_COOLDOWN_END) {
     localStorage.setItem("otpCooldownEnd", window.OTP_COOLDOWN_END);
+  } else if (!localStorage.getItem("recoverOtpCooldownEnd")) {
+    // fallback: start fresh 30s timer
+    const end = Date.now() + 30000;
+    localStorage.setItem("recoverOtpCooldownEnd", end);
   }
 
   runCountdown();
@@ -62,11 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
 
       if (resendLink.classList.contains("disabled")) return;
-
-      startCountdown();
-
+      resendLink.classList.add("disabled");
+      
       try {
         const response = await axios.post("/resendOtp");
+
+        startCountdown(response.data.cooldownSeconds);
 
         Toastify({
           text: response.data.message,
@@ -94,8 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ============================
      COUNTDOWN LOGIC
   ============================ */
-  function startCountdown() {
-    const cooldownEnd = Date.now() + 30000; // 30 sec
+  function startCountdown(cooldownEnd) {
     localStorage.setItem("otpCooldownEnd", cooldownEnd);
     runCountdown();
   }

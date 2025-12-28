@@ -63,11 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     if (resendLink.classList.contains("disabled")) return;
-
-    startCountdown();
+    resendLink.classList.add("disabled");
 
     try {
       const response = await axios.post("/resendOtp");
+      startCountdown(response.data.cooldownSeconds);
 
       Toastify({
         text: response.data.message,
@@ -92,8 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ============================
      COUNTDOWN LOGIC
   ============================ */
-  function startCountdown() {
-    const end = Date.now() + 30000;
+  function startCountdown(end) {
     localStorage.setItem("recoverOtpCooldownEnd", end);
     runCountdown();
   }

@@ -110,6 +110,7 @@ export const resendOtp = async (req, res, next) => {
     res.status(HttpStatus.OK).json({
       success: true,
       message: "OTP resent successfully",
+      cooldownSeconds: req.session.otpCooldownEnd,
     });
   } catch (error) {
     next(error);

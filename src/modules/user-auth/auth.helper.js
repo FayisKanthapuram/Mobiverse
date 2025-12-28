@@ -5,7 +5,7 @@ import { LOGONAME } from "../../shared/constants/assets.js";
 
 export const createOtp = () => ({
   otp: generateOtp(),
-  expiry: Date.now() + 1 * 60 * 1000
+  expiry: Date.now() + 2 * 60 * 1000 // 2 min
 });
 
 

@@ -8,9 +8,6 @@ export const fetchWishlist = async (userId) => {
     .lean();
 };
 
-export const getWishlist =async (userId)=>{
-  return wishlistModel.findOne({userId});
-}
 
 export const fetchWishlistItems = (userId, limit, skip) => {
   // Build dynamic project stage
@@ -139,7 +136,6 @@ export const fetchWishlistItems = (userId, limit, skip) => {
   ]);
 };
 
-
 export const getWishlistItemsCount = async (userId) => {
   const result = await wishlistModel.aggregate([
     { $match: { userId: new mongoose.Types.ObjectId(userId) } },
@@ -188,6 +184,10 @@ export const checkInWishlist = (userId, productId, variantId) => {
 
 export const deleteWishlist = (userId) => {
   return wishlistModel.deleteOne({ userId });
+};
+
+export const createWishlist = async (userId) => {
+  return wishlistModel.create({ userId });
 };
 
 

@@ -4,7 +4,7 @@ import { laodRefferAndEarn } from "../controllers/user.referral.controller.js";
 
 const router = express.Router();
 
-router.get('/refer',requireLogin,laodRefferAndEarn)
+router.get("/refer-earn", requireLogin, laodRefferAndEarn);
 
 
 export default router;
