@@ -4,63 +4,59 @@ import {
   verifyPaymentService,
 } from "./wallet.service.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
-export const loadMyWallet = async (req, res, next) => {
-  try {
-    const page = Number(req.query.page) || 1;
-    const type = req.query.type || "";
-    const limit = 5;
+import { AppError } from "../../shared/utils/app.error.js";
 
-    const { user, wallet, transactions, totalDocuments } =
-      await loadMyWalletService(req?.user?._id, { page, type, limit });
+/* ----------------------------------------------------
+   LOAD MY WALLET
+---------------------------------------------------- */
+export const loadMyWallet = async (req, res) => {
+  const page = Number(req.query.page) || 1;
+  const type = req.query.type || "";
+  const limit = 5;
 
-    const totalPages = Math.ceil(totalDocuments / limit);
+  const { user, wallet, transactions, totalDocuments } =
+    await loadMyWalletService(req.user._id, { page, type, limit });
 
-    res.status(HttpStatus.ACCEPTED).render("user/wallet", {
-      key: process.env.RAZORPAY_KEY_ID,
-      pageTitle: "My Wallet",
-      pageJs: "wallet",
-      pageCss:'wallet',
-      wallet,
-      transactions,
-      user,
-      limit,
-      totalDocuments,
-      query: req.query,
-      totalPages,
-      currentPage: page,
-    });
-  } catch (error) {
-    next(error);
-  }
+  const totalPages = Math.ceil(totalDocuments / limit);
+
+  res.status(HttpStatus.OK).render("user/wallet", {
+    key: process.env.RAZORPAY_KEY_ID,
+    pageTitle: "My Wallet",
+    pageJs: "wallet",
+    pageCss: "wallet",
+    wallet,
+    transactions,
+    user,
+    limit,
+    totalDocuments,
+    query: req.query,
+    totalPages,
+    currentPage: page,
+  });
 };
 
-
-
+/* ----------------------------------------------------
+   ADD MONEY TO WALLET
+---------------------------------------------------- */
 export const addMoney = async (req, res) => {
-  try {
+  const { amount } = req.body;
 
-    const result = await addMoneyService(req.body.amount);
-    return res.status(result.status).json(result);
-  } catch (error) {
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Could not initiate payment",
-    });
+  if (!amount || Number(amount) <= 0) {
+    throw new AppError("Invalid amount", HttpStatus.BAD_REQUEST);
   }
+
+  const result = await addMoneyService(amount);
+
+  res.status(result.status).json(result);
 };
 
-
+/* ----------------------------------------------------
+   VERIFY PAYMENT
+---------------------------------------------------- */
 export const verifyPayment = async (req, res) => {
-  try {
-    const userId = req?.user?._id;
+  const userId = req.user._id;
 
-    const result = await verifyPaymentService(req.body, userId);
-    return res.status(result.status).json(result);
-  } catch (error) {
-    return res.status(error.status || 500).json({
-      success: false,
-      message: error.message || "Payment verification error",
-    });
-  }
+  const result = await verifyPaymentService(req.body, userId);
+
+  res.status(result.status).json(result);
 };
-

@@ -122,31 +122,48 @@ document.getElementById('removePhotoBtn').addEventListener('click', function() {
 });
 
 // Form Validation
-document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  try {
-    const response = await axios.patch(`/edit-info`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+document
+  .getElementById("editProfileForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-    if (response.data.success) {
+    const saveBtn = document.getElementById("saveProfileBtn");
+    const btnText = document.getElementById("saveProfileText");
+    const btnLoader = document.getElementById("saveProfileLoader");
+
+    // 🚫 Prevent double submit
+    if (saveBtn.disabled) return;
+
+    const formData = new FormData(e.target);
+
+    // 🔒 Lock UI
+    saveBtn.disabled = true;
+    btnText.classList.add("hidden");
+    btnLoader.classList.remove("hidden");
+
+    try {
+      const response = await axios.patch(`/edit-info`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (response.data.success) {
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.href = response.data.redirect;
+      }
+    } catch (error) {
+      // 🔓 Unlock on error
+      saveBtn.disabled = false;
+      btnText.classList.remove("hidden");
+      btnLoader.classList.add("hidden");
+
       Toastify({
-        text: response.data.message,
-        duration: 1000,
+        text:
+          error.response?.data?.message ||
+          "Failed to update personal information",
+        duration: 2000,
         gravity: "bottom",
         position: "right",
-        style: { background: "linear-gradient(to right, #00b09b, #96c93d)" },
+        style: { background: "#e74c3c" },
       }).showToast();
-      setTimeout(() => window.location.href='/personal-info', 1200);
     }
-  } catch (error) {
-    Toastify({
-      text: error.response?.data?.message || "Failed to update personal information",
-      duration: 2000,
-      gravity: "bottom",
-      position: "right",
-      style: { background: "#e74c3c" },
-    }).showToast();
-  }
-});
+  });

@@ -16,6 +16,7 @@ import {
 } from "./auth.validator.js";
 import { getWishlistItemsCount } from "../wishlist/wishlist.repo.js";
 import { getCartItemsCount } from "../cart/cart.repo.js";
+import { AppError } from "../../shared/utils/app.error.js";
 
 /* ----------------------------------------------------
    LOAD VIEWS
@@ -59,151 +60,116 @@ export const loadResetPassword = (req, res) =>
   });
 
 /* ----------------------------------------------------
-   SIGNUP
+   SIGN UP
 ---------------------------------------------------- */
-export const registerUser = async (req, res, next) => {
-  try {
-    const { error } = userRegisterSchema.validate(req.body);
-    if (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: error.details[0].message,
-      });
-    }
-
-    await registerUserService(req.body, req.session);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      redirect: "/verifyOtp",
-      message: "OTP sent to email",
-    });
-  } catch (error) {
-    next(error);
+export const registerUser = async (req, res) => {
+  const { error } = userRegisterSchema.validate(req.body);
+  if (error) {
+    throw new AppError(error.details[0].message, HttpStatus.BAD_REQUEST);
   }
+
+  await registerUserService(req.body, req.session);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+    redirect: "/verifyOtp",
+    message: "OTP sent to email",
+  });
 };
 
 /* ----------------------------------------------------
    VERIFY SIGNUP OTP
 ---------------------------------------------------- */
-export const verifyOtp = async (req, res, next) => {
-  try {
-    await verifySignUpOtpService(req.body.otp, req.session);
+export const verifyOtp = async (req, res) => {
+  await verifySignUpOtpService(req.body.otp, req.session);
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      redirect: "/login",
-      message: "OTP verified successfully",
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).json({
+    success: true,
+    redirect: "/login",
+    message: "OTP verified successfully",
+  });
 };
 
 /* ----------------------------------------------------
    RESEND OTP
 ---------------------------------------------------- */
-export const resendOtp = async (req, res, next) => {
-  try {
-    await resendOtpService(req.session);
+export const resendOtp = async (req, res) => {
+  await resendOtpService(req.session);
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: "OTP resent successfully",
-      cooldownSeconds: req.session.otpCooldownEnd,
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: "OTP resent successfully",
+    cooldownSeconds: req.session.otpCooldownEnd,
+  });
 };
 
 /* ----------------------------------------------------
    LOGIN
 ---------------------------------------------------- */
 export const loginUser = async (req, res, next) => {
-  try {
-    const { error } = userLoginSchema.validate(req.body);
-    if (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: error.details[0].message,
-      });
-    }
-
-    const user = await loginUserService(req.body.email, req.body.password);
-    req.login(user, async (err) => {
-      if (err) return next(err);
-      req.session.wishlistCount = await getWishlistItemsCount(user._id);
-      req.session.cartCount = await getCartItemsCount(user._id);
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        redirect: "/home",
-        message: "Logged in successfully",
-      });
-    });
-  } catch (error) {
-    next(error);
+  const { error } = userLoginSchema.validate(req.body);
+  if (error) {
+    throw new AppError(error.details[0].message, HttpStatus.BAD_REQUEST);
   }
+
+  const user = await loginUserService(req.body.email, req.body.password);
+
+  req.login(user, async (err) => {
+    if (err) return next(err);
+
+    req.session.wishlistCount = await getWishlistItemsCount(user._id);
+    req.session.cartCount = await getCartItemsCount(user._id);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      redirect: "/home",
+      message: "Logged in successfully",
+    });
+  });
 };
 
 /* ----------------------------------------------------
    SEND RECOVERY OTP
 ---------------------------------------------------- */
-export const sendRecoverOtp = async (req, res, next) => {
-  try {
-    await sendRecoverOtpService(req.body.email, req.session);
+export const sendRecoverOtp = async (req, res) => {
+  await sendRecoverOtpService(req.body.email, req.session);
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      redirect: "/verifyRecoverOtp",
-      message: "OTP sent to email",
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).json({
+    success: true,
+    redirect: "/verifyRecoverOtp",
+    message: "OTP sent to email",
+  });
 };
 
 /* ----------------------------------------------------
    VERIFY RECOVERY OTP
 ---------------------------------------------------- */
-export const verifyRecoverOtp = async (req, res, next) => {
-  try {
-    await verifyRecoveryOtpService(req.body.otp, req.session);
+export const verifyRecoverOtp = async (req, res) => {
+  await verifyRecoveryOtpService(req.body.otp, req.session);
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      redirect: "/resetPassword",
-      message: "OTP verified successfully",
-    });
-  } catch (error) {
-    next(error);
-  }
+  res.status(HttpStatus.OK).json({
+    success: true,
+    redirect: "/resetPassword",
+    message: "OTP verified successfully",
+  });
 };
 
 /* ----------------------------------------------------
    RESET PASSWORD
 ---------------------------------------------------- */
-export const saveNewPassword = async (req, res, next) => {
-  try {
-    const { error } = resetPasswordSchema.validate(req.body);
-    if (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: error.details[0].message,
-      });
-    }
-
-    await resetPasswordService(req.body.password, req.session);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      redirect: "/login",
-      message: "Password reset successfully",
-    });
-  } catch (error) {
-    next(error);
+export const saveNewPassword = async (req, res) => {
+  const { error } = resetPasswordSchema.validate(req.body);
+  if (error) {
+    throw new AppError(error.details[0].message, HttpStatus.BAD_REQUEST);
   }
+
+  await resetPasswordService(req.body.password, req.session);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+    redirect: "/login",
+    message: "Password reset successfully",
+  });
 };
 
 /* ----------------------------------------------------
@@ -216,7 +182,7 @@ export const logOutUser = (req, res, next) => {
     req.session.destroy(() => {
       res.clearCookie("user.sid");
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         message: "Logged out successfully",
         redirect: "/login",
@@ -228,23 +194,19 @@ export const logOutUser = (req, res, next) => {
 /* ----------------------------------------------------
    GOOGLE LOGIN
 ---------------------------------------------------- */
-export const googleLogin = async (req, res, next) => {
-  try {
-    if (typeof req.session.wishlistCount !== "number") {
-      req.session.wishlistCount = await getWishlistItemsCount(req.user._id);
-    }
-
-    if (typeof req.session.cartCount !== "number") {
-      req.session.cartCount = await getCartItemsCount(req.user._id);
-    }
-
-    req.session.toast = {
-      type: "success",
-      message: "Login successful",
-    };
-
-    return res.redirect("/home");
-  } catch (error) {
-    next(error);
+export const googleLogin = async (req, res) => {
+  if (typeof req.session.wishlistCount !== "number") {
+    req.session.wishlistCount = await getWishlistItemsCount(req.user._id);
   }
+
+  if (typeof req.session.cartCount !== "number") {
+    req.session.cartCount = await getCartItemsCount(req.user._id);
+  }
+
+  req.session.toast = {
+    type: "success",
+    message: "Login successful",
+  };
+
+  res.redirect("/home");
 };
