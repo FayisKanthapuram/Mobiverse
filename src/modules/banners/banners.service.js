@@ -97,11 +97,18 @@ export const updateBannerService = async (bannerId, body, files) => {
   banner.isActive = body.isActive === "true" || body.isActive === true;
   banner.isScheduled = body.isScheduled === "true" || body.isScheduled === true;
 
-  banner.scheduledStart = body.scheduledStart
-    ? new Date(body.scheduledStart)
-    : null;
+  if (banner.isScheduled) {
+    banner.scheduledStart = body.scheduledStart
+      ? new Date(body.scheduledStart)
+      : null;
+    banner.scheduledEnd = body.scheduledEnd
+      ? new Date(body.scheduledEnd)
+      : null;
+  } else {
+    banner.scheduledStart = null;
+    banner.scheduledEnd = null;
+  }
 
-  banner.scheduledEnd = body.scheduledEnd ? new Date(body.scheduledEnd) : null;
 
   // ---- IMAGE REPLACEMENT (Cloudinary-safe) ----
 
