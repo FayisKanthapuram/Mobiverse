@@ -289,9 +289,6 @@ function changeOrderPage(page) {
   window.location.href = url.href;
 }
 
-function trackOrder(orderId) {
-  window.location.href = `/order/track/${orderId}`;
-}
 
 function downloadInvoice(orderId) {
   window.open(`/order/invoice/${orderId}`, "_blank");

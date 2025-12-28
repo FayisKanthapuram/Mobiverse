@@ -55,6 +55,7 @@ export const loadOrderFailure = async (req, res) => {
 
   res.status(HttpStatus.OK).render("user/orders/orderFailed", {
     pageTitle: "Order Failed",
+    pageJs:'orderFailed',
     order,
   });
 };

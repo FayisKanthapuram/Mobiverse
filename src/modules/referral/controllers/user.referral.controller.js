@@ -25,6 +25,7 @@ export const laodRefferAndEarn = async (req, res) => {
   const totalReferrals = await findTotalReferralsCount(user._id);
   res.status(HttpStatus.OK).render("user/referrals", {
     pageTitle: "Refer & Earn",
+    pageJs: "referrals",
     user,
     referrals,
     totalPages: Math.ceil(totalReferrals / limit),

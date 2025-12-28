@@ -150,7 +150,6 @@ export const getCartItemsCount = async (userId) => {
     {
       $match: {
         "variant.isListed": true,
-        "variant.stock": { $gt: 0 },
       },
     },
 
