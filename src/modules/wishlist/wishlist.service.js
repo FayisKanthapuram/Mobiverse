@@ -24,8 +24,6 @@ export const loadWishlistService = async (userId, queryParams) => {
   const skip = (currentPage - 1) * limit;
   const totalPages = Math.ceil(totalDocuments / limit);
   const wishlist = await fetchWishlistItems(userId, limit, skip);
-  console.log(wishlist[0].items)
-
   const now = new Date();
   const productOffers = await getAvailableProductOffers(now);
   const brandOffers = await getAvailableBrandOffers(now);
