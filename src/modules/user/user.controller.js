@@ -126,7 +126,13 @@ export const updatePassword = async (req, res) => {
 
     await updatePasswordService(req.body.userId, req.body.currentPassword, req.body.newPassword);
 
-    res.status(HttpStatus.OK).json({ success: true, message: "Password updated!" });
+    res
+      .status(HttpStatus.OK)
+      .json({
+        success: true,
+        message: "Password updated!",
+        redirect: "/personal-info",
+      });
   } catch (error) {
     res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.message });
   }

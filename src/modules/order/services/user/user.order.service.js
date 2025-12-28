@@ -8,7 +8,7 @@ import {
   incrementVariantStock,
 } from "../../../product/repo/variant.repo.js";
 import { deleteUserCart, fetchCartItems } from "../../../cart/cart.repo.js";
-import { calculateCartTotals } from "../../../cart/cartTotals.helper.js";
+import { calculateCartTotals } from "../../../cart/helpers/cartTotals.helper.js";
 import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
 import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
 import {

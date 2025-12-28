@@ -9,7 +9,7 @@ import {
 import {
   calculateBasicCartTotals,
   calculateCartTotals,
-} from "./cartTotals.helper.js";
+} from "./helpers/cartTotals.helper.js";
 import { addToCartSchema } from "./cart.validator.js";
 import { findVariantByIdWithProduct } from "../product/repo/variant.repo.js";
 import { findBrandById } from "../brand/brand.repo.js";

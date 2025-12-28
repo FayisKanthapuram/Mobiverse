@@ -23,45 +23,6 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   }
 });
 
-const urlParams = new URLSearchParams(window.location.search);
-const error = urlParams.get("message");
-
-if (error === "blocked") {
-  Toastify({
-    text: "Your account is currently blocked. Please contact the admin for assistance.",
-    duration: 4000,
-    gravity: "bottom", // top or bottom
-    position: "right", // left, center, right
-    backgroundColor: "#e63946",
-    close: true,
-    stopOnFocus: true,
-  }).showToast();
-}
-
-if (error === "login") {
-  Toastify({
-    text: "You need to log in to continue",
-    duration: 4000,
-    gravity: "bottom", // top or bottom
-    position: "right", // left, center, right
-    backgroundColor: "#e63946",
-    close: true,
-    stopOnFocus: true,
-  }).showToast();
-}
-
-if (error === "logout") {
-  Toastify({
-    text: "Logged out successfully.",
-    duration: 4000,
-    gravity: "bottom", // top or bottom
-    position: "right", // left, center, right
-    backgroundColor: "#e63946",
-    close: true,
-    stopOnFocus: true,
-  }).showToast();
-}
-
 function toggleUserPassword() {
   const input = document.getElementById("password");
   const eyeOpen = document.getElementById("eyeOpenUser");

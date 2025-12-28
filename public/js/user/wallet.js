@@ -63,18 +63,9 @@ document
               ...response,
               amount:order.amount,
             });
-
             if (verifyRes.data.success) {
-              Toastify({
-                text: verifyRes.data.message,
-                duration: 3000,
-                gravity: "bottom",
-                position: "right",
-                backgroundColor: "#10b981",
-              }).showToast();
-
-              closeAddMoneyModal();
-              setTimeout(() => window.location.reload(), 1000);
+              sessionStorage.setItem("toastSuccess", verifyRes.data.message);
+              window.location.reload()
             }
           } catch (err) {
             console.log(err);

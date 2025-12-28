@@ -7,133 +7,109 @@
       <!-- Main Content -->
       <div class="flex-1 bg-white rounded-lg shadow-sm p-8">
         <% if (user.googleId) { %>
-          <!-- Blocked for Google Users -->
-          <div class="text-center py-12">
-            <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <i class="bi bi-google text-5xl text-blue-600"></i>
-            </div>
-            <h2 class="text-2xl font-semibold text-gray-900 mb-3">Google Account</h2>
-            <p class="text-gray-600 mb-6 max-w-md mx-auto">
-              Your password is managed by Google. Please use Google Account settings to manage your password and security.
-            </p>
-            <a href="/personal-info" class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-              <i class="bi bi-arrow-left"></i> Back to Personal Info
-            </a>
+        <!-- Blocked for Google Users -->
+        <div class="text-center py-12">
+          <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="bi bi-google text-5xl text-blue-600"></i>
           </div>
+          <h2 class="text-2xl font-semibold text-gray-900 mb-3">Google Account</h2>
+          <p class="text-gray-600 mb-6 max-w-md mx-auto">
+            Your password is managed by Google. Please use Google Account settings to manage your password and security.
+          </p>
+          <a href="/personal-info" class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="bi bi-arrow-left"></i> Back to Personal Info
+          </a>
+        </div>
         <% } else { %>
-          <!-- Change Password Form -->
-          <div class="mb-8">
-            <h1 class="text-2xl font-semibold text-gray-900">Change Password</h1>
-            <p class="text-gray-600 mt-1">Update your account password</p>
-          </div>
+        <!-- Change Password Form -->
+        <div class="mb-8">
+          <h1 class="text-2xl font-semibold text-gray-900">Change Password</h1>
+          <p class="text-gray-600 mt-1">Update your account password</p>
+        </div>
 
-          <div class="max-w-lg mx-auto">
-            <form id="changePasswordForm" data-user-id="<%= user._id %>">
-              <!-- Current Password -->
-              <div class="mb-6">
-                <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">
-                  Current Password *
-                </label>
-                <div class="relative">
-                  <input 
-                    type="password" 
-                    id="currentPassword" 
-                    name="currentPassword" 
-                    required
-                    class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                    placeholder="Enter your current password">
-                  <button 
-                    type="button" 
-                    onclick="togglePassword('currentPassword')" 
-                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                    <i class="bi bi-eye" id="currentPassword-icon"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- New Password -->
-              <div class="mb-6">
-                <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">
-                  New Password *
-                </label>
-                <div class="relative">
-                  <input 
-                    type="password" 
-                    id="newPassword" 
-                    name="newPassword" 
-                    required
-                    minlength="8"
-                    class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                    placeholder="Enter your new password">
-                  <button 
-                    type="button" 
-                    onclick="togglePassword('newPassword')" 
-                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                    <i class="bi bi-eye" id="newPassword-icon"></i>
-                  </button>
-                </div>
-                <div class="mt-2 space-y-1">
-                  <p class="text-xs text-gray-500">Password must contain:</p>
-                  <div class="flex items-center gap-2 text-xs" id="length-check">
-                    <i class="bi bi-circle text-gray-400"></i>
-                    <span class="text-gray-500">At least 8 characters</span>
-                  </div>
-                  <div class="flex items-center gap-2 text-xs" id="uppercase-check">
-                    <i class="bi bi-circle text-gray-400"></i>
-                    <span class="text-gray-500">One uppercase letter</span>
-                  </div>
-                  <div class="flex items-center gap-2 text-xs" id="lowercase-check">
-                    <i class="bi bi-circle text-gray-400"></i>
-                    <span class="text-gray-500">One lowercase letter</span>
-                  </div>
-                  <div class="flex items-center gap-2 text-xs" id="number-check">
-                    <i class="bi bi-circle text-gray-400"></i>
-                    <span class="text-gray-500">One number</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Confirm New Password -->
-              <div class="mb-8">
-                <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm New Password *
-                </label>
-                <div class="relative">
-                  <input 
-                    type="password" 
-                    id="confirmPassword" 
-                    name="confirmPassword" 
-                    required
-                    class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                    placeholder="Re-enter your new password">
-                  <button 
-                    type="button" 
-                    onclick="togglePassword('confirmPassword')" 
-                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                    <i class="bi bi-eye" id="confirmPassword-icon"></i>
-                  </button>
-                </div>
-                <p class="text-xs text-red-600 mt-2 hidden" id="password-match-error">
-                  <i class="bi bi-exclamation-circle"></i> Passwords do not match
-                </p>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="flex gap-4">
-                <button 
-                  type="submit" 
-                  class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  id="submitBtn">
-                  <i class="bi bi-shield-check"></i> Update Password
+        <div class="max-w-lg mx-auto">
+          <form id="changePasswordForm" data-user-id="<%= user._id %>">
+            <!-- Current Password -->
+            <div class="mb-6">
+              <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                Current Password *
+              </label>
+              <div class="relative">
+                <input type="password" id="currentPassword" name="currentPassword" required class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Enter your current password">
+                <button type="button" onclick="togglePassword('currentPassword')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                  <i class="bi bi-eye" id="currentPassword-icon"></i>
                 </button>
-                <a 
-                  href="/personal-info" 
-                  class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">
-                  <i class="bi bi-x-circle"></i> Cancel
-                </a>
               </div>
-            </form>
-          </div>
+            </div>
+
+            <!-- New Password -->
+            <div class="mb-6">
+              <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                New Password *
+              </label>
+              <div class="relative">
+                <input type="password" id="newPassword" name="newPassword" required minlength="6" class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Enter your new password">
+                <button type="button" onclick="togglePassword('newPassword')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                  <i class="bi bi-eye" id="newPassword-icon"></i>
+                </button>
+              </div>
+              <div class="mt-2 space-y-1">
+                <p class="text-xs text-gray-500">Password must contain:</p>
+                <div class="flex items-center gap-2 text-xs" id="length-check">
+                  <i class="bi bi-circle text-gray-400"></i>
+                  <span class="text-gray-500">At least 6 characters</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" id="uppercase-check">
+                  <i class="bi bi-circle text-gray-400"></i>
+                  <span class="text-gray-500">One uppercase letter</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" id="lowercase-check">
+                  <i class="bi bi-circle text-gray-400"></i>
+                  <span class="text-gray-500">One lowercase letter</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" id="number-check">
+                  <i class="bi bi-circle text-gray-400"></i>
+                  <span class="text-gray-500">One number</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confirm New Password -->
+            <div class="mb-8">
+              <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                Confirm New Password *
+              </label>
+              <div class="relative">
+                <input type="password" id="confirmPassword" name="confirmPassword" required class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Re-enter your new password">
+                <button type="button" onclick="togglePassword('confirmPassword')" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                  <i class="bi bi-eye" id="confirmPassword-icon"></i>
+                </button>
+              </div>
+              <p class="text-xs text-red-600 mt-2 hidden" id="password-match-error">
+                <i class="bi bi-exclamation-circle"></i> Passwords do not match
+              </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-4">
+              <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2" id="submitBtn">
+
+                <span id="btnText">
+                  <i class="bi bi-shield-check"></i> Update Password
+                </span>
+
+                <!-- Spinner -->
+                <span id="btnLoader" class="hidden">
+                  <i class="bi bi-arrow-repeat animate-spin"></i> Updating...
+                </span>
+              </button>
+
+              <a href="/personal-info" class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                <i class="bi bi-x-circle"></i> Cancel
+              </a>
+            </div>
+          </form>
+        </div>
         <% } %>
       </div>
     </div>

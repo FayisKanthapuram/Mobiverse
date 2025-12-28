@@ -171,31 +171,3 @@ async function addToCart(variantId) {
     }).showToast();
   }
 }
-
-const urlParams = new URLSearchParams(window.location.search);
-const message = urlParams.get("message");
-let text = "";
-if (message === "cart-add") {
-  text = "Item added to cart";
-} else if (message === "item-delete") {
-  text = "Item successfully removed from the cart.";
-} else if (message === "cart-inc") {
-  text = "Product already existed in cart, quantity incremented";
-} else if (message === "adjested") {
-  text =
-    "Cart quantity was adjusted due to stock limits. Please review your cart.";
-}
-
-if (message) {
-  Toastify({
-    text,
-    duration: 4000,
-    gravity: "bottom", // top or bottom
-    position: "right", // left, center, right
-    style: {
-      background: "linear-gradient(to right, #00b09b, #96c93d)",
-    },
-    close: true,
-    stopOnFocus: true,
-  }).showToast();
-}

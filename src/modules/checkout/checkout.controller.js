@@ -40,7 +40,9 @@ export const applyCoupon = async (req, res) => {
     couponValue: result.couponValue,
   };
 
-  res.status(HttpStatus.OK).json({ success: true });
+  res
+    .status(HttpStatus.OK)
+    .json({ success: true, message: "Coupon applied successfully" });
 };
 
 /* ----------------------------------------------------
@@ -51,6 +53,6 @@ export const removeCoupon = (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Coupon removed",
+    message: "Coupon removed successfully",
   });
 };

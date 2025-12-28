@@ -1,4 +1,4 @@
-import { updateCartQuantity } from "./cart.repo.js";
+import { updateCartQuantity } from "../cart.repo.js";
 
 export const calculateCartTotals = async (items) => {
   let subtotal = 0;

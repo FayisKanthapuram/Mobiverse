@@ -2,21 +2,21 @@ import Joi from "joi";
 
 export const passwordSchema = Joi.object({
   currentPassword: Joi.string()
-    .pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/)
+    .pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$/)
     .required()
     .messages({
       "string.empty": "Current password is required",
       "string.pattern.base":
-        "Current password must be at least 8 characters long and include one uppercase letter, one lowercase letter, and one number",
+        "Current password must be at least 6 characters long and include one uppercase letter, one lowercase letter, and one number",
     }),
 
   newPassword: Joi.string()
-    .pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$/)
+    .pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$/)
     .required()
     .messages({
       "string.empty": "New password is required",
       "string.pattern.base":
-        "New password must be at least 8 characters long and include one uppercase letter, one lowercase letter, and one number",
+        "New password must be at least 6 characters long and include one uppercase letter, one lowercase letter, and one number",
     }),
 
   confirmPassword: Joi.string()

@@ -22,7 +22,7 @@ newPasswordInput.addEventListener("input", function () {
   const password = this.value;
 
   // Check length
-  updateCheck("length-check", password.length >= 8);
+  updateCheck("length-check", password.length >= 6);
 
   // Check uppercase
   updateCheck("uppercase-check", /[A-Z]/.test(password));
@@ -79,11 +79,22 @@ document
   .addEventListener("submit", async function (e) {
     e.preventDefault();
 
+    const submitBtn = document.getElementById("submitBtn");
+    const btnText = document.getElementById("btnText");
+    const btnLoader = document.getElementById("btnLoader");
+
+    // Prevent double submit
+    if (submitBtn.disabled) return;
+
     const currentPassword = document.getElementById("currentPassword").value;
     const newPassword = document.getElementById("newPassword").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
     const userId = e.target.dataset.userId;
-    console.log(userId);
+
+    // 🔒 Lock button + show loader
+    submitBtn.disabled = true;
+    btnText.classList.add("hidden");
+    btnLoader.classList.remove("hidden");
 
     try {
       const response = await axios.post("/update-password", {
@@ -94,21 +105,15 @@ document
       });
 
       if (response.data.success) {
-        Toastify({
-          text: response.data.message,
-          duration: 500,
-          gravity: "bottom",
-          position: "right",
-          style: {
-            background: "linear-gradient(to right, #00b09b, #96c93d)",
-          },
-        }).showToast();
-
-        setTimeout(() => {
-          window.location.href = "/personal-info";
-        }, 600);
+        sessionStorage.setItem("toastSuccess", response.data.message);
+        window.location.href = response.data.redirect;
       }
     } catch (error) {
+      // 🔓 Unlock on error
+      submitBtn.disabled = false;
+      btnText.classList.remove("hidden");
+      btnLoader.classList.add("hidden");
+
       Toastify({
         text: error.response?.data?.message || "Something went wrong",
         duration: 2000,
@@ -120,3 +125,4 @@ document
       }).showToast();
     }
   });
+

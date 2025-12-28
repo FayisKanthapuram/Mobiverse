@@ -423,9 +423,17 @@
       </div>
 
       <div class="flex gap-4 mt-8 pt-6 border-t border-gray-200">
-        <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-          <i class="bi bi-check-circle"></i> Save Address
+        <button type="submit" id="saveAddressBtn" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+
+          <span id="saveAddressText">
+            <i class="bi bi-check-circle"></i> Save Address
+          </span>
+
+          <span id="saveAddressLoader" class="hidden">
+            <i class="bi bi-arrow-repeat animate-spin"></i> Saving...
+          </span>
         </button>
+
         <button type="button" onclick="closeAddressModal()" class="px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors">
           Cancel
         </button>

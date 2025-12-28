@@ -51,7 +51,7 @@ export const requestEmailChangeService = async (
 
   const sent = await sendOtpEmail(newEmail, otp, "changeEmail");
   if (!sent) throw new Error("Failed to send OTP");
-  console.log(otp)
+  console.log("Change Email OTP: ",otp)
 
   session.oldEmail = oldEmail;
   session.newEmail = newEmail;
@@ -87,6 +87,8 @@ export const resendEmailOtpService = async (session) => {
   const { otp, expiry } = createOtp();
   const sent = await sendOtpEmail(session.newEmail, otp, "resendChangeEmail");
   if (!sent) throw new Error("Failed to resend OTP");
+  console.log("Change Email Resend OTP: ", otp);
+
 
   session.otp = otp;
   session.otpExpiry = expiry;
