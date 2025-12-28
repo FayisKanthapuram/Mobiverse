@@ -6,7 +6,7 @@ async function removeFromWishlist(variantId) {
 
     if (response.data.success) {
       sessionStorage.setItem("toastSuccess", response.data.message);
-      window.location.reload();
+      window.location.href='/wishlist'
     }
   } catch (error) {
     console.error("Error removing from wishlist:", error);
@@ -32,8 +32,7 @@ async function clearWishlist() {
 
     if (response.data.success) {
       sessionStorage.setItem("toastSuccess", response.data.message);
-
-      window.location.reload();
+      window.location.href = "/wishlist";
     }
   } catch (error) {
     console.error("Error clearing wishlist:", error);
@@ -57,7 +56,7 @@ async function moveToCart(itemId, variantId) {
     });
     if (response.data.success) {
       sessionStorage.setItem("toastSuccess", response.data.message);
-      window.location.reload();
+      window.location.href = "/wishlist";
     }
   } catch (error) {
     console.log(error);

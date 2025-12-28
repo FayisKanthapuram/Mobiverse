@@ -16,7 +16,7 @@ const brandSchema = new mongoose.Schema(
     isListed: {
       type: Boolean,
       required: true,
-      default: "true",
+      default: true,
     },
   },
   { timestamps: true }

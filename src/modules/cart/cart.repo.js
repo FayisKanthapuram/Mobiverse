@@ -128,13 +128,77 @@ export const fetchCart = async (userId) => {
 
 export const getCartItemsCount = async (userId) => {
   const result = await cartModel.aggregate([
-    { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+    // 1️⃣ Match user cart
+    {
+      $match: {
+        userId: new mongoose.Types.ObjectId(userId),
+      },
+    },
+
+    // 2️⃣ Lookup variant
+    {
+      $lookup: {
+        from: "variants",
+        localField: "variantId",
+        foreignField: "_id",
+        as: "variant",
+      },
+    },
+    { $unwind: "$variant" },
+
+    // 3️⃣ Filter listed variant + stock
+    {
+      $match: {
+        "variant.isListed": true,
+        "variant.stock": { $gt: 0 },
+      },
+    },
+
+    // 4️⃣ Lookup product
+    {
+      $lookup: {
+        from: "products",
+        localField: "productId",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    { $unwind: "$product" },
+
+    // 5️⃣ Filter listed product
+    {
+      $match: {
+        "product.isListed": true,
+      },
+    },
+
+    // 6️⃣ Lookup brand
+    {
+      $lookup: {
+        from: "brands",
+        localField: "product.brandID",
+        foreignField: "_id",
+        as: "brand",
+      },
+    },
+    { $unwind: "$brand" },
+
+    // 7️⃣ Filter listed brand
+    {
+      $match: {
+        "brand.isListed": true,
+      },
+    },
+
+    // 8️⃣ Group & sum quantity
     {
       $group: {
         _id: null,
         totalItems: { $sum: "$quantity" },
       },
     },
+
+    // 9️⃣ Clean output
     {
       $project: {
         _id: 0,
@@ -142,6 +206,8 @@ export const getCartItemsCount = async (userId) => {
       },
     },
   ]);
+
   return result[0]?.totalItems || 0;
 };
+
 
