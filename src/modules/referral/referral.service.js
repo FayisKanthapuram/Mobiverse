@@ -1,5 +1,5 @@
 // referral.service.js
-import { REFERRER_REWARD } from "../../shared/constants/defaults.js";
+import { NEW_USER_REWARD, REFERRER_REWARD } from "../../shared/constants/defaults.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { findUserById, updateUserWalletBalance } from "../user/user.repo.js";

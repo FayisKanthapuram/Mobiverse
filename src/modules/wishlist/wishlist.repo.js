@@ -8,6 +8,9 @@ export const fetchWishlist = async (userId) => {
     .lean();
 };
 
+export const getWishlist =async (userId)=>{
+  return wishlistModel.findOne({userId});
+}
 
 export const fetchWishlistItems = (userId, limit, skip) => {
   // Build dynamic project stage

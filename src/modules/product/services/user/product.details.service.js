@@ -11,7 +11,7 @@ import { getLatestProducts } from "../product.common.service.js";
 import { ProductMessages } from "../../../../shared/constants/messages/productMessages.js";
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
-import { fetchWishlist } from "../../../wishlist/wishlist.repo.js";
+import { fetchWishlist, getWishlist } from "../../../wishlist/wishlist.repo.js";
 
 export const loadProductDetailsService = async (
   params,
@@ -51,14 +51,17 @@ export const loadProductDetailsService = async (
 
   // 3. Offer calculation
   const offer = getAppliedOffer(product, selectedVariant.salePrice);
-
-  const wishlist = userId ? await fetchWishlist(userId) : null;
-  const wishlistVariantSet = new Set(
-    wishlist.items.map((item) => item.variantId.toString())
-  );
-  const isInWishlist = wishlistVariantSet.has(
-    selectedVariant._id.toString()
-  );
+  const isInWishlist=null;
+  if(userId){
+    const wishlist = userId ? await getWishlist(userId) : null;
+    console.log(wishlist);
+    const wishlistVariantSet = new Set(
+      wishlist.items.map((item) => item.variantId.toString())
+    );
+    isInWishlist = wishlistVariantSet.has(
+      selectedVariant._id.toString()
+    );
+  }
 
   // 4. Variant grouping
   const colorGroups = groupVariantsByColor(product.variants);
