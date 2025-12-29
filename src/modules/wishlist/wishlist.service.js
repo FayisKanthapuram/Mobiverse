@@ -16,6 +16,7 @@ import {
 } from "./wishlist.repo.js";
 import { addToWishlistSchema } from "./wishlist.validator.js";
 import { findUserById } from "../user/user.repo.js";
+import { WishlistMessages } from "../../shared/constants/messages/wishlistMessages.js";
 
 export const loadWishlistService = async (userId, queryParams) => {
   const currentPage = parseInt(queryParams.page) || 1;
@@ -78,7 +79,7 @@ export const toggleWishlistService = async (userId, body) => {
     return {
       status: HttpStatus.NOT_FOUND,
       success: false,
-      message: "Product is not found",
+      message: WishlistMessages.PRODUCT_NOT_FOUND,
     };
   }
 
@@ -87,7 +88,7 @@ export const toggleWishlistService = async (userId, body) => {
     return {
       status: HttpStatus.NOT_FOUND,
       success: false,
-      message: "Product is not found",
+      message: WishlistMessages.PRODUCT_NOT_FOUND,
     };
   }
 
@@ -103,10 +104,10 @@ export const toggleWishlistService = async (userId, body) => {
     await removeWishlistItem(userId, variant.productId._id, variant._id);
 
     return {
-      wishlistCount:wishlistCount-1,
+      wishlistCount: wishlistCount - 1,
       status: HttpStatus.CREATED,
       success: true,
-      message: "Product removed from wishlist",
+      message: WishlistMessages.PRODUCT_REMOVED,
     };
   }
 
@@ -117,14 +118,14 @@ export const toggleWishlistService = async (userId, body) => {
     status: HttpStatus.CREATED,
     success: true,
     action: "added",
-    message: "Product added to wishlist",
+    message: WishlistMessages.PRODUCT_ADDED,
   };
 };
 
 export const clearWishlistService = async (userId) => {
   await deleteWishlist(userId);
   return {
-    message: "Wishlist cleared successfully",
+    message: WishlistMessages.WISHLIST_CLEARED,
     status: HttpStatus.OK,
     success: true,
   };

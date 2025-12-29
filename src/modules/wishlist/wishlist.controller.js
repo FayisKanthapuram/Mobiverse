@@ -1,4 +1,5 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { WishlistMessages } from "../../shared/constants/messages/wishlistMessages.js";
 import {
   toggleWishlistService,
   loadWishlistService,
@@ -32,7 +33,7 @@ export const loadWishlist = async (req, res) => {
 ---------------------------------------------------- */
 export const toggleWishlist = async (req, res) => {
   if (!req.user?._id) {
-    throw new AppError("Unauthorized", HttpStatus.UNAUTHORIZED);
+    throw new AppError(WishlistMessages.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
   }
 
   const result = await toggleWishlistService(req.user._id, req.body);

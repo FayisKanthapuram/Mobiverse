@@ -5,6 +5,7 @@ import {
 } from "./wallet.service.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
+import { WalletMessages } from "../../shared/constants/messages/walletMessages.js";
 
 /* ----------------------------------------------------
    LOAD MY WALLET
@@ -42,7 +43,7 @@ export const addMoney = async (req, res) => {
   const { amount } = req.body;
 
   if (!amount || Number(amount) <= 0) {
-    throw new AppError("Invalid amount", HttpStatus.BAD_REQUEST);
+    throw new AppError(WalletMessages.INVALID_AMOUNT, HttpStatus.BAD_REQUEST);
   }
 
   const result = await addMoneyService(amount);

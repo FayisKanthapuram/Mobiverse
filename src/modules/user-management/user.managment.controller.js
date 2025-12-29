@@ -1,4 +1,5 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { UserManagementMessages } from "../../shared/constants/messages/userManagementMessages.js";
 import {
   loadUsersService,
   blockUserService,
@@ -35,7 +36,7 @@ export const blockUsers = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "User status updated",
+    message: UserManagementMessages.USER_STATUS_UPDATED,
   });
 };
 

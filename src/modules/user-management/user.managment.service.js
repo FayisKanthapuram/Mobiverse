@@ -13,6 +13,7 @@ import {
 import { findUserById } from "../user/user.repo.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { UserMessages } from "../../shared/constants/messages/userMessages.js";
 
 /* ----------------------------------------------------
    LOAD USERS
@@ -55,7 +56,7 @@ export const loadUsersService = async (queryParams) => {
 export const blockUserService = async (id) => {
   const user = await findUserById(id);
   if (!user) {
-    throw new AppError("User not found", HttpStatus.NOT_FOUND);
+    throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   user.isBlocked = !user.isBlocked;

@@ -17,6 +17,7 @@ import {
 import { razorpayPaymentValidation } from "./wallet.validator.js";
 import crypto from "crypto";
 import { AppError } from "../../shared/utils/app.error.js";
+import { WalletMessages } from "../../shared/constants/messages/walletMessages.js";
 
 export const loadMyWalletService = async (userId, { page, type, limit }) => {
   const user = await findUserById(userId);
@@ -81,7 +82,7 @@ export const verifyPaymentService = async (data, userId) => {
     if (expectedSignature !== razorpay_signature) {
       throw {
         status: HttpStatus.NOT_ACCEPTABLE,
-        message: "Payment verification failed",
+        message: WalletMessages.PAYMENT_VERIFICATION_FAILED,
       };
     }
 
@@ -98,7 +99,7 @@ export const verifyPaymentService = async (data, userId) => {
       return {
         status: HttpStatus.ALREADY_REPORTED,
         success: true,
-        message: "Payment already processed",
+        message: WalletMessages.PAYMENT_ALREADY_PROCESSED,
       };
     }
 
@@ -117,7 +118,7 @@ export const verifyPaymentService = async (data, userId) => {
       userId,
       amount: creditAmount,
       type: "CREDIT",
-      note: "Wallet top-up",
+      note: WalletMessages.WALLET_TOP_UP_NOTE,
       referenceId: razorpay_payment_id,
       razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
@@ -135,7 +136,7 @@ export const verifyPaymentService = async (data, userId) => {
     return {
       status: HttpStatus.ACCEPTED,
       success: true,
-      message: "Wallet credited successfully",
+      message: WalletMessages.WALLET_CREDITED_SUCCESS,
       newBalance: wallet.balance,
     };
   } catch (error) {
@@ -155,7 +156,7 @@ export const creditReferralBonusToNewUser = async (userId, amount) => {
   const wallet = await findWalletByUserId(userId);
 
   if (!wallet) {
-    throw new AppError("Wallet not found", HttpStatus.NOT_FOUND);
+    throw new AppError(WalletMessages.WALLET_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   const newBalance = wallet.balance + amount;
@@ -169,6 +170,6 @@ export const creditReferralBonusToNewUser = async (userId, amount) => {
     amount,
     balanceAfter: newBalance,
     type: "REFERRAL",
-    note: "Referral Signup Bonus",
+    note: WalletMessages.REFERRAL_SIGNUP_BONUS,
   });
 };
