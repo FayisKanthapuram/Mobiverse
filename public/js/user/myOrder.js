@@ -5,16 +5,27 @@ let currentOrderData = null;
 -------------------------------------------- */
 function getPriceHtml(item) {
   const qty = item.quantity;
-  const sale = item.price;                // sale price captured at purchase
+  const sale = item.price; // sale price captured at purchase
   const regular = item.regularPrice || sale;
   const offer = item.offer || 0;
-  const finalPrice = offer ? sale - offer : sale;
+  const couponShare = item.couponShare;
+  const finalPrice = offer ? sale - offer - couponShare : sale - couponShare;
 
   let html = `
-    <p class="text-sm font-semibold ${offer ? "text-green-600" : "text-gray-900"}">
+    <p class="text-sm font-semibold ${
+      offer ? "text-green-600" : "text-gray-900"
+    }">
       ₹${(finalPrice * qty).toLocaleString("en-IN")}
     </p>
   `;
+
+  if(couponShare){
+    html += `
+      <p class="text-xs text-gray-500 line-through">
+        ₹${(sale - offer * qty).toLocaleString("en-IN")}
+      </p>
+    `;
+  }
 
   // Sale price strike
   if (offer) {
@@ -95,46 +106,48 @@ function closeCancelItemModal() {
   document.getElementById("cancelItemForm").reset();
 }
 
-document.getElementById("cancelItemForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
+document
+  .getElementById("cancelItemForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-  const formData = new FormData(this);
-  const orderId = formData.get("orderId");
-  const cancelItems = formData.getAll("cancelItems[]");
-  const reason = formData.get("reason");
-  const comments = formData.get("comments");
+    const formData = new FormData(this);
+    const orderId = formData.get("orderId");
+    const cancelItems = formData.getAll("cancelItems[]");
+    const reason = formData.get("reason");
+    const comments = formData.get("comments");
 
-  try {
-    const response = await axios.post(`/order/${orderId}/cancel-items`, {
-      itemIds: cancelItems,
-      reason,
-      comments,
-    });
+    try {
+      const response = await axios.post(`/order/${orderId}/cancel-items`, {
+        itemIds: cancelItems,
+        reason,
+        comments,
+      });
 
-    const data = response.data;
-    if (data && data.success) {
+      const data = response.data;
+      if (data && data.success) {
+        Toastify({
+          text: "Items cancelled successfully!",
+          duration: 2500,
+          gravity: "bottom",
+          position: "right",
+          backgroundColor: "linear-gradient(to right, #16a34a, #10b981)",
+        }).showToast();
+
+        closeCancelItemModal();
+        setTimeout(() => window.location.reload(), 800);
+      }
+    } catch (error) {
+      console.error("Error cancelling items:", error);
       Toastify({
-        text: "Items cancelled successfully!",
-        duration: 2500,
+        text: error.response?.data?.message || "Failed to cancel items",
+        duration: 4000,
         gravity: "bottom",
         position: "right",
-        backgroundColor: "linear-gradient(to right, #16a34a, #10b981)",
+        backgroundColor: "linear-gradient(to right, #ef4444, #dc2626)",
       }).showToast();
-
-      closeCancelItemModal();
-      setTimeout(() => window.location.reload(), 800);
     }
-  } catch (error) {
-    console.error("Error cancelling items:", error);
-    Toastify({
-      text: error.response?.data?.message || "Failed to cancel items",
-      duration: 4000,
-      gravity: "bottom",
-      position: "right",
-      backgroundColor: "linear-gradient(to right, #ef4444, #dc2626)",
-    }).showToast();
-  }
-});
+  });
 
 /* -------------------------------------------
    RETURN ORDER MODAL
@@ -187,57 +200,60 @@ function closeReturnItemModal() {
   document.getElementById("returnItemForm").reset();
 }
 
-document.getElementById("returnItemForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
+document
+  .getElementById("returnItemForm")
+  .addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-  const formData = new FormData(this);
-  const orderId = formData.get("orderId");
-  const returnItems = formData.getAll("returnItems[]");
-  const reason = formData.get("reason");
-  const comments = formData.get("comments");
+    const formData = new FormData(this);
+    const orderId = formData.get("orderId");
+    const returnItems = formData.getAll("returnItems[]");
+    const reason = formData.get("reason");
+    const comments = formData.get("comments");
 
-  if (returnItems.length === 0) {
-    Toastify({
-      text: "Please select at least one item to return",
-      duration: 3000,
-      gravity: "bottom",
-      position: "right",
-      backgroundColor: "linear-gradient(to right, #f97316, #f43f5e)",
-    }).showToast();
-    return;
-  }
-
-  try {
-    const res = await axios.post(`/order/${orderId}/return-items`, {
-      itemIds: returnItems,
-      reason,
-      comments,
-    });
-
-    const data = res.data;
-    if (data && data.success) {
+    if (returnItems.length === 0) {
       Toastify({
-        text: "Return request submitted successfully!",
-        duration: 2500,
+        text: "Please select at least one item to return",
+        duration: 3000,
         gravity: "bottom",
         position: "right",
-        backgroundColor: "linear-gradient(to right, #16a34a, #10b981)",
+        backgroundColor: "linear-gradient(to right, #f97316, #f43f5e)",
       }).showToast();
-
-      closeReturnItemModal();
-      setTimeout(() => window.location.reload(), 800);
+      return;
     }
-  } catch (error) {
-    console.error("Error submitting return request:", error);
-    Toastify({
-      text: error.response?.data?.message || "Failed to submit return request",
-      duration: 4000,
-      gravity: "bottom",
-      position: "right",
-      backgroundColor: "linear-gradient(to right, #ef4444, #dc2626)",
-    }).showToast();
-  }
-});
+
+    try {
+      const res = await axios.post(`/order/${orderId}/return-items`, {
+        itemIds: returnItems,
+        reason,
+        comments,
+      });
+
+      const data = res.data;
+      if (data && data.success) {
+        Toastify({
+          text: "Return request submitted successfully!",
+          duration: 2500,
+          gravity: "bottom",
+          position: "right",
+          backgroundColor: "linear-gradient(to right, #16a34a, #10b981)",
+        }).showToast();
+
+        closeReturnItemModal();
+        setTimeout(() => window.location.reload(), 800);
+      }
+    } catch (error) {
+      console.error("Error submitting return request:", error);
+      Toastify({
+        text:
+          error.response?.data?.message || "Failed to submit return request",
+        duration: 4000,
+        gravity: "bottom",
+        position: "right",
+        backgroundColor: "linear-gradient(to right, #ef4444, #dc2626)",
+      }).showToast();
+    }
+  });
 
 /* -------------------------------------------
    SEARCH, FILTERS, ETC
@@ -288,7 +304,6 @@ function changeOrderPage(page) {
   url.searchParams.set("page", page);
   window.location.href = url.href;
 }
-
 
 function downloadInvoice(orderId) {
   window.open(`/order/invoice/${orderId}`, "_blank");
