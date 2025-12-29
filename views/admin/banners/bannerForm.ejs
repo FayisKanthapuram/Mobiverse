@@ -26,7 +26,7 @@ function toISTDatetimeLocal(date) {
 
   <!-- Form -->
   <form id="banner-form" class="space-y-8">
-    
+
     <!-- Basic Information Card -->
     <div class="bg-white rounded-xl shadow-md p-8">
       <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -39,13 +39,7 @@ function toISTDatetimeLocal(date) {
         <label for="title" class="block text-sm font-semibold text-gray-700 mb-2">
           Banner Title <span class="text-red-500">*</span>
         </label>
-        <input type="text" 
-               id="title" 
-               name="title" 
-               value="<%= banner ? banner.title : '' %>"
-               placeholder="e.g., SAMSUNG GALAXY S23 ULTRA 5G"
-               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-               required>
+        <input type="text" id="title" name="title" value="<%= banner ? banner.title : '' %>" placeholder="e.g., SAMSUNG GALAXY S23 ULTRA 5G" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
       </div>
 
       <!-- Subtitle -->
@@ -53,12 +47,7 @@ function toISTDatetimeLocal(date) {
         <label for="subtitle" class="block text-sm font-semibold text-gray-700 mb-2">
           Banner Subtitle <span class="text-red-500">*</span>
         </label>
-        <textarea id="subtitle" 
-                  name="subtitle" 
-                  rows="3"
-                  placeholder="e.g., The Future in Your Hand. Order now and get exclusive launch offers."
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required><%= banner ? banner.subtitle : '' %></textarea>
+        <textarea id="subtitle" name="subtitle" rows="3" placeholder="e.g., The Future in Your Hand. Order now and get exclusive launch offers." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" required><%= banner ? banner.subtitle : '' %></textarea>
       </div>
 
       <!-- Link -->
@@ -66,12 +55,7 @@ function toISTDatetimeLocal(date) {
         <label for="link" class="block text-sm font-semibold text-gray-700 mb-2">
           Banner Link
         </label>
-        <input type="text" 
-               id="link" 
-               name="link" 
-               value="<%= banner ? banner.link : '' %>"
-               placeholder="e.g., /shop/s23-ultra or https://example.com"
-               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <input type="text" id="link" name="link" value="<%= banner ? banner.link : '' %>" placeholder="e.g., /shop/s23-ultra or https://example.com" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         <p class="text-sm text-gray-500 mt-1">Leave empty if no link is needed</p>
       </div>
     </div>
@@ -89,24 +73,17 @@ function toISTDatetimeLocal(date) {
         <label class="block text-sm font-semibold text-gray-700 mb-2">
           Desktop Image (Required) <span class="text-red-500">*</span>
         </label>
-        
+
         <% if (banner && banner.images.desktop) { %>
-          <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <p class="text-sm text-gray-600 mb-2">Current Desktop Image:</p>
-            <img src="<%= banner.images.desktop %>" alt="Current desktop banner" class="max-h-48 rounded-lg">
-          </div>
+        <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p class="text-sm text-gray-600 mb-2">Current Desktop Image:</p>
+          <img src="<%= banner.images.desktop %>" alt="Current desktop banner" class="max-h-48 rounded-lg">
+        </div>
         <% } %>
 
         <div class="relative">
-          <input type="file" 
-                 id="imageDesktop" 
-                 name="imageDesktop" 
-                 accept="image/*"
-                 class="hidden"
-                 <%= !banner ? 'required' : '' %>
-                 onchange="previewImage(event, 'desktop')">
-          <label for="imageDesktop" 
-                 class="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+          <input type="file" id="imageDesktop" name="imageDesktop" accept="image/*" class="hidden" <%= !banner ? 'required' : '' %> onchange="previewImage(event, 'desktop')">
+          <label for="imageDesktop" class="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
             <i class="bi bi-display text-xl text-gray-400"></i>
             <span class="text-gray-600">Click to upload desktop image</span>
           </label>
@@ -116,9 +93,7 @@ function toISTDatetimeLocal(date) {
           <div class="relative p-4 bg-gray-50 rounded-lg border border-gray-200">
             <p class="text-sm text-gray-600 mb-2">Preview:</p>
             <img id="previewImgDesktop" src="" alt="Preview" class="max-h-48 rounded-lg">
-            <button type="button" 
-                    onclick="openCropModal('desktop')"
-                    class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button type="button" onclick="openCropModal('desktop')" class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               <i class="bi bi-crop"></i>
               <span>Crop Image</span>
             </button>
@@ -133,23 +108,17 @@ function toISTDatetimeLocal(date) {
         <label class="block text-sm font-semibold text-gray-700 mb-2">
           Tablet Image (Optional)
         </label>
-        
+
         <% if (banner && banner.images.tablet) { %>
-          <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <p class="text-sm text-gray-600 mb-2">Current Tablet Image:</p>
-            <img src="<%= banner.images.tablet %>" alt="Current tablet banner" class="max-h-32 rounded-lg">
-          </div>
+        <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p class="text-sm text-gray-600 mb-2">Current Tablet Image:</p>
+          <img src="<%= banner.images.tablet %>" alt="Current tablet banner" class="max-h-32 rounded-lg">
+        </div>
         <% } %>
 
         <div class="relative">
-          <input type="file" 
-                 id="imageTablet" 
-                 name="imageTablet" 
-                 accept="image/*"
-                 class="hidden"
-                 onchange="previewImage(event, 'tablet')">
-          <label for="imageTablet" 
-                 class="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+          <input type="file" id="imageTablet" name="imageTablet" accept="image/*" class="hidden" onchange="previewImage(event, 'tablet')">
+          <label for="imageTablet" class="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
             <i class="bi bi-tablet text-xl text-gray-400"></i>
             <span class="text-gray-600">Click to upload tablet image</span>
           </label>
@@ -159,9 +128,7 @@ function toISTDatetimeLocal(date) {
           <div class="relative p-4 bg-gray-50 rounded-lg border border-gray-200">
             <p class="text-sm text-gray-600 mb-2">Preview:</p>
             <img id="previewImgTablet" src="" alt="Preview" class="max-h-32 rounded-lg">
-            <button type="button" 
-                    onclick="openCropModal('tablet')"
-                    class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button type="button" onclick="openCropModal('tablet')" class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               <i class="bi bi-crop"></i>
               <span>Crop Image</span>
             </button>
@@ -176,23 +143,17 @@ function toISTDatetimeLocal(date) {
         <label class="block text-sm font-semibold text-gray-700 mb-2">
           Mobile Image (Optional)
         </label>
-        
+
         <% if (banner && banner.images.mobile) { %>
-          <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <p class="text-sm text-gray-600 mb-2">Current Mobile Image:</p>
-            <img src="<%= banner.images.mobile %>" alt="Current mobile banner" class="max-h-32 rounded-lg">
-          </div>
+        <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p class="text-sm text-gray-600 mb-2">Current Mobile Image:</p>
+          <img src="<%= banner.images.mobile %>" alt="Current mobile banner" class="max-h-32 rounded-lg">
+        </div>
         <% } %>
 
         <div class="relative">
-          <input type="file" 
-                 id="imageMobile" 
-                 name="imageMobile" 
-                 accept="image/*"
-                 class="hidden"
-                 onchange="previewImage(event, 'mobile')">
-          <label for="imageMobile" 
-                 class="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+          <input type="file" id="imageMobile" name="imageMobile" accept="image/*" class="hidden" onchange="previewImage(event, 'mobile')">
+          <label for="imageMobile" class="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
             <i class="bi bi-phone text-xl text-gray-400"></i>
             <span class="text-gray-600">Click to upload mobile image</span>
           </label>
@@ -202,9 +163,7 @@ function toISTDatetimeLocal(date) {
           <div class="relative p-4 bg-gray-50 rounded-lg border border-gray-200">
             <p class="text-sm text-gray-600 mb-2">Preview:</p>
             <img id="previewImgMobile" src="" alt="Preview" class="max-h-32 rounded-lg">
-            <button type="button" 
-                    onclick="openCropModal('mobile')"
-                    class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button type="button" onclick="openCropModal('mobile')" class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               <i class="bi bi-crop"></i>
               <span>Crop Image</span>
             </button>
@@ -226,12 +185,7 @@ function toISTDatetimeLocal(date) {
       <!-- Enable Scheduling -->
       <div class="mb-6">
         <label class="flex items-center cursor-pointer">
-          <input type="checkbox" 
-                 id="isScheduled" 
-                 name="isScheduled" 
-                 <%= banner && banner.isScheduled ? 'checked' : '' %>
-                 onchange="toggleScheduling()"
-                 class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+          <input type="checkbox" id="isScheduled" name="isScheduled" <%= banner && banner.isScheduled ? 'checked' : '' %> onchange="toggleScheduling()" class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
           <span class="ml-3 text-sm font-semibold text-gray-700">Enable scheduling for this banner</span>
         </label>
       </div>
@@ -242,11 +196,7 @@ function toISTDatetimeLocal(date) {
           <label for="scheduledStart" class="block text-sm font-semibold text-gray-700 mb-2">
             Start Date & Time (IST)
           </label>
-          <input type="datetime-local" 
-                 id="scheduledStart" 
-                 name="scheduledStart" 
-                 value="<%= banner && banner.scheduledStart ? toISTDatetimeLocal(banner.scheduledStart) : '' %>"
-                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <input type="datetime-local" id="scheduledStart" name="scheduledStart" value="<%= banner && banner.scheduledStart ? toISTDatetimeLocal(banner.scheduledStart) : '' %>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <p class="text-sm text-gray-500 mt-1">Leave empty to activate immediately</p>
         </div>
 
@@ -255,11 +205,7 @@ function toISTDatetimeLocal(date) {
           <label for="scheduledEnd" class="block text-sm font-semibold text-gray-700 mb-2">
             End Date & Time (IST)
           </label>
-          <input type="datetime-local" 
-                 id="scheduledEnd" 
-                 name="scheduledEnd" 
-                 value="<%= banner && banner.scheduledEnd ? toISTDatetimeLocal(banner.scheduledEnd) : '' %>"
-                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <input type="datetime-local" id="scheduledEnd" name="scheduledEnd" value="<%= banner && banner.scheduledEnd ? toISTDatetimeLocal(banner.scheduledEnd) : '' %>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <p class="text-sm text-gray-500 mt-1">Leave empty for no end date</p>
         </div>
       </div>
@@ -277,23 +223,14 @@ function toISTDatetimeLocal(date) {
         <label for="order" class="block text-sm font-semibold text-gray-700 mb-2">
           Display Order
         </label>
-        <input type="number" 
-               id="order" 
-               name="order" 
-               min="1"
-               value="<%= banner ? banner.order : 1 %>"
-               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <input type="number" id="order" name="order" min="1" value="<%= banner ? banner.order : 1 %>" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
         <p class="text-sm text-gray-500 mt-1">Lower numbers appear first in the carousel</p>
       </div>
 
       <!-- Active Status -->
       <div>
         <label class="flex items-center cursor-pointer">
-          <input type="checkbox" 
-                 id="isActive" 
-                 name="isActive" 
-                 <%= banner && banner.isActive ? 'checked' : '' %>
-                 class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+          <input type="checkbox" id="isActive" name="isActive" <%= banner && banner.isActive ? 'checked' : '' %> class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
           <span class="ml-3 text-sm font-semibold text-gray-700">Active (Display on home page)</span>
         </label>
       </div>
@@ -301,13 +238,20 @@ function toISTDatetimeLocal(date) {
 
     <!-- Action Buttons -->
     <div class="flex gap-3">
-      <button type="submit" 
-              class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-        <i class="bi bi-check-circle"></i>
-        <span><%= banner ? 'Update Banner' : 'Create Banner' %></span>
+      <button type="submit" id="saveBannerBtn" class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+
+        <span id="saveBannerText">
+          <i class="bi bi-check-circle"></i>
+          <%= banner ? 'Update Banner' : 'Create Banner' %>
+        </span>
+
+        <span id="saveBannerLoader" class="hidden">
+          <i class="bi bi-arrow-repeat animate-spin"></i>
+          Saving...
+        </span>
       </button>
-      <a href="/admin/banners" 
-         class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors">
+
+      <a href="/admin/banners" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors">
         <i class="bi bi-x-circle"></i>
         <span>Cancel</span>
       </a>
@@ -327,13 +271,13 @@ function toISTDatetimeLocal(date) {
         <i class="bi bi-x"></i>
       </button>
     </div>
-    
+
     <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
       <div class="max-h-[500px] overflow-hidden">
         <img id="cropImage" src="" alt="Crop" class="max-w-full">
       </div>
     </div>
-    
+
     <div class="p-6 border-t border-gray-200 flex items-center justify-between gap-4">
       <div class="flex gap-2">
         <button type="button" onclick="rotateCrop(-90)" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">

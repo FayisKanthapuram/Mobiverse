@@ -217,16 +217,32 @@ const bannerId = isEditMode ? window.location.pathname.split("/").pop() : null;
 bannerForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const saveBtn = document.getElementById("saveBannerBtn");
+  const btnText = document.getElementById("saveBannerText");
+  const btnLoader = document.getElementById("saveBannerLoader");
+
+  // 🚫 Prevent multiple submissions
+  if (saveBtn.disabled) return;
+
+  // 🔒 Lock UI
+  saveBtn.disabled = true;
+  btnText.classList.add("hidden");
+  btnLoader.classList.remove("hidden");
+
   const formData = new FormData();
 
-  // Add text fields
+  // -------------------------------
+  // TEXT FIELDS
+  // -------------------------------
   formData.append("title", document.getElementById("title").value);
   formData.append("subtitle", document.getElementById("subtitle").value);
   formData.append("link", document.getElementById("link").value);
   formData.append("order", document.getElementById("order").value);
   formData.append("isActive", document.getElementById("isActive").checked);
 
-  // Add scheduling fields
+  // -------------------------------
+  // SCHEDULING
+  // -------------------------------
   const isScheduled = document.getElementById("isScheduled").checked;
   formData.append("isScheduled", isScheduled);
 
@@ -234,25 +250,24 @@ bannerForm.addEventListener("submit", async (e) => {
     const scheduledStart = document.getElementById("scheduledStart").value;
     const scheduledEnd = document.getElementById("scheduledEnd").value;
 
-    // Convert IST to UTC before sending to server
     if (scheduledStart) {
-      const utcStart = convertISTToUTC(scheduledStart);
-      formData.append("scheduledStart", utcStart);
+      formData.append("scheduledStart", convertISTToUTC(scheduledStart));
     }
     if (scheduledEnd) {
-      const utcEnd = convertISTToUTC(scheduledEnd);
-      formData.append("scheduledEnd", utcEnd);
+      formData.append("scheduledEnd", convertISTToUTC(scheduledEnd));
     }
   }
 
-  // Add image files (use cropped versions if available)
+  // -------------------------------
+  // IMAGES (cropped preferred)
+  // -------------------------------
   ["desktop", "tablet", "mobile"].forEach((device) => {
     const input = document.getElementById(
       `image${device.charAt(0).toUpperCase() + device.slice(1)}`
     );
 
     if (input.files.length > 0) {
-      if (croppedImages[device] && croppedImages[device].file) {
+      if (croppedImages[device]?.file) {
         formData.append(
           `image${device.charAt(0).toUpperCase() + device.slice(1)}`,
           croppedImages[device].file
@@ -270,18 +285,12 @@ bannerForm.addEventListener("submit", async (e) => {
     let response;
 
     if (isEditMode) {
-      // Update existing banner
       response = await axios.put(`/admin/banners/${bannerId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
     } else {
-      // Create new banner
       response = await axios.post("/admin/banners", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
     }
 
@@ -293,16 +302,17 @@ bannerForm.addEventListener("submit", async (e) => {
       window.location.href = "/admin/banners";
     }
   } catch (error) {
-    console.error("Error saving banner:", error);
+    // 🔓 Unlock on error
+    saveBtn.disabled = false;
+    btnText.classList.remove("hidden");
+    btnLoader.classList.add("hidden");
 
     let errorMessage = "Failed to save banner";
 
     if (error.response?.data?.message) {
       errorMessage = error.response.data.message;
     } else if (error.response?.data?.errors) {
-      // Handle validation errors
-      const errors = error.response.data.errors;
-      errorMessage = Object.values(errors)
+      errorMessage = Object.values(error.response.data.errors)
         .map((err) => err.message)
         .join(", ");
     }
@@ -317,6 +327,7 @@ bannerForm.addEventListener("submit", async (e) => {
     }).showToast();
   }
 });
+
 
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", function () {

@@ -8,8 +8,10 @@ import {
   createBanner,
   deleteBannerById,
   findBannerById,
+  findBannerCount,
   findBanners,
   saveBanner,
+  shiftBannerOrders,
   updateBannerOrder,
 } from "./banners.repo.js";
 
@@ -58,6 +60,11 @@ export const createBannerService = async (body, files) => {
       mobileUrl = mobileUpload.secure_url;
     }
 
+    let order = Number(body.order) || 1;
+    await shiftBannerOrders(order);
+    const bannerCount = await findBannerCount();
+    if(bannerCount+1<order)order=bannerCount+1;
+
     const bannerData = {
       title: body.title,
       subtitle: body.subtitle,
@@ -67,7 +74,7 @@ export const createBannerService = async (body, files) => {
         tablet: tabletUrl,
         mobile: mobileUrl,
       },
-      order: Number(body.order) || 1,
+      order: order,
       isActive: body.isActive === "true" || body.isActive === true,
       isScheduled: body.isScheduled === "true" || body.isScheduled === true,
       scheduledStart: toISTDate(body.scheduledStart),
@@ -97,9 +104,26 @@ export const updateBannerService = async (bannerId, body, files) => {
   banner.title = body.title ?? banner.title;
   banner.subtitle = body.subtitle ?? banner.subtitle;
   banner.link = body.link ?? banner.link;
-  banner.order = Number(body.order ?? banner.order);
   banner.isActive = body.isActive === "true" || body.isActive === true;
   banner.isScheduled = body.isScheduled === "true" || body.isScheduled === true;
+
+  const newOrder = Number(body.order ?? banner.order);
+
+  if (newOrder !== banner.order) {
+    const bannerCount=await findBannerCount()
+    if (newOrder < banner.order){
+      await shiftBannerOrders(newOrder, banner._id, banner.order);
+      banner.order = newOrder;
+    }
+    else if(bannerCount+1>newOrder){
+      await shiftBannerOrders(banner.order + 1, null, newOrder+1, -1);
+      banner.order = newOrder;
+    }
+    else {
+      await shiftBannerOrders(banner.order+1,null,bannerCount+1,-1)
+      banner.order=bannerCount;
+    }
+  }
 
   if (banner.isScheduled) {
     banner.scheduledStart = toISTDate(body.scheduledStart);
@@ -108,7 +132,6 @@ export const updateBannerService = async (bannerId, body, files) => {
     banner.scheduledStart = null;
     banner.scheduledEnd = null;
   }
-
 
   // ---- IMAGE REPLACEMENT (Cloudinary-safe) ----
 
@@ -207,6 +230,8 @@ export const deleteBannerService = async (bannerId) => {
     const publicId = url.split("/").pop().split(".")[0];
     await cloudinary.uploader.destroy(`ecommerce/banners/${publicId}`);
   }
+
+  await shiftBannerOrders(banner.order+1,null,Infinity,-1);
 
   await deleteBannerById(bannerId);
 };
