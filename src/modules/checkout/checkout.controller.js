@@ -1,5 +1,6 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { applyCouponService, loadCheckoutService } from "./checkout.service.js";
+import { CouponMessages } from "../../shared/constants/messages/couponMessages.js";
 
 /* ----------------------------------------------------
    LOAD CHECKOUT
@@ -42,7 +43,7 @@ export const applyCoupon = async (req, res) => {
 
   res
     .status(HttpStatus.OK)
-    .json({ success: true, message: "Coupon applied successfully" });
+    .json({ success: true, message: CouponMessages.COUPON_APPLIED });
 };
 
 /* ----------------------------------------------------
@@ -53,6 +54,6 @@ export const removeCoupon = (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Coupon removed successfully",
+    message: CouponMessages.COUPON_REMOVED,
   });
 };

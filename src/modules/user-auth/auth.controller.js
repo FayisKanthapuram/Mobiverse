@@ -9,6 +9,7 @@ import {
 } from "./auth.service.js";
 
 import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { UserAuthMessages } from "../../shared/constants/messages/userAuthMessages.js";
 import {
   userRegisterSchema,
   userLoginSchema,
@@ -73,7 +74,7 @@ export const registerUser = async (req, res) => {
   res.status(HttpStatus.OK).json({
     success: true,
     redirect: "/verifyOtp",
-    message: "OTP sent to email",
+    message: UserAuthMessages.SIGNUP_OTP_SENT,
   });
 };
 
@@ -86,7 +87,7 @@ export const verifyOtp = async (req, res) => {
   res.status(HttpStatus.OK).json({
     success: true,
     redirect: "/login",
-    message: "OTP verified successfully",
+    message: UserAuthMessages.OTP_VERIFIED,
   });
 };
 
@@ -98,7 +99,7 @@ export const resendOtp = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "OTP resent successfully",
+    message: UserAuthMessages.OTP_RESENT,
     cooldownSeconds: req.session.otpCooldownEnd,
   });
 };
@@ -123,7 +124,7 @@ export const loginUser = async (req, res, next) => {
     res.status(HttpStatus.OK).json({
       success: true,
       redirect: "/home",
-      message: "Logged in successfully",
+      message: UserAuthMessages.LOGGED_IN,
     });
   });
 };
@@ -137,7 +138,7 @@ export const sendRecoverOtp = async (req, res) => {
   res.status(HttpStatus.OK).json({
     success: true,
     redirect: "/verifyRecoverOtp",
-    message: "OTP sent to email",
+    message: UserAuthMessages.SIGNUP_OTP_SENT,
   });
 };
 
@@ -150,7 +151,7 @@ export const verifyRecoverOtp = async (req, res) => {
   res.status(HttpStatus.OK).json({
     success: true,
     redirect: "/resetPassword",
-    message: "OTP verified successfully",
+    message: UserAuthMessages.OTP_VERIFIED,
   });
 };
 
@@ -168,7 +169,7 @@ export const saveNewPassword = async (req, res) => {
   res.status(HttpStatus.OK).json({
     success: true,
     redirect: "/login",
-    message: "Password reset successfully",
+    message: UserAuthMessages.LOGGED_OUT,
   });
 };
 
@@ -184,7 +185,7 @@ export const logOutUser = (req, res, next) => {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Logged out successfully",
+        message: UserAuthMessages.LOGGED_OUT,
         redirect: "/login",
       });
     });
@@ -205,7 +206,7 @@ export const googleLogin = async (req, res) => {
 
   req.session.toast = {
     type: "success",
-    message: "Login successful",
+    message: UserAuthMessages.LOGIN_SUCCESS_TOAST,
   };
 
   res.redirect("/home");

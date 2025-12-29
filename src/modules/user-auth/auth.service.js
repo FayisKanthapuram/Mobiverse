@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import { AppError } from "../../shared/utils/app.error.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { UserMessages } from "../../shared/constants/messages/userMessages.js";
+import { UserAuthMessages } from "../../shared/constants/messages/userAuthMessages.js";
 
 import {
   findUserByEmail,
@@ -28,7 +30,7 @@ export const registerUserService = async (body, session) => {
   const exists = await findUserByEmail(email);
   if (exists) {
     throw new AppError(
-      "User already exists with this email",
+      UserAuthMessages.USER_ALREADY_EXISTS,
       HttpStatus.BAD_REQUEST
     );
   }
@@ -46,7 +48,10 @@ export const registerUserService = async (body, session) => {
 
   const sent = await sendOtpEmail(email, otp, "signup");
   if (!sent) {
-    throw new AppError("Failed to send OTP", HttpStatus.INTERNAL_SERVER_ERROR);
+    throw new AppError(
+      UserAuthMessages.FAILED_SEND_OTP,
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
   }
   console.log("Signup OTP:", otp);
 
@@ -61,20 +66,20 @@ export const registerUserService = async (body, session) => {
 export const verifySignUpOtpService = async (otp, session) => {
   if (!session.otp || !session.tempUser) {
     throw new AppError(
-      "OTP not found. Please signup again.",
+      UserAuthMessages.OTP_NOT_FOUND_SIGNUP,
       HttpStatus.BAD_REQUEST
     );
   }
 
   if (Date.now() > session.otpExpiry) {
     throw new AppError(
-      "OTP expired. Please resend OTP.",
+      UserAuthMessages.OTP_EXPIRED_RESEND,
       HttpStatus.BAD_REQUEST
     );
   }
 
   if (otp !== session.otp) {
-    throw new AppError("Incorrect OTP", HttpStatus.BAD_REQUEST);
+    throw new AppError(UserAuthMessages.INCORRECT_OTP, HttpStatus.BAD_REQUEST);
   }
 
   const referralCode = generateReferralCode(session.tempUser.username);
@@ -119,7 +124,7 @@ export const resendOtpService = async (session) => {
     const remaining = Math.ceil((session.otpCooldownEnd - Date.now()) / 1000);
 
     throw new AppError(
-      `Please wait ${remaining}s before resending OTP`,
+      UserAuthMessages.PLEASE_WAIT_RESEND.replace("{remaining}", remaining),
       HttpStatus.TOO_MANY_REQUESTS
     );
   }
@@ -138,7 +143,7 @@ export const resendOtpService = async (session) => {
 
     if (!sent) {
       throw new AppError(
-        "Failed to resend OTP",
+        UserAuthMessages.FAILED_RESEND_OTP,
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -161,7 +166,7 @@ export const resendOtpService = async (session) => {
 
     if (!sent) {
       throw new AppError(
-        "Failed to resend OTP",
+        UserAuthMessages.FAILED_RESEND_OTP,
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
@@ -173,10 +178,7 @@ export const resendOtpService = async (session) => {
   // ============================
   // NO VALID OTP CONTEXT
   // ============================
-  throw new AppError(
-    "No OTP session found. Please start again.",
-    HttpStatus.BAD_REQUEST
-  );
+  throw new AppError(UserAuthMessages.NO_OTP_SESSION, HttpStatus.BAD_REQUEST);
 };
 
 /* ----------------------------------------------------
@@ -185,19 +187,19 @@ export const resendOtpService = async (session) => {
 export const loginUserService = async (email, password) => {
   const user = await findUserByEmail(email);
   if (!user) {
-    throw new AppError("User not found", HttpStatus.UNAUTHORIZED);
+    throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
   }
 
   if (user.isBlocked) {
     throw new AppError(
-      "Your account is blocked. Contact admin.",
+      UserAuthMessages.ACCOUNT_BLOCKED,
       HttpStatus.FORBIDDEN
     );
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    throw new AppError("Invalid password", HttpStatus.UNAUTHORIZED);
+    throw new AppError(UserAuthMessages.INVALID_PASSWORD, HttpStatus.UNAUTHORIZED);
   }
 
   return user;
@@ -209,15 +211,12 @@ export const loginUserService = async (email, password) => {
 export const sendRecoverOtpService = async (email, session) => {
   const user = await findUserByEmail(email);
   if (!user) {
-    throw new AppError(
-      "No account found with this email",
-      HttpStatus.NOT_FOUND
-    );
+    throw new AppError(UserAuthMessages.NO_ACCOUNT_FOUND_EMAIL, HttpStatus.NOT_FOUND);
   }
 
   if (!user.password) {
     throw new AppError(
-      "Password reset not available for Google users",
+      UserAuthMessages.PASSWORD_RESET_NOT_AVAILABLE,
       HttpStatus.BAD_REQUEST
     );
   }
@@ -226,7 +225,10 @@ export const sendRecoverOtpService = async (email, session) => {
 
   const sent = await sendOtpEmail(email, otp, "forgot");
   if (!sent) {
-    throw new AppError("Failed to send OTP", HttpStatus.INTERNAL_SERVER_ERROR);
+    throw new AppError(
+      UserAuthMessages.FAILED_SEND_OTP,
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
   }
   console.log("Recovery OTP:", otp);
 
@@ -241,15 +243,15 @@ export const sendRecoverOtpService = async (email, session) => {
 ---------------------------------------------------- */
 export const verifyRecoveryOtpService = async (otp, session) => {
   if (!session.recoveryOtp) {
-    throw new AppError("OTP not found", HttpStatus.BAD_REQUEST);
+    throw new AppError(UserMessages.OTP_NOT_FOUND, HttpStatus.BAD_REQUEST);
   }
 
   if (Date.now() > session.recoveryOtpExpiry) {
-    throw new AppError("OTP expired", HttpStatus.BAD_REQUEST);
+    throw new AppError(UserMessages.OTP_EXPIRED, HttpStatus.BAD_REQUEST);
   }
 
   if (otp !== session.recoveryOtp) {
-    throw new AppError("Incorrect OTP", HttpStatus.BAD_REQUEST);
+    throw new AppError(UserAuthMessages.INCORRECT_OTP, HttpStatus.BAD_REQUEST);
   }
 
   session.recoveryOtp = null;
@@ -262,7 +264,7 @@ export const verifyRecoveryOtpService = async (otp, session) => {
 ---------------------------------------------------- */
 export const resetPasswordService = async (password, session) => {
   if (!session.recoverEmail || !session.resetPass) {
-    throw new AppError("Unauthorized password reset", HttpStatus.UNAUTHORIZED);
+    throw new AppError(UserAuthMessages.UNAUTHORIZED_PASSWORD_RESET, HttpStatus.UNAUTHORIZED);
   }
 
   const hashed = await bcrypt.hash(password, 10);

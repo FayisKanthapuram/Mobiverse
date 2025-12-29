@@ -3,7 +3,6 @@ import { generateSalesReportExcel } from "./utils/sales.report.excel.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import puppeteer from "puppeteer";
-import path from "path";
 
 /* ----------------------------------------------------
    LOAD SALES REPORT PAGE

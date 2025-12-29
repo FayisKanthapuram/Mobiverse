@@ -13,4 +13,6 @@ export const CouponMessages = {
   COUPON_NOT_ELIGIBLE: "You are not eligible for this coupon",
   COUPON_NEW_USERS_ONLY: "This coupon is only for new users",
   COUPON_MIN_PURCHASE: "Minimum purchase amount is ₹{amount}",
+  COUPON_APPLIED: "Coupon applied successfully",
+  COUPON_REMOVED: "Coupon removed successfully",
 };

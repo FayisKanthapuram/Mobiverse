@@ -13,6 +13,7 @@ import { emailSchema } from "./validators/edit.email.validator.js";
 import { otpSchema } from "./validators/otp.validator.js";
 import { passwordSchema } from "./validators/change.password.validator.js";
 import { AppError } from "../../shared/utils/app.error.js";
+import { UserMessages } from "../../shared/constants/messages/userMessages.js";
 
 /* ----------------------------------------------------
    LOAD PERSONAL INFO
@@ -56,7 +57,7 @@ export const editInfo = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Personal info updated!",
+    message: UserMessages.PERSONAL_INFO_UPDATED,
     redirect: "/personal-info",
   });
 };
@@ -88,7 +89,7 @@ export const editEmail = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "OTP sent to your email!",
+    message: UserMessages.OTP_SENT,
   });
 };
 
@@ -105,7 +106,7 @@ export const sendOtpToEditEmail = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "OTP verified!",
+    message: UserMessages.OTP_VERIFIED,
   });
 };
 
@@ -117,7 +118,7 @@ export const reSendOtpToEditEmail = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "New OTP sent!",
+    message: UserMessages.NEW_OTP_SENT,
   });
 };
 
@@ -148,7 +149,7 @@ export const updatePassword = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Password updated!",
+    message: UserMessages.PASSWORD_UPDATED,
     redirect: "/personal-info",
   });
 };
