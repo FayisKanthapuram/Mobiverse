@@ -22,6 +22,7 @@ import {
 } from "../wishlist/wishlist.repo.js";
 import { getLatestProducts } from "../product/services/product.common.service.js";
 import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
+import { CartMessages } from "../../shared/constants/messages/cartMessages.js";
 
 /* ----------------------------------------------------
    LOAD CART SERVICE
@@ -59,16 +60,16 @@ export const addToCartService = async (userId, body) => {
 
   const variant = await findVariantByIdWithProduct(variantId);
   if (!variant) {
-    throw new AppError("Product not found", HttpStatus.NOT_FOUND);
+    throw new AppError(CartMessages.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   const brand = await findBrandById(variant.productId.brandID);
   if (!variant.isListed || !variant.productId.isListed || !brand?.isListed) {
-    throw new AppError("Product not found", HttpStatus.NOT_FOUND);
+    throw new AppError(CartMessages.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   if (variant.stock < 1) {
-    throw new AppError("Product is not in stock", HttpStatus.BAD_REQUEST);
+    throw new AppError(CartMessages.PRODUCT_NOT_IN_STOCK, HttpStatus.BAD_REQUEST);
   }
 
   const existing = await findCartItem(userId, variant._id);
@@ -80,7 +81,7 @@ export const addToCartService = async (userId, body) => {
       wishlistCount,
       status: HttpStatus.CONFLICT,
       success: true,
-      message: "Product is  already in the cart",
+      message: CartMessages.ALREADY_IN_CART,
     };
   }
 
@@ -110,9 +111,7 @@ export const addToCartService = async (userId, body) => {
     cartCount,
     status: HttpStatus.CREATED,
     success: true,
-    message: isMoveToCart
-      ? "Item moved to cart"
-      : "Item added to cart",
+    message: isMoveToCart ? CartMessages.ITEM_MOVED_TO_CART : CartMessages.ITEM_ADDED_TO_CART,
   };
 };
 
@@ -122,12 +121,12 @@ export const addToCartService = async (userId, body) => {
 export const updateCartItemService = async (itemId, userId, body) => {
   const item = await findCartItemById(itemId);
   if (!item) {
-    throw new AppError("Product not found in your cart", HttpStatus.NOT_FOUND);
+    throw new AppError(CartMessages.PRODUCT_NOT_IN_CART, HttpStatus.NOT_FOUND);
   }
 
   const quantity = Number(body.quantity || 1);
   if (quantity < 1 || quantity > item.variantId.stock) {
-    throw new AppError("Invalid quantity", HttpStatus.UNPROCESSABLE_ENTITY);
+    throw new AppError(CartMessages.INVALID_QUANTITY, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 
   item.quantity = quantity;
@@ -161,7 +160,7 @@ export const updateCartItemService = async (itemId, userId, body) => {
 export const deleteCartItemService = async (itemId,userId) => {
   const item = await findCartItemById(itemId);
   if (!item) {
-    throw new AppError("Product not found", HttpStatus.NOT_FOUND);
+    throw new AppError(CartMessages.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   await item.deleteOne();
@@ -173,6 +172,6 @@ export const deleteCartItemService = async (itemId,userId) => {
     status: HttpStatus.OK,
     cartCount,
     success: true,
-    message: "Item successfully removed from the cart.",
+    message: CartMessages.ITEM_REMOVED,
   };
 };

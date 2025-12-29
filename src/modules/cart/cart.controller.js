@@ -6,6 +6,7 @@ import {
   deleteCartItemService, // Add this line
 } from "./cart.service.js";
 import { AppError } from "../../shared/utils/app.error.js";
+import { CartMessages } from "../../shared/constants/messages/cartMessages.js";
 
 /* ----------------------------------------------------
    LOAD CART
@@ -29,10 +30,7 @@ export const loadCart = async (req, res) => {
 ---------------------------------------------------- */
 export const addToCart = async (req, res) => {
   if (!req.isAuthenticated() || !req.user) {
-    throw new AppError(
-      "Please log in to add products to your cart.",
-      HttpStatus.UNAUTHORIZED
-    );
+    throw new AppError(CartMessages.PLEASE_LOGIN, HttpStatus.UNAUTHORIZED);
   }
 
   if (req.user.isBlocked) {
@@ -42,7 +40,7 @@ export const addToCart = async (req, res) => {
 
         return res.status(HttpStatus.FORBIDDEN).json({
           success: false,
-          message: "Your account has been blocked. Please contact support.",
+          message: CartMessages.ACCOUNT_BLOCKED,
           redirect: "/login",
         });
       });

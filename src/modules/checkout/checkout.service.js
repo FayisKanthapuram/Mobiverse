@@ -15,6 +15,8 @@ import {
 import { findUserById } from "../user/user.repo.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
+import { CouponMessages } from "../../shared/constants/messages/couponMessages.js";
+import { UserMessages } from "../../shared/constants/messages/userMessages.js";
 
 /* ----------------------------------------------------
    LOAD CHECKOUT SERVICE
@@ -22,7 +24,7 @@ import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 export const loadCheckoutService = async (userId) => {
   const user = await findUserById(userId);
   if (!user) {
-    throw new AppError("User not found", HttpStatus.NOT_FOUND);
+    throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   const addresses = await findUserAddresses(userId);
@@ -62,22 +64,22 @@ export const applyCouponService = async (body, userId) => {
 
   const coupon = await findCouponByCode(code.toUpperCase());
   if (!coupon) {
-    throw new AppError("Invalid coupon", HttpStatus.NOT_FOUND);
+    throw new AppError(CouponMessages.COUPON_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   if (!coupon.isActive) {
-    throw new AppError("Coupon is not active", HttpStatus.GONE);
+    throw new AppError(CouponMessages.COUPON_NOT_ACTIVE, HttpStatus.GONE);
   }
 
   const now = new Date();
   if (now < coupon.startDate || now > coupon.endDate) {
-    throw new AppError("Coupon is expired or not yet started", HttpStatus.GONE);
+    throw new AppError(CouponMessages.COUPON_EXPIRED, HttpStatus.GONE);
   }
 
   if (coupon.totalUsageLimit > 0) {
     const totalUsed = await countCouponUsageByCouponId(coupon._id);
     if (totalUsed >= coupon.totalUsageLimit) {
-      throw new AppError("Coupon usage limit exceeded", HttpStatus.FORBIDDEN);
+      throw new AppError(CouponMessages.COUPON_USAGE_LIMIT_EXCEEDED, HttpStatus.FORBIDDEN);
     }
   }
 
@@ -88,7 +90,7 @@ export const applyCouponService = async (body, userId) => {
     );
     if (userUsed >= coupon.usageLimitPerUser) {
       throw new AppError(
-        "You have already used this coupon",
+        CouponMessages.COUPON_ALREADY_USED,
         HttpStatus.FORBIDDEN
       );
     }
@@ -100,7 +102,7 @@ export const applyCouponService = async (body, userId) => {
     );
     if (!allowed) {
       throw new AppError(
-        "You are not eligible for this coupon",
+        CouponMessages.COUPON_NOT_ELIGIBLE,
         HttpStatus.FORBIDDEN
       );
     }
@@ -110,7 +112,7 @@ export const applyCouponService = async (body, userId) => {
     const previousUsage = await countCouponUsageByUserId(userId);
     if (previousUsage > 0) {
       throw new AppError(
-        "This coupon is only for new users",
+        CouponMessages.COUPON_NEW_USERS_ONLY,
         HttpStatus.FORBIDDEN
       );
     }
@@ -118,7 +120,7 @@ export const applyCouponService = async (body, userId) => {
 
   if (totalAmount < coupon.minPurchaseAmount) {
     throw new AppError(
-      `Minimum purchase amount is ₹${coupon.minPurchaseAmount}`,
+      CouponMessages.COUPON_MIN_PURCHASE.replace("{amount}", String(coupon.minPurchaseAmount)),
       HttpStatus.BAD_REQUEST
     );
   }
