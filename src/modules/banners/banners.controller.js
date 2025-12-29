@@ -1,5 +1,6 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { createBannerService, deleteBannerService, getEditFormService, loadBannersService, reorderBannersService, toggleBannerStatusService, updateBannerService } from "./banners.service.js";
+import { BannerMessages } from "../../shared/constants/messages/bannerMessages.js";
 
 export const loadBanners = async (req, res) => {
   const banners = await loadBannersService();
@@ -35,7 +36,7 @@ export const createBanner = async (req, res) => {
 
   res.status(HttpStatus.CREATED).json({
     success: true,
-    message: "Banner created successfully",
+    message: BannerMessages.BANNER_CREATED,
     banner,
   });
 };
@@ -46,7 +47,7 @@ export const updateBanner = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Banner updated successfully",
+    message: BannerMessages.BANNER_UPDATED,
     banner,
   });
 };
@@ -57,7 +58,7 @@ export const toggleBannerStatus = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Banner status updated successfully",
+    message: BannerMessages.BANNER_STATUS_UPDATED,
   });
 };
 
@@ -66,7 +67,7 @@ export const reorderBanners = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Banner order updated successfully",
+    message: BannerMessages.BANNER_ORDER_UPDATED,
   });
 };
 
@@ -75,6 +76,6 @@ export const deleteBanner = async (req, res) => {
 
   res.status(HttpStatus.OK).json({
     success: true,
-    message: "Banner deleted successfully",
+    message: BannerMessages.BANNER_DELETED,
   });
 };

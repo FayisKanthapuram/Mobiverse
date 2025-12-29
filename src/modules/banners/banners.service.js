@@ -1,5 +1,6 @@
 import cloudinary from "../../config/cloudinary.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { BannerMessages } from "../../shared/constants/messages/bannerMessages.js";
 import { cloudinaryUpload } from "../../shared/middlewares/upload.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { rollbackCloudinary } from "../product/helpers/admin.product.helper.js";
@@ -26,7 +27,7 @@ export const createBannerService = async (body, files) => {
   try {
     if (!files?.imageDesktop) {
       throw new AppError(
-        "Desktop banner image is required",
+        BannerMessages.DESKTOP_IMAGE_REQUIRED,
         HttpStatus.BAD_REQUEST
       );
     }
@@ -97,7 +98,7 @@ export const updateBannerService = async (bannerId, body, files) => {
   const banner = await findBannerById(bannerId);
 
   if (!banner) {
-    throw new AppError("Banner not found", HttpStatus.NOT_FOUND);
+    throw new AppError(BannerMessages.BANNER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   // ---- BASIC FIELD UPDATES ----
@@ -200,7 +201,7 @@ export const reorderBannersService = async (body) => {
   const { banners } = body;
 
   if (!Array.isArray(banners)) {
-    throw new AppError("Invalid data format", HttpStatus.BAD_REQUEST);
+    throw new AppError(BannerMessages.INVALID_DATA_FORMAT, HttpStatus.BAD_REQUEST);
   }
 
   await Promise.all(
@@ -215,7 +216,7 @@ export const deleteBannerService = async (bannerId) => {
   const banner = await findBannerById(bannerId);
 
   if (!banner) {
-    throw new AppError("Banner not found", HttpStatus.NOT_FOUND);
+    throw new AppError(BannerMessages.BANNER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   // Collect image URLs
