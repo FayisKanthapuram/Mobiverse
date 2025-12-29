@@ -19,7 +19,7 @@ export const loadShopService = async (query, userId = null) => {
   const maxPrice = query.max;
   const currentPage = parseInt(query.page, 10) || 1;
 
-  const limit = 3;
+  const limit = 8;
   const skip = (currentPage - 1) * limit;
 
   // ---------------- MATCH ----------------
