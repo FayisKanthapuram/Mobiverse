@@ -16,25 +16,25 @@
 
           <!-- Filter Tabs -->
           <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
-            <button onclick="filterOrders('')" class="<%=!query.status? "active" : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('')" class="<%=!query?.status? "active" : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               All Orders
             </button>
-            <button onclick="filterOrders('Pending')" class="<%= query.status === 'Pending' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Pending')" class="<%= query?.status === 'Pending' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Pending
             </button>
-            <button onclick="filterOrders('Processing')" class="<%= query.status === 'Processing' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Processing')" class="<%= query?.status === 'Processing' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Processing
             </button>
-            <button onclick="filterOrders('Shipped')" class="<%= query.status === 'Shipped' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Shipped')" class="<%= query?.status === 'Shipped' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Shipped
             </button>
-            <button onclick="filterOrders('Delivered')" class="<%= query.status === 'Delivered' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Delivered')" class="<%= query?.status === 'Delivered' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Delivered
             </button>
-            <button onclick="filterOrders('Cancelled')" class="<%= query.status === 'Cancelled' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Cancelled')" class="<%= query?.status === 'Cancelled' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Cancelled
             </button>
-            <button onclick="filterOrders('Returned')" class="<%= query.status === 'Returned' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
+            <button onclick="filterOrders('Returned')" class="<%= query?.status === 'Returned' ? 'active' : '' %> filter-tab px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition-colors">
               Returned
             </button>
           </div>
@@ -42,8 +42,8 @@
           <!-- Search Orders -->
           <div class="mb-6">
             <div class="relative">
-              <input type="text" id="orderSearch" value="<%= typeof query.searchOrder !== 'undefined' ? query.searchOrder : '' %>" placeholder="Search orders by ID, product name..." onkeyup="debounceSearchOrder()" class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
-              <button id="clear-order-search-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors <%= typeof query.searchOrder !== 'undefined' && query.searchOrder ? '' : 'hidden' %>" onclick="clearOrderSearch()">
+              <input type="text" id="orderSearch" value="<%= query?.searchOrder || '' %>" placeholder="Search orders by ID, product name..." onkeyup="debounceSearchOrder()" class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" />
+              <button id="clear-order-search-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors <%= query?.searchOrder ? '' : 'hidden' %>" onclick="clearOrderSearch()">
                 <i class="bi bi-x-circle-fill text-lg"></i>
               </button>
             </div>
@@ -54,20 +54,20 @@
           <div id="ordersList" class="space-y-6">
             <% if (orders && orders.length > 0) { %>
             <% orders.forEach(function(order) { %>
-            <div class="order-item border border-gray-200 rounded-xl p-6 hover:border-blue-300 transition-colors" data-status="<%= order.orderStatus %>">
+            <div class="order-item border border-gray-200 rounded-xl p-6 hover:border-blue-300 transition-colors" data-status="<%= order?.orderStatus %>">
               <!-- Order Header -->
               <div class="flex flex-wrap justify-between items-start gap-4 mb-4 pb-4 border-b border-gray-200">
                 <div>
                   <div class="flex items-center gap-3 mb-2">
-                    <h3 class="text-lg font-bold text-gray-900">Order #<%= order.orderId %></h3>
-                    <span class="status-badge px-3 py-1 rounded-full text-xs font-semibold <%= getStatusClass(order.orderStatus) %>">
-                      <%= order.orderStatus %>
+                    <h3 class="text-lg font-bold text-gray-900">Order #<%= order?.orderId %></h3>
+                    <span class="status-badge px-3 py-1 rounded-full text-xs font-semibold <%= getStatusClass(order?.orderStatus) %>">
+                      <%= order?.orderStatus %>
                     </span>
                   </div>
                   <p class="text-sm text-gray-600">
-                    <i class="bi bi-calendar"></i> Placed on <%= new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                    <i class="bi bi-calendar"></i> Placed on <%= order?.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A' %>
                   </p>
-                  <% if (order.expectedDelivery) { %>
+                  <% if (order?.expectedDelivery) { %>
                   <p class="text-sm text-gray-600">
                     <i class="bi bi-truck"></i> Expected by <%= new Date(order.expectedDelivery).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
                   </p>
@@ -75,62 +75,62 @@
                 </div>
                 <div class="text-right">
                   <p class="text-sm text-gray-600 mb-1">Total Amount</p>
-                  <p class="text-2xl font-bold text-gray-900">₹<%= order.finalAmount.toLocaleString('en-IN') %></p>
+                  <p class="text-2xl font-bold text-gray-900">₹<%= order?.finalAmount?.toLocaleString('en-IN') || 0 %></p>
                 </div>
               </div>
 
               <!-- Order Items -->
               <div class="space-y-3 mb-4">
-                <% order.orderedItems.forEach(function(item, index) { %>
-                <div class="flex gap-4 <%= ['Cancelled', 'Returned'].includes(item.itemStatus) ? 'opacity-60' : '' %>">
+                <% order?.orderedItems?.forEach(function(item, index) { %>
+                <div class="flex gap-4 <%= ['Cancelled', 'Returned'].includes(item?.itemStatus) ? 'opacity-60' : '' %>">
                   <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    <img src="<%= item.variantId.images[0] %>" alt="<%= item.productId.name %>" class="w-full h-full object-contain">
+                    <img src="<%= item?.variantId?.images?.[0] || '/placeholder.jpg' %>" alt="<%= item?.productId?.name || 'Product' %>" class="w-full h-full object-contain">
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="flex justify-between items-start gap-2">
-                      <h4 class="font-semibold text-gray-900 line-clamp-1 flex-1"><%= item.productId.name %></h4>
+                      <h4 class="font-semibold text-gray-900 line-clamp-1 flex-1"><%= item?.productId?.name || 'Product' %></h4>
                       <!-- Item Status Badge -->
                       <div class="flex gap-1 flex-wrap justify-end">
                         <!-- Item Status -->
-                        <span class="px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap <%= getItemStatusClass(item.itemStatus) %>">
-                          <%= item.itemStatus.replace(/([A-Z])/g, ' $1').trim() %>
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap <%= getItemStatusClass(item?.itemStatus) %>">
+                          <%= item?.itemStatus?.replace(/([A-Z])/g, ' $1').trim() || 'Unknown' %>
                         </span>
 
                         <!-- Item Payment Status -->
-                        <span class="px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap <%= getItemPaymentStatusClass(item.paymentStatus) %>">
-                          <%= item.paymentStatus %>
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap <%= getItemPaymentStatusClass(item?.paymentStatus) %>">
+                          <%= item?.paymentStatus || 'Pending' %>
                         </span>
                       </div>
 
                     </div>
                     <div class="flex flex-wrap gap-1.5 mt-1">
-                      <% if (item.variantId.colour) { %>
+                      <% if (item?.variantId?.colour) { %>
                       <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
                         <%= item.variantId.colour %>
                       </span>
                       <% } %>
-                      <% if (item.variantId.ram) { %>
+                      <% if (item?.variantId?.ram) { %>
                       <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
                         <%= item.variantId.ram %>
                       </span>
                       <% } %>
-                      <% if (item.variantId.storage) { %>
+                      <% if (item?.variantId?.storage) { %>
                       <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
                         <%= item.variantId.storage %>
                       </span>
                       <% } %>
                     </div>
                     <div class="flex justify-between items-center mt-2">
-                      <span class="text-sm text-gray-600">Qty: <%= item.quantity %></span>
+                      <span class="text-sm text-gray-600">Qty: <%= item?.quantity || 0 %></span>
                       <div class="text-right leading-tight">
 
                         <% 
-                          const qty = item.quantity;
-                          const sale = item.price;               // sale price snapshot
-                          const regular = item.regularPrice;     // actual MRP snapshot
-                          const offer = item.offer||0;              // offer snapshot
-                          const couponShare=item.couponShare;
-                          const finalPrice = offer ? (sale - offer-couponShare) : sale-couponShare;
+                          const qty = item?.quantity || 0;
+                          const sale = item?.price || 0;
+                          const regular = item?.regularPrice || 0;
+                          const offer = item?.offer || 0;
+                          const couponShare = item?.couponShare || 0;
+                          const finalPrice = offer ? (sale - offer - couponShare) : sale - couponShare;
                         %>
 
                         <!-- Final Price -->
@@ -140,7 +140,7 @@
 
                         <% if (couponShare) { %>
                           <p class="text-xs text-gray-500 line-through">
-                            ₹<%= ((sale-offer) * qty).toLocaleString('en-IN') %>
+                            ₹<%= ((sale - offer) * qty).toLocaleString('en-IN') %>
                           </p>
                         <% } %>
 
@@ -161,13 +161,13 @@
                       </div>
                     </div>
                     <!-- Item Cancel/Return Reason -->
-                    <% if (item.reason && ['Cancelled', 'ReturnRequested', 'Returned'].includes(item.itemStatus)) { %>
+                    <% if (item?.reason && ['Cancelled', 'ReturnRequested', 'Returned'].includes(item?.itemStatus)) { %>
                     <p class="text-xs text-gray-600 mt-1 italic">
                       <i class="bi bi-info-circle"></i> Reason: <%= item.reason %>
                     </p>
                     <% } %>
                     <!-- Admin Note (Return Approved or Rejected) -->
-                    <% if (item.adminNote && ['ReturnApproved', 'ReturnRejected', 'Returned'].includes(item.itemStatus)) { %>
+                    <% if (item?.adminNote && ['ReturnApproved', 'ReturnRejected', 'Returned'].includes(item?.itemStatus)) { %>
                     <p class="text-xs text-blue-700 mt-1 italic">
                       <i class="bi bi-chat-left-quote"></i> Admin Note: <%= item.adminNote %>
                     </p>
@@ -183,49 +183,49 @@
                 <div>
                   <p class="text-xs text-gray-600 mb-1">Payment Method</p>
                   <div class="flex items-center gap-2">
-                    <% if (order.paymentMethod === 'razorpay') { %>
+                    <% if (order?.paymentMethod === 'razorpay') { %>
                     <i class="bi bi-credit-card text-blue-600"></i>
                     <span class="font-medium text-gray-900">Online Payment</span>
-                    <% } else if (order.paymentMethod === 'wallet') { %>
+                    <% } else if (order?.paymentMethod === 'wallet') { %>
                     <i class="bi bi-wallet2 text-purple-600"></i>
                     <span class="font-medium text-gray-900">Wallet</span>
-                    <% } else if (order.paymentMethod === 'cod') { %>
+                    <% } else if (order?.paymentMethod === 'cod') { %>
                     <i class="bi bi-cash-coin text-orange-600"></i>
                     <span class="font-medium text-gray-900">Cash on Delivery</span>
                     <% } %>
-                    <span class="ml-auto px-2 py-0.5 rounded text-xs font-semibold <%= order.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
-                      <%= order.paymentStatus %>
+                    <span class="ml-auto px-2 py-0.5 rounded text-xs font-semibold <%= order?.paymentStatus === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
+                      <%= order?.paymentStatus || 'Pending' %>
                     </span>
                   </div>
                 </div>
                 <div>
                   <p class="text-xs text-gray-600 mb-1">Delivery Address</p>
                   <p class="font-medium text-gray-900 text-sm line-clamp-2">
-                    <%= order.shippingAddress.fullName %>, <%= order.shippingAddress.city %>
+                    <%= order?.shippingAddress?.fullName || 'N/A' %>, <%= order?.shippingAddress?.city || '' %>
                   </p>
                 </div>
               </div>
 
               <!-- Order Actions -->
               <div class="flex flex-wrap gap-3">
-                <a href="/order/details/<%= order.orderId %>" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                <a href="/order/details/<%= order?.orderId %>" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm">
                   <i class="bi bi-eye"></i> View Details
                 </a>
                 
                 <% 
-                  const hasCancellableItems = order.orderedItems.some(item => 
-                    ['Pending', 'Confirmed', 'Processing'].includes(item.itemStatus)
+                  const hasCancellableItems = order?.orderedItems?.some(item => 
+                    ['Pending', 'Confirmed', 'Processing'].includes(item?.itemStatus)
                   );
-                  const hasInvoiceEligibleItem = order.orderedItems.some(item =>
-                    ['Delivered', 'ReturnRequested', 'ReturnRejected'].includes(item.itemStatus)
+                  const hasInvoiceEligibleItem = order?.orderedItems?.some(item =>
+                    ['Delivered', 'ReturnRequested', 'ReturnRejected'].includes(item?.itemStatus)
                   );
-                  const hasReturnableItems = order.orderedItems.some(item => 
-                    item.itemStatus === 'Delivered'
+                  const hasReturnableItems = order?.orderedItems?.some(item => 
+                    item?.itemStatus === 'Delivered'
                   );
                 %>
 
                 <% if (hasInvoiceEligibleItem) { %>
-                <button onclick="downloadInvoice('<%= order.orderId %>')" class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                <button onclick="downloadInvoice('<%= order?.orderId %>')" class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm">
                   <i class="bi bi-download"></i> Download Invoice
                 </button>
                 <% } %>

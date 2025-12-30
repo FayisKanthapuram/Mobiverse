@@ -4,11 +4,11 @@ let currentOrderData = null;
    PRICE FORMATTER — REUSABLE COMPONENT
 -------------------------------------------- */
 function getPriceHtml(item) {
-  const qty = item.quantity;
-  const sale = item.price; // sale price captured at purchase
-  const regular = item.regularPrice || sale;
-  const offer = item.offer || 0;
-  const couponShare = item.couponShare;
+  const qty = item?.quantity || 0;
+  const sale = item?.price || 0;
+  const regular = item?.regularPrice || sale;
+  const offer = item?.offer || 0;
+  const couponShare = item?.couponShare || 0;
   const finalPrice = offer ? sale - offer - couponShare : sale - couponShare;
 
   let html = `
@@ -19,10 +19,10 @@ function getPriceHtml(item) {
     </p>
   `;
 
-  if(couponShare){
+  if (couponShare) {
     html += `
       <p class="text-xs text-gray-500 line-through">
-        ₹${(sale - offer * qty).toLocaleString("en-IN")}
+        ₹${((sale - offer) * qty).toLocaleString("en-IN")}
       </p>
     `;
   }
@@ -65,25 +65,25 @@ document.addEventListener("DOMContentLoaded", () => {
 -------------------------------------------- */
 function openCancelOrderModal(order) {
   currentOrderData = order;
-  document.getElementById("cancelItemOrderId").value = order.orderId;
+  document.getElementById("cancelItemOrderId").value = order?.orderId || "";
 
   const cancelItemsList = document.getElementById("cancelItemsList");
   cancelItemsList.innerHTML = "";
 
-  order.orderedItems.forEach((item) => {
-    if (["Pending", "Confirmed", "Processing"].includes(item.itemStatus)) {
+  order?.orderedItems?.forEach((item) => {
+    if (["Pending", "Confirmed", "Processing"].includes(item?.itemStatus)) {
       const itemHtml = `
         <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 transition-colors">
-          <input type="checkbox" name="cancelItems[]" value="${item._id}"
+          <input type="checkbox" name="cancelItems[]" value="${item?._id || ""}"
             class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
 
-          <img src="${item.variantId.images[0]}" 
-            alt="${item.productId.name}"
+          <img src="${item?.variantId?.images?.[0] || "/placeholder.jpg"}" 
+            alt="${item?.productId?.name || "Product"}"
             class="w-12 h-12 object-contain bg-gray-100 rounded">
 
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-gray-900 truncate">
-              ${item.productId.name}
+              ${item?.productId?.name || "Product"}
             </p>
 
             <div>${getPriceHtml(item)}</div>
@@ -94,21 +94,21 @@ function openCancelOrderModal(order) {
     }
   });
 
-  document.getElementById("cancelItemModal").classList.remove("hidden");
-  document.getElementById("cancelItemModal").classList.add("flex");
+  document.getElementById("cancelItemModal")?.classList.remove("hidden");
+  document.getElementById("cancelItemModal")?.classList.add("flex");
   document.body.style.overflow = "hidden";
 }
 
 function closeCancelItemModal() {
-  document.getElementById("cancelItemModal").classList.add("hidden");
-  document.getElementById("cancelItemModal").classList.remove("flex");
+  document.getElementById("cancelItemModal")?.classList.add("hidden");
+  document.getElementById("cancelItemModal")?.classList.remove("flex");
   document.body.style.overflow = "auto";
-  document.getElementById("cancelItemForm").reset();
+  document.getElementById("cancelItemForm")?.reset();
 }
 
 document
   .getElementById("cancelItemForm")
-  .addEventListener("submit", async function (e) {
+  ?.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const formData = new FormData(this);
@@ -124,8 +124,8 @@ document
         comments,
       });
 
-      const data = response.data;
-      if (data && data.success) {
+      const data = response?.data;
+      if (data?.success) {
         Toastify({
           text: "Items cancelled successfully!",
           duration: 2500,
@@ -140,7 +140,7 @@ document
     } catch (error) {
       console.error("Error cancelling items:", error);
       Toastify({
-        text: error.response?.data?.message || "Failed to cancel items",
+        text: error?.response?.data?.message || "Failed to cancel items",
         duration: 4000,
         gravity: "bottom",
         position: "right",
@@ -154,25 +154,25 @@ document
 -------------------------------------------- */
 function openReturnOrderModal(order) {
   currentOrderData = order;
-  document.getElementById("returnItemOrderId").value = order.orderId;
+  document.getElementById("returnItemOrderId").value = order?.orderId || "";
 
   const returnItemsList = document.getElementById("returnItemsList");
   returnItemsList.innerHTML = "";
 
-  order.orderedItems.forEach((item) => {
-    if (item.itemStatus === "Delivered") {
+  order?.orderedItems?.forEach((item) => {
+    if (item?.itemStatus === "Delivered") {
       const itemHtml = `
         <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 transition-colors">
-          <input type="checkbox" name="returnItems[]" value="${item._id}"
+          <input type="checkbox" name="returnItems[]" value="${item?._id || ""}"
             class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
 
-          <img src="${item.variantId.images[0]}" 
-            alt="${item.productId.name}"
+          <img src="${item?.variantId?.images?.[0] || "/placeholder.jpg"}" 
+            alt="${item?.productId?.name || "Product"}"
             class="w-12 h-12 object-contain bg-gray-100 rounded">
 
           <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-gray-900 truncate">
-              ${item.productId.name}
+              ${item?.productId?.name || "Product"}
             </p>
 
             <div>${getPriceHtml(item)}</div>
@@ -188,21 +188,21 @@ function openReturnOrderModal(order) {
       '<p class="text-center text-gray-600 py-4">No items available for return</p>';
   }
 
-  document.getElementById("returnItemModal").classList.remove("hidden");
-  document.getElementById("returnItemModal").classList.add("flex");
+  document.getElementById("returnItemModal")?.classList.remove("hidden");
+  document.getElementById("returnItemModal")?.classList.add("flex");
   document.body.style.overflow = "hidden";
 }
 
 function closeReturnItemModal() {
-  document.getElementById("returnItemModal").classList.add("hidden");
-  document.getElementById("returnItemModal").classList.remove("flex");
+  document.getElementById("returnItemModal")?.classList.add("hidden");
+  document.getElementById("returnItemModal")?.classList.remove("flex");
   document.body.style.overflow = "auto";
-  document.getElementById("returnItemForm").reset();
+  document.getElementById("returnItemForm")?.reset();
 }
 
 document
   .getElementById("returnItemForm")
-  .addEventListener("submit", async function (e) {
+  ?.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const formData = new FormData(this);
@@ -229,8 +229,8 @@ document
         comments,
       });
 
-      const data = res.data;
-      if (data && data.success) {
+      const data = res?.data;
+      if (data?.success) {
         Toastify({
           text: "Return request submitted successfully!",
           duration: 2500,
@@ -246,7 +246,7 @@ document
       console.error("Error submitting return request:", error);
       Toastify({
         text:
-          error.response?.data?.message || "Failed to submit return request",
+          error?.response?.data?.message || "Failed to submit return request",
         duration: 4000,
         gravity: "bottom",
         position: "right",
@@ -273,7 +273,7 @@ function debounceSearchOrder() {
 }
 
 function handleSearchOrder() {
-  const searchValue = document.getElementById("orderSearch").value;
+  const searchValue = document.getElementById("orderSearch")?.value || "";
   const url = new URL(window.location);
   if (searchValue) url.searchParams.set("searchOrder", searchValue);
   else url.searchParams.delete("searchOrder");
@@ -295,8 +295,8 @@ function clearOrderSearch() {
 function toggleOrderClearButton() {
   const input = document.getElementById("orderSearch");
   const btn = document.getElementById("clear-order-search-btn");
-  if (input.value.trim()) btn.classList.remove("hidden");
-  else btn.classList.add("hidden");
+  if (input?.value?.trim()) btn?.classList.remove("hidden");
+  else btn?.classList.add("hidden");
 }
 
 function changeOrderPage(page) {
