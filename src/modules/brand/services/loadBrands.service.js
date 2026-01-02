@@ -4,6 +4,8 @@ import {
   countBrands,
 } from "../brand.repo.js";
 
+// Brand services - business logic for listing brands
+// Load brands with pagination and product counts
 export const loadBrandsService = async (queryParams) => {
   const search = queryParams.search || "";
   const filter = queryParams.filter || "All";

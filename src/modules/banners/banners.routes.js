@@ -15,6 +15,8 @@ import upload from "../../shared/middlewares/upload.js";
 
 const router = express.Router();
 
+// Banners routes - admin endpoints for banner management
+
 router.get("/", verifyAdmin, loadBanners);
 router.get("/create", verifyAdmin, getCreateForm);
 router.get("/edit/:id", verifyAdmin, getEditForm);

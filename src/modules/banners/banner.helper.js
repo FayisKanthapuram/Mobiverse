@@ -1,3 +1,4 @@
+// Banner helper - utility functions for banners
 // Convert input date to IST Date object
 export const toISTDate = (dateString) => {
   if (!dateString) return null;

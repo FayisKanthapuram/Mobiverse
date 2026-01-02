@@ -3,6 +3,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { BrandMessages } from "../../../shared/constants/messages/brandMessages.js";
 
+// Get brand details service
 export const getBrandByIdService = async (brandId) => {
   const brand = await findBrandById(brandId).lean();
 

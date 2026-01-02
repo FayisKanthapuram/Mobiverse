@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Brand model - Mongoose schema for brands
 const brandSchema = new mongoose.Schema(
   {
     brandName: {

@@ -6,6 +6,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { BrandMessages } from "../../../shared/constants/messages/brandMessages.js";
 
+// Edit brand service - update brand and replace logo if provided
 export const editBrandService = async (body, file) => {
   const { brandId, brandName } = body;
 

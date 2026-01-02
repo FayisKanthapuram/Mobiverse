@@ -15,12 +15,13 @@ import {
   shiftBannerOrders,
   updateBannerOrder,
 } from "./banners.repo.js";
-
+// Banners service - business logic for banner management
 export const loadBannersService = async () => {
   const banners = await findBanners();
   return banners;
 };
 
+// Create a banner with image uploads
 export const createBannerService = async (body, files) => {
   const uploadedPublicIds = [];
 
@@ -89,11 +90,13 @@ export const createBannerService = async (body, files) => {
   }
 };
 
+// Fetch banner for edit form
 export const getEditFormService = async (id) => {
   const banner = await findBannerById(id);
   return banner;
 };
 
+// Update banner including images and order
 export const updateBannerService = async (bannerId, body, files) => {
   const banner = await findBannerById(bannerId);
 
@@ -185,6 +188,7 @@ export const updateBannerService = async (bannerId, body, files) => {
   return banner;
 };
 
+// Toggle active status of a banner
 export const toggleBannerStatusService = async (bannerId, body) => {
   const { isActive } = body;
 
@@ -197,6 +201,7 @@ export const toggleBannerStatusService = async (bannerId, body) => {
   await saveBanner(banner);
 };
 
+// Reorder banners in bulk
 export const reorderBannersService = async (body) => {
   const { banners } = body;
 
@@ -212,6 +217,7 @@ export const reorderBannersService = async (body) => {
   );
 };
 
+// Delete banner and its images
 export const deleteBannerService = async (bannerId) => {
   const banner = await findBannerById(bannerId);
 

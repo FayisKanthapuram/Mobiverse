@@ -11,6 +11,7 @@ import { verifyAdmin } from "../../shared/middlewares/adminAuth.js";
 
 const router = express.Router();
 
+// Brand routes - admin endpoints for brand management
 router.get("/", verifyAdmin, loadBrands);
 router.post("/add", upload.brand, addBrand);
 router.patch("/edit", upload.brand, editBrand);

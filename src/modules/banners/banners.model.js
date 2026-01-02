@@ -1,5 +1,4 @@
-// /models/bannerModel.js
-
+// Banner model - Mongoose schema for banners
 import mongoose from "mongoose";
 
 const bannerSchema = new mongoose.Schema(

@@ -8,9 +8,9 @@ import {
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { BrandMessages } from "../../shared/constants/messages/brandMessages.js";
 
-/* ----------------------------------------------------
-   LOAD BRANDS PAGE
----------------------------------------------------- */
+// Brand controller - handle admin brand HTTP endpoints
+
+// Render brands page with pagination
 export const loadBrands = async (req, res) => {
   const data = await loadBrandsService(req.query);
 
@@ -27,9 +27,7 @@ export const loadBrands = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   ADD BRAND
----------------------------------------------------- */
+// Add a new brand
 export const addBrand = async (req, res) => {
   const brand = await addBrandService(req.body, req.file);
 
@@ -40,9 +38,7 @@ export const addBrand = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   EDIT BRAND
----------------------------------------------------- */
+// Edit an existing brand
 export const editBrand = async (req, res) => {
   const brand = await editBrandService(req.body, req.file);
 
@@ -53,9 +49,7 @@ export const editBrand = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LIST / UNLIST BRAND
----------------------------------------------------- */
+// Toggle brand listed/unlisted status
 export const listBrand = async (req, res) => {
   await listBrandService(req.params.brandId);
 
@@ -65,9 +59,7 @@ export const listBrand = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   GET BRAND BY ID
----------------------------------------------------- */
+// Get brand details by id
 export const getBrandById = async (req, res) => {
   const brand = await getBrandByIdService(req.params.id);
 

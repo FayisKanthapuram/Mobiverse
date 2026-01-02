@@ -5,6 +5,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { BrandMessages } from "../../../shared/constants/messages/brandMessages.js";
 
+// Add brand service - validate and create brand with optional logo
 export const addBrandService = async (body, file) => {
   const { error } = brandValidation.validate(body);
   if (error) {

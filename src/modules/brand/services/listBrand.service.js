@@ -3,6 +3,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { BrandMessages } from "../../../shared/constants/messages/brandMessages.js";
 
+// Toggle brand listing service
 export const listBrandService = async (brandId) => {
   const brand = await findBrandById(brandId);
   if (!brand) {
