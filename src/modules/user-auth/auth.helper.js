@@ -11,7 +11,7 @@ export const createOtp = () => ({
 
 export const sendOtpEmail = async ( email, otp, type = "signup" ) => {
   if (!email) {
-    console.error("❌ sendOtpEmail failed: email is missing");
+    console.error("sendOtpEmail failed: email is missing");
     return false;
   }
 
@@ -58,7 +58,7 @@ export const sendOtpEmail = async ( email, otp, type = "signup" ) => {
   if (!html) return false;
 
   return await sendEmail({
-    to: email, // ✅ guaranteed now
+    to: email,
     subject: config.subject,
     text: `${config.title}: ${otp}`,
     html,

@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+// Validation schema for change password
 export const passwordSchema = Joi.object({
   currentPassword: Joi.string()
     .pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,}$/)

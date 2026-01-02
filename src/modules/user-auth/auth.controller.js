@@ -19,21 +19,22 @@ import { getWishlistItemsCount } from "../wishlist/wishlist.repo.js";
 import { getCartItemsCount } from "../cart/cart.repo.js";
 import { AppError } from "../../shared/utils/app.error.js";
 
-/* ----------------------------------------------------
-   LOAD VIEWS
----------------------------------------------------- */
+// User auth controller - render auth pages and handle auth actions
+// Load signup page
 export const loadSignUp = (req, res) =>
   res.status(HttpStatus.OK).render("user/auth/signUp", {
     pageTitle: "Sign Up",
     pageJs: "signUp",
   });
 
+// Load login page
 export const loadLogin = (req, res) =>
   res.status(HttpStatus.OK).render("user/auth/login", {
     pageTitle: "Login",
     pageJs: "login",
   });
 
+// Load OTP verification page
 export const loadVerifyOtp = (req, res) =>
   res.status(HttpStatus.OK).render("user/auth/verifyOtp", {
     pageTitle: "Verify OTP",
@@ -41,12 +42,14 @@ export const loadVerifyOtp = (req, res) =>
     otpCooldownEnd: req.session.otpCooldownEnd || null,
   });
 
+// Load forgot password page
 export const loadForgotPassword = (req, res) =>
   res.status(HttpStatus.OK).render("user/auth/forgotPassword", {
     pageTitle: "Forgot Password",
     pageJs: "forgotPassword",
   });
 
+// Load recovery OTP page
 export const loadRecoverOtp = (req, res) =>
   res.status(HttpStatus.OK).render("user/auth/verifyOtp", {
     pageTitle: "Verify OTP",
@@ -54,15 +57,14 @@ export const loadRecoverOtp = (req, res) =>
     otpCooldownEnd: req.session.otpCooldownEnd || null,
   });
 
+// Load reset password page
 export const loadResetPassword = (req, res) =>
   res.status(HttpStatus.OK).render("user/auth/resetPassword", {
     pageTitle: "Reset Password",
     pageJs: "resetPassword",
   });
 
-/* ----------------------------------------------------
-   SIGN UP
----------------------------------------------------- */
+// Register user (send signup OTP)
 export const registerUser = async (req, res) => {
   const { error } = userRegisterSchema.validate(req.body);
   if (error) {
@@ -78,9 +80,7 @@ export const registerUser = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   VERIFY SIGNUP OTP
----------------------------------------------------- */
+// Verify signup OTP
 export const verifyOtp = async (req, res) => {
   await verifySignUpOtpService(req.body.otp, req.session);
 
@@ -91,9 +91,7 @@ export const verifyOtp = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   RESEND OTP
----------------------------------------------------- */
+// Resend OTP
 export const resendOtp = async (req, res) => {
   await resendOtpService(req.session);
 
@@ -104,9 +102,7 @@ export const resendOtp = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LOGIN
----------------------------------------------------- */
+// Login user
 export const loginUser = async (req, res, next) => {
   const { error } = userLoginSchema.validate(req.body);
   if (error) {
@@ -129,9 +125,7 @@ export const loginUser = async (req, res, next) => {
   });
 };
 
-/* ----------------------------------------------------
-   SEND RECOVERY OTP
----------------------------------------------------- */
+// Send recovery OTP
 export const sendRecoverOtp = async (req, res) => {
   await sendRecoverOtpService(req.body.email, req.session);
 
@@ -142,9 +136,7 @@ export const sendRecoverOtp = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   VERIFY RECOVERY OTP
----------------------------------------------------- */
+// Verify recovery OTP
 export const verifyRecoverOtp = async (req, res) => {
   await verifyRecoveryOtpService(req.body.otp, req.session);
 
@@ -155,9 +147,7 @@ export const verifyRecoverOtp = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   RESET PASSWORD
----------------------------------------------------- */
+// Reset password (save new password)
 export const saveNewPassword = async (req, res) => {
   const { error } = resetPasswordSchema.validate(req.body);
   if (error) {
@@ -173,9 +163,7 @@ export const saveNewPassword = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LOGOUT
----------------------------------------------------- */
+// Logout user
 export const logOutUser = (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err);
@@ -192,9 +180,7 @@ export const logOutUser = (req, res, next) => {
   });
 };
 
-/* ----------------------------------------------------
-   GOOGLE LOGIN
----------------------------------------------------- */
+// Google OAuth login handler
 export const googleLogin = async (req, res) => {
   if (typeof req.session.wishlistCount !== "number") {
     req.session.wishlistCount = await getWishlistItemsCount(req.user._id);

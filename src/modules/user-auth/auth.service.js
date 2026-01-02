@@ -20,10 +20,9 @@ import { findUserByReferralId } from "../user/user.repo.js";
 import { rewardNewUserReferral } from "../referral/referral.service.js";
 import { createWishlist } from "../wishlist/wishlist.repo.js";
 
-/* ----------------------------------------------------
-   SIGNUP – STEP 1
----------------------------------------------------- */
+// Auth service - signup, login, recovery flows
 const cooldownSeconds = 30;
+// Register user (step 1) - create temp session and send OTP
 export const registerUserService = async (body, session) => {
   const { username, email, password, referralCode } = body;
 
@@ -60,9 +59,7 @@ export const registerUserService = async (body, session) => {
   session.otpCooldownEnd = Date.now() + cooldownSeconds * 1000;
 };
 
-/* ----------------------------------------------------
-   SIGNUP – STEP 2 (VERIFY OTP)
----------------------------------------------------- */
+// Verify signup OTP (step 2)
 export const verifySignUpOtpService = async (otp, session) => {
   if (!session.otp || !session.tempUser) {
     throw new AppError(
@@ -113,13 +110,9 @@ export const verifySignUpOtpService = async (otp, session) => {
   session.otpExpiry = null;
 };
 
-/* ----------------------------------------------------
-   RESEND OTP
----------------------------------------------------- */
+// Resend OTP - handles signup and recovery flows with cooldown
 export const resendOtpService = async (session) => {
-  // ============================
-  // SERVER-SIDE COOLDOWN CHECK
-  // ============================
+  // Server-side cooldown check
   if (session.otpCooldownEnd && Date.now() < session.otpCooldownEnd) {
     const remaining = Math.ceil((session.otpCooldownEnd - Date.now()) / 1000);
 
@@ -129,9 +122,7 @@ export const resendOtpService = async (session) => {
     );
   }
 
-  // ============================
-  // SIGNUP OTP FLOW
-  // ============================
+  // Signup OTP flow
   if (session.tempUser) {
     const { otp, expiry } = createOtp();
 
@@ -152,9 +143,7 @@ export const resendOtpService = async (session) => {
     return;
   }
 
-  // ============================
-  // RECOVERY OTP FLOW
-  // ============================
+  // Recovery OTP flow
   if (session.recoverEmail) {
     const { otp, expiry } = createOtp();
 
@@ -175,15 +164,11 @@ export const resendOtpService = async (session) => {
     return;
   }
 
-  // ============================
-  // NO VALID OTP CONTEXT
-  // ============================
+  // No valid OTP context
   throw new AppError(UserAuthMessages.NO_OTP_SESSION, HttpStatus.BAD_REQUEST);
 };
 
-/* ----------------------------------------------------
-   LOGIN
----------------------------------------------------- */
+// Login user service - validate credentials
 export const loginUserService = async (email, password) => {
   const user = await findUserByEmail(email);
   if (!user) {
@@ -205,9 +190,7 @@ export const loginUserService = async (email, password) => {
   return user;
 };
 
-/* ----------------------------------------------------
-   FORGOT PASSWORD – SEND OTP
----------------------------------------------------- */
+// Send recovery OTP for password reset
 export const sendRecoverOtpService = async (email, session) => {
   const user = await findUserByEmail(email);
   if (!user) {
@@ -238,9 +221,7 @@ export const sendRecoverOtpService = async (email, session) => {
   session.otpCooldownEnd = Date.now() + cooldownSeconds * 1000;
 };
 
-/* ----------------------------------------------------
-   VERIFY RECOVERY OTP
----------------------------------------------------- */
+// Verify recovery OTP
 export const verifyRecoveryOtpService = async (otp, session) => {
   if (!session.recoveryOtp) {
     throw new AppError(UserMessages.OTP_NOT_FOUND, HttpStatus.BAD_REQUEST);
@@ -259,9 +240,7 @@ export const verifyRecoveryOtpService = async (otp, session) => {
   session.resetPass = true;
 };
 
-/* ----------------------------------------------------
-   RESET PASSWORD
----------------------------------------------------- */
+// Reset password service - update stored password
 export const resetPasswordService = async (password, session) => {
   if (!session.recoverEmail || !session.resetPass) {
     throw new AppError(UserAuthMessages.UNAUTHORIZED_PASSWORD_RESET, HttpStatus.UNAUTHORIZED);

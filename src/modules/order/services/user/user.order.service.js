@@ -58,7 +58,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
 
     // Fetch and validate shipping address
     const address = await findAddressById(addressId);
-    if (!address) throw { status: 404, message: "Address not found" };
+    if (!address) throw { status: HttpStatus.NOT_FOUND, message: "Address not found" };
 
     // Fetch cart items for user
     const items = await fetchCartItems(userId);
@@ -66,11 +66,10 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     for (let item of items) {
       item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
     }
-    if (!items.length) throw { status: 400, message: "Your cart is empty" };
+    if (!items.length) throw { status: HttpStatus.BAD_REQUEST, message: "Your cart is empty" };
     const cartTotals = await calculateCartTotals(items);
 
-    const hasAdjustedItem = items.some((item) => item.adjusted);
-    if (hasAdjustedItem) {
+    if (cartTotals.hasAdjustedItem) {
       await session.abortTransaction();
       session.endSession();
 
@@ -350,7 +349,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     session.endSession();
 
     return {
-      status: 200,
+      status: HttpStatus.OK,
       success: true,
       message: "Order placed successfully",
       orderId: order.orderId,
@@ -360,7 +359,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     session.endSession();
 
     return {
-      status: error.status || 500,
+      status: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message || "Order failed",
     };
@@ -391,7 +390,7 @@ export const retryPaymentService = async (tempOrderId) => {
     session.endSession();
 
     return {
-      status: 200,
+      status: HttpStatus.OK,
       success: true,
       razorpayOrderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
@@ -413,7 +412,7 @@ export const loadOrderSuccessService = async (orderId) => {
   const order = await findOrderByOrderId(orderId);
   if (!order) {
     const err = new Error("Order not found");
-    err.status = 404;
+    err.status = HttpStatus.NOT_FOUND;
     throw err;
   }
 
@@ -425,7 +424,7 @@ export const loadOrderFailureService = async (orderId) => {
   const order = await findTempOrderById(orderId);
   if (!order) {
     const err = new Error("Order not found");
-    err.status = 404;
+    err.status = HttpStatus.NOT_FOUND;
     throw err;
   }
 

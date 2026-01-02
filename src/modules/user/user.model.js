@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { DEFAULT_USER_AVATAR } from "../../shared/constants/assets.js";
 
+// User model - Mongoose schema for application users
 const userSchema = new mongoose.Schema(
   {
     username: {

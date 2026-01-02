@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+// Validation schema for editing email
 export const emailSchema = Joi.object({
   newEmail: Joi.string()
     .email()

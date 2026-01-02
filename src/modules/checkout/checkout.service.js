@@ -33,7 +33,7 @@ export const loadCheckoutService = async (userId) => {
     item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
   }
   const cartTotals = await calculateCartTotals(items);
-
+  console.log(cartTotals)
   const now = new Date();
   const availableCoupons = await getAvailableCoupon(userId, now);
 

@@ -1,4 +1,6 @@
 import Joi from "joi";
+
+// Validation schema for OTP
 export const otpSchema = Joi.object({
   otp: Joi.string()
     .trim()

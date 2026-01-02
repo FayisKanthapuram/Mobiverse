@@ -30,7 +30,7 @@ const router = express.Router();
 
 router.use(nocache());
 
-// auth routes
+// Auth routes - user authentication endpoints
 router.get("/login", isLogin, loadLogin);
 router.post("/login", isLogin, loginUser);
 

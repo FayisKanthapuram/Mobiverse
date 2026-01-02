@@ -6,10 +6,13 @@ import { DEFAULT_USER_AVATAR } from "../../shared/constants/assets.js";
 import { createOtp, sendOtpEmail } from "../user-auth/auth.helper.js";
 import { UserMessages } from "../../shared/constants/messages/userMessages.js";
 
+// User service - profile and account operations
+// Fetch user profile by id
 export const getUserProfileService = async (userId) => {
   return await findUserById(userId).populate("referredBy");
 };
 
+// Update username and avatar
 export const updateUserInfoService = async (
   userId,
   username,
@@ -37,7 +40,7 @@ export const updateUserInfoService = async (
   await saveUser(user);
   return true;
 };
-
+// Initiate email change by sending OTP
 export const requestEmailChangeService = async (
   oldEmail,
   newEmail,
@@ -61,7 +64,7 @@ export const requestEmailChangeService = async (
 
   return true;
 };
-
+// Verify OTP and update email
 export const verifyEmailOtpService = async (otp, session) => {
   if (!session.otp || !session.oldEmail || !session.newEmail) {
     throw new Error(UserMessages.OTP_NOT_FOUND);
@@ -81,7 +84,7 @@ export const verifyEmailOtpService = async (otp, session) => {
 
   return true;
 };
-
+// Resend email change OTP
 export const resendEmailOtpService = async (session) => {
   if (!session.newEmail) throw new Error(UserMessages.USER_DATA_NOT_FOUND);
 
@@ -95,7 +98,7 @@ export const resendEmailOtpService = async (session) => {
 
   return true;
 };
-
+// Update user password after verifying current password
 export const updatePasswordService = async (
   userId,
   currentPassword,

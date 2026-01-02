@@ -14,10 +14,8 @@ import { otpSchema } from "./validators/otp.validator.js";
 import { passwordSchema } from "./validators/change.password.validator.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { UserMessages } from "../../shared/constants/messages/userMessages.js";
-
-/* ----------------------------------------------------
-   LOAD PERSONAL INFO
----------------------------------------------------- */
+// User controller - render user profile pages and handle updates
+// Load personal information page
 export const loadPersonalInfo = async (req, res) => {
   const user = await getUserProfileService(req.user._id);
 
@@ -27,9 +25,7 @@ export const loadPersonalInfo = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LOAD EDIT INFO
----------------------------------------------------- */
+// Load edit info page
 export const loadEditInfo = async (req, res) => {
   res.status(HttpStatus.OK).render("user/user/editInfo", {
     pageTitle: "Edit Info",
@@ -37,9 +33,7 @@ export const loadEditInfo = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   UPDATE USER INFO
----------------------------------------------------- */
+// Update user info
 export const editInfo = async (req, res) => {
   const { error } = usernameValidator.validate(req.body);
   if (error) {
@@ -62,9 +56,7 @@ export const editInfo = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LOAD EDIT EMAIL
----------------------------------------------------- */
+// Load edit email page
 export const loadEditEmail = async (req, res) => {
   res.status(HttpStatus.OK).render("user/user/editEmail", {
     pageTitle: "Edit Email",
@@ -72,9 +64,7 @@ export const loadEditEmail = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   REQUEST EMAIL CHANGE (SEND OTP)
----------------------------------------------------- */
+// Request email change (send OTP)
 export const editEmail = async (req, res) => {
   const { error } = emailSchema.validate(req.body);
   if (error) {
@@ -93,9 +83,7 @@ export const editEmail = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   VERIFY EMAIL OTP
----------------------------------------------------- */
+// Verify email OTP
 export const sendOtpToEditEmail = async (req, res) => {
   const { error } = otpSchema.validate(req.body);
   if (error) {
@@ -110,9 +98,7 @@ export const sendOtpToEditEmail = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   RESEND EMAIL OTP
----------------------------------------------------- */
+// Resend email OTP
 export const reSendOtpToEditEmail = async (req, res) => {
   await resendEmailOtpService(req.session);
 
@@ -122,9 +108,7 @@ export const reSendOtpToEditEmail = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LOAD CHANGE PASSWORD
----------------------------------------------------- */
+// Load change password page
 export const loadChangePassword = async (req, res) => {
   res.status(HttpStatus.OK).render("user/user/changePasswod", {
     pageTitle: "Change Password",
@@ -132,9 +116,7 @@ export const loadChangePassword = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   UPDATE PASSWORD
----------------------------------------------------- */
+// Update password
 export const updatePassword = async (req, res) => {
   const { error } = passwordSchema.validate(req.body);
   if (error) {
