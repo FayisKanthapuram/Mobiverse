@@ -1,4 +1,4 @@
-// user.helper.js
+// User management helpers - query, sort and pagination builders
 
 export const buildUserQuery = ({ searchQuery, statusFilter }) => {
   const query = {};

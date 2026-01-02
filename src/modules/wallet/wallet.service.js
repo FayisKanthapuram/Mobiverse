@@ -19,13 +19,14 @@ import crypto from "crypto";
 import { AppError } from "../../shared/utils/app.error.js";
 import { WalletMessages } from "../../shared/constants/messages/walletMessages.js";
 
+// Wallet service - wallet and ledger operations
 export const loadMyWalletService = async (userId, { page, type, limit }) => {
   const user = await findUserById(userId);
 
   let wallet = await findWalletByUserId(userId);
   if (!wallet) wallet = await createWallet(userId);
 
-  // fetch transactions from WalletLedger
+  // Prepare transaction filter and fetch ledger entries
   const filter = { userId };
   if (type === "CREDIT") filter.type = { $in: ["CREDIT", "REFERRAL"] };
   else if (type === "DEBIT") filter.type = type;

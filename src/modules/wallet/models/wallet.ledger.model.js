@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Wallet ledger model - transaction entries for wallet
 const walletLedgerSchema = new mongoose.Schema(
   {
     walletId: {

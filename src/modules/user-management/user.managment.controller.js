@@ -6,9 +6,8 @@ import {
   getCustomersBySearch,
 } from "./user.managment.service.js";
 
-/* ----------------------------------------------------
-   LOAD USERS PAGE
----------------------------------------------------- */
+// User management controller - admin user operations
+// Render users listing page
 export const loadUsers = async (req, res) => {
   const data = await loadUsersService(req.query);
 
@@ -28,9 +27,7 @@ export const loadUsers = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   BLOCK / UNBLOCK USER
----------------------------------------------------- */
+// Toggle block/unblock for a user
 export const blockUsers = async (req, res) => {
   await blockUserService(req.params.id);
 
@@ -40,9 +37,7 @@ export const blockUsers = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   SEARCH USERS (AJAX)
----------------------------------------------------- */
+// Search users (AJAX)
 export const searchUser = async (req, res) => {
   const search = req.query.q || "";
 

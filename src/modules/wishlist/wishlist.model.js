@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+// Wishlist model - Mongoose schema for user wishlist
+
 const wishlistSchema = new mongoose.Schema(
   {
     userId: {

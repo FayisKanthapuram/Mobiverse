@@ -17,7 +17,8 @@ import {
 import { addToWishlistSchema } from "./wishlist.validator.js";
 import { findUserById } from "../user/user.repo.js";
 import { WishlistMessages } from "../../shared/constants/messages/wishlistMessages.js";
-
+// Wishlist service - business logic for wishlist
+// Load wishlist data
 export const loadWishlistService = async (userId, queryParams) => {
   const currentPage = parseInt(queryParams.page) || 1;
   const totalDocuments = await getWishlistItemsCount(userId);
@@ -61,6 +62,7 @@ export const loadWishlistService = async (userId, queryParams) => {
   };
 };
 
+// Toggle wishlist (add/remove) service
 export const toggleWishlistService = async (userId, body) => {
   const { error } = addToWishlistSchema.validate(body);
   if (error) {
@@ -73,7 +75,7 @@ export const toggleWishlistService = async (userId, body) => {
 
   const { variantId } = body;
 
-  // Fetch variant + product
+  // Fetch variant with product data
   const variant = await findVariantByIdWithProduct(variantId);
   if (!variant) {
     return {
@@ -122,6 +124,7 @@ export const toggleWishlistService = async (userId, body) => {
   };
 };
 
+// Clear wishlist service
 export const clearWishlistService = async (userId) => {
   await deleteWishlist(userId);
   return {

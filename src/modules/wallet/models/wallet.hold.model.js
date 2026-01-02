@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Wallet hold model - temporary hold records for pending transactions
 const walletHoldSchema = new mongoose.Schema(
   {
     userId: {

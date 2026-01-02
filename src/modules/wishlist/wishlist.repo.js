@@ -1,21 +1,25 @@
 import mongoose from "mongoose";
 import wishlistModel from "./wishlist.model.js";
 
+// Wishlist repository - data access for wishlist collections
+
+// Fetch wishlist document for a user
 export const fetchWishlist = async (userId) => {
   return wishlistModel
     .findOne({ userId })
-    .select("items.variantId") // only what we need
+    .select("items.variantId") // select variant ids only
     .lean();
 };
 
 
+// Aggregate and fetch wishlist items with product/variant/brand data
 export const fetchWishlistItems = (userId, limit, skip) => {
   return wishlistModel.aggregate([
     {
       $match: { userId: new mongoose.Types.ObjectId(userId) },
     },
 
-    // ---------- LOOKUP PRODUCTS ----------
+    // Lookup products
     {
       $lookup: {
         from: "products",
@@ -28,7 +32,7 @@ export const fetchWishlistItems = (userId, limit, skip) => {
       },
     },
 
-    // ---------- LOOKUP VARIANTS ----------
+    // Lookup variants
     {
       $lookup: {
         from: "variants",
@@ -41,7 +45,7 @@ export const fetchWishlistItems = (userId, limit, skip) => {
       },
     },
 
-    // ---------- LOOKUP BRANDS ----------
+    // Lookup brands
     {
       $lookup: {
         from: "brands",
@@ -54,7 +58,7 @@ export const fetchWishlistItems = (userId, limit, skip) => {
       },
     },
 
-    // ---------- MERGE PRODUCT + VARIANT ----------
+    // Merge product and variant into items
     {
       $addFields: {
         items: {
@@ -91,7 +95,7 @@ export const fetchWishlistItems = (userId, limit, skip) => {
       },
     },
 
-    // ---------- MERGE BRAND ----------
+    // Merge brand into items
     {
       $addFields: {
         items: {
@@ -121,9 +125,7 @@ export const fetchWishlistItems = (userId, limit, skip) => {
       },
     },
 
-    // =====================================================
-    // ✅ REMOVE UNLISTED / NULL ITEMS
-    // =====================================================
+    // Remove unlisted or null items
     {
       $addFields: {
         items: {
@@ -145,9 +147,7 @@ export const fetchWishlistItems = (userId, limit, skip) => {
       },
     },
 
-    // =====================================================
-    // ✅ PAGINATION INSIDE ITEMS (FINAL STAGE)
-    // =====================================================
+    // Paginate items inside wishlist (slice)
     {
       $addFields: {
         items:
@@ -157,7 +157,7 @@ export const fetchWishlistItems = (userId, limit, skip) => {
       },
     },
 
-    // ---------- CLEANUP ----------
+    // Cleanup temporary arrays from result
     {
       $project: {
         products: 0,
@@ -168,19 +168,20 @@ export const fetchWishlistItems = (userId, limit, skip) => {
   ]);
 };
 
+// Count valid wishlist items for a user
 export const getWishlistItemsCount = async (userId) => {
   const result = await wishlistModel.aggregate([
-    // 1️⃣ Match user wishlist
+    // Match user wishlist
     {
       $match: {
         userId: new mongoose.Types.ObjectId(userId),
       },
     },
 
-    // 2️⃣ Unwind wishlist items
+    // Unwind wishlist items
     { $unwind: "$items" },
 
-    // 3️⃣ Lookup variant
+    // Lookup variant
     {
       $lookup: {
         from: "variants",
@@ -191,14 +192,14 @@ export const getWishlistItemsCount = async (userId) => {
     },
     { $unwind: "$variant" },
 
-    // 4️⃣ Filter listed variant + stock
+    // Filter listed variant
     {
       $match: {
         "variant.isListed": true,
       },
     },
 
-    // 5️⃣ Lookup product
+    // Lookup product
     {
       $lookup: {
         from: "products",
@@ -209,14 +210,14 @@ export const getWishlistItemsCount = async (userId) => {
     },
     { $unwind: "$product" },
 
-    // 6️⃣ Filter listed product
+    // Filter listed product
     {
       $match: {
         "product.isListed": true,
       },
     },
 
-    // 7️⃣ Lookup brand
+    // Lookup brand
     {
       $lookup: {
         from: "brands",
@@ -227,14 +228,14 @@ export const getWishlistItemsCount = async (userId) => {
     },
     { $unwind: "$brand" },
 
-    // 8️⃣ Filter listed brand
+    // Filter listed brand
     {
       $match: {
         "brand.isListed": true,
       },
     },
 
-    // 9️⃣ Count valid wishlist items
+    // Count valid wishlist items
     {
       $group: {
         _id: null,
@@ -242,7 +243,7 @@ export const getWishlistItemsCount = async (userId) => {
       },
     },
 
-    // 🔟 Clean output
+    // Project output
     {
       $project: {
         _id: 0,
@@ -255,6 +256,7 @@ export const getWishlistItemsCount = async (userId) => {
 };
 
 
+// Add an item to the user's wishlist
 export const createWishlistItem = (userId, productId, variantId) => {
   return wishlistModel.findOneAndUpdate(
     { userId },
@@ -267,6 +269,7 @@ export const createWishlistItem = (userId, productId, variantId) => {
   );
 };
 
+// Remove an item from the user's wishlist
 export const removeWishlistItem = (userId, productId, variantId) => {
   return wishlistModel.findOneAndUpdate(
     { userId }, // find user wishlist
@@ -279,6 +282,7 @@ export const removeWishlistItem = (userId, productId, variantId) => {
   );
 };
 
+// Check if an item exists in the wishlist
 export const checkInWishlist = (userId, productId, variantId) => {
   return wishlistModel.findOne({
     userId,
@@ -288,10 +292,12 @@ export const checkInWishlist = (userId, productId, variantId) => {
   });
 };
 
+// Delete user's wishlist document
 export const deleteWishlist = (userId) => {
   return wishlistModel.deleteOne({ userId });
 };
 
+// Create a wishlist document for a user
 export const createWishlist = async (userId) => {
   return wishlistModel.create({ userId });
 };

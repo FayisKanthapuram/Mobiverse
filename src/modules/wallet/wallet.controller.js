@@ -7,9 +7,8 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { WalletMessages } from "../../shared/constants/messages/walletMessages.js";
 
-/* ----------------------------------------------------
-   LOAD MY WALLET
----------------------------------------------------- */
+// Wallet controller - user wallet endpoints
+// Render wallet page with transactions and balance
 export const loadMyWallet = async (req, res) => {
   const page = Number(req.query.page) || 1;
   const type = req.query.type || "";
@@ -36,9 +35,7 @@ export const loadMyWallet = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   ADD MONEY TO WALLET
----------------------------------------------------- */
+// Create a top-up order for wallet
 export const addMoney = async (req, res) => {
   const { amount } = req.body;
 
@@ -51,9 +48,7 @@ export const addMoney = async (req, res) => {
   res.status(result.status).json(result);
 };
 
-/* ----------------------------------------------------
-   VERIFY PAYMENT
----------------------------------------------------- */
+// Verify payment and credit user's wallet
 export const verifyPayment = async (req, res) => {
   const userId = req.user._id;
 

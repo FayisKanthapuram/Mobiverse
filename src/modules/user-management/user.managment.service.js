@@ -15,9 +15,8 @@ import { AppError } from "../../shared/utils/app.error.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { UserMessages } from "../../shared/constants/messages/userMessages.js";
 
-/* ----------------------------------------------------
-   LOAD USERS
----------------------------------------------------- */
+// User management service - admin user queries and updates
+// Load paginated users for admin listing
 export const loadUsersService = async (queryParams) => {
   const { page, search, status, sort } = queryParams;
 
@@ -50,9 +49,7 @@ export const loadUsersService = async (queryParams) => {
   };
 };
 
-/* ----------------------------------------------------
-   BLOCK / UNBLOCK USER
----------------------------------------------------- */
+// Toggle user's blocked status
 export const blockUserService = async (id) => {
   const user = await findUserById(id);
   if (!user) {
@@ -65,9 +62,7 @@ export const blockUserService = async (id) => {
   return true;
 };
 
-/* ----------------------------------------------------
-   SEARCH USERS
----------------------------------------------------- */
+// Search customers by name or email
 export const getCustomersBySearch = async (search = "") => {
   const query = {};
 

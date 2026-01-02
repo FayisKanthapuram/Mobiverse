@@ -1,3 +1,4 @@
+// Wishlist helper - utility functions for wishlist
 export const markWishlistStatus = (latestProducts, wishlist) => {
   if (!latestProducts?.length || !wishlist?.items?.length) {
     return latestProducts;

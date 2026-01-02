@@ -5,8 +5,9 @@ import { toggleWishlist, loadWishlist, clearWishlist } from "./wishlist.controll
 
 const router = express.Router();
 
-router.get('/wishlist',requireLogin,loadWishlist);
-router.post('/wishlist/toggle',toggleWishlist);
-router.delete('/wishlist/clear',requireLogin,clearWishlist);
+// Wishlist routes - user wishlist endpoints
+router.get('/wishlist', requireLogin, loadWishlist);
+router.post('/wishlist/toggle', toggleWishlist);
+router.delete('/wishlist/clear', requireLogin, clearWishlist);
 
 export default router;

@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 import variantModel from "../models/variant.model.js";
 
-export const findVariantById=(variantId)=>{
+// Variant repository - data access for product variants
+// Find variant by ID
+export const findVariantById = (variantId) => {
   return variantModel.findById(variantId);
 }
 
@@ -10,7 +12,7 @@ export const findVariantByIdAgg = (variantId, userId) => {
     {
       $match: { _id: new mongoose.Types.ObjectId(variantId) },
     },
-    //is in cart
+    // Check if variant is in user's cart
     {
       $lookup: {
         from: "carts",
@@ -50,7 +52,7 @@ export const findVariantByColor = (colour,variantId,userId) => {
     {
       $match: {_id: new mongoose.Types.ObjectId(variantId),colour:colour},
     },
-    //is in cart
+    // Check if variant is in user's cart
     {
       $lookup: {
         from: "carts",
@@ -85,11 +87,13 @@ export const findVariantByColor = (colour,variantId,userId) => {
   ]);
 };
 
+// Find variants belonging to a product
 export const findVariantsByProduct = (productId) => {
   return variantModel.find({ productId }).lean();
 };
 
 
+// Decrement variant stock
 export const decrementVariantStock = (variantId, qty, session = null) => {
   const options = session ? { session } : {};
   return variantModel.updateOne(
@@ -100,6 +104,7 @@ export const decrementVariantStock = (variantId, qty, session = null) => {
 };
 
 
+// Increment variant stock
 export const incrementVariantStock = (variantId, qty, session = null) => {
   const options = session ? { session } : {};
   return variantModel.updateOne(
@@ -109,17 +114,22 @@ export const incrementVariantStock = (variantId, qty, session = null) => {
   );
 };
 
+// Find variant and populate product
 export const findVariantByIdWithProduct = (variantId) => {
   return variantModel.findById(variantId).populate("productId");
 };
 
+// Create a new variant
 export const createVariant = (data) => variantModel.create(data);
 
+// Update variant by ID
 export const updateVariantById = (id, update) =>
   variantModel.findByIdAndUpdate(id, update, { new: true });
 
+// Delete a variant
 export const deleteVariantById = (id) => variantModel.findByIdAndDelete(id);
 
+// Save variant document
 export const saveVariant = (variant) => {
   return variant.save();
 };

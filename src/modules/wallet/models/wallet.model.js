@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Wallet model - schema for user wallet
 const walletSchema = new mongoose.Schema(
   {
     userId: {

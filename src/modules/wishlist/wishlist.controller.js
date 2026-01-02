@@ -7,9 +7,8 @@ import {
 } from "./wishlist.service.js";
 import { AppError } from "../../shared/utils/app.error.js";
 
-/* ----------------------------------------------------
-   LOAD WISHLIST
----------------------------------------------------- */
+// Wishlist controller - user wishlist pages and actions
+// Load wishlist page
 export const loadWishlist = async (req, res) => {
   const { wishlist, user, totalPages, currentPage, limit, totalDocuments } =
     await loadWishlistService(req.user._id, req.query);
@@ -28,9 +27,7 @@ export const loadWishlist = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   TOGGLE WISHLIST ITEM
----------------------------------------------------- */
+// Toggle wishlist item (add/remove)
 export const toggleWishlist = async (req, res) => {
   if (!req.user?._id) {
     throw new AppError(WishlistMessages.UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
@@ -43,9 +40,7 @@ export const toggleWishlist = async (req, res) => {
   res.status(result.status).json(result);
 };
 
-/* ----------------------------------------------------
-   CLEAR WISHLIST
----------------------------------------------------- */
+// Clear entire wishlist
 export const clearWishlist = async (req, res) => {
   const result = await clearWishlistService(req.user._id);
 
