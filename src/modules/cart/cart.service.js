@@ -35,12 +35,10 @@ export const loadCartService = async (userId) => {
     item.offer = getAppliedOffer(item, item?.variantId?.salePrice) || 0;
   }
   const cartTotals = await calculateCartTotals(items);
-  const hasAdjustedItem = items.some((item) => item.adjusted);
   const cartCount = await getCartItemsCount(userId);
   
 
   return {
-    hasAdjustedItem,
     cartCount,
     relatedProducts,
     cart: cartTotals,

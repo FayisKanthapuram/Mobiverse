@@ -9,14 +9,13 @@ export const loadCheckOut = async (req, res) => {
   const data = await loadCheckoutService(req?.user?._id);
   const appliedCoupon = req.session.appliedCoupon || null;
 
-  if (data.hasAdjustedItem) {
+  if (data.cartTotals.hasAdjustedItem) {
     req.session.toast = {
       type: "warning",
       message: CheckoutMessages.ADJUSTED_ITEM_QUANTITIES,
     };
     return res.redirect("/cart");
   }
-  console.log(data)
 
   res.status(HttpStatus.OK).render("user/checkout", {
     pageTitle: "Checkout",

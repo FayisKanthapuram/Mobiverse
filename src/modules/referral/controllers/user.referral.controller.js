@@ -8,6 +8,8 @@ import {
   findTotalReferralsCount,
 } from "../referral.repo.js";
 
+// User referral controller - render user referral pages
+// Render Refer & Earn page
 export const laodRefferAndEarn = async (req, res) => {
   const currentPage = parseInt(req.query.page) || 1;
   const user = req.user;

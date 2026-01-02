@@ -23,7 +23,7 @@ export const loadCart = async (req, res) => {
     pageJs: "cart",
     cart: data.cart,
     relatedProducts: data.relatedProducts,
-    isAdjested:data.hasAdjustedItem,
+    isAdjested:data.cart.hasAdjustedItem,
   });
 };
 

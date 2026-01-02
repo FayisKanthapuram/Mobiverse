@@ -5,15 +5,18 @@ export const calculateCartTotals = async (items) => {
   let discount = 0;
   let tax = 0;
   let deliveryCharge = 0;
+  let hasAdjustedItem=false;
 
   for (let item of items) {
     // Auto-adjust invalid quantities
     if (item.quantity > item.variantId.stock) {
       item.quantity = 1;
+      hasAdjustedItem=true;
       item.adjusted = true;
 
       await updateCartQuantity(item._id, 1);
     } else if (item.variantId.stock === 0) {
+      hasAdjustedItem=true;
       item.adjusted = true;
       item.quantity = 0;
     } else {
@@ -29,6 +32,7 @@ export const calculateCartTotals = async (items) => {
   }
 
   return {
+    hasAdjustedItem,
     subtotal,
     discount,
     tax,

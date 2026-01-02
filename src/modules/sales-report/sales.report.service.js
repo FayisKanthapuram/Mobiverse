@@ -12,7 +12,7 @@ export const getDeliveredSalesReportService = async ({
   page,
   limit,
 }) => {
-  /* ---------------- DATE FILTER ---------------- */
+  // Build date filter based on report type
   let dateFilter = {};
   const now = new Date();
 
@@ -62,7 +62,7 @@ export const getDeliveredSalesReportService = async ({
 
   const skip = (page - 1) * limit;
 
-  /* ---------------- AGGREGATION ---------------- */
+  // Build aggregation pipeline for sales data
   const basePipeline = [
     { $match: dateFilter },
 

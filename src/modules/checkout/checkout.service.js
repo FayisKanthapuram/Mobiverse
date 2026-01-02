@@ -34,7 +34,6 @@ export const loadCheckoutService = async (userId) => {
   }
   const cartTotals = await calculateCartTotals(items);
 
-  const hasAdjustedItem = items.some((item) => item.adjusted);
   const now = new Date();
   const availableCoupons = await getAvailableCoupon(userId, now);
 
@@ -42,7 +41,6 @@ export const loadCheckoutService = async (userId) => {
     user,
     addresses,
     cartTotals,
-    hasAdjustedItem,
     availableCoupons,
   };
 };

@@ -4,9 +4,8 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import puppeteer from "puppeteer";
 
-/* ----------------------------------------------------
-   LOAD SALES REPORT PAGE
----------------------------------------------------- */
+// Sales report controller - admin report endpoints
+// Render sales report page
 export const loadSalesReport = async (req, res) => {
   const {
     reportType = "daily",
@@ -34,9 +33,7 @@ export const loadSalesReport = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   DOWNLOAD SALES REPORT (EXCEL)
----------------------------------------------------- */
+// Download sales report (Excel)
 export const loadSalesReportDownload = async (req, res) => {
   const { reportType = "daily", startDate, endDate } = req.query;
 
@@ -52,15 +49,13 @@ export const loadSalesReportDownload = async (req, res) => {
   return generateSalesReportExcel(res, data.salesData);
 };
 
-/* ----------------------------------------------------
-   RENDER SALES REPORT PDF PAGE
----------------------------------------------------- */
+// Render sales report PDF page
 export const loadSalesReportPDF = async (req, res) => {
   const {
     reportType = "daily",
     startDate,
     endDate,
-    limit = 1000, // ✅ DEFAULT SAFE LIMIT
+    limit = 1000, // Default safe limit
   } = req.query;
 
   if (Number(limit) > 100000) {
@@ -106,7 +101,7 @@ export const loadSalesReportPDF = async (req, res) => {
 
   const pdfBuffer = await page.pdf({
     format: "A4",
-    landscape: true, // ✅ THIS IS THE KEY
+    landscape: true, // Use landscape orientation
     printBackground: true,
     margin: {
       top: "15mm",

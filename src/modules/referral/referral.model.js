@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Referral model - Mongoose schema for referral logs
 const referralSchema = new mongoose.Schema(
   {
     // User who sent the referral
@@ -71,7 +72,7 @@ const referralSchema = new mongoose.Schema(
   }
 );
 
-// Indexes for better query performance
+// Indexes
 referralSchema.index({ referrer: 1, status: 1 });
 referralSchema.index({ referralCode: 1 });
 referralSchema.index({ createdAt: -1 });

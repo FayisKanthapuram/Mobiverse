@@ -4,7 +4,7 @@ export const generateSalesReportExcel = async (res, salesData) => {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Delivered Sales");
 
-  // ---------------- HEADER ----------------
+  // Worksheet header columns
   sheet.columns = [
     { header: "Date", key: "date", width: 15 },
     { header: "Order ID", key: "orderId", width: 20 },
@@ -15,7 +15,7 @@ export const generateSalesReportExcel = async (res, salesData) => {
     { header: "Payment Method", key: "payment", width: 20 },
   ];
 
-  // ---------------- DATA ----------------
+  // Write transaction rows
   salesData.transactions.forEach((t) => {
     sheet.addRow({
       date: new Date(t.createdAt).toLocaleDateString("en-IN"),
@@ -28,7 +28,7 @@ export const generateSalesReportExcel = async (res, salesData) => {
     });
   });
 
-  // ---------------- TOTAL ROW ----------------
+  // Append totals row
   sheet.addRow({});
   sheet.addRow({
     customer: "TOTAL",
@@ -36,7 +36,7 @@ export const generateSalesReportExcel = async (res, salesData) => {
     discount: salesData.totalDiscounts,
   });
 
-  // ---------------- RESPONSE ----------------
+  // Send workbook in response
   res.setHeader(
     "Content-Disposition",
     "attachment; filename=delivered-sales-report.xlsx"

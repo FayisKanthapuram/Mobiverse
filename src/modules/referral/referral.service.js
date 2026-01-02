@@ -1,4 +1,4 @@
-// referral.service.js
+// Referral service - handle referral workflows
 import { NEW_USER_REWARD, REFERRER_REWARD } from "../../shared/constants/defaults.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
@@ -28,14 +28,14 @@ export const completeReferralReward = async (
   orderId,
   session
 ) => {
-  //  Find referral that is still pending
+  // Find pending referral for the referred user
   const referral = await findPendingReferralForUser(referredUserId,session);
   if (!referral) return;
 
   const referredUser=await findUserById(referredUserId,session);
   if(!referredUser)return;
   
-  //update referral id
+  // Update referral's first order id
   await updateReferralOrderId(referredUserId,orderId,session);
   
   const referrerId = referral.referrer;
@@ -83,7 +83,7 @@ export const rewardNewUserReferral = async ({
     );
   }
 
-  // 1️⃣ Create referral log
+  // Create referral log
   await createRefferalLog({
     referrer: referrer._id,
     referredUser: userId,
@@ -91,6 +91,6 @@ export const rewardNewUserReferral = async ({
     status: "REGISTERED",
   });
 
-  // 2️⃣ Credit referral bonus to new user
+  // Credit referral bonus to the new user
   await creditReferralBonusToNewUser(userId, NEW_USER_REWARD);
 };
