@@ -3,6 +3,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { CouponMessages } from "../../../shared/constants/messages/couponMessages.js";
 
+// Toggle coupon status service
 export const toggleCouponStatusService = async (couponId) => {
   const coupon = await toggleCouponStatus(couponId);
   if (!coupon) {

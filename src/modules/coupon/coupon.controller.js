@@ -11,9 +11,9 @@ import { couponSchema } from "./coupon.validator.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { CouponMessages } from "../../shared/constants/messages/couponMessages.js";
 
-/* ----------------------------------------------------
-   LOAD COUPONS PAGE
----------------------------------------------------- */
+// Coupon controller - admin coupon endpoints
+
+// Load coupons page
 export const loadCoupons = async (req, res) => {
   const {
     analytics,
@@ -44,9 +44,7 @@ export const loadCoupons = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   ADD COUPON
----------------------------------------------------- */
+// Create a coupon
 export const addCoupon = async (req, res) => {
   const { error } = couponSchema.validate(req.body);
   if (error) {
@@ -61,9 +59,7 @@ export const addCoupon = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   EDIT COUPON
----------------------------------------------------- */
+// Edit an existing coupon
 export const editCoupon = async (req, res) => {
   const { error } = couponSchema.validate(req.body);
   if (error) {
@@ -78,9 +74,7 @@ export const editCoupon = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   GET COUPON BY ID
----------------------------------------------------- */
+// Get coupon details by id
 export const getCoupon = async (req, res) => {
   const coupon = await getCouponService(req.params.id);
 
@@ -90,9 +84,7 @@ export const getCoupon = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   TOGGLE COUPON STATUS
----------------------------------------------------- */
+// Toggle coupon active/inactive
 export const toggleCouponStatus = async (req, res) => {
   const coupon = await toggleCouponStatusService(req.params.id);
   const status = coupon.isActive ? "Active" : "Inactive";
@@ -103,9 +95,7 @@ export const toggleCouponStatus = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   DELETE COUPON
----------------------------------------------------- */
+// Delete a coupon
 export const deleteCoupon = async (req, res) => {
   await deleteCouponService(req.params.id);
 

@@ -10,10 +10,12 @@ import {
 import { AppError } from "../../shared/utils/app.error.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 
+// Dashboard service - aggregate and format dashboard data
 export const getDashboardStatsService = async () => {
   return getDashboardStatsRepo();
 };
 
+// Sales chart service - returns labels and data for charts
 export const getSalesChartService = async (filter) => {
   const now = new Date();
   let startDate;

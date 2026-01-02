@@ -5,9 +5,7 @@ import {
   getLatestProducts,
 } from "../product/services/product.common.service.js";
 
-/* ----------------------------------------------------
-   LOAD HOME DATA
----------------------------------------------------- */
+// Home service - fetch data for the public home page
 export const loadHomeService = async (userId = null) => {
   const banners = await bannersModel.getActiveBanners();
   const latestProducts = await getLatestProducts(5, userId);

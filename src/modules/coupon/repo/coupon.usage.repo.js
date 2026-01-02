@@ -1,5 +1,6 @@
 import couponUsageModel from "../models/coupon.usage.model.js";
 
+// Coupon usage repo - count and create usage records
 export const countCouponUsageByCouponId = (couponId) => {
   return couponUsageModel.countDocuments({ couponId });
 };

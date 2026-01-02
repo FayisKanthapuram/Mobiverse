@@ -1,5 +1,6 @@
 import { countCoupon, findCoupons, getTotalCouponUsage, getTotalDiscountGiven } from "../repo/coupon.repo.js";
 
+// Coupon services - business logic for loading/listing coupons
 export const loadCouponsService = async (queryParams) => {
   const currentPage = parseInt(queryParams.page) || 1;
   const statusFilter = queryParams.status || "";

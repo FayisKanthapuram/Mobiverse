@@ -3,6 +3,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { CouponMessages } from "../../../shared/constants/messages/couponMessages.js";
 
+// Get coupon service - fetch coupon with populated users
 export const getCouponService = async (couponId) => {
   const coupon = await findCouponById(couponId).populate("specificUsers");
   if (!coupon) {

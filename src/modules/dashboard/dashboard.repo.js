@@ -2,8 +2,9 @@ import Order from "../order/models/order.model.js";
 import User from "../user/user.model.js";
 import Product from "../product/models/product.model.js";
 
+// Dashboard repository - DB aggregations for dashboard metrics
 /* --------------------------------
-   DASHBOARD STATS
+  DASHBOARD STATS
 ---------------------------------*/
 export const getDashboardStatsRepo = async () => {
   const revenueAgg = await Order.aggregate([

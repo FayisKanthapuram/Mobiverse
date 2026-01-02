@@ -3,6 +3,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { CouponMessages } from "../../../shared/constants/messages/couponMessages.js";
 
+// Add coupon service - validate uniqueness and create coupon
 export const addCouponService = async (data) => {
   const existing = await findCouponByCode(data.code);
   if (existing) {

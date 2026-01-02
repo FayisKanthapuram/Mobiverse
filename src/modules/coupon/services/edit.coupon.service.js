@@ -7,6 +7,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { CouponMessages } from "../../../shared/constants/messages/couponMessages.js";
 
+// Edit coupon service - validate and update coupon
 export const editCouponService = async (data, couponId) => {
   const coupon = await findCouponById(couponId);
   if (!coupon) {

@@ -1,6 +1,7 @@
 import Joi from "joi";
 import mongoose from "mongoose";
 
+// Coupon validator - Joi schema for coupon creation/editing and applying
 export const couponSchema = Joi.object({
   code: Joi.string().trim().uppercase().min(3).max(20).required(),
 

@@ -1,9 +1,8 @@
 import { loadHomeService } from "./home.service.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 
-/* ----------------------------------------------------
-   HOME PAGE
----------------------------------------------------- */
+// Home controller - render public site pages
+// Load home page
 export const loadHome = async (req, res) => {
   const data = await loadHomeService(req?.user?._id);
   
@@ -14,18 +13,14 @@ export const loadHome = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   ABOUT PAGE
----------------------------------------------------- */
+// Load about page
 export const loadAbout = async (req, res) => {
   res.status(HttpStatus.OK).render("user/aboutUs", {
     pageTitle: "About Us",
   });
 };
 
-/* ----------------------------------------------------
-   CONTACT PAGE
----------------------------------------------------- */
+// Load contact page
 export const loadContact = async (req, res) => {
   res.status(HttpStatus.OK).render("user/contact", {
     pageTitle: "Contact Us",
