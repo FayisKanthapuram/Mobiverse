@@ -3,6 +3,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { OfferMessages } from "../../../shared/constants/messages/offerMessages.js";
 
+// Add offer service - validate uniqueness then create
 export const addOfferService = async (offerData) => {
   const existing = await findOfferByNameAndType(
     offerData.offerName,

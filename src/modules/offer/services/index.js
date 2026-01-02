@@ -4,3 +4,5 @@ export * from "./edit-offer.service.js";
 export * from "./get-offer-by-id.service.js";
 export * from "./toggle-offer-status.service.js";
 export * from "./delete-offer.service.js";
+
+// Offer services index - re-export service modules

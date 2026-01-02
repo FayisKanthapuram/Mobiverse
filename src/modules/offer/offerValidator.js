@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+// Offer validator - Joi schema for offer create/edit inputs
 export const offerSchema = Joi.object({
   offerType: Joi.string()
     .valid("product", "brand")

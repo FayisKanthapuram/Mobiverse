@@ -7,6 +7,7 @@ import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { OfferMessages } from "../../../shared/constants/messages/offerMessages.js";
 
+// Edit offer service - validate and update offer
 export const editOfferService = async (id, offerData) => {
   const offer = await findOfferById(id);
   if (!offer) {

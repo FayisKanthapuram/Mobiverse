@@ -11,9 +11,9 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { OfferMessages } from "../../shared/constants/messages/offerMessages.js";
 
-/* ----------------------------------------------------
-   LOAD OFFERS PAGE
----------------------------------------------------- */
+// Offer controller - admin offer endpoints
+
+// Render offers listing page
 export const loadOffers = async (req, res) => {
   const offerType = req.query.type || "product";
   const searchQuery = req.query.search || "";
@@ -36,9 +36,7 @@ export const loadOffers = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   ADD OFFER
----------------------------------------------------- */
+// Create a new offer
 export const addOffer = async (req, res) => {
   const { error } = offerSchema.validate(req.body);
   if (error) {
@@ -53,9 +51,7 @@ export const addOffer = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   GET OFFER BY ID
----------------------------------------------------- */
+// Get offer details by id
 export const getOfferById = async (req, res) => {
   const offer = await getOfferByIdService(req.params.id);
 
@@ -65,9 +61,7 @@ export const getOfferById = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   EDIT OFFER
----------------------------------------------------- */
+// Update an existing offer
 export const editOffer = async (req, res) => {
   const { error } = offerSchema.validate(req.body);
   if (error) {
@@ -82,9 +76,7 @@ export const editOffer = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   TOGGLE OFFER STATUS
----------------------------------------------------- */
+// Toggle offer active status
 export const toggleOfferStatus = async (req, res) => {
   await toggleOfferStatusService(req.params.id);
 
@@ -94,9 +86,7 @@ export const toggleOfferStatus = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   DELETE OFFER
----------------------------------------------------- */
+// Delete an offer
 export const deleteOffer = async (req, res) => {
   await deleteOfferStatusService(req.params.id);
 

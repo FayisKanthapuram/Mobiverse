@@ -3,6 +3,7 @@ import { findOfferById } from "../offer.repo.js";
 import { AppError } from "../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
+// Get offer by id service - enrich products with pricing/image
 export const getOfferByIdService = async (id) => {
   const offer = await findOfferById(id);
   if (!offer) {

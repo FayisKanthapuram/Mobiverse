@@ -2,6 +2,7 @@ import { findAllListedBrands } from "../../brand/brand.repo.js";
 import { findVariantsByProduct } from "../../product/repo/variant.repo.js";
 import { findAllOffers, findOffersCount } from "../offer.repo.js";
 
+// Offer services - fetch data for offer admin pages
 export const getOfferPageDataService = async (
   offerType,
   searchQuery,

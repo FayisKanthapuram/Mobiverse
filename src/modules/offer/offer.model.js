@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Offer model - Mongoose schema for product/brand offers
 const offerSchema = new mongoose.Schema(
   {
     offerType: {

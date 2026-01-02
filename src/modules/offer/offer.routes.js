@@ -3,6 +3,8 @@ import { verifyAdmin } from "../../shared/middlewares/adminAuth.js";
 import { addOffer, deleteOffer, editOffer, getOfferById, loadOffers, toggleOfferStatus } from "./offer.controller.js";
 
 const router = express.Router();
+
+// Offer routes - admin endpoints for managing offers
 router.get("/", verifyAdmin, loadOffers);
 router.post('/',addOffer);
 router.get('/:id',verifyAdmin,getOfferById);
