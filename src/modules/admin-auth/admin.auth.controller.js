@@ -10,10 +10,9 @@ import {
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { AdminAuthMessages } from "../../shared/constants/messages/adminAuthMessages.js";
+// Admin auth controller - handle admin auth HTTP requests
 
-/* ----------------------------------------------------
-   REGISTER ADMIN
----------------------------------------------------- */
+// Register a new admin
 export const registerAdmin = async (req, res) => {
   const { error } = adminRegisterSchema.validate(req.body);
   if (error) {
@@ -28,16 +27,12 @@ export const registerAdmin = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LOAD LOGIN PAGE
----------------------------------------------------- */
+// Render admin login page
 export const loadLogin = (req, res) => {
   res.status(HttpStatus.OK).render("admin/login", { layout: false });
 };
 
-/* ----------------------------------------------------
-   LOGIN ADMIN
----------------------------------------------------- */
+// Authenticate admin and start session
 export const loginAdmin = async (req, res) => {
   const { error } = adminLoginSchema.validate(req.body);
   if (error) {
@@ -55,12 +50,7 @@ export const loginAdmin = async (req, res) => {
     redirect: "/admin/dashboard",
   });
 };
-
-
-
-/* ----------------------------------------------------
-   LOGOUT ADMIN
----------------------------------------------------- */
+// Logout admin and clear session
 export const logoutAdmin = async (req, res) => {
   delete req.session.admin; // ✅ remove admin only
   res.clearCookie("admin.sid"); // ✅ clear admin cookie

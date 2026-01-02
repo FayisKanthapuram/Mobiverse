@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Address model - Mongoose schema for addresses
 const addressSchema = new mongoose.Schema(
   {
     addressType:{type:String,enum:['home','office','other']},

@@ -21,9 +21,7 @@
     "tailwindcss": "^3.4.13"
   },
   "dependencies": {
-    "baseline-browser-mapping": "^2.9.9",
     "bcrypt": "^6.0.0",
-    "caniuse-lite": "^1.0.30001760",
     "chalk": "^5.6.2",
     "cloudinary": "^2.8.0",
     "connect-mongo": "^5.1.0",

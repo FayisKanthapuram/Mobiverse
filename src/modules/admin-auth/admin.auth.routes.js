@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.use(nocache())
 
+// Admin auth routes - endpoints for admin authentication
 router.get("/login", isLogin, loadLogin);
 router.post("/register", registerAdmin);
 router.post("/login", loginAdmin);

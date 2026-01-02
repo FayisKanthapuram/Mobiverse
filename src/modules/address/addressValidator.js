@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+// Address validator - input validation schema for addresses
 export const addressSchema = Joi.object({
   
   addressType: Joi.string()

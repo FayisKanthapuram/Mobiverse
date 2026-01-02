@@ -13,9 +13,9 @@ import {
 } from "./address.repo.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 
-/* ----------------------------------------------------
-   LOAD MANAGE ADDRESS
----------------------------------------------------- */
+// Address service - business logic for addresses
+
+// Load manage address data
 export const loadManageAddressService = async (user) => {
   if (!user) {
     throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -25,9 +25,7 @@ export const loadManageAddressService = async (user) => {
   return { user, addresses };
 };
 
-/* ----------------------------------------------------
-   ADD ADDRESS
----------------------------------------------------- */
+// Add a new address
 export const addAddressService = async (user, body) => {
   if (!user) {
     throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -46,9 +44,7 @@ export const addAddressService = async (user, body) => {
   return true;
 };
 
-/* ----------------------------------------------------
-   EDIT ADDRESS
----------------------------------------------------- */
+// Edit an address
 export const editAddressService = async (user, addressId, body) => {
   const address = await findAddressById(addressId);
   if (!address) {
@@ -75,9 +71,7 @@ export const editAddressService = async (user, addressId, body) => {
   return true;
 };
 
-/* ----------------------------------------------------
-   SET DEFAULT ADDRESS
----------------------------------------------------- */
+// Set default address
 export const setDefaultAddressService = async (user, addressId) => {
   const address = await findAddressById(addressId);
   if (!address) {
@@ -90,9 +84,7 @@ export const setDefaultAddressService = async (user, addressId) => {
   return true;
 };
 
-/* ----------------------------------------------------
-   DELETE ADDRESS
----------------------------------------------------- */
+// Delete an address
 export const deleteAddressService = async (user, addressId) => {
   const address = await findAddressById(addressId);
   if (!address) {

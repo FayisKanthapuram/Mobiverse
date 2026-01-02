@@ -3,11 +3,9 @@ import { createAdmin, findAdminByEmail } from "./admin.repo.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AdminAuthMessages } from "../../shared/constants/messages/adminAuthMessages.js";
+// Admin auth service - business logic for admin authentication
 
-
-/* ----------------------------------------------------
-   REGISTER ADMIN
----------------------------------------------------- */
+// Register admin service
 export const registerAdminService = async (adminData) => {
   const { username, email, password } = adminData;
 
@@ -27,9 +25,7 @@ export const registerAdminService = async (adminData) => {
   return admin;
 };
 
-/* ----------------------------------------------------
-   LOGIN ADMIN
----------------------------------------------------- */
+// Login admin service
 export const loginAdminService = async (email, password) => {
   const admin = await findAdminByEmail(email);
   if (!admin) {
@@ -44,9 +40,7 @@ export const loginAdminService = async (email, password) => {
   return admin;
 };
 
-/* ----------------------------------------------------
-   LOGOUT ADMIN
----------------------------------------------------- */
+// Logout admin service
 export const logoutAdminService = () => {
   return {
     success: true,

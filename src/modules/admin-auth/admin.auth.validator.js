@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+// Admin auth validator - Joi schemas for admin auth inputs
 export const adminRegisterSchema = Joi.object({
   username: Joi.string().min(3).max(30).required().messages({
     "string.empty": "Username is required",

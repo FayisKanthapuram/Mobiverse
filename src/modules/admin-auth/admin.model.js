@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+// Admin model - Mongoose schema for admin users
 const adminSchema = new mongoose.Schema(
   {
     email: {

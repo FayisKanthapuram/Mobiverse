@@ -9,7 +9,9 @@ import {
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AddressMessages } from "../../shared/constants/messages/addressMessages.js";
 
-// LOAD LIST PAGE
+// Address controller - handle address-related HTTP requests
+
+// Render manage address page
 export const loadManageAddress = async (req, res) => {
   const { user, addresses } = await loadManageAddressService(req?.user);
 
@@ -21,7 +23,7 @@ export const loadManageAddress = async (req, res) => {
   });
 };
 
-// ADD ADDRESS
+// Add a new address
 export const addAddress = async (req, res) => {
   const { error } = addressSchema.validate(req.body);
   if (error) {
@@ -38,7 +40,7 @@ export const addAddress = async (req, res) => {
   });
 };
 
-// EDIT ADDRESS
+// Edit an existing address
 export const editAddress = async (req, res) => {
   const { addressId } = req.params;
 
@@ -57,7 +59,7 @@ export const editAddress = async (req, res) => {
   });
 };
 
-// SET DEFAULT ADDRESS
+// Set an address as default
 export const setDefaultAddress = async (req, res) => {
   await setDefaultAddressService(req?.user, req.params.addressId);
 
@@ -67,7 +69,7 @@ export const setDefaultAddress = async (req, res) => {
   });
 };
 
-// DELETE ADDRESS
+// Delete an address
 export const deleteAddress = async (req, res) => {
   await deleteAddressService(req?.user, req.params.addressId);
 

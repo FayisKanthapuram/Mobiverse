@@ -10,6 +10,8 @@ import { requireLogin } from "../../shared/middlewares/userAuth.js";
 
 const router = express.Router();
 
+// Address routes - route handlers for address actions
+
 router.get("/manage-address", requireLogin, loadManageAddress);
 router.post("/address", addAddress);
 router.put("/address/:addressId", editAddress);

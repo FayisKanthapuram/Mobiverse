@@ -17,6 +17,7 @@ export const loadCheckOut = async (req, res) => {
     };
     return res.redirect("/cart");
   }
+  console.log(data)
 
   res.status(HttpStatus.OK).render("user/checkout", {
     pageTitle: "Checkout",
