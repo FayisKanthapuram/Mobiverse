@@ -104,6 +104,19 @@ async function removeCoupon() {
   }
 }
 
+function handleCartAdjusted() {
+  Swal.fire({
+    icon: "warning",
+    title: "Cart Updated",
+    text: "Some item quantities were changed due to availability. Please review your cart before continuing.",
+    confirmButtonText: "Go to Cart",
+    allowOutsideClick: false,
+  }).then(() => {
+    window.location.href = "/cart";
+  });
+}
+
+
 // ========================================
 // ORDER PLACEMENT FUNCTION
 // ========================================
@@ -192,6 +205,11 @@ async function placeOrder() {
       const data = response.data;
 
       if (!data.success) {
+        if (data.code === "CART_ADJUSTED") {
+          handleCartAdjusted();
+          return;
+        }
+
         Toastify({
           text: data.message || "Failed to initiate payment",
           duration: 3000,
@@ -276,6 +294,10 @@ async function placeOrder() {
     if (data.success) {
       window.location.href = "/order/success/" + data.orderId;
     } else {
+      if (data.code === "CART_ADJUSTED") {
+        handleCartAdjusted();
+        return;
+      }
       Toastify({
         text: data.message || "Failed to place order",
         duration: 3000,
@@ -289,6 +311,11 @@ async function placeOrder() {
         '<i class="bi bi-check-circle"></i> Place Order';
     }
   } catch (error) {
+    if (error.response?.data?.code === "CART_ADJUSTED") {
+      handleCartAdjusted();
+      return;
+    }
+
     console.error("Error:", error);
 
     Toastify({

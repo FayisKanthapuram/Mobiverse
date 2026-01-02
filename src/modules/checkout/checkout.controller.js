@@ -1,6 +1,7 @@
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { applyCouponService, loadCheckoutService } from "./checkout.service.js";
 import { CouponMessages } from "../../shared/constants/messages/couponMessages.js";
+import { CheckoutMessages } from "../../shared/constants/messages/checkoutMessages.js";
 
 /* ----------------------------------------------------
    LOAD CHECKOUT
@@ -10,7 +11,11 @@ export const loadCheckOut = async (req, res) => {
   const appliedCoupon = req.session.appliedCoupon || null;
 
   if (data.hasAdjustedItem) {
-    return res.redirect("/cart?message=adjusted");
+    req.session.toast = {
+      type: "warning",
+      message: CheckoutMessages.ADJUSTED_ITEM_QUANTITIES,
+    };
+    return res.redirect("/cart");
   }
 
   res.status(HttpStatus.OK).render("user/checkout", {

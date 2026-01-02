@@ -32,12 +32,15 @@ export const loadCartService = async (userId) => {
   const items = await fetchCartItems(userId);
   // ---------------- OFFERS ----------------
   for (let item of items) {
-    item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
+    item.offer = getAppliedOffer(item, item?.variantId?.salePrice) || 0;
   }
   const cartTotals = await calculateCartTotals(items);
-  const cartCount=await getCartItemsCount(userId);
+  const hasAdjustedItem = items.some((item) => item.adjusted);
+  const cartCount = await getCartItemsCount(userId);
+  
 
   return {
+    hasAdjustedItem,
     cartCount,
     relatedProducts,
     cart: cartTotals,
@@ -56,7 +59,7 @@ export const addToCartService = async (userId, body) => {
     );
   }
 
-  const { variantId, quantity = 1,isMoveToCart } = body;
+  const { variantId, quantity = 1, isMoveToCart } = body;
 
   const variant = await findVariantByIdWithProduct(variantId);
   if (!variant) {
@@ -69,7 +72,10 @@ export const addToCartService = async (userId, body) => {
   }
 
   if (variant.stock < 1) {
-    throw new AppError(CartMessages.PRODUCT_NOT_IN_STOCK, HttpStatus.BAD_REQUEST);
+    throw new AppError(
+      CartMessages.PRODUCT_NOT_IN_STOCK,
+      HttpStatus.BAD_REQUEST
+    );
   }
 
   const existing = await findCartItem(userId, variant._id);
@@ -104,14 +110,16 @@ export const addToCartService = async (userId, body) => {
   });
 
   const cartCount = await getCartItemsCount(userId);
-  const wishlistCount=await getWishlistItemsCount(userId);
+  const wishlistCount = await getWishlistItemsCount(userId);
 
   return {
     wishlistCount,
     cartCount,
     status: HttpStatus.CREATED,
     success: true,
-    message: isMoveToCart ? CartMessages.ITEM_MOVED_TO_CART : CartMessages.ITEM_ADDED_TO_CART,
+    message: isMoveToCart
+      ? CartMessages.ITEM_MOVED_TO_CART
+      : CartMessages.ITEM_ADDED_TO_CART,
   };
 };
 
@@ -126,7 +134,10 @@ export const updateCartItemService = async (itemId, userId, body) => {
 
   const quantity = Number(body.quantity || 1);
   if (quantity < 1 || quantity > item.variantId.stock) {
-    throw new AppError(CartMessages.INVALID_QUANTITY, HttpStatus.UNPROCESSABLE_ENTITY);
+    throw new AppError(
+      CartMessages.INVALID_QUANTITY,
+      HttpStatus.UNPROCESSABLE_ENTITY
+    );
   }
 
   item.quantity = quantity;
@@ -157,7 +168,7 @@ export const updateCartItemService = async (itemId, userId, body) => {
 /* ----------------------------------------------------
    DELETE CART ITEM SERVICE
 ---------------------------------------------------- */
-export const deleteCartItemService = async (itemId,userId) => {
+export const deleteCartItemService = async (itemId, userId) => {
   const item = await findCartItemById(itemId);
   if (!item) {
     throw new AppError(CartMessages.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -166,7 +177,6 @@ export const deleteCartItemService = async (itemId,userId) => {
   await item.deleteOne();
 
   const cartCount = await getCartItemsCount(userId);
-
 
   return {
     status: HttpStatus.OK,

@@ -7,6 +7,7 @@ import {
 } from "./cart.service.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { CartMessages } from "../../shared/constants/messages/cartMessages.js";
+import { CheckoutMessages } from "../../shared/constants/messages/checkoutMessages.js";
 
 /* ----------------------------------------------------
    LOAD CART
@@ -22,6 +23,7 @@ export const loadCart = async (req, res) => {
     pageJs: "cart",
     cart: data.cart,
     relatedProducts: data.relatedProducts,
+    isAdjested:data.hasAdjustedItem,
   });
 };
 
@@ -50,7 +52,7 @@ export const addToCart = async (req, res) => {
 
   const result = await addToCartService(req?.user?._id, req.body);
   req.session.cartCount = result.cartCount;
-  req.session.wishlistCount=result.wishlistCount;
+  req.session.wishlistCount = result.wishlistCount;
 
   res.status(result.status).json(result);
 };
@@ -72,7 +74,7 @@ export const updateCartItem = async (req, res) => {
 export const deleteCartItem = async (req, res) => {
   const id = req.params.id;
 
-  const result = await deleteCartItemService(id,req.user._id); // Use the new service
+  const result = await deleteCartItemService(id, req.user._id); // Use the new service
   req.session.cartCount = result.cartCount;
 
   res.status(result.status).json(result);

@@ -171,3 +171,15 @@ async function addToCart(variantId) {
     }).showToast();
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.cartAdjusted) {
+    Swal.fire({
+      icon: "warning",
+      title: "Cart Updated",
+      text: "Some item quantities were adjusted due to stock or availability changes. Please review your cart before checkout.",
+      confirmButtonText: "OK",
+      allowOutsideClick: false,
+    });
+  }
+});

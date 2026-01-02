@@ -39,6 +39,8 @@
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
@@ -58,10 +60,25 @@
       sessionStorage.removeItem("toastError");
     }
 
+
+    const toast = <%- JSON.stringify(toast) %>;
+
     // Backend redirect toast
     <% if (toast) { %>
-      showToast("<%= toast.message %>", "<%= toast.type %>");
+      showAlert("<%= toast.message %>", "<%= toast.type %>");
     <% } %>
+
+    function showAlert(message, type = "success") {
+      Swal.fire({
+        icon: type, // success | error | warning | info
+        title: message,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        confirmButtonText: "OK",
+        heightAuto: false,
+      });
+    }
+
 
     function showToast(message, type = "success") {
       const colors = {

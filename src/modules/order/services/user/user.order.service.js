@@ -36,6 +36,7 @@ import {
 import { createRazorpayOrderService } from "./payment.service.js";
 import { findTempOrderById } from "../../repo/temp.order.repo.js";
 import { getAppliedOffer } from "../../../product/helpers/user.product.helper.js";
+import { CheckoutMessages } from "../../../../shared/constants/messages/checkoutMessages.js";
 
 export const placeOrderService = async (userId, body, appliedCoupon) => {
   const session = await mongoose.startSession();
@@ -69,9 +70,20 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     }
     if (!items.length) throw { status: 400, message: "Your cart is empty" };
     const cartTotals = await calculateCartTotals(items);
-    // -------------------------------
-    // 4. Format orderedItems
-    // -------------------------------
+
+    const hasAdjustedItem = items.some((item) => item.adjusted);
+    if (hasAdjustedItem) {
+      await session.abortTransaction();
+      session.endSession();
+
+      return {
+        status: HttpStatus.CONFLICT,
+        success: false,
+        code: "CART_ADJUSTED",
+        message:CheckoutMessages.ADJUSTED_ITEM_QUANTITIES,
+      };
+    }
+
 
     // -------------------------------
     // 5. Copy Shipping Address

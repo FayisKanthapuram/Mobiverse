@@ -32,12 +32,6 @@ export const loadOrders = async (req, res) => {
   });
 };
 
-// export const review=async(req,res)=>{
-//   const orders = await Order.aggregate([
-//     { $match: { orderStatus: "Delivered" } },
-//     { $match: { finalAmount :{$expr:{$and:[{$gte:10000},{lte:30000}]}} },
-//   ]);
-// }
 
 /* ----------------------------------------------------
    LOAD ORDER DETAILS
