@@ -4,9 +4,8 @@ import {
 } from "../services/index.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
-/* ----------------------------------------------------
-   LOAD SHOP PAGE
----------------------------------------------------- */
+// User product controller - handle product browsing endpoints
+// Load shop page with filters
 export const loadShop = async (req, res) => {
   const data = await loadShopService(req.query, req?.user?._id);
 
@@ -30,9 +29,7 @@ export const loadShop = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LOAD PRODUCT DETAILS
----------------------------------------------------- */
+// Load product details page
 export const loadProductDetails = async (req, res) => {
   const data = await loadProductDetailsService(
     req.params,

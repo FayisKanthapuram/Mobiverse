@@ -2,6 +2,8 @@ import { findProducts, countProducts } from "../../repo/product.repo.js";
 import { findAllListedBrands } from "../../../brand/brand.repo.js";
 import { findVariantsByProduct } from "../../repo/variant.repo.js";
 
+// Get filtered products service - fetch and filter products for admin
+// Retrieve products with filters and pagination
 export const getFilteredProducts = async ({
   search = "",
   status = "All",

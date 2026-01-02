@@ -1,6 +1,8 @@
 import { findProducts } from "../../repo/product.repo.js";
 import { findVariantsByProduct } from "../../repo/variant.repo.js";
 
+// Search products service - search products by name
+// Find products matching search query
 export const getProductsBySearch = async (q = "") => {
   const query = {};
   if (q) query.name = { $regex: q, $options: "i" };

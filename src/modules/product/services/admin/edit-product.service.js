@@ -14,6 +14,8 @@ import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { ProductMessages } from "../../../../shared/constants/messages/productMessages.js";
 
+// Edit product service - handle product updates
+// Update product with new variants and images
 export const editProductService = async (productId, body, files = []) => {
   const uploadedPublicIds = [];
 

@@ -1,5 +1,7 @@
 import Joi from "joi";
 
+// Product validation schemas
+// Product creation/update validation schema
 export const productValidationSchema = Joi.object({
   productName: Joi.string().trim().min(3).max(100).required().messages({
     "string.empty": "Product name is required",

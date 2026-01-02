@@ -1,3 +1,5 @@
+// Product services - export all service functions
+
 export * from "./admin/get-filtered-products.service.js";
 export * from "./admin/get-products-by-search.service.js";
 export * from "./admin/add-product.service.js";

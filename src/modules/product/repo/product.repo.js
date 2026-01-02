@@ -1,6 +1,8 @@
 import productModel from "../models/product.model.js";
 import mongoose from "mongoose";
 
+// Product repository - data access layer for products
+// Aggregate latest products with brand and variant details
 export const getLatestProductsAgg = (limit = 5, userId = null) => {
   return productModel.aggregate([
     {
@@ -44,7 +46,7 @@ export const getLatestProductsAgg = (limit = 5, userId = null) => {
     { $sort: { updatedAt: -1 } },
     { $limit: limit },
 
-    //product offer
+    // Populate product offer details
     {
       $lookup: {
         from: "offers",
@@ -99,6 +101,7 @@ export const getLatestProductsAgg = (limit = 5, userId = null) => {
   ]);
 };
 
+// Aggregate featured products with brand and variant details
 export const getFeaturedProductsAgg = (userId=null) => {
   return productModel.aggregate([
     {
@@ -216,7 +219,7 @@ export const getSingleProductAgg = (productId) => {
         as: "variants",
       },
     },
-    //product offer
+    // Populate product offer details for the single product
     {
       $lookup: {
         from: "offers",
@@ -271,22 +274,30 @@ export const getSingleProductAgg = (productId) => {
   ]);
 };
 
+// Aggregate shop products based on a pipeline
 export const getShopProductsAgg = (pipeline) => {
   return productModel.aggregate(pipeline);
 };
+// Count shop products based on an aggregation pipeline
 
 export const countShopProductsAgg = (pipeline) => {
   return productModel.aggregate(pipeline);
 };
+// Find products by query with sorting, skipping, and limiting
 
 export const findProducts = (query, sort = { name: 1 }, skip = 0, limit = 10) =>
+// Count products by query
   productModel.find(query).sort(sort).skip(skip).limit(limit);
 
+// Find product by ID
 export const countProducts = (query) => productModel.countDocuments(query);
+// Create a new product
 
 export const findProductById = (productId) => productModel.findById(productId);
+// Update product by ID
 
 export const createProduct = (data) => productModel.create(data);
+// Aggregate product by ID with variants
 
 export const updateProductById = (productId, update) =>
   productModel.findByIdAndUpdate(productId, update, { new: true });
@@ -299,6 +310,7 @@ export const aggregateProductById = (productId) =>
         from: "variants",
         foreignField: "productId",
         localField: "_id",
+// Save product changes
         as: "variants",
       },
     },

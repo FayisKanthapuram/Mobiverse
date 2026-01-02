@@ -11,9 +11,8 @@ import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { AppError } from "../../../shared/utils/app.error.js";
 import { ProductMessages } from "../../../shared/constants/messages/productMessages.js";
 
-/* ----------------------------------------------------
-   LOAD PRODUCTS PAGE
----------------------------------------------------- */
+// Admin product controller - handle product management endpoints
+// Load products listing page
 export const loadProducts = async (req, res) => {
   const search = req.query.search || "";
   const status = req.query.status || "All";
@@ -41,9 +40,7 @@ export const loadProducts = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   ADD PRODUCT
----------------------------------------------------- */
+// Add new product
 export const addProduct = async (req, res) => {
   const { error } = productValidationSchema.validate(req.body);
   if (error) {
@@ -59,9 +56,7 @@ export const addProduct = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   EDIT PRODUCT
----------------------------------------------------- */
+// Edit existing product
 export const editProduct = async (req, res) => {
   const { error } = productValidationSchema.validate(req.body);
   if (error) {
@@ -76,22 +71,17 @@ export const editProduct = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   LIST / UNLIST PRODUCT
----------------------------------------------------- */
+// Toggle product active/inactive status
 export const toggleProduct = async (req, res) => {
   await toggleProductService(req.params.productId);
 
   res.status(HttpStatus.OK).json({ success: true });
 };
 
-/* ----------------------------------------------------
-   SEARCH PRODUCTS
----------------------------------------------------- */
+// Search products by query
 export const getProducts = async (req, res) => {
   const q = req.query.q || "";
   const products = await getProductsBySearch(q);
-  // console.log(products);
 
   res.status(HttpStatus.OK).json({
     success: true,

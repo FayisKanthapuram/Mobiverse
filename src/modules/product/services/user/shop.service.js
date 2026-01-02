@@ -9,9 +9,10 @@ import { fetchCart } from "../../../cart/cart.repo.js";
 import { markCartStatus } from "../../../cart/helpers/cart.helper.js";
 import { getAppliedOffer } from "../../helpers/user.product.helper.js";
 
-
+// Shop service - handle product browsing for users
+// Load shop products with filters and sorting
 export const loadShopService = async (query, userId = null) => {
-  // ---------------- NORMALIZE INPUT ----------------
+  // Normalize and parse query parameters
   const search = query.search || "";
   const brand = query.brand || "all";
   const sort = query.sort || "";
@@ -22,7 +23,7 @@ export const loadShopService = async (query, userId = null) => {
   const limit = 8;
   const skip = (currentPage - 1) * limit;
 
-  // ---------------- MATCH ----------------
+  // Define match stage for aggregation pipeline
   const matchStage = {
     isListed: true,
     "brands.isListed": true,
@@ -31,7 +32,7 @@ export const loadShopService = async (query, userId = null) => {
   if (brand !== "all") matchStage["brands.brandName"] = brand;
   if (search) matchStage.name = { $regex: search.trim(), $options: "i" };
 
-  // ---------------- SORT ----------------
+  // Define sort stage for aggregation pipeline
   const sortStage = {};
   if (sort === "price-asc") sortStage["variants.salePrice"] = 1;
   else if (sort === "price-desc") sortStage["variants.salePrice"] = -1;
@@ -39,12 +40,12 @@ export const loadShopService = async (query, userId = null) => {
   else if (sort === "z-a") sortStage.name = -1;
   else if (sort === "latest") sortStage.updatedAt = -1;
 
-  // ---------------- PRICE FILTER ----------------
+  // Define price filter for aggregation pipeline
   const priceStage = {};
   if (minPrice) priceStage.$gte = Number(minPrice);
   if (maxPrice) priceStage.$lte = Number(maxPrice);
 
-  // ---------------- BASE PIPELINE ----------------
+  // Define base aggregation pipeline for shop products
   const basePipeline = [
     {
       $lookup: {
@@ -133,7 +134,7 @@ export const loadShopService = async (query, userId = null) => {
     },
   ];
 
-  // ---------------- COUNT ----------------
+  // Count total matching products
   const countPipeline = [...basePipeline];
   if (Object.keys(sortStage).length) countPipeline.push({ $sort: sortStage });
   if (Object.keys(priceStage).length)
@@ -144,7 +145,7 @@ export const loadShopService = async (query, userId = null) => {
   const totalDocuments = countResult[0]?.totalDocuments || 0;
   const totalPages = Math.ceil(totalDocuments / limit);
 
-  // ---------------- PRODUCTS ----------------
+  // Build product page results
   const productPipeline = [...basePipeline];
   if (Object.keys(sortStage).length) productPipeline.push({ $sort: sortStage });
   if (Object.keys(priceStage).length)
@@ -154,12 +155,12 @@ export const loadShopService = async (query, userId = null) => {
 
   const products = await getShopProductsAgg(productPipeline);
 
-  // ---------------- OFFERS ----------------
+  // Apply offers to products
   for (let product of products) {
     product.offer = getAppliedOffer(product, product?.variants?.salePrice);
   }
 
-  // ---------------- WISHLIST & CART ----------------
+  // Attach wishlist and cart status
   const wishlist = userId ? await fetchWishlist(userId) : null;
   const cart = userId ? await fetchCart(userId) : null;
 

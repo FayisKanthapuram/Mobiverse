@@ -3,6 +3,8 @@ import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { ProductMessages } from "../../../../shared/constants/messages/productMessages.js";
 
+// Toggle product service - activate/deactivate product
+// Toggle product listed status
 export const toggleProductService = async (productId) => {
   const product = await findProductById(productId);
   if (!product) {

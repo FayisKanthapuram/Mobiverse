@@ -13,12 +13,14 @@ import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { fetchWishlist } from "../../../wishlist/wishlist.repo.js";
 
+// Product details service - fetch product details for user view
+// Load product with selected variant and recommendations
 export const loadProductDetailsService = async (
   params,
   query,
   userId = null
 ) => {
-  // 1. Resolve variant
+  // Resolve selected variant
   let selectedVariant;
 
   if (query.color) {
@@ -37,7 +39,7 @@ export const loadProductDetailsService = async (
     throw new AppError(ProductMessages.VARIANT_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  // 2. Fetch product
+  // Fetch product aggregation
   const productAgg = await getSingleProductAgg(
     selectedVariant.productId,
     userId
@@ -49,7 +51,7 @@ export const loadProductDetailsService = async (
 
   const product = productAgg[0];
 
-  // 3. Offer calculation
+  // Calculate applied offer
   const offer = getAppliedOffer(product, selectedVariant.salePrice);
   let isInWishlist=null;
   if(userId){
@@ -62,13 +64,13 @@ export const loadProductDetailsService = async (
     );
   }
 
-  // 4. Variant grouping
+  // Group variants by color
   const colorGroups = groupVariantsByColor(product.variants);
 
-  // 5. Related products
+  // Fetch related products
   const relatedProducts = await getLatestProducts(6, userId);
 
-  // 6. Temporary static reviews
+  // Temporary static reviews
   const reviews = [
     {
       userName: "Rahul Mehta",

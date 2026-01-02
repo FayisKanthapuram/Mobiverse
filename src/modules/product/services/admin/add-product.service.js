@@ -9,6 +9,8 @@ import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { ProductMessages } from "../../../../shared/constants/messages/productMessages.js";
 
+// Add product service - handle product creation
+// Create new product with variants and images
 export const addProductService = async (body, files) => {
   const uploadedPublicIds = [];
 
