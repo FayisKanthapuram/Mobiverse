@@ -98,8 +98,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     let finalAmount =
       cartTotals.subtotal -
       cartTotals.discount +
-      cartTotals.deliveryCharge +
-      cartTotals.tax;
+      cartTotals.deliveryCharge
 
 
     if (

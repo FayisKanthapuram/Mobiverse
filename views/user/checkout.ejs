@@ -110,7 +110,7 @@
             <%
               const payableAmount = appliedCoupon 
                 ? appliedCoupon.finalAmount 
-                : (cart.subtotal + cart.tax + cart.deliveryCharge - cart.discount);
+                : (cart.subtotal + cart.deliveryCharge - cart.discount);
             %>
 
             <label class="block cursor-pointer">
@@ -287,14 +287,6 @@
               <% } %>
             </div>
 
-            <!-- Tax -->
-            <% if (cart.tax > 0) { %>
-            <div class="flex justify-between text-gray-700">
-              <span>Tax</span>
-              <span class="font-semibold">₹<%= cart.tax.toLocaleString('en-IN') %></span>
-            </div>
-            <% } %>
-
             <!-- Total -->
             <div class="pt-4 border-t border-gray-200">
               <div class="flex justify-between text-gray-900">
@@ -302,7 +294,7 @@
 
                 <% const totalAmount = appliedCoupon 
                 ? appliedCoupon.finalAmount 
-                : (cart.subtotal + cart.tax + cart.deliveryCharge - cart.discount); %>
+                : (cart.subtotal  + cart.deliveryCharge - cart.discount); %>
 
                 <span class="text-2xl font-bold">
                   ₹<%= totalAmount.toLocaleString('en-IN') %>
@@ -552,7 +544,7 @@
 <script>
   window.checkoutData = {
     razorpayKeyId: "<%= process.env.RAZORPAY_KEY_ID %>",
-    cartTotal: <%= cart?.subtotal + cart?.tax + cart?.deliveryCharge - cart?.discount %>,
+    cartTotal: <%= cart?.subtotal + cart?.deliveryCharge - cart?.discount %>,
     payableAmount: <%= payableAmount %>,
     walletBalance: <%= user.walletBalance || 0 %>
   };

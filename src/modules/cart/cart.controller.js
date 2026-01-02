@@ -7,7 +7,6 @@ import {
 } from "./cart.service.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { CartMessages } from "../../shared/constants/messages/cartMessages.js";
-import { CheckoutMessages } from "../../shared/constants/messages/checkoutMessages.js";
 
 // Cart controller - handle user cart HTTP endpoints
 

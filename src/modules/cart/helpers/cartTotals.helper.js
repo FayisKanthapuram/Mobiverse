@@ -3,7 +3,6 @@ import { updateCartQuantity } from "../cart.repo.js";
 export const calculateCartTotals = async (items) => {
   let subtotal = 0;
   let discount = 0;
-  let tax = 0;
   let deliveryCharge = 0;
   let hasAdjustedItem=false;
 
@@ -35,7 +34,6 @@ export const calculateCartTotals = async (items) => {
     hasAdjustedItem,
     subtotal,
     discount,
-    tax,
     deliveryCharge,
     items,
   };
