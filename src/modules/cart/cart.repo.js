@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import cartModel from "./cart.model.js";
 
+// Cart repository - DB operations for cart items
+
+// Fetch detailed cart items for a user
 export const fetchCartItems = (userId) => {
   return cartModel.aggregate([
     {
@@ -95,6 +98,7 @@ export const fetchCartItems = (userId) => {
   ]);
 };
 
+// Update cart item quantity by id
 export const updateCartQuantity = (cartId, quantity) => {
   return cartModel.updateOne(
     { _id: cartId },
@@ -102,30 +106,37 @@ export const updateCartQuantity = (cartId, quantity) => {
   );
 };
 
+// Delete all cart items for a user
 export const deleteUserCart = (userId) => {
   return cartModel.deleteMany({ userId });
 };
 
+// Find a cart item by user and variant
 export const findCartItem = (userId, variantId) => {
   return cartModel.findOne({ userId, variantId });
 };
 
+// Create a cart item
 export const createCartItem = (data) => {
   return cartModel.create(data);
 };
 
+// Save cart item instance
 export const saveCartItem = (cartItem) => {
   return cartItem.save();
 };
 
+// Find cart item by id and populate variant
 export const findCartItemById = (id) => {
   return cartModel.findById(id).populate("variantId");
 };
 
+// Fetch raw cart (variant ids) for a user
 export const fetchCart = async (userId) => {
   return cartModel.find({ userId }).select("variantId").lean();
 };
 
+// Get total items count in cart (aggregated, considering listings)
 export const getCartItemsCount = async (userId) => {
   const result = await cartModel.aggregate([
     // 1️⃣ Match user cart

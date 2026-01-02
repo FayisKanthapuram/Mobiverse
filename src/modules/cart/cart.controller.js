@@ -9,9 +9,9 @@ import { AppError } from "../../shared/utils/app.error.js";
 import { CartMessages } from "../../shared/constants/messages/cartMessages.js";
 import { CheckoutMessages } from "../../shared/constants/messages/checkoutMessages.js";
 
-/* ----------------------------------------------------
-   LOAD CART
----------------------------------------------------- */
+// Cart controller - handle user cart HTTP endpoints
+
+// Render cart page
 export const loadCart = async (req, res) => {
   if (req.session.appliedCoupon) req.session.appliedCoupon = null;
 
@@ -27,9 +27,7 @@ export const loadCart = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   ADD TO CART
----------------------------------------------------- */
+// Add item to cart
 export const addToCart = async (req, res) => {
   if (!req.isAuthenticated() || !req.user) {
     throw new AppError(CartMessages.PLEASE_LOGIN, HttpStatus.UNAUTHORIZED);
@@ -57,9 +55,7 @@ export const addToCart = async (req, res) => {
   res.status(result.status).json(result);
 };
 
-/* ----------------------------------------------------
-   UPDATE CART ITEM
----------------------------------------------------- */
+// Update quantity of a cart item
 export const updateCartItem = async (req, res) => {
   const itemId = req.params.id;
   const userId = req?.user?._id;
@@ -68,9 +64,7 @@ export const updateCartItem = async (req, res) => {
   res.status(result.status).json(result);
 };
 
-/* ----------------------------------------------------
-   DELETE CART ITEM
----------------------------------------------------- */
+// Remove an item from the cart
 export const deleteCartItem = async (req, res) => {
   const id = req.params.id;
 

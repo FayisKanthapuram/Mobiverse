@@ -24,9 +24,9 @@ import { getLatestProducts } from "../product/services/product.common.service.js
 import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 import { CartMessages } from "../../shared/constants/messages/cartMessages.js";
 
-/* ----------------------------------------------------
-   LOAD CART SERVICE
----------------------------------------------------- */
+// Cart service - business logic for user cart operations
+
+// Load cart service
 export const loadCartService = async (userId) => {
   const relatedProducts = await getLatestProducts(5, userId);
   const items = await fetchCartItems(userId);
@@ -47,9 +47,7 @@ export const loadCartService = async (userId) => {
   };
 };
 
-/* ----------------------------------------------------
-   ADD TO CART SERVICE
----------------------------------------------------- */
+// Add to cart service
 export const addToCartService = async (userId, body) => {
   const { error } = addToCartSchema.validate(body);
   if (error) {
@@ -123,9 +121,7 @@ export const addToCartService = async (userId, body) => {
   };
 };
 
-/* ----------------------------------------------------
-   UPDATE CART ITEM SERVICE
----------------------------------------------------- */
+// Update cart item service
 export const updateCartItemService = async (itemId, userId, body) => {
   const item = await findCartItemById(itemId);
   if (!item) {
@@ -165,9 +161,7 @@ export const updateCartItemService = async (itemId, userId, body) => {
   };
 };
 
-/* ----------------------------------------------------
-   DELETE CART ITEM SERVICE
----------------------------------------------------- */
+// Delete cart item service
 export const deleteCartItemService = async (itemId, userId) => {
   const item = await findCartItemById(itemId);
   if (!item) {

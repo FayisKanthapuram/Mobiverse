@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+// Cart validator - Joi schema for add-to-cart input
 export const addToCartSchema = Joi.object({
   variantId: Joi.string().required().messages({
     "string.empty": "Variant ID is required",

@@ -2,10 +2,9 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { applyCouponService, loadCheckoutService } from "./checkout.service.js";
 import { CouponMessages } from "../../shared/constants/messages/couponMessages.js";
 import { CheckoutMessages } from "../../shared/constants/messages/checkoutMessages.js";
+// Checkout controller - handle checkout and coupon endpoints
 
-/* ----------------------------------------------------
-   LOAD CHECKOUT
----------------------------------------------------- */
+// Render checkout page
 export const loadCheckOut = async (req, res) => {
   const data = await loadCheckoutService(req?.user?._id);
   const appliedCoupon = req.session.appliedCoupon || null;
@@ -30,9 +29,7 @@ export const loadCheckOut = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   APPLY COUPON
----------------------------------------------------- */
+// Apply a coupon to the current cart
 export const applyCoupon = async (req, res) => {
   if (req.session.appliedCoupon) req.session.appliedCoupon = null;
 
@@ -52,9 +49,7 @@ export const applyCoupon = async (req, res) => {
     .json({ success: true, message: CouponMessages.COUPON_APPLIED });
 };
 
-/* ----------------------------------------------------
-   REMOVE COUPON
----------------------------------------------------- */
+// Remove applied coupon from session
 export const removeCoupon = (req, res) => {
   req.session.appliedCoupon = null;
 

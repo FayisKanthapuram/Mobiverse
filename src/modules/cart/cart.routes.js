@@ -9,6 +9,7 @@ import { requireLogin } from "../../shared/middlewares/userAuth.js";
 
 const router = express.Router();
 
+// Cart routes - user endpoints for cart actions
 router.get("/cart", requireLogin, loadCart);
 router.post("/cart/add", addToCart);
 router.patch("/cart/update/:id",requireLogin, updateCartItem);

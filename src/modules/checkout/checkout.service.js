@@ -17,10 +17,9 @@ import { AppError } from "../../shared/utils/app.error.js";
 import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 import { CouponMessages } from "../../shared/constants/messages/couponMessages.js";
 import { UserMessages } from "../../shared/constants/messages/userMessages.js";
+// Checkout service - business logic for loading checkout and applying coupons
 
-/* ----------------------------------------------------
-   LOAD CHECKOUT SERVICE
----------------------------------------------------- */
+// Load checkout data for a user
 export const loadCheckoutService = async (userId) => {
   const user = await findUserById(userId);
   if (!user) {
@@ -48,9 +47,7 @@ export const loadCheckoutService = async (userId) => {
   };
 };
 
-/* ----------------------------------------------------
-   APPLY COUPON SERVICE
----------------------------------------------------- */
+// Validate and apply coupon for given total
 export const applyCouponService = async (body, userId) => {
   const { error } = applyCouponSchema.validate(body);
   if (error) {
