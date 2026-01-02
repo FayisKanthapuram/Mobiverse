@@ -14,6 +14,7 @@ export const calculateCartTotals = async (items) => {
 
       await updateCartQuantity(item._id, 1);
     } else if (item.variantId.stock === 0) {
+      item.adjusted = true;
       item.quantity = 0;
     } else {
       item.adjusted = false;

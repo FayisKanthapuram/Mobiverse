@@ -1,3 +1,5 @@
+// Order services - export all order service functions
+
 export * from "./admin/load.orders.service.js";
 export * from "./admin/order.details.service.js";
 export * from "./admin/update.item.status.service.js"

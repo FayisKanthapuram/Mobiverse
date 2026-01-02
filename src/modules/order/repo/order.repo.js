@@ -1,15 +1,19 @@
 import Order from "../models/order.model.js";
 
+// Order repository - data access layer for orders
+// Create new order
 export const createOrder = (orderData) => {
   return Order.create(orderData);
 };
 
+// Find order by order ID with populated items
 export const findOrderByOrderId = (orderId) => {
   return Order.findOne({ orderId })
     .populate("orderedItems.productId")
     .populate("orderedItems.variantId");
 };
 
+// Get aggregated order transactions with pagination
 export const getOrderTransations = (pipeline,skip,limit) => {
   return Order.aggregate([...pipeline, { $skip: skip }, { $limit: limit }]);
 };
@@ -29,6 +33,7 @@ export const getOrderTransationsTotal=(pipeline)=>{
   ]);
 }
 
+// Find all orders for a user
 export const findUserOrders = (query) => {
   return Order.find(query)
     .sort({ createdAt: -1 })
@@ -36,6 +41,7 @@ export const findUserOrders = (query) => {
     .populate("orderedItems.variantId");
 };
 
+// Find order by MongoDB ID
 export const findOrderById = (orderId) => {
   return Order.findById(orderId);
 };
@@ -45,12 +51,14 @@ export const saveOrder = (order) => {
   return order.save();
 };
 
+// Find order with populated items
 export const findOrderByIdWithItems = (orderId) => {
   return Order.findById(orderId)
     .populate("orderedItems.productId")
     .populate("orderedItems.variantId");
 };
 
+// Find order with user information
 export const findOrderByOrderIdWithUser = (orderId) => {
   return Order.findOne({ orderId })
     .populate("orderedItems.productId")
@@ -58,6 +66,7 @@ export const findOrderByOrderIdWithUser = (orderId) => {
     .populate("userId");
 };
 
+// Find order with delivered items aggregated pipeline
 export const findOrderByOrderIdWithDeliveredItems = (orderId) => {
   return Order.aggregate([
     // 1️⃣ Match order
@@ -166,7 +175,7 @@ export const findOrderByOrderIdWithDeliveredItems = (orderId) => {
       },
     },
 
-    // 8️⃣ Cleanup
+    // Cleanup aggregation
     {
       $project: {
         products: 0,
@@ -176,16 +185,14 @@ export const findOrderByOrderIdWithDeliveredItems = (orderId) => {
   ]);
 };
 
-
-
-
+// Find orders with user population
 export const findOrders = (query, sort = {}) => {
   return Order.find(query).sort(sort).populate("userId", "username email");
 };
 
 export const countAllOrders = () => Order.countDocuments();
 
-// ANALYTICS
+// Get total revenue from valid orders
 export const getTotalRevenue = () => {
   return Order.aggregate([
     {
@@ -202,15 +209,18 @@ export const getTotalRevenue = () => {
   ]);
 };
 
+// Count active orders (not cancelled or returned)
 export const countActiveOrders = () => {
   return Order.countDocuments({
     orderStatus: { $nin: ["Cancelled", "Returned"] },
   });
 };
 
+// Count returned orders
 export const countReturnedOrders = () =>
   Order.countDocuments({ orderStatus: "Returned" });
 
+// Count cancelled orders
 export const countCancelledOrders = () =>
   Order.countDocuments({ orderStatus: "Cancelled" });
 

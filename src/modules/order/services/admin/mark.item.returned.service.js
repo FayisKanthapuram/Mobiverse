@@ -21,6 +21,8 @@ import {
   calculateOrderStatus,
 } from "../../order.helper.js";
 
+// Mark item returned service - process item returns
+// Mark item as returned and update inventory
 export const markItemReturnedService = async (orderId, body) => {
   const { itemId } = body;
   if (!itemId) {
@@ -58,6 +60,7 @@ export const markItemReturnedService = async (orderId, body) => {
     );
   }
 
+  // Restore inventory
   product.totalStock += item.quantity;
   variant.stock += item.quantity;
 
@@ -70,6 +73,7 @@ export const markItemReturnedService = async (orderId, body) => {
   item.itemTimeline.returnedAt = now;
   const refundAmount = (item.price - item.couponShare - item.offer)*item.quantity;
 
+  // Process refund to wallet if payment was made
   if (item.paymentStatus === "Paid") {
     await updateWalletBalanceAndCredit(order.userId, refundAmount);
     const wallet = await findWalletByUserId(order.userId);
@@ -88,9 +92,8 @@ export const markItemReturnedService = async (orderId, body) => {
 
   item.paymentStatus = "Refunded";
 
-
+  // Recalculate order statuses
   order.orderStatus = calculateOrderStatus(order.orderedItems);
-
   order.paymentStatus = calculateOrderPaymentStatus(order.orderedItems);
 
   order.markModified("orderedItems");

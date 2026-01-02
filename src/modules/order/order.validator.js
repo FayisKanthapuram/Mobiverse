@@ -1,5 +1,7 @@
 import Joi from "joi";
 
+// Order validation schemas
+// Order placement validation schema
 export const orderValidation = Joi.object({
   addressId: Joi.string()
     .required()
@@ -20,6 +22,7 @@ export const orderValidation = Joi.object({
     }),
 });
 
+// Order items validation schema for cancellation and returns
 export const OrderItemsSchema = Joi.object({
   itemIds: Joi.array()
     .items(Joi.string().hex().length(24)) // ObjectId validation

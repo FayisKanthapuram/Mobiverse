@@ -13,9 +13,8 @@ import {
 } from "../services/user/myOrders.service.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
-/* ----------------------------------------------------
-   PLACE ORDER
----------------------------------------------------- */
+// User order controller - handle user order endpoints
+// Place an order
 export const placeOrder = async (req, res) => {
   const userId = req.user._id;
   const appliedCoupon = req.session.appliedCoupon || null;
@@ -30,17 +29,13 @@ export const placeOrder = async (req, res) => {
   res.status(result.status).json(result);
 };
 
-/* ----------------------------------------------------
-   RETRY PAYMENT
----------------------------------------------------- */
+// Retry payment for an order
 export const retryPayment = async (req, res) => {
   const result = await retryPaymentService(req.params.id);
   res.status(result.status).json(result);
 };
 
-/* ----------------------------------------------------
-   ORDER SUCCESS / FAILURE
----------------------------------------------------- */
+// Render order success page
 export const loadOrderSuccess = async (req, res) => {
   const order = await loadOrderSuccessService(req.params.id);
 
@@ -50,6 +45,7 @@ export const loadOrderSuccess = async (req, res) => {
   });
 };
 
+// Render order failure page
 export const loadOrderFailure = async (req, res) => {
   const order = await loadOrderFailureService(req.params.id);
 
@@ -60,9 +56,7 @@ export const loadOrderFailure = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   MY ORDERS
----------------------------------------------------- */
+// Render my orders page
 export const loadMyOrders = async (req, res) => {
   const data = await loadMyOrdersService(req.user, req.query);
 
@@ -76,20 +70,19 @@ export const loadMyOrders = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   CANCEL / RETURN ITEMS
----------------------------------------------------- */
+// Cancel items in an order
 export const cancelOrderItems = async (req, res) => {
   const result = await cancelOrderItemsService(req.params.id, req.body);
   res.status(result.status).json(result);
 };
 
+// Return items from an order
 export const returnOrderItems = async (req, res) => {
   const result = await returnOrderItemsService(req.params.id, req.body);
   res.status(result.status).json(result);
 };
 
-
+// Render order details page
 export const loadOrderDetails = async (req, res) => {
   const order = await loadOrderDetailsService(req.params.id);
 
@@ -99,6 +92,7 @@ export const loadOrderDetails = async (req, res) => {
   });
 };
 
+// Download invoice PDF
 export const downloadInvoice = async (req, res) => {
   const { order, user } = await loadInvoiceService(req.params.id);
 

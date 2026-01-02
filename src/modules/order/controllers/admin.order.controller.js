@@ -7,11 +7,9 @@ import {
 } from "../services/index.js";
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { OrderMessages } from "../../../shared/constants/messages/orderMessages.js";
-import Order from "../models/order.model.js";
 
-/* ----------------------------------------------------
-   LOAD ORDERS
----------------------------------------------------- */
+// Admin order controller - handle admin order management endpoints
+// Render orders listing page
 export const loadOrders = async (req, res) => {
   const data = await loadOrdersService(req.query);
 
@@ -32,10 +30,7 @@ export const loadOrders = async (req, res) => {
   });
 };
 
-
-/* ----------------------------------------------------
-   LOAD ORDER DETAILS
----------------------------------------------------- */
+// Render order details page
 export const loadOrderDetails = async (req, res) => {
   const order = await loadOrderDetailsService(req.params.orderId);
 
@@ -46,6 +41,7 @@ export const loadOrderDetails = async (req, res) => {
   });
 };
 
+// Update item status in an order
 export const updateItemStatus = async (req, res) => {
   const { orderId, itemId } = req.params;
   const { status } = req.body;
@@ -59,10 +55,7 @@ export const updateItemStatus = async (req, res) => {
   });
 };
 
-
-/* ----------------------------------------------------
-   HANDLE RETURN REQUEST (APPROVE / REJECT)
----------------------------------------------------- */
+// Handle return request for an order item
 export const handleReturnRequest = async (req, res) => {
   const order = await handleReturnRequestService(req.params.id, req.body);
 
@@ -73,9 +66,7 @@ export const handleReturnRequest = async (req, res) => {
   });
 };
 
-/* ----------------------------------------------------
-   MARK ITEM RETURNED
----------------------------------------------------- */
+// Mark item as returned
 export const markItemReturned = async (req, res) => {
   const order = await markItemReturnedService(req.params.id, req.body);
 

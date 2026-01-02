@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 import crypto from "crypto";
 
-// -------------------------------
-// Ordered Item Schema
-// -------------------------------
+// Order model - represents a customer order
+// Ordered item sub-schema
 const orderedItemSchema = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -175,9 +174,7 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// -------------------------------
 // Auto-generate human-readable orderId
-// -------------------------------
 orderSchema.pre("save", function (next) {
   if (!this.orderId) {
     const random = crypto.randomBytes(3).toString("hex").toUpperCase();

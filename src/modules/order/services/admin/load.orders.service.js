@@ -7,6 +7,8 @@ import {
   countCancelledOrders,
 } from "../../repo/order.repo.js";
 
+// Load orders service - handle admin order fetching and filtering
+// Fetch and filter orders with pagination
 export const loadOrdersService = async (queryParams) => {
   const returnRequested = queryParams.returnRequested || false;
   const currentPage = parseInt(queryParams.page) || 1;
@@ -17,7 +19,7 @@ export const loadOrdersService = async (queryParams) => {
 
   const query = {};
 
-  // ✅ FIXED RETURN REQUEST FILTER
+  // Handle return requested filter
   if (returnRequested === "true") {
     query["orderedItems.itemStatus"] = "ReturnRequested";
   }
@@ -34,14 +36,10 @@ export const loadOrdersService = async (queryParams) => {
   const limit = 5;
   const skip = (currentPage - 1) * limit;
 
-  // -------------------------
-  // FETCH ORDERS
-  // -------------------------
+  // Fetch orders from repository
   let orders = await findOrders(query, sort);
 
-  // -------------------------
-  // SERVER-SIDE SEARCH (still JS-based)
-  // -------------------------
+  // Apply server-side search filter
   if (searchQuery) {
     const s = searchQuery.toLowerCase();
     orders = orders.filter(
@@ -57,9 +55,7 @@ export const loadOrdersService = async (queryParams) => {
 
   const paginatedOrders = orders.slice(skip, skip + limit);
 
-  // -------------------------
-  // ANALYTICS
-  // -------------------------
+  // Calculate analytics metrics
   const [revenue] = await getTotalRevenue();
   const totalOrdersAnalitics = await countAllOrders();
   const activeOrders = await countActiveOrders();

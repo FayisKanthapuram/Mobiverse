@@ -38,6 +38,8 @@ import { findTempOrderById } from "../../repo/temp.order.repo.js";
 import { getAppliedOffer } from "../../../product/helpers/user.product.helper.js";
 import { CheckoutMessages } from "../../../../shared/constants/messages/checkoutMessages.js";
 
+// User order service - handle user order placement and processing
+// Place order and process payment
 export const placeOrderService = async (userId, body, appliedCoupon) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -54,17 +56,13 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
 
     const { addressId, paymentMethod } = body;
 
-    // -------------------------------
-    // 1. Fetch Address
-    // -------------------------------
+    // Fetch and validate shipping address
     const address = await findAddressById(addressId);
     if (!address) throw { status: 404, message: "Address not found" };
 
-    // -------------------------------
-    // 2. Fetch Cart Items
-    // -------------------------------
+    // Fetch cart items for user
     const items = await fetchCartItems(userId);
-    // ---------------- OFFERS ----------------
+    // Calculate applied offers for each item
     for (let item of items) {
       item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
     }
@@ -84,10 +82,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       };
     }
 
-
-    // -------------------------------
-    // 5. Copy Shipping Address
-    // -------------------------------
+    // Copy shipping address from address document
     const shippingAddress = {
       fullName: address.fullName,
       phone: address.phone,
@@ -100,9 +95,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       addressType: address.addressType,
     };
 
-    // -------------------------------
-    // 6. Calculate Final Amount
-    // -------------------------------
+    // Calculate final amount with all charges
     let finalAmount =
       cartTotals.subtotal -
       cartTotals.discount +
@@ -144,9 +137,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     const orderId = new mongoose.Types.ObjectId();
     let holdRecord = null;
 
-    // -------------------------------
-    // 7A. Wallet Payment → HOLD
-    // -------------------------------
+    // Handle wallet payment with hold balance
     if (paymentMethod === "wallet") {
       const wallet = await findWalletByUserId(userId, session);
 
@@ -189,9 +180,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       );
     }
 
-    // -------------------------------
-    // 7B. Razorpay → TEMP ORDER + RETURN PAYMENT DETAILS
-    // -------------------------------
+    // Create temporary order for Razorpay payment
     if (paymentMethod === "razorpay") {
       try {
         const [tempOrder] = await createTempOrder(
@@ -244,17 +233,12 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       }
     }
 
-    // -------------------------------
-    // 3. Reduce Stock
-    // -------------------------------
+    // Decrement inventory stock
     for (let item of items) {
       await decrementVariantStock(item.variantId._id, item.quantity, session);
     }
 
-
-    // -------------------------------
-    // 8. Create Order (FULL FIELDS)
-    // -------------------------------
+    // Create final order with all details
     const order = await createOrder(
       {
         _id: orderId,
@@ -280,9 +264,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     //mark referral as pending
     await markReferralAsPending(userId, orderId, session);
 
-    // -------------------------------
-    // 9. CAPTURE WALLET PAYMENT
-    // -------------------------------
+    // Capture wallet payment if selected
     if (paymentMethod === "wallet") {
       try {
         const wallet = await findWalletByUserId(userId, session);
@@ -350,14 +332,10 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       }
     }
 
-    // -------------------------------
-    // 10. Clear Cart
-    // -------------------------------
+    // Clear user shopping cart
     await deleteUserCart(userId);
 
-    // -------------------------------
-    // 11. Coupon Usage
-    // -------------------------------
+    // Record coupon usage
     if (appliedCoupon) {
       await couponUsageCreate(
         appliedCoupon.couponId,
@@ -430,6 +408,7 @@ export const retryPaymentService = async (tempOrderId) => {
   }
 };
 
+// Load order details after successful placement
 export const loadOrderSuccessService = async (orderId) => {
   const order = await findOrderByOrderId(orderId);
   if (!order) {
@@ -441,6 +420,7 @@ export const loadOrderSuccessService = async (orderId) => {
   return order;
 };
 
+// Load temporary order on failure
 export const loadOrderFailureService = async (orderId) => {
   const order = await findTempOrderById(orderId);
   if (!order) {

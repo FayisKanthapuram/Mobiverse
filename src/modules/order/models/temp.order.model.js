@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Temporary order model - stores order data pending payment
 const tempOrderSchema = new mongoose.Schema(
   {
     userId: {

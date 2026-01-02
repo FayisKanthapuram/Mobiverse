@@ -4,6 +4,8 @@ import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { OrderMessages } from "../../../../shared/constants/messages/orderMessages.js";
 import { calculateOrderStatus } from "../../order.helper.js";
 
+// Handle return request service - process return requests
+// Approve or reject return request for an item
 export const handleReturnRequestService = async (orderId, body) => {
   const { itemId, action, adminNote } = body;
 

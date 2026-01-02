@@ -20,6 +20,8 @@ import {
   calculateOrderStatus,
 } from "../../order.helper.js";
 
+// My orders service - handle user order operations
+// Load user orders with filtering
 export const loadMyOrdersService = async (user, queryParams) => {
   const status = queryParams.status || "";
   const search = queryParams.searchOrder || "";
@@ -65,7 +67,9 @@ export const loadMyOrdersService = async (user, queryParams) => {
   };
 };
 
+// Cancel selected order items
 export const cancelOrderItemsService = async (orderId, body) => {
+  // Validate request body
   const { error } = OrderItemsSchema.validate(body);
   if (error) {
     return {
@@ -93,7 +97,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
     const isSelected = itemIds.includes(item._id.toString());
 
     if (isSelected) {
-      // Restore Stock
+      // Restore item stock to inventory
       await incrementVariantStock(item.variantId, item.quantity);
 
       // Update Item
@@ -134,8 +138,9 @@ export const cancelOrderItemsService = async (orderId, body) => {
   };
 };
 
+// Return ordered items with reason
 export const returnOrderItemsService = async (orderId, body) => {
-  // 1. Validate request
+  // Validate request body
   const { error } = OrderItemsSchema.validate(body);
   if (error) {
     return {
@@ -147,7 +152,7 @@ export const returnOrderItemsService = async (orderId, body) => {
 
   const { itemIds, reason, comments } = body;
 
-  // 2. Fetch order
+  // Fetch order by ID
   const order = await findOrderByOrderId(orderId);
 
   if (!order) {
@@ -158,8 +163,7 @@ export const returnOrderItemsService = async (orderId, body) => {
     };
   }
 
-  // 3. Update item statuses
-
+  // Mark items as return requested
   let anyItemUpdated = false;
 
   for (const item of order.orderedItems) {
@@ -179,11 +183,10 @@ export const returnOrderItemsService = async (orderId, body) => {
     };
   }
 
-  // 4. Update order status
+  // Recalculate order status based on item states
   order.orderStatus = calculateOrderStatus(order.orderedItems);
 
-  // 5. Save order
-
+  // Save updated order to database
   await saveOrder(order);
 
   return {
@@ -193,6 +196,7 @@ export const returnOrderItemsService = async (orderId, body) => {
   };
 };
 
+// Load order details for user view
 export const loadOrderDetailsService = async (orderId) => {
   const order = await findOrderByOrderIdWithUser(orderId);
 
@@ -205,9 +209,11 @@ export const loadOrderDetailsService = async (orderId) => {
   return order;
 };
 
+// Load and calculate invoice with subtotal and discount breakdown
 export const loadInvoiceService = async (orderId) => {
   const output = await findOrderByOrderIdWithDeliveredItems(orderId);
   const orders = output[0];
+  // Calculate subtotal and discount
   orders.subtotal = 0;
   orders.discount = 0;
   for (let order of orders.orderedItems) {
@@ -216,7 +222,7 @@ export const loadInvoiceService = async (orderId) => {
       (order.offer + order.regularPrice - order.price) * order.quantity;
   }
 
-  orders.finalAmount=orders.subtotal-orders.discount;
+  orders.finalAmount = orders.subtotal - orders.discount;
 
   if (!orders) {
     const err = new Error(OrderMessages.ORDER_NOT_FOUND);
@@ -224,7 +230,6 @@ export const loadInvoiceService = async (orderId) => {
     throw err;
   }
 
-  // prepare any extra invoice calculations here if needed (tax breakdown, formatted amounts)
   return {
     order: orders,
     user: orders.userId,

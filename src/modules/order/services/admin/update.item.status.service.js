@@ -7,6 +7,8 @@ import {
   calculateOrderStatus,
 } from "../../order.helper.js";
 
+// Update item status service - modify order item status
+// Update status of an ordered item
 export const updateItemStatusService = async (orderId, itemId, newStatus) => {
   const order = await findOrderById(orderId);
 
@@ -15,12 +17,11 @@ export const updateItemStatusService = async (orderId, itemId, newStatus) => {
   }
 
   const item = order.orderedItems.id(itemId);
-  console.log(order.orderedItems);
   if (!item) {
     throw new AppError("Item not found", HttpStatus.NOT_FOUND);
   }
 
-  // ❌ Prevent invalid updates
+  // Validate item is not in final states
   if (
     [
       "Cancelled",
@@ -46,7 +47,7 @@ export const updateItemStatusService = async (orderId, itemId, newStatus) => {
     throw new AppError("Invalid item status", HttpStatus.BAD_REQUEST);
   }
 
-  // ❌ Prevent backward flow
+  // Prevent status rollback
   if (statusFlow.indexOf(newStatus) < statusFlow.indexOf(item.itemStatus)) {
     throw new AppError(
       "Item status rollback is not allowed",
@@ -56,7 +57,7 @@ export const updateItemStatusService = async (orderId, itemId, newStatus) => {
 
   const now = new Date();
 
-  // ✅ Update item status + timeline
+  // Update item status and timeline
   item.itemStatus = newStatus;
   item.itemTimeline ||= {};
 
@@ -76,6 +77,7 @@ export const updateItemStatusService = async (orderId, itemId, newStatus) => {
   if (newStatus === "Delivered") {
     order.deliveredDate = now;
   }
+  // Mark COD as paid when delivered
   if (newStatus === "Delivered"&&order.paymentMethod==='cod') {
     item.paymentStatus = "Paid";
     const allDelivered = order.orderedItems.every(
@@ -87,7 +89,7 @@ export const updateItemStatusService = async (orderId, itemId, newStatus) => {
     }
   }
 
-  // 🔁 Recalculate order status (generic)
+  // Recalculate order status based on items
   order.orderStatus = calculateOrderStatus(order.orderedItems);
   order.paymentStatus = calculateOrderPaymentStatus(order.orderedItems);
 

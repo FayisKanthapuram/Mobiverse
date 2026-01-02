@@ -13,6 +13,8 @@ import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
 import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
 import { completeReferralReward } from "../../../referral/referral.service.js";
 
+// Payment service - handle Razorpay payment processing
+// Create Razorpay order
 export const createRazorpayOrderService = async ({ amount, tempOrderId }) => {
   const options = {
     amount: amount * 100, // paise
@@ -23,6 +25,7 @@ export const createRazorpayOrderService = async ({ amount, tempOrderId }) => {
   return await razorpay.orders.create(options);
 };
 
+// Verify and process Razorpay payment
 export const verifyRazorpayPaymentService = async ({
   razorpay_order_id,
   razorpay_payment_id,
@@ -38,7 +41,7 @@ export const verifyRazorpayPaymentService = async ({
     const tempOrder = await findTempOrderById(tempOrderId);
     if (!tempOrder) throw { status: 400, message: "Temp order not found" };
 
-    // Validate signature
+    // Verify Razorpay payment signature
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
     const expected = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -49,7 +52,7 @@ export const verifyRazorpayPaymentService = async ({
       throw { status: 400, message: "Invalid Razorpay signature" };
     }
 
-    // Update temp entry
+    // Update temporary order with payment details
     await updateTempOrder(
       tempOrderId,
       {
@@ -60,11 +63,12 @@ export const verifyRazorpayPaymentService = async ({
       session
     );
 
+    // Decrement variant stock for each item
     for (let item of tempOrder.orderedItems) {
       await decrementVariantStock(item.variantId._id, item.quantity, session);
     }
 
-    // Create final order
+    // Create final order from temp order
     const order = await createOrder(
       {
         userId,
@@ -95,13 +99,13 @@ export const verifyRazorpayPaymentService = async ({
       await findCouponIncrementCount(appliedCoupon.couponId);
     }
 
-    // Clear cart
+    // Clear user shopping cart
     await deleteUserCart(userId);
 
-    //complete referral reward
+    // Complete referral reward if applicable
     await completeReferralReward(userId,order._id,session)
 
-    //delete temp order
+    // Delete temporary order
     await deleteTempOrder(tempOrderId, session);
 
     await session.commitTransaction();
