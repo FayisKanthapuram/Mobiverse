@@ -22,6 +22,7 @@ const tempOrderSchema = new mongoose.Schema(
     subtotal: Number,
     discount: Number,
     couponDiscount: Number,
+    couponCode: { type: String, default: null },
     couponId: { type: String },
 
     finalAmount: Number,

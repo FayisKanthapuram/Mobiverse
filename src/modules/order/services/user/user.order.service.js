@@ -7,7 +7,7 @@ import {
   decrementVariantStock,
   incrementVariantStock,
 } from "../../../product/repo/variant.repo.js";
-import { deleteUserCart, fetchCartItems } from "../../../cart/cart.repo.js";
+import { clearCart, fetchCartItems } from "../../../cart/cart.repo.js";
 import { calculateCartTotals } from "../../../cart/helpers/cartTotals.helper.js";
 import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
 import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
@@ -58,16 +58,18 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
 
     // Fetch and validate shipping address
     const address = await findAddressById(addressId);
-    if (!address) throw { status: HttpStatus.NOT_FOUND, message: "Address not found" };
+    if (!address)
+      throw { status: HttpStatus.NOT_FOUND, message: "Address not found" };
 
     // Fetch cart items for user
     const items = await fetchCartItems(userId);
     // Calculate applied offers for each item
     for (let item of items) {
-      item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
+      item.offer = getAppliedOffer(item, item?.variantId?.salePrice) || 0;
     }
-    if (!items.length) throw { status: HttpStatus.BAD_REQUEST, message: "Your cart is empty" };
-    const cartTotals = await calculateCartTotals(items);
+    if (!items.length)
+      throw { status: HttpStatus.BAD_REQUEST, message: "Your cart is empty" };
+    const cartTotals = await calculateCartTotals(userId, items);
 
     if (cartTotals.hasAdjustedItem) {
       await session.abortTransaction();
@@ -77,7 +79,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
         status: HttpStatus.CONFLICT,
         success: false,
         code: "CART_ADJUSTED",
-        message:CheckoutMessages.ADJUSTED_ITEM_QUANTITIES,
+        message: CheckoutMessages.ADJUSTED_ITEM_QUANTITIES,
       };
     }
 
@@ -96,10 +98,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
 
     // Calculate final amount with all charges
     let finalAmount =
-      cartTotals.subtotal -
-      cartTotals.discount +
-      cartTotals.deliveryCharge
-
+      cartTotals.subtotal - cartTotals.discount + cartTotals.deliveryCharge;
 
     if (
       paymentMethod === "cod" &&
@@ -111,7 +110,6 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
         message: "Cash on Delivery is allowed only for orders below ₹20,000",
       };
     }
-
 
     const orderedItems = items.map((item) => ({
       productId: item.productId._id,
@@ -126,7 +124,6 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           appliedCoupon.discount
         : 0,
     }));
-
 
     if (appliedCoupon) {
       finalAmount = finalAmount - appliedCoupon.discount;
@@ -190,6 +187,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
             subtotal: cartTotals.subtotal,
             discount: cartTotals.discount,
             couponDiscount: appliedCoupon?.discount || 0,
+            couponCode: appliedCoupon?.code,
             couponId: appliedCoupon?.couponId || null,
             finalAmount,
             paymentMethod: "razorpay",
@@ -249,6 +247,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
         deliveryCharge: cartTotals.deliveryCharge,
         discount: cartTotals.discount,
         couponDiscount: appliedCoupon?.discount || 0,
+        couponCode: appliedCoupon?.code,
         couponId: appliedCoupon?.couponId || null,
 
         finalAmount,
@@ -331,7 +330,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     }
 
     // Clear user shopping cart
-    await deleteUserCart(userId);
+    await clearCart(userId);
 
     // Record coupon usage
     if (appliedCoupon) {

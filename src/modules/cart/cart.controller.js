@@ -56,18 +56,18 @@ export const addToCart = async (req, res) => {
 
 // Update quantity of a cart item
 export const updateCartItem = async (req, res) => {
-  const itemId = req.params.id;
+  const variantId = req.params.id;
   const userId = req?.user?._id;
 
-  const result = await updateCartItemService(itemId, userId, req.body);
+  const result = await updateCartItemService( userId,variantId, req.body);
   res.status(result.status).json(result);
 };
 
 // Remove an item from the cart
 export const deleteCartItem = async (req, res) => {
-  const id = req.params.id;
+  const variantId = req?.params?.id;
 
-  const result = await deleteCartItemService(id, req.user._id); // Use the new service
+  const result = await deleteCartItemService(req?.user?._id,variantId); // Use the new service
   req.session.cartCount = result.cartCount;
 
   res.status(result.status).json(result);

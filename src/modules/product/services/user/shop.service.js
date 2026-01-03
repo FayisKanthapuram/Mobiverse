@@ -5,7 +5,7 @@ import {
 import { getAllListedBrands } from "../../../brand/brand.repo.js";
 import { markWishlistStatus } from "../../../wishlist/wishlist.helper.js";
 import { fetchWishlist } from "../../../wishlist/wishlist.repo.js";
-import { fetchCart } from "../../../cart/cart.repo.js";
+import { findUserCart } from "../../../cart/cart.repo.js";
 import { markCartStatus } from "../../../cart/helpers/cart.helper.js";
 import { getAppliedOffer } from "../../helpers/user.product.helper.js";
 
@@ -162,7 +162,7 @@ export const loadShopService = async (query, userId = null) => {
 
   // Attach wishlist and cart status
   const wishlist = userId ? await fetchWishlist(userId) : null;
-  const cart = userId ? await fetchCart(userId) : null;
+  const cart = userId ? await findUserCart(userId) : null;
 
   let finalProducts = markWishlistStatus(products, wishlist);
   finalProducts = markCartStatus(finalProducts, cart);
@@ -180,5 +180,3 @@ export const loadShopService = async (query, userId = null) => {
     },
   };
 };
-
-

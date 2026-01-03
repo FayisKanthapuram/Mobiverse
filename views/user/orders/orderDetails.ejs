@@ -100,19 +100,13 @@
                         const sale = item?.price || 0;
                         const regular = item?.regularPrice || sale;
                         const offer = item?.offer || 0;
-                        const couponShare = item?.couponShare || 0;
-                        const finalPrice = offer ? sale - offer - couponShare : sale - couponShare;
+                        const finalPrice = offer ? sale - offer  : sale ;
                       %>
 
                       <p class="font-bold <%= offer ? 'text-green-600' : 'text-gray-900' %>">
                         ₹<%= (finalPrice * qty).toLocaleString('en-IN') %>
                       </p>
 
-                      <% if (couponShare) { %>
-                      <p class="text-xs text-gray-500 line-through">
-                        ₹<%= ((sale-offer) * qty).toLocaleString('en-IN') %>
-                      </p>
-                      <% } %>
 
                       <% if (offer) { %>
                       <p class="text-xs text-gray-500 line-through">
@@ -426,13 +420,13 @@
             <h3 class="text-lg font-bold text-gray-900 mb-4">Order Summary</h3>
             <div class="space-y-3">
               <div class="flex justify-between text-gray-700">
-                <span>Subtotal</span>
+                <span>MRP (incl. of all taxes)</span>
                 <span class="font-semibold">₹<%= order?.subtotal?.toLocaleString('en-IN') || 0 %></span>
               </div>
 
               <% if (order?.discount > 0) { %>
               <div class="flex justify-between text-green-600">
-                <span>Discount</span>
+                <span>Discount on MRP</span>
                 <span class="font-semibold">-₹<%= order.discount.toLocaleString('en-IN') %></span>
               </div>
               <% } %>

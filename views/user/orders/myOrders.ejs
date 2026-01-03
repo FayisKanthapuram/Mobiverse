@@ -75,8 +75,34 @@
                 </div>
                 <div class="text-right">
                   <p class="text-sm text-gray-600 mb-1">Total Amount</p>
-                  <p class="text-2xl font-bold text-gray-900">₹<%= order?.finalAmount?.toLocaleString('en-IN') || 0 %></p>
+                  <p class="text-2xl font-bold text-gray-900">
+                    ₹<%= order?.finalAmount?.toLocaleString('en-IN') || 0 %>
+                  </p>
+
+                  <% if (order?.couponCode || order?.couponDiscount || order?.walletUsed || order?.offerDiscount) { %>
+                  <div class="mt-2 text-xs text-gray-600 space-y-1">
+
+                    <% if (order?.couponCode) { %>
+                    <p class="flex items-center gap-1">
+                      <i class="bi bi-tag-fill text-green-600"></i>
+                      Coupon Applied:
+                      <span class="font-semibold text-green-700">
+                        <%= order.couponCode %>
+                      </span>
+                    </p>
+                    <% } %>
+
+                    <% if (order?.couponDiscount > 0) { %>
+                    <p class="text-green-600">
+                      Coupon Discount:
+                      −₹<%= order.couponDiscount.toLocaleString('en-IN') %>
+                    </p>
+                    <% } %>
+                    
+                  </div>
+                  <% } %>
                 </div>
+
               </div>
 
               <!-- Order Items -->
@@ -129,20 +155,13 @@
                           const sale = item?.price || 0;
                           const regular = item?.regularPrice || 0;
                           const offer = item?.offer || 0;
-                          const couponShare = item?.couponShare || 0;
-                          const finalPrice = offer ? (sale - offer - couponShare) : sale - couponShare;
+                          const finalPrice = offer ? (sale - offer ) : sale ;
                         %>
 
                         <!-- Final Price -->
                         <p class="font-bold <%= offer ? 'text-green-600' : 'text-gray-900' %>">
                           ₹<%= (finalPrice * qty).toLocaleString('en-IN') %>
                         </p>
-
-                        <% if (couponShare) { %>
-                          <p class="text-xs text-gray-500 line-through">
-                            ₹<%= ((sale - offer) * qty).toLocaleString('en-IN') %>
-                          </p>
-                        <% } %>
 
                         <!-- Show sale price strike if offer exists -->
                         <% if (offer) { %>
@@ -211,7 +230,7 @@
                 <a href="/order/details/<%= order?.orderId %>" class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors text-sm">
                   <i class="bi bi-eye"></i> View Details
                 </a>
-                
+
                 <% 
                   const hasCancellableItems = order?.orderedItems?.some(item => 
                     ['Pending', 'Confirmed', 'Processing'].includes(item?.itemStatus)
@@ -264,17 +283,17 @@
             <!-- Left: Showing X to Y -->
             <div class="text-sm text-gray-600">
               <% if (orders && orders.length > 0) { %>
-                <% 
+              <% 
                   const startItem = (currentPage - 1) * limit + 1;
                   const endItem = (currentPage - 1) * limit + orders.length;
                 %>
-                Showing <span class="font-medium text-gray-900"><%= startItem %></span>
-                to
-                <span class="font-medium text-gray-900"><%= endItem %></span>
-                of
-                <span class="font-medium text-gray-900"><%= totalDocuments %></span> results
+              Showing <span class="font-medium text-gray-900"><%= startItem %></span>
+              to
+              <span class="font-medium text-gray-900"><%= endItem %></span>
+              of
+              <span class="font-medium text-gray-900"><%= totalDocuments %></span> results
               <% } else { %>
-                No results found
+              No results found
               <% } %>
             </div>
 
@@ -283,15 +302,13 @@
 
               <!-- Previous -->
               <% if (currentPage > 1) { %>
-                <button onclick="changeOrderPage(<%= currentPage - 1 %>)"
-                  class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition">
-                  <i class="bi bi-chevron-left text-gray-700"></i>
-                </button>
+              <button onclick="changeOrderPage(<%= currentPage - 1 %>)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition">
+                <i class="bi bi-chevron-left text-gray-700"></i>
+              </button>
               <% } else { %>
-                <button disabled
-                  class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed">
-                  <i class="bi bi-chevron-left text-gray-400"></i>
-                </button>
+              <button disabled class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed">
+                <i class="bi bi-chevron-left text-gray-400"></i>
+              </button>
               <% } %>
 
               <!-- Page Numbers -->
@@ -325,14 +342,13 @@
                 finalPages.forEach(page => {
                   if (lastPage && page - lastPage > 1) {
               %>
-                    <span class="px-2 text-gray-400">...</span>
+              <span class="px-2 text-gray-400">...</span>
               <%
                   }
               %>
-                  <button onclick="changeOrderPage(<%= page %>)"
-                    class="min-w-[36px] h-9 px-3 flex items-center justify-center rounded-lg border text-sm font-medium transition <%= pageClass(page) %>">
-                    <%= page %>
-                  </button>
+              <button onclick="changeOrderPage(<%= page %>)" class="min-w-[36px] h-9 px-3 flex items-center justify-center rounded-lg border text-sm font-medium transition <%= pageClass(page) %>">
+                <%= page %>
+              </button>
               <%
                   lastPage = page;
                 });
@@ -340,15 +356,13 @@
 
               <!-- Next -->
               <% if (currentPage < totalPages) { %>
-                <button onclick="changeOrderPage(<%= currentPage + 1 %>)"
-                  class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition">
-                  <i class="bi bi-chevron-right text-gray-700"></i>
-                </button>
+              <button onclick="changeOrderPage(<%= currentPage + 1 %>)" class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 transition">
+                <i class="bi bi-chevron-right text-gray-700"></i>
+              </button>
               <% } else { %>
-                <button disabled
-                  class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed">
-                  <i class="bi bi-chevron-right text-gray-400"></i>
-                </button>
+              <button disabled class="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100 cursor-not-allowed">
+                <i class="bi bi-chevron-right text-gray-400"></i>
+              </button>
               <% } %>
 
             </div>

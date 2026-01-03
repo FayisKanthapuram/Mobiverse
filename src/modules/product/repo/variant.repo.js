@@ -7,12 +7,16 @@ export const findVariantById = (variantId) => {
   return variantModel.findById(variantId);
 }
 
+
 export const findVariantByIdAgg = (variantId, userId) => {
   return variantModel.aggregate([
     {
-      $match: { _id: new mongoose.Types.ObjectId(variantId) },
+      $match: {
+        _id: new mongoose.Types.ObjectId(variantId),
+      },
     },
-    // Check if variant is in user's cart
+
+    // 🔍 check if variant exists in user's cart.items
     {
       $lookup: {
         from: "carts",
@@ -24,35 +28,52 @@ export const findVariantByIdAgg = (variantId, userId) => {
           {
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$$variantId", "$variantId"] },
-                  { $eq: ["$$userId", "$userId"] },
-                ],
+                $eq: ["$userId", "$$userId"],
               },
             },
           },
+          { $unwind: "$items" },
           {
-            $project: { _id: 1 },
+            $match: {
+              $expr: {
+                $eq: ["$items.variantId", "$$variantId"],
+              },
+            },
           },
+          { $project: { _id: 1 } },
         ],
         as: "cart",
       },
     },
+
+    // convert lookup result → boolean
     {
-      $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
+      $addFields: {
+        isInCart: { $gt: [{ $size: "$cart" }, 0] },
+      },
     },
+
+    // cleanup
     {
-      $addFields: { cart: "$cart._id" },
+      $project: {
+        cart: 0,
+      },
     },
   ]);
 };
 
-export const findVariantByColor = (colour,variantId,userId) => {
+
+export const findVariantByColor = (colour, variantId, userId) => {
   return variantModel.aggregate([
+    // 1️⃣ Match variant by id + color
     {
-      $match: {_id: new mongoose.Types.ObjectId(variantId),colour:colour},
+      $match: {
+        _id: new mongoose.Types.ObjectId(variantId),
+        colour: colour,
+      },
     },
-    // Check if variant is in user's cart
+
+    // 2️⃣ Check if variant exists in user's cart
     {
       $lookup: {
         from: "carts",
@@ -64,28 +85,40 @@ export const findVariantByColor = (colour,variantId,userId) => {
           {
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$$variantId", "$variantId"] },
-                  { $eq: ["$$userId", "$userId"] },
-                ],
+                $eq: ["$userId", "$$userId"],
               },
             },
           },
+          { $unwind: "$items" },
           {
-            $project: { _id: 1 },
+            $match: {
+              $expr: {
+                $eq: ["$items.variantId", "$$variantId"],
+              },
+            },
           },
+          { $project: { _id: 1 } },
         ],
         as: "cart",
       },
     },
+
+    // 3️⃣ Convert lookup → boolean
     {
-      $unwind: { path: "$cart", preserveNullAndEmptyArrays: true },
+      $addFields: {
+        isInCart: { $gt: [{ $size: "$cart" }, 0] },
+      },
     },
+
+    // 4️⃣ Cleanup
     {
-      $addFields: { cart: "$cart._id" },
+      $project: {
+        cart: 0,
+      },
     },
   ]);
 };
+
 
 // Find variants belonging to a product
 export const findVariantsByProduct = (productId) => {

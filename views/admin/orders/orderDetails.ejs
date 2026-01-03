@@ -303,18 +303,12 @@
                     const sale = item.price;               // sale price snapshot
                     const regular = item.regularPrice;     // actual MRP snapshot
                     const offer = item.offer||0;              // offer snapshot
-                    const couponShare=item.couponShare;
-                    const finalPrice = offer ? (sale - offer-couponShare) : sale-couponShare;
+                    const finalPrice = offer ? (sale - offer) : sale;
                   %>
                   <div class="text-lg font-bold">
                     ₹<%= (finalPrice * item.quantity).toLocaleString('en-IN') %>
                   </div>
                   
-                  <% if (couponShare) { %>
-                  <div class="text-sm text-gray-500 line-through">
-                    ₹<%= ((sale - offer) * item.quantity).toLocaleString('en-IN') %>
-                  </div>
-                  <% } %>
 
                   <% if (offer) { %>
                   <div class="text-sm text-gray-500 line-through">
@@ -693,12 +687,12 @@
         </div>
         <div class="p-6">
           <div class="flex justify-between items-center py-3 text-sm text-gray-600">
-            <span>Subtotal</span>
+            <span>MRP (incl. of all taxes)</span>
             <span>₹<%= order.subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
           </div>
           <% if (order.discount > 0) { %>
           <div class="flex justify-between items-center py-3 text-sm text-green-600">
-            <span>Discount</span>
+            <span>Discount on MRP</span>
             <span>-₹<%= order.discount.toLocaleString('en-IN', {minimumFractionDigits: 2}) %></span>
           </div>
           <% } %>

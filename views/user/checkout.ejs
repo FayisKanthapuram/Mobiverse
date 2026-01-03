@@ -258,13 +258,13 @@
 
             <!-- Subtotal -->
             <div class="flex justify-between text-gray-700">
-              <span>Subtotal (<%= cart.items.length %> items)</span>
+              <span>MRP (incl. of all taxes) (<%= cart.items.length %> items)</span>
               <span class="font-semibold">₹<%= cart.subtotal.toLocaleString('en-IN') %></span>
             </div>
 
             <% if (cart.discount > 0) { %>
             <div class="flex justify-between text-green-600">
-              <span>Discount</span>
+              <span>Discount on MRP</span>
               <span class="font-semibold">-₹<%= cart.discount.toLocaleString('en-IN') %></span>
             </div>
             <% } %>

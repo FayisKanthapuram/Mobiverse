@@ -61,20 +61,20 @@
 
           <div class="space-y-3">
             <div class="flex justify-between text-gray-700">
-              <span>Subtotal</span>
+              <span>MRP (incl. of all taxes)</span>
               <span class="font-semibold">₹<%= order.subtotal?.toLocaleString('en-IN') %></span>
             </div>
 
             <% if (order.discount > 0) { %>
             <div class="flex justify-between text-green-600">
-              <span>Discount</span>
+              <span>Discount on MRP</span>
               <span class="font-semibold">-₹<%= order.discount?.toLocaleString('en-IN') %></span>
             </div>
             <% } %>
 
             <% if (order.couponDiscount > 0) { %>
             <div class="flex justify-between text-green-600">
-              <span>Coupon Applied</span>
+              <span>Coupon Applied(<%= order.couponCode %>)</span>
               <span class="font-semibold">-₹<%= order.couponDiscount?.toLocaleString('en-IN') %></span>
             </div>
             <% } %>
@@ -204,8 +204,7 @@
                   const sale = item.price;
                   const regular = item.regularPrice;
                   const offer = item.offer||0;
-                  const couponShare=item.couponShare;
-                  const finalPrice = offer ? (sale - offer-couponShare) : sale-couponShare;
+                  const finalPrice = offer ? (sale - offer) : sale;
                 %>
 
                 <span class="text-sm text-gray-600">Qty: <%= qty %></span>
@@ -217,11 +216,6 @@
                     ₹<%= (finalPrice * qty).toLocaleString('en-IN') %>
                   </p>
                   
-                  <% if (couponShare) { %>
-                  <p class="text-xs text-gray-500 line-through">
-                    ₹<%= ((sale-offer) * qty).toLocaleString('en-IN') %>
-                  </p>
-                  <% } %>
 
                   <!-- Sale Price (visible only if offer exists) -->
                   <% if (offer) { %>

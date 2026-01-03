@@ -177,7 +177,7 @@
 
         <% } else { %>
 
-        <% if (selectedVariant.cart) { %>
+        <% if (selectedVariant.isInCart) { %>
         <!-- GO TO CART BUTTON -->
         <button onclick="event.preventDefault(); window.location.href='/cart'" class="flex-1 bg-white border border-blue-600 text-blue-600 py-3 rounded-lg font-medium">
           <i class="bi bi-arrow-right-circle"></i> Go to Cart

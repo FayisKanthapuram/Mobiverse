@@ -54,7 +54,7 @@
                     </div>
 
                     <!-- Remove Button -->
-                    <button onclick="removeFromCart('<%= item._id %>')" class="text-gray-400 hover:text-red-500 transition-colors p-1" title="Remove">
+                    <button onclick="removeFromCart('<%= item.variantId._id %>')" class="text-gray-400 hover:text-red-500 transition-colors p-1" title="Remove">
                       <i class="bi bi-trash text-lg"></i>
                     </button>
                   </div>
@@ -67,18 +67,18 @@
                       <!-- Decrease -->
                       <button class="qty-btn w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center 
                         hover:bg-gray-100 transition-colors 
-                        <%= outOfStock || item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : '' %>" data-item-id="<%= item._id %>" data-new-qty="<%= item.quantity - 1 %>" <%= outOfStock || item.quantity <= 1 ? 'disabled' : '' %>>
+                        <%= outOfStock || item.quantity <= 1 ? 'opacity-50 cursor-not-allowed' : '' %>" data-item-id="<%= item.variantId._id %>" data-new-qty="<%= item.quantity - 1 %>" <%= outOfStock || item.quantity <= 1 ? 'disabled' : '' %>>
                         <i class="bi bi-dash text-gray-600"></i>
                       </button>
 
-                      <span id="qty-<%= item._id %>" class="text-gray-900 font-semibold w-8 text-center">
+                      <span id="qty-<%= item.variantId._id %>" class="text-gray-900 font-semibold w-8 text-center">
                         <%= item.quantity %>
                       </span>
 
                       <!-- Increase -->
                       <button class="qty-btn w-8 h-8 rounded-lg border border-gray-300 flex items-center justify-center 
                         hover:bg-gray-100 transition-colors 
-                        <%= outOfStock || item.quantity >= item.variantId.stock ? 'opacity-50 cursor-not-allowed' : '' %>" data-item-id="<%= item._id %>" data-new-qty="<%= item.quantity + 1 %>" <%= outOfStock || item.quantity >= item.variantId.stock ? 'disabled' : '' %>>
+                        <%= outOfStock || item.quantity >= item.variantId.stock ? 'opacity-50 cursor-not-allowed' : '' %>" data-item-id="<%= item.variantId._id %>" data-new-qty="<%= item.quantity + 1 %>" <%= outOfStock || item.quantity >= item.variantId.stock ? 'disabled' : '' %>>
                         <i class="bi bi-plus text-gray-600"></i>
                       </button>
 
@@ -87,23 +87,23 @@
                     <!-- Price -->
                     <div class="text-right">
                       <% if (item.offer) { %>
-                      <p id="offprice-<%= item._id %>" class="text-xl font-bold text-green-600">
+                      <p id="offprice-<%= item.variantId._id %>" class="text-xl font-bold text-green-600">
                         ₹<%= ((item.variantId.salePrice - item.offer) * item.quantity).toLocaleString('en-IN') %>
                       </p>
 
                       <!-- Optional: show original price with strike-through -->
-                      <p id="price-<%= item._id %>" class="text-sm text-gray-500 line-through">
+                      <p id="price-<%= item.variantId._id %>" class="text-sm text-gray-500 line-through">
                         ₹<%= (item.variantId.salePrice * item.quantity).toLocaleString('en-IN') %>
                       </p>
                       <% } else { %>
-                      <p id="price-<%= item._id %>" class="text-xl font-bold text-gray-900">
+                      <p id="price-<%= item.variantId._id %>" class="text-xl font-bold text-gray-900">
                         ₹<%= (item.variantId.salePrice * item.quantity).toLocaleString('en-IN') %>
                       </p>
                       <% } %>
 
 
                       <% if (item.variantId.regularPrice > item.variantId.salePrice) { %>
-                      <p id="regPrice-<%= item._id %>" class="text-sm text-gray-500">
+                      <p id="regPrice-<%= item.variantId._id %>" class="text-sm text-gray-500">
                         <del>₹<%= (item.variantId.regularPrice * item.quantity).toLocaleString('en-IN') %></del>
                       </p>
                       <% } %>
@@ -163,7 +163,7 @@
           <!-- Price Details -->
           <div class="space-y-4 mb-6">
             <div class="flex justify-between text-gray-700">
-              <span>Subtotal (<%= cart?.items?.length || 0 %> items)</span>
+              <span>MRP (incl. of all taxes) (<%= cart?.items?.length || 0 %> items)</span>
               <span id="subtotal" class="font-semibold">
                 ₹<%= (cart?.subtotal || 0).toLocaleString('en-IN') %>
               </span>
@@ -171,7 +171,7 @@
 
             <% if (cart?.discount > 0) { %>
             <div class="flex justify-between text-green-600">
-              <span>Discount</span>
+              <span>Discount on MRP</span>
               <span class="font-semibold" id="discount">-₹<%= (cart.discount).toLocaleString('en-IN') %></span>
             </div>
             <% } %>

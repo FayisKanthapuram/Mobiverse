@@ -1,13 +1,10 @@
 import mongoose from "mongoose";
 
-// Cart model - Mongoose schema for user cart items
-const cartSchema = new mongoose.Schema(
+// -------------------------------
+// Cart Item Schema
+// -------------------------------
+const cartItemSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "product",
@@ -23,6 +20,22 @@ const cartSchema = new mongoose.Schema(
       default: 1,
       min: 1,
     },
+  },
+  { _id: false }
+);
+
+// -------------------------------
+// Cart Schema
+// -------------------------------
+const cartSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
+    },
+    items: [cartItemSchema],
   },
   { timestamps: true }
 );

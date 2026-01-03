@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { razorpay } from "../../../../config/razorpay.js";
-import { deleteUserCart } from "../../../cart/cart.repo.js";
+import { clearCart } from "../../../cart/cart.repo.js";
 import { createOrder } from "../../repo/order.repo.js";
 import {
   deleteTempOrder,
@@ -78,6 +78,7 @@ export const verifyRazorpayPaymentService = async ({
         subtotal: tempOrder.subtotal,
         discount: tempOrder.discount,
         couponDiscount: tempOrder.couponDiscount,
+        couponCode: tempOrder.couponCode,
         couponId: tempOrder.couponId,
         finalAmount: tempOrder.finalAmount,
         paymentMethod: "razorpay",
@@ -100,7 +101,7 @@ export const verifyRazorpayPaymentService = async ({
     }
 
     // Clear user shopping cart
-    await deleteUserCart(userId);
+    await clearCart(userId);
 
     // Complete referral reward if applicable
     await completeReferralReward(userId,order._id,session)

@@ -3,18 +3,94 @@ import cartModel from "./cart.model.js";
 
 // Cart repository - DB operations for cart items
 
-// Fetch detailed cart items for a user
-export const fetchCartItems = (userId) => {
-  return cartModel.aggregate([
+export const findUserCart = (userId) => {
+  return cartModel.findOne({ userId });
+};
+
+export const addItemToCart = async (userId, item) => {
+  return cartModel.updateOne(
+    { userId },
+    {
+      $push: { items: item },
+    },
+    { upsert: true }
+  );
+};
+
+export const findCartItem = async (userId, variantId) => {
+  const result = await cartModel.aggregate([
     {
       $match: {
         userId: new mongoose.Types.ObjectId(userId),
       },
     },
+    { $unwind: "$items" },
+    {
+      $match: {
+        "items.variantId": new mongoose.Types.ObjectId(variantId),
+      },
+    },
     {
       $lookup: {
         from: "variants",
-        localField: "variantId",
+        localField: "items.variantId",
+        foreignField: "_id",
+        as: "variant",
+      },
+    },
+    { $unwind: "$variant" },
+    {
+      $project: {
+        _id: 0,
+        productId: "$items.productId",
+        variantId: "$variant",
+        quantity: "$items.quantity",
+      },
+    },
+  ]);
+
+  return result[0] || null;
+};
+
+export const updateCartItemQuantity = (userId, variantId, quantity) => {
+  return cartModel.updateOne(
+    {
+      userId,
+      "items.variantId": variantId,
+    },
+    {
+      $set: { "items.$.quantity": quantity },
+    }
+  );
+};
+
+export const removeCartItem = (userId, variantId) => {
+  return cartModel.updateOne(
+    { userId },
+    {
+      $pull: {
+        items: { variantId },
+      },
+    }
+  );
+};
+
+export const clearCart = (userId) => {
+  return cartModel.deleteOne({ userId });
+};
+
+
+// Fetch detailed cart items for a user
+export const fetchCartItems = (userId) => {
+  return cartModel.aggregate([
+    { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+
+    { $unwind: "$items" },
+
+    {
+      $lookup: {
+        from: "variants",
+        localField: "items.variantId",
         foreignField: "_id",
         as: "variantId",
       },
@@ -25,7 +101,7 @@ export const fetchCartItems = (userId) => {
     {
       $lookup: {
         from: "products",
-        localField: "productId",
+        localField: "items.productId",
         foreignField: "_id",
         as: "productId",
       },
@@ -43,6 +119,7 @@ export const fetchCartItems = (userId) => {
     },
     { $unwind: "$brand" },
     { $match: { "brand.isListed": true } },
+
     //product offer
     {
       $lookup: {
@@ -95,129 +172,27 @@ export const fetchCartItems = (userId) => {
         as: "brandOffer",
       },
     },
-  ]);
-};
 
-// Update cart item quantity by id
-export const updateCartQuantity = (cartId, quantity) => {
-  return cartModel.updateOne(
-    { _id: cartId },
-    { $set: { quantity } }
-  );
-};
-
-// Delete all cart items for a user
-export const deleteUserCart = (userId) => {
-  return cartModel.deleteMany({ userId });
-};
-
-// Find a cart item by user and variant
-export const findCartItem = (userId, variantId) => {
-  return cartModel.findOne({ userId, variantId });
-};
-
-// Create a cart item
-export const createCartItem = (data) => {
-  return cartModel.create(data);
-};
-
-// Save cart item instance
-export const saveCartItem = (cartItem) => {
-  return cartItem.save();
-};
-
-// Find cart item by id and populate variant
-export const findCartItemById = (id) => {
-  return cartModel.findById(id).populate("variantId");
-};
-
-// Fetch raw cart (variant ids) for a user
-export const fetchCart = async (userId) => {
-  return cartModel.find({ userId }).select("variantId").lean();
-};
-
-// Get total items count in cart (aggregated, considering listings)
-export const getCartItemsCount = async (userId) => {
-  const result = await cartModel.aggregate([
-    // 1️⃣ Match user cart
-    {
-      $match: {
-        userId: new mongoose.Types.ObjectId(userId),
-      },
-    },
-
-    // 2️⃣ Lookup variant
-    {
-      $lookup: {
-        from: "variants",
-        localField: "variantId",
-        foreignField: "_id",
-        as: "variant",
-      },
-    },
-    { $unwind: "$variant" },
-
-    // 3️⃣ Filter listed variant + stock
-    {
-      $match: {
-        "variant.isListed": true,
-      },
-    },
-
-    // 4️⃣ Lookup product
-    {
-      $lookup: {
-        from: "products",
-        localField: "productId",
-        foreignField: "_id",
-        as: "product",
-      },
-    },
-    { $unwind: "$product" },
-
-    // 5️⃣ Filter listed product
-    {
-      $match: {
-        "product.isListed": true,
-      },
-    },
-
-    // 6️⃣ Lookup brand
-    {
-      $lookup: {
-        from: "brands",
-        localField: "product.brandID",
-        foreignField: "_id",
-        as: "brand",
-      },
-    },
-    { $unwind: "$brand" },
-
-    // 7️⃣ Filter listed brand
-    {
-      $match: {
-        "brand.isListed": true,
-      },
-    },
-
-    // 8️⃣ Group & sum quantity
-    {
-      $group: {
-        _id: null,
-        totalItems: { $sum: "$quantity" },
-      },
-    },
-
-    // 9️⃣ Clean output
     {
       $project: {
         _id: 0,
-        totalItems: 1,
+        itemId: "$items.variantId",
+        quantity: "$items.quantity",
+        productId: 1,
+        variantId: 1,
+        brand: 1,
+        productOffer: 1,
+        brandOffer:1,
       },
     },
   ]);
-
-  return result[0]?.totalItems || 0;
 };
 
 
+// Get total items count in cart (aggregated, considering listings)
+export const getCartItemsCount = async (userId) => {
+  const cart = await cartModel.findOne({ userId }).lean();
+  if (!cart) return 0;
+
+  return cart.items.length;
+};

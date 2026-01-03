@@ -1,4 +1,4 @@
-import { fetchCart } from "../../cart/cart.repo.js";
+import { findUserCart } from "../../cart/cart.repo.js";
 import { markCartStatus } from "../../cart/helpers/cart.helper.js";
 import { markWishlistStatus } from "../../wishlist/wishlist.helper.js";
 import { fetchWishlist } from "../../wishlist/wishlist.repo.js";
@@ -18,11 +18,10 @@ export const getLatestProducts = async (limit, userId) => {
 
   // Attach wishlist and cart status
   const wishlist = userId ? await fetchWishlist(userId) : null;
-  const cart = userId ? await fetchCart(userId) : null;
+  const cart = userId ? await findUserCart(userId) : null;
 
   let finalProducts = markWishlistStatus(latestProducts, wishlist);
   finalProducts = markCartStatus(finalProducts, cart);
-
   return finalProducts;
 };
 
@@ -35,7 +34,7 @@ export const getFeaturedProducts = async (userId) => {
 
   // Attach wishlist and cart status
   const wishlist = userId ? await fetchWishlist(userId) : null;
-  const cart = userId ? await fetchCart(userId) : null;
+  const cart = userId ? await findUserCart(userId) : null;
 
   let finalProducts = markWishlistStatus(featuredProducts, wishlist);
   finalProducts = markCartStatus(finalProducts, cart);

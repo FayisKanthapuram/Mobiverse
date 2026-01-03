@@ -114,6 +114,7 @@ async function updateQuantity(itemId, newQuantity) {
       },
     }).showToast();
   } catch (error) {
+    console.log(error)
     Toastify({
       text: error.response?.data?.message || "Something went wrong",
       duration: 2000,
