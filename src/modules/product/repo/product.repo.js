@@ -139,7 +139,7 @@ export const getLatestProductsAgg = (limit = 5, userId = null) => {
 };
 
 // Aggregate featured products with brand and variant details
-export const getFeaturedProductsAgg = (userId=null) => {
+export const getFeaturedProductsAgg = (userId = null) => {
   return productModel.aggregate([
     {
       $lookup: {
@@ -289,9 +289,25 @@ export const getSingleProductAgg = (productId) => {
     {
       $lookup: {
         from: "variants",
-        localField: "_id",
-        foreignField: "productId",
+        let: { productId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$productId", "$$productId"] },
+                  { $eq: ["$isListed", true] },
+                ],
+              },
+            },
+          },
+        ],
         as: "variants",
+      },
+    },
+    {
+      $match: {
+        "variants.0": { $exists: true },
       },
     },
     // Populate product offer details for the single product

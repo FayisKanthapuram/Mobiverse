@@ -126,7 +126,7 @@
             const variantId = colorGroups[color][0]; 
           %>
 
-          <button onclick="showConfigurations('<%= color %>', '<%= variantId._id %>')" class="px-4 py-2 rounded-lg border-2 
+          <button onclick="selectVariant('<%= variantId._id %>')" class="px-4 py-2 rounded-lg border-2 
             <%= color === selectedVariant.colour 
                 ? 'border-blue-600 bg-blue-600 text-white' 
                 : 'border-gray-300 text-gray-700' 

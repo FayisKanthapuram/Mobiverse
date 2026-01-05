@@ -195,12 +195,6 @@ function selectVariant(variantId) {
   window.location.href = "/products/" + variantId;
 }
 
-function showConfigurations(color, variantId) {
-  // reload to show that color’s variants
-  console.log(variantId);
-  window.location.href = `/products/${variantId}?color=${color}`;
-}
-
 async function toggleWishlist(variantId, event) {
   event?.preventDefault();
   event?.stopPropagation();

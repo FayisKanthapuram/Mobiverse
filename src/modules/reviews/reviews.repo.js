@@ -86,3 +86,21 @@ export const getProductRatingSummary = async (productId) => {
 
   return result[0] || { avgRating: 0 };
 };
+
+export const getAvgRatingsByProductIds = (productIds) => {
+  return Review.aggregate([
+    {
+      $match: {
+        productId: {
+          $in: productIds.map((id) => new mongoose.Types.ObjectId(id)),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$productId",
+        avgRating: { $avg: "$rating" },
+      },
+    },
+  ]);
+};

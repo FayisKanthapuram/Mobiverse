@@ -22,13 +22,6 @@ const productSchema = new mongoose.Schema(
       maxlength: [2000, "Description too long"],
     },
 
-    avgRating: {
-      type: Number,
-      default: 0,
-      min: [0, "Rating cannot be less than 0"],
-      max: [5, "Rating cannot be more than 5"],
-    },
-
     isFeatured: {
       type: Boolean,
       default: false,

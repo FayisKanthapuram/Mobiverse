@@ -63,63 +63,6 @@ export const findVariantByIdAgg = (variantId, userId) => {
 };
 
 
-export const findVariantByColor = (colour, variantId, userId) => {
-  return variantModel.aggregate([
-    // 1️⃣ Match variant by id + color
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId(variantId),
-        colour: colour,
-      },
-    },
-
-    // 2️⃣ Check if variant exists in user's cart
-    {
-      $lookup: {
-        from: "carts",
-        let: {
-          variantId: "$_id",
-          userId: userId ? new mongoose.Types.ObjectId(userId) : null,
-        },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $eq: ["$userId", "$$userId"],
-              },
-            },
-          },
-          { $unwind: "$items" },
-          {
-            $match: {
-              $expr: {
-                $eq: ["$items.variantId", "$$variantId"],
-              },
-            },
-          },
-          { $project: { _id: 1 } },
-        ],
-        as: "cart",
-      },
-    },
-
-    // 3️⃣ Convert lookup → boolean
-    {
-      $addFields: {
-        isInCart: { $gt: [{ $size: "$cart" }, 0] },
-      },
-    },
-
-    // 4️⃣ Cleanup
-    {
-      $project: {
-        cart: 0,
-      },
-    },
-  ]);
-};
-
-
 // Find variants belonging to a product
 export const findVariantsByProduct = (productId) => {
   return variantModel.find({ productId }).lean();

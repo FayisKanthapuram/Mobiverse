@@ -1,5 +1,4 @@
 import {
-  findVariantByColor,
   findVariantByIdAgg,
 } from "../../repo/variant.repo.js";
 import { getSingleProductAgg } from "../../repo/product.repo.js";
@@ -12,27 +11,18 @@ import { ProductMessages } from "../../../../shared/constants/messages/productMe
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { fetchWishlist } from "../../../wishlist/wishlist.repo.js";
-import { findReviewsByProductId, getProductRatingSummary } from "../../../reviews/reviews.repo.js";
+import {
+  findReviewsByProductId,
+  getProductRatingSummary,
+} from "../../../reviews/reviews.repo.js";
 
 // Product details service - fetch product details for user view
 // Load product with selected variant and recommendations
 export const loadProductDetailsService = async (
   params,
-  query,
   userId = null
 ) => {
-  // Resolve selected variant
-  let selectedVariant;
-
-  if (query.color) {
-    selectedVariant = await findVariantByColor(
-      query.color,
-      params.variantId,
-      userId
-    );
-  } else {
-    selectedVariant = await findVariantByIdAgg(params.variantId, userId);
-  }
+  let selectedVariant = await findVariantByIdAgg(params.variantId, userId);
 
   selectedVariant = selectedVariant?.[0];
 

@@ -33,7 +33,6 @@ export const loadShop = async (req, res) => {
 export const loadProductDetails = async (req, res) => {
   const data = await loadProductDetailsService(
     req.params,
-    req.query,
     req?.user?._id
   );
 
