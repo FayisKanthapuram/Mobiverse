@@ -15,6 +15,7 @@ import { CouponMessages } from "../../shared/constants/messages/couponMessages.j
 
 // Load coupons page
 export const loadCoupons = async (req, res) => {
+  const limit=5;
   const {
     analytics,
     coupons,
@@ -25,8 +26,7 @@ export const loadCoupons = async (req, res) => {
     currentPage,
     totalPages,
     totalCoupons,
-    limit,
-  } = await loadCouponsService(req.query);
+  } = await loadCouponsService(req.query,limit);
 
   res.status(HttpStatus.OK).render("admin/coupons", {
     pageTitle: "Coupons",

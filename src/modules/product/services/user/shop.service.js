@@ -11,9 +11,8 @@ import { markCartStatus } from "../../../cart/helpers/cart.helper.js";
 // Shop service - handle product browsing for users
 // Load shop products with filters and sorting
 export const loadShopService = async (query, userId = null) => {
-  // -----------------------------
   // Normalize Query Params
-  // -----------------------------
+
   const search = query.search?.trim() || "";
   const brand = query.brand || "all";
   const sort = query.sort || "";
@@ -24,9 +23,8 @@ export const loadShopService = async (query, userId = null) => {
   const limit = 8;
   const skip = (currentPage - 1) * limit;
 
-  // -----------------------------
   // Product + Brand Match
-  // -----------------------------
+
   const matchStage = {
     isListed: true,
     "brands.isListed": true,
@@ -40,32 +38,17 @@ export const loadShopService = async (query, userId = null) => {
     matchStage.name = { $regex: search, $options: "i" };
   }
 
-  // -----------------------------
-  // Variant Price Filter
-  // -----------------------------
-  const variantPriceExpr = [];
+  // SORT (FINAL PRICE)
 
-  if (minPrice !== null) {
-    variantPriceExpr.push({ $gte: ["$salePrice", minPrice] });
-  }
-
-  if (maxPrice !== null) {
-    variantPriceExpr.push({ $lte: ["$salePrice", maxPrice] });
-  }
-
-  // -----------------------------
-  // SORT (FINAL PRICE BASED)
-  // -----------------------------
   const sortStage = {};
   if (sort === "price-asc") sortStage.finalPrice = 1;
   else if (sort === "price-desc") sortStage.finalPrice = -1;
   else if (sort === "a-z") sortStage.name = 1;
   else if (sort === "z-a") sortStage.name = -1;
-  else sortStage.updatedAt = -1;
+  else if (sort === "latest") sortStage.updatedAt = -1;
 
-  // -----------------------------
   // BASE PIPELINE
-  // -----------------------------
+
   const basePipeline = [
     // Brand lookup
     {
@@ -79,7 +62,7 @@ export const loadShopService = async (query, userId = null) => {
     { $unwind: "$brands" },
     { $match: matchStage },
 
-    // Variant lookup (cheapest valid variant)
+    // Cheapest valid variant
     {
       $lookup: {
         from: "variants",
@@ -92,7 +75,6 @@ export const loadShopService = async (query, userId = null) => {
                   { $eq: ["$productId", "$$productId"] },
                   { $eq: ["$isListed", true] },
                   { $gte: ["$stock", 1] },
-                  ...(variantPriceExpr.length ? variantPriceExpr : []),
                 ],
               },
             },
@@ -153,9 +135,7 @@ export const loadShopService = async (query, userId = null) => {
       },
     },
 
-    // -----------------------------
-    // PRODUCT OFFER VALUE
-    // -----------------------------
+    // Product offer value
     {
       $addFields: {
         productOfferValue: {
@@ -192,9 +172,7 @@ export const loadShopService = async (query, userId = null) => {
       },
     },
 
-    // -----------------------------
-    // BRAND OFFER VALUE
-    // -----------------------------
+    // Brand offer value
     {
       $addFields: {
         brandOfferValue: {
@@ -231,9 +209,7 @@ export const loadShopService = async (query, userId = null) => {
       },
     },
 
-    // -----------------------------
-    // FINAL OFFER + FINAL PRICE
-    // -----------------------------
+    // Applied offer + final price
     {
       $addFields: {
         offer: {
@@ -255,17 +231,25 @@ export const loadShopService = async (query, userId = null) => {
     },
   ];
 
-  // -----------------------------
+  // FINAL PRICE FILTER
+
+  const priceMatch = {};
+  if (minPrice !== null) priceMatch.$gte = minPrice;
+  if (maxPrice !== null) priceMatch.$lte = maxPrice;
+
+  if (Object.keys(priceMatch).length) {
+    basePipeline.push({ $match: { finalPrice: priceMatch } });
+  }
+
   // COUNT PIPELINE
-  // -----------------------------
+
   const countPipeline = [...basePipeline, { $count: "totalDocuments" }];
   const countResult = await countShopProductsAgg(countPipeline);
   const totalDocuments = countResult[0]?.totalDocuments || 0;
   const totalPages = Math.ceil(totalDocuments / limit);
 
-  // -----------------------------
   // PRODUCT PIPELINE
-  // -----------------------------
+
   const productPipeline = [...basePipeline];
 
   if (Object.keys(sortStage).length) {
@@ -276,9 +260,8 @@ export const loadShopService = async (query, userId = null) => {
 
   const products = await getShopProductsAgg(productPipeline);
 
-  // -----------------------------
-  // Wishlist & Cart Status
-  // -----------------------------
+  // Wishlist & Cart
+
   const wishlist = userId ? await fetchWishlist(userId) : null;
   const cart = userId ? await findUserCart(userId) : null;
 
@@ -287,9 +270,6 @@ export const loadShopService = async (query, userId = null) => {
 
   const brands = await getAllListedBrands();
 
-  // -----------------------------
-  // RETURN
-  // -----------------------------
   return {
     products: finalProducts,
     brands,

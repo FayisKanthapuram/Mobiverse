@@ -14,7 +14,7 @@ export const loadBrandsService = async (queryParams) => {
   const limit = 5;
   const skip = (currentPage - 1) * limit;
 
-  const query = {};
+  const query = { };
 
   if (search) {
     query.brandName = { $regex: search, $options: "i" };

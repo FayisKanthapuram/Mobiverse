@@ -1,7 +1,7 @@
 import { countCoupon, findCoupons, getTotalCouponUsage, getTotalDiscountGiven } from "../repo/coupon.repo.js";
 
 // Coupon services - business logic for loading/listing coupons
-export const loadCouponsService = async (queryParams) => {
+export const loadCouponsService = async (queryParams,limit) => {
   const currentPage = parseInt(queryParams.page) || 1;
   const statusFilter = queryParams.status || "";
   const sortFilter = queryParams.sort || "recent";
@@ -52,7 +52,6 @@ export const loadCouponsService = async (queryParams) => {
   }
 
   //pagination
-  const limit = 5;
   const skip = (currentPage - 1) * limit;
 
   const coupons = await findCoupons(query, sortOption, skip, limit);
@@ -82,6 +81,5 @@ export const loadCouponsService = async (queryParams) => {
     currentPage,
     totalPages: Math.ceil(totalCoupons / limit),
     totalCoupons,
-    limit:parseInt(limit),
   }
 };

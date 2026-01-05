@@ -19,7 +19,7 @@ export const loadOffers = async (req, res) => {
   const searchQuery = req.query.search || "";
   const statusFilter = req.query.status || "";
   const currentPage = parseInt(req.query.page) || 1;
-  const limit=2;
+  const limit=5;
 
   const data = await getOfferPageDataService(
     offerType,

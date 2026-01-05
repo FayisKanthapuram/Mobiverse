@@ -6,6 +6,7 @@ import offerModel from "./offer.model.js";
 export const findAllOffers = (query = {}, skip, limit) => {
   return offerModel
     .find(query)
+    .sort({ createdAt: -1 })
     .populate({
       path: "productID",
       populate: { path: "brandID" },

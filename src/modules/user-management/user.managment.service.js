@@ -26,7 +26,7 @@ export const loadUsersService = async (queryParams) => {
 
   const query = buildUserQuery({ searchQuery, statusFilter });
   const sortQuery = buildSortQuery(sortBy);
-  const { currentPage, skip, limit } = getPagination(page);
+  const { currentPage, skip, limit } = getPagination(page,5);
 
   const totalCustomers = await countAllUsers();
   const blockedCount = await countBlockedUsers();

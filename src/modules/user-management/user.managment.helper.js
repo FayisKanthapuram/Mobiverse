@@ -18,7 +18,7 @@ export const buildUserQuery = ({ searchQuery, statusFilter }) => {
 };
 
 export const buildSortQuery = (sortBy) => {
-  return sortBy === "recent" ? { createdAt: 1 } : { createdAt: -1 };
+  return sortBy === "recent" ? { createdAt: -1 } : { createdAt: 1 };
 };
 
 export const getPagination = (page, limit = 3) => {

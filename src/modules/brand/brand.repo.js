@@ -19,11 +19,7 @@ export const findBrandById = (brandId) => {
 
 // Find brands with pagination
 export const findBrands = (query, limit, skip) => {
-  return brandModel
-    .find(query)
-    .sort({ brandName: 1 })
-    .skip(skip)
-    .limit(limit);
+  return brandModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit);
 };
 
 // Count brands matching query
