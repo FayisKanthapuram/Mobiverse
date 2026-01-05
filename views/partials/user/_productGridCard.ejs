@@ -81,8 +81,8 @@
         <!-- Rating -->
         <div class="flex items-center space-x-1 mb-3">
           <% 
-            const fullStars = Math.floor(product?.variants?.rating || 0);
-            const halfStar = (product?.variants?.rating % 1) >= 0.5;
+            const fullStars = Math.floor(product?.avgRating || 0);
+            const halfStar = (product?.avgRating % 1) >= 0.5;
             const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
           %>
           <% for(let i = 0; i < fullStars; i++) { %>
@@ -94,7 +94,7 @@
           <% for(let i = 0; i < emptyStars; i++) { %>
           <i class="bi bi-star text-yellow-400 text-sm"></i>
           <% } %>
-          <span class="text-xs text-gray-500 ml-1">(<%= product?.variants?.rating?.toFixed(1) || '0.0' %>)</span>
+          <span class="text-xs text-gray-500 ml-1">(<%= product?.avgRating?.toFixed(1) || '0.0' %>)</span>
         </div>
 
         <!-- Price -->

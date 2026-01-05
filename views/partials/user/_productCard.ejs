@@ -69,7 +69,7 @@
         <!-- RATING -->
         <div class="flex items-center mt-2">
           <% 
-            const rating = product?.variants?.rating || 0;
+            const rating = product?.avgRating || 0;
             const full = Math.floor(rating);
             const half = (rating % 1) >= 0.5;
             const empty = 5 - full - (half ? 1 : 0);

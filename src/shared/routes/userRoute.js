@@ -7,19 +7,20 @@ import addressRoutes from "../../modules/address/address.routes.js";
 import cartRoutes from "../../modules/cart/cart.routes.js";
 import checkoutRoutes from "../../modules/checkout/checkout.routes.js";
 import orderRoutes from "../../modules/order/routes/user.order.routes.js";
-import wishlistRoutes from "../../modules/wishlist/wishlist.routes.js"
-import walletRoutes from "../../modules/wallet/wallet.routes.js"
-import referralRoutes from "../../modules/referral/routes/user.referral.routes.js"
-import homeRoutes from "../../modules/home/home.routes.js"
+import wishlistRoutes from "../../modules/wishlist/wishlist.routes.js";
+import walletRoutes from "../../modules/wallet/wallet.routes.js";
+import referralRoutes from "../../modules/referral/routes/user.referral.routes.js";
+import homeRoutes from "../../modules/home/home.routes.js";
+import reviewRoutes from "../../modules/reviews/reviews.routes.js"
 import userProductRoutes from "../../modules/product/routes/user.product.routes.js";
 
 const router = express.Router();
 
 router.use(setLayout("user"));
 
-
 router.use(homeRoutes);
 router.use(userProductRoutes);
+router.use(reviewRoutes);
 router.use(authRoutes);
 router.use(profileRoutes);
 router.use(addressRoutes);

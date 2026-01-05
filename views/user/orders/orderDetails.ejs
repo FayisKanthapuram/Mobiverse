@@ -45,7 +45,7 @@
           <div class="space-y-6">
             <% order?.orderedItems?.forEach(function(item) { %>
             <div class="border-2 rounded-xl p-4 <%= ['Cancelled', 'Returned'].includes(item?.itemStatus) ? 'border-gray-200 bg-gray-50' : ['ReturnRequested', 'ReturnApproved'].includes(item?.itemStatus) ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200' %>">
-              
+
               <!-- Item Info -->
               <div class="flex gap-4 pb-4 border-b border-gray-200">
                 <div class="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
@@ -121,6 +121,15 @@
                       <% } %>
                     </div>
                   </div>
+                  <% if (item?.itemStatus === 'Delivered' && !item?.isReviewed) { %>
+                  <button onclick="openReviewModal(
+                        '<%= item._id %>',
+                        '<%= item.productId._id %>',
+                        '<%= item.variantId._id %>'
+                      )" class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">
+                    <i class="bi bi-star"></i> Write Review
+                  </button>
+                  <% } %>
                 </div>
               </div>
 
@@ -133,7 +142,7 @@
 
                 <div class="relative">
                   <% const timeline = item?.itemTimeline || {}; %>
-                  
+
                   <!-- Vertical Line -->
                   <div class="absolute left-1.5 top-2 bottom-2 w-0.5 bg-gray-200"></div>
 
@@ -230,7 +239,7 @@
 
                     <!-- Return Statuses -->
                     <% if (['ReturnRequested', 'ReturnApproved', 'ReturnRejected', 'Returned'].includes(item?.itemStatus)) { %>
-                    
+
                     <!-- Return Requested -->
                     <% if (timeline?.returnRequestedAt) { %>
                     <div class="flex gap-4">
@@ -493,6 +502,56 @@
       </div>
     </div>
   </div>
+
+  <!-- Review Modal -->
+  <div id="reviewModal" class="fixed inset-0 bg-gray-900 bg-opacity-20 hidden items-center justify-center z-50">
+    <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-lg">
+
+      <h3 class="text-xl font-bold text-gray-900 mb-4">
+        Rate this Product
+      </h3>
+
+      <form id="reviewForm">
+        <input type="hidden" id="reviewOrderItemId">
+        <input type="hidden" id="reviewProductId">
+        <input type="hidden" id="reviewVariantId">
+
+        <!-- Rating -->
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            Rating
+          </label>
+          <div class="flex gap-2">
+            <% for (let i = 1; i <= 5; i++) { %>
+            <i class="bi bi-star text-2xl cursor-pointer text-gray-300" onclick="setRating(<%= i %>)" data-star="<%= i %>"></i>
+            <% } %>
+          </div>
+          <input type="hidden" id="reviewRating" required>
+        </div>
+
+        <!-- Comment -->
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            Comment
+          </label>
+          <textarea id="reviewComment" rows="4" maxlength="300" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Share your experience..." required></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closeReviewModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Submit Review
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+
 </div>
 
 <script>
@@ -546,3 +605,92 @@ function getItemPaymentStatusClass(status) {
   return statusClasses[status] || 'bg-gray-100 text-gray-700';
 }
 %>
+
+<script>
+  let selectedRating = 0;
+
+  function openReviewModal(orderItemId, productId, variantId) {
+    document.getElementById('reviewModal').classList.remove('hidden');
+    document.getElementById('reviewModal').classList.add('flex');
+
+    document.getElementById('reviewOrderItemId').value = orderItemId;
+    document.getElementById('reviewProductId').value = productId;
+    document.getElementById('reviewVariantId').value = variantId;
+
+    setRating(0);
+    document.getElementById('reviewComment').value = '';
+  }
+
+  function closeReviewModal() {
+    document.getElementById('reviewModal').classList.add('hidden');
+    document.getElementById('reviewModal').classList.remove('flex');
+  }
+
+  function setRating(rating) {
+    selectedRating = rating;
+    document.getElementById('reviewRating').value = rating;
+
+    document.querySelectorAll('[data-star]').forEach(star => {
+      star.classList.toggle(
+        'text-yellow-400',
+        star.dataset.star <= rating
+      );
+      star.classList.toggle(
+        'text-gray-300',
+        star.dataset.star > rating
+      );
+    });
+  }
+
+  document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    if (!selectedRating) {
+      Toastify({
+        text: "Please select a rating",
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        backgroundColor: "#f59e0b", // yellow
+      }).showToast();
+      return;
+    }
+
+    const payload = {
+      orderItemId: document.getElementById('reviewOrderItemId').value,
+      productId: document.getElementById('reviewProductId').value,
+      variantId: document.getElementById('reviewVariantId').value,
+      rating: selectedRating,
+      comment: document.getElementById('reviewComment').value,
+    };
+
+    try {
+      await axios.post('/reviews', payload);
+
+      Toastify({
+        text: "Review submitted successfully 🎉",
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        backgroundColor: "#22c55e", // green
+      }).showToast();
+
+      closeReviewModal();
+
+      // Small delay for UX
+      setTimeout(() => {
+        location.reload();
+      }, 1200);
+
+    } catch (error) {
+      Toastify({
+        text: error?.response?.data?.message ||
+          "Failed to submit review. Try again.",
+        duration: 4000,
+        gravity: "bottom",
+        position: "right",
+        backgroundColor: "#ef4444", // red
+      }).showToast();
+    }
+  });
+</script>

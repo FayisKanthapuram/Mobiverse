@@ -229,6 +229,43 @@ export const loadShopService = async (query, userId = null) => {
         },
       },
     },
+    // Reviews lookup 
+    {
+      $lookup: {
+        from: "reviews",
+        let: { productId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$productId", "$$productId"] },
+            },
+          },
+          {
+            $group: {
+              _id: "$productId",
+              avgRating: { $avg: "$rating" },
+              reviewCount: { $sum: 1 },
+            },
+          },
+        ],
+        as: "ratingData",
+      },
+    },
+    {
+      $addFields: {
+        avgRating: {
+          $round: [
+            { $ifNull: [{ $arrayElemAt: ["$ratingData.avgRating", 0] }, 0] },
+            1,
+          ],
+        },
+      },
+    },
+    {
+      $project: {
+        ratingData: 0,
+      },
+    },
   ];
 
   // FINAL PRICE FILTER

@@ -61,6 +61,11 @@ const orderedItemSchema = new mongoose.Schema({
     default: "Pending",
   },
 
+  isReviewed: {
+    type: Boolean,
+    default: false,
+  },
+
   // Reason for cancel / return
   reason: { type: String },
   adminNote: { type: String },

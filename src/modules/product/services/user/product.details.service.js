@@ -12,6 +12,7 @@ import { ProductMessages } from "../../../../shared/constants/messages/productMe
 import { AppError } from "../../../../shared/utils/app.error.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
 import { fetchWishlist } from "../../../wishlist/wishlist.repo.js";
+import { findReviewsByProductId, getProductRatingSummary } from "../../../reviews/reviews.repo.js";
 
 // Product details service - fetch product details for user view
 // Load product with selected variant and recommendations
@@ -53,15 +54,13 @@ export const loadProductDetailsService = async (
 
   // Calculate applied offer
   const offer = getAppliedOffer(product, selectedVariant.salePrice);
-  let isInWishlist=null;
-  if(userId){
+  let isInWishlist = null;
+  if (userId) {
     const wishlist = userId ? await fetchWishlist(userId) : null;
     const wishlistVariantSet = new Set(
       wishlist?.items.map((item) => item.variantId.toString())
     );
-    isInWishlist = wishlistVariantSet?.has(
-      selectedVariant._id.toString()
-    );
+    isInWishlist = wishlistVariantSet?.has(selectedVariant._id.toString());
   }
 
   // Group variants by color
@@ -70,44 +69,11 @@ export const loadProductDetailsService = async (
   // Fetch related products
   const relatedProducts = await getLatestProducts(6, userId);
 
-  // Temporary static reviews
-  const reviews = [
-    {
-      userName: "Rahul Mehta",
-      rating: 5,
-      comment:
-        "Amazing phone! The battery easily lasts me two days and the camera quality is top-notch.",
-      date: new Date("2025-10-15"),
-    },
-    {
-      userName: "Sneha Sharma",
-      rating: 4,
-      comment:
-        "Very sleek and smooth performance. Only issue is a bit of heating while gaming.",
-      date: new Date("2025-09-30"),
-    },
-    {
-      userName: "Amit Verma",
-      rating: 3,
-      comment:
-        "Good for casual use, but expected slightly better display brightness for the price.",
-      date: new Date("2025-08-22"),
-    },
-    {
-      userName: "Priya Nair",
-      rating: 5,
-      comment:
-        "Absolutely love this device! The color and design are just perfect.",
-      date: new Date("2025-11-01"),
-    },
-    {
-      userName: "Karan Patel",
-      rating: 4,
-      comment:
-        "Fast delivery and well-packed. Phone works perfectly fine so far.",
-      date: new Date("2025-11-05"),
-    },
-  ];
+  // Fetch product reviews
+  const reviews = await findReviewsByProductId(product._id, 10);
+
+  // Rating summary
+  const { avgRating } = await getProductRatingSummary(product._id);
 
   return {
     isInWishlist,
@@ -116,6 +82,12 @@ export const loadProductDetailsService = async (
     selectedVariant,
     colorGroups,
     relatedProducts,
-    reviews,
+    reviews: reviews.map((review) => ({
+      userName: review.userId?.name || "User",
+      rating: review.rating,
+      comment: review.comment,
+      date: review.createdAt,
+    })),
+    avgRating,
   };
 };
