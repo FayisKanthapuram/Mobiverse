@@ -7,46 +7,67 @@ import { markWishlistStatus } from "../../../wishlist/wishlist.helper.js";
 import { fetchWishlist } from "../../../wishlist/wishlist.repo.js";
 import { findUserCart } from "../../../cart/cart.repo.js";
 import { markCartStatus } from "../../../cart/helpers/cart.helper.js";
-import { getAppliedOffer } from "../../helpers/user.product.helper.js";
 
 // Shop service - handle product browsing for users
 // Load shop products with filters and sorting
 export const loadShopService = async (query, userId = null) => {
-  // Normalize and parse query parameters
-  const search = query.search || "";
+  // -----------------------------
+  // Normalize Query Params
+  // -----------------------------
+  const search = query.search?.trim() || "";
   const brand = query.brand || "all";
   const sort = query.sort || "";
-  const minPrice = query.min;
-  const maxPrice = query.max;
+  const minPrice = query.min ? Number(query.min) : null;
+  const maxPrice = query.max ? Number(query.max) : null;
   const currentPage = parseInt(query.page, 10) || 1;
 
   const limit = 8;
   const skip = (currentPage - 1) * limit;
 
-  // Define match stage for aggregation pipeline
+  // -----------------------------
+  // Product + Brand Match
+  // -----------------------------
   const matchStage = {
     isListed: true,
     "brands.isListed": true,
   };
 
-  if (brand !== "all") matchStage["brands.brandName"] = brand;
-  if (search) matchStage.name = { $regex: search.trim(), $options: "i" };
+  if (brand !== "all") {
+    matchStage["brands.brandName"] = brand;
+  }
 
-  // Define sort stage for aggregation pipeline
+  if (search) {
+    matchStage.name = { $regex: search, $options: "i" };
+  }
+
+  // -----------------------------
+  // Variant Price Filter
+  // -----------------------------
+  const variantPriceExpr = [];
+
+  if (minPrice !== null) {
+    variantPriceExpr.push({ $gte: ["$salePrice", minPrice] });
+  }
+
+  if (maxPrice !== null) {
+    variantPriceExpr.push({ $lte: ["$salePrice", maxPrice] });
+  }
+
+  // -----------------------------
+  // SORT (FINAL PRICE BASED)
+  // -----------------------------
   const sortStage = {};
-  if (sort === "price-asc") sortStage["variants.salePrice"] = 1;
-  else if (sort === "price-desc") sortStage["variants.salePrice"] = -1;
+  if (sort === "price-asc") sortStage.finalPrice = 1;
+  else if (sort === "price-desc") sortStage.finalPrice = -1;
   else if (sort === "a-z") sortStage.name = 1;
   else if (sort === "z-a") sortStage.name = -1;
-  else if (sort === "latest") sortStage.updatedAt = -1;
+  else sortStage.updatedAt = -1;
 
-  // Define price filter for aggregation pipeline
-  const priceStage = {};
-  if (minPrice) priceStage.$gte = Number(minPrice);
-  if (maxPrice) priceStage.$lte = Number(maxPrice);
-
-  // Define base aggregation pipeline for shop products
+  // -----------------------------
+  // BASE PIPELINE
+  // -----------------------------
   const basePipeline = [
+    // Brand lookup
     {
       $lookup: {
         from: "brands",
@@ -57,6 +78,8 @@ export const loadShopService = async (query, userId = null) => {
     },
     { $unwind: "$brands" },
     { $match: matchStage },
+
+    // Variant lookup (cheapest valid variant)
     {
       $lookup: {
         from: "variants",
@@ -69,6 +92,7 @@ export const loadShopService = async (query, userId = null) => {
                   { $eq: ["$productId", "$$productId"] },
                   { $eq: ["$isListed", true] },
                   { $gte: ["$stock", 1] },
+                  ...(variantPriceExpr.length ? variantPriceExpr : []),
                 ],
               },
             },
@@ -80,14 +104,12 @@ export const loadShopService = async (query, userId = null) => {
       },
     },
     { $unwind: "$variants" },
-    //product offer
+
+    // Product offer
     {
       $lookup: {
         from: "offers",
-        let: {
-          productId: "$_id",
-          today: new Date(),
-        },
+        let: { productId: "$_id", today: new Date() },
         pipeline: [
           {
             $match: {
@@ -106,14 +128,12 @@ export const loadShopService = async (query, userId = null) => {
         as: "productOffer",
       },
     },
-    //brand offer
+
+    // Brand offer
     {
       $lookup: {
         from: "offers",
-        let: {
-          brandID: "$brandID",
-          today: new Date(),
-        },
+        let: { brandID: "$brandID", today: new Date() },
         pipeline: [
           {
             $match: {
@@ -132,35 +152,133 @@ export const loadShopService = async (query, userId = null) => {
         as: "brandOffer",
       },
     },
+
+    // -----------------------------
+    // PRODUCT OFFER VALUE
+    // -----------------------------
+    {
+      $addFields: {
+        productOfferValue: {
+          $max: {
+            $map: {
+              input: "$productOffer",
+              as: "offer",
+              in: {
+                $cond: [
+                  { $eq: ["$$offer.discountType", "percentage"] },
+                  {
+                    $multiply: [
+                      "$variants.salePrice",
+                      { $divide: ["$$offer.discountValue", 100] },
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $lt: [
+                          "$$offer.discountValue",
+                          { $multiply: ["$variants.salePrice", 0.9] },
+                        ],
+                      },
+                      "$$offer.discountValue",
+                      0,
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+
+    // -----------------------------
+    // BRAND OFFER VALUE
+    // -----------------------------
+    {
+      $addFields: {
+        brandOfferValue: {
+          $max: {
+            $map: {
+              input: "$brandOffer",
+              as: "offer",
+              in: {
+                $cond: [
+                  { $eq: ["$$offer.discountType", "percentage"] },
+                  {
+                    $multiply: [
+                      "$variants.salePrice",
+                      { $divide: ["$$offer.discountValue", 100] },
+                    ],
+                  },
+                  {
+                    $cond: [
+                      {
+                        $lt: [
+                          "$$offer.discountValue",
+                          { $multiply: ["$variants.salePrice", 0.9] },
+                        ],
+                      },
+                      "$$offer.discountValue",
+                      0,
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+
+    // -----------------------------
+    // FINAL OFFER + FINAL PRICE
+    // -----------------------------
+    {
+      $addFields: {
+        offer: {
+          $ceil: {
+            $max: [
+              { $ifNull: ["$productOfferValue", 0] },
+              { $ifNull: ["$brandOfferValue", 0] },
+            ],
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        finalPrice: {
+          $subtract: ["$variants.salePrice", "$offer"],
+        },
+      },
+    },
   ];
 
-  // Count total matching products
-  const countPipeline = [...basePipeline];
-  if (Object.keys(sortStage).length) countPipeline.push({ $sort: sortStage });
-  if (Object.keys(priceStage).length)
-    countPipeline.push({ $match: { "variants.salePrice": priceStage } });
-  countPipeline.push({ $count: "totalDocuments" });
-
+  // -----------------------------
+  // COUNT PIPELINE
+  // -----------------------------
+  const countPipeline = [...basePipeline, { $count: "totalDocuments" }];
   const countResult = await countShopProductsAgg(countPipeline);
   const totalDocuments = countResult[0]?.totalDocuments || 0;
   const totalPages = Math.ceil(totalDocuments / limit);
 
-  // Build product page results
+  // -----------------------------
+  // PRODUCT PIPELINE
+  // -----------------------------
   const productPipeline = [...basePipeline];
-  if (Object.keys(sortStage).length) productPipeline.push({ $sort: sortStage });
-  if (Object.keys(priceStage).length)
-    productPipeline.push({ $match: { "variants.salePrice": priceStage } });
+
+  if (Object.keys(sortStage).length) {
+    productPipeline.push({ $sort: sortStage });
+  }
 
   productPipeline.push({ $skip: skip }, { $limit: limit });
 
   const products = await getShopProductsAgg(productPipeline);
 
-  // Apply offers to products
-  for (let product of products) {
-    product.offer = getAppliedOffer(product, product?.variants?.salePrice);
-  }
-
-  // Attach wishlist and cart status
+  // -----------------------------
+  // Wishlist & Cart Status
+  // -----------------------------
   const wishlist = userId ? await fetchWishlist(userId) : null;
   const cart = userId ? await findUserCart(userId) : null;
 
@@ -169,6 +287,9 @@ export const loadShopService = async (query, userId = null) => {
 
   const brands = await getAllListedBrands();
 
+  // -----------------------------
+  // RETURN
+  // -----------------------------
   return {
     products: finalProducts,
     brands,
