@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # 7. Start app 
-CMD ["node", "app.js"]
+CMD ["node", "main.js"]
