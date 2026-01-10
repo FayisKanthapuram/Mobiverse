@@ -7,7 +7,7 @@ WORKDIR /app
 # 3. Copy dependency files first (for caching)
 COPY package*.json ./
 
-# 4. Install dependencies (CI best practice)
+# 4. Install dependencies 
 RUN npm ci
 
 # 5. Copy rest of the source code
@@ -16,5 +16,5 @@ COPY . .
 # 6. App port
 EXPOSE 3000
 
-# 7. Start app (NO nodemon in prod)
+# 7. Start app 
 CMD ["node", "app.js"]
