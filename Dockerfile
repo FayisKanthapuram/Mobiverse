@@ -2,7 +2,7 @@
 FROM node:20-alpine
 
 # 2. Inside-container working folder
-WORKDIR /app
+WORKDIR /
 
 # 3. Copy dependency files first (for caching)
 COPY package*.json ./
