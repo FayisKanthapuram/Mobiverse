@@ -8,7 +8,7 @@ export const limiter = rateLimit({
     : 1 * 60 * 1000, // 1 minute (development)
 
   max: isProduction
-    ? 100 // stricter in production
+    ? 300 // stricter in production
     : 1000, // relaxed in development
 
   standardHeaders: true, // Return rate limit info in headers

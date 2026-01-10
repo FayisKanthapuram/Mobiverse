@@ -31,7 +31,7 @@ export const addAddressService = async (user, body) => {
     throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  const addressData = { ...body, userId:user._id };
+  const addressData = { ...body, userId: user._id };
 
   if (body.setDefault) {
     await unsetDefaultAddress(user._id);
@@ -55,7 +55,7 @@ export const editAddressService = async (user, addressId, body) => {
     throw new AppError(AddressMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
-  const updatedAddress = { ...body, userId:user._id };
+  const updatedAddress = { ...body, userId: user._id };
 
   if (body.setDefault) {
     await unsetDefaultAddress(user._id);

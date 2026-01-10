@@ -1,0 +1,36 @@
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Check Docker installation
+        run: docker --version
+
+      - name: Create .env file on server
+        run: echo "${{ secrets.APP_ENV }}" > /home/ubuntu/.env
+
+      - name: Pull latest image
+        run: docker pull ${{ secrets.DOCKER_USERNAME }}/mobiverse:latest
+
+      - name: Remove old container
+        run: docker rm -f mobiverse-container || true
+
+      - name: Free up docker storage
+        run: docker image prune -f
+
+      - name: Run Docker container
+        run: |
+          docker run -d \
+          --restart unless-stopped \
+          -p 3000:3000 \
+          --env-file /home/ubuntu/.env \
+          --name mobiverse-container \
+          ${{ secrets.DOCKER_USERNAME }}/mobiverse:latest
