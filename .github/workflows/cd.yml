@@ -28,9 +28,7 @@ jobs:
 
       - name: Run Docker container
         run: |
-          docker run -d \
-          --restart unless-stopped \
-          -p 3000:3000 \
+          docker run -d -p 3000:3000 \
           --env-file /home/ubuntu/.env \
           --name mobiverse-container \
           ${{ secrets.DOCKER_USERNAME }}/mobiverse:latest
