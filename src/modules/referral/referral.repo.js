@@ -33,11 +33,7 @@ export const updateReferralToPending = (
 };
 
 // Update the referral's firstOrder field
-export const updateReferralOrderId = (
-  referralId,
-  orderId,
-  session = null
-) => {
+export const updateReferralOrderId = (referralId, orderId, session = null) => {
   return Referral.findByIdAndUpdate(
     referralId,
     {
@@ -78,11 +74,14 @@ export const updateReferralToCompleted = (referralId, ledgerId, session) => {
 
 // Fetch referrals for a referrer with pagination
 export const findReferralsByUserId = (referrer, skip, limit) => {
-  return Referral.find({ referrer }).skip(skip).limit(limit).populate("referredUser");
+  return Referral.find({ referrer })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .populate("referredUser");
 };
 
 // Count total referrals for a referrer
 export const findTotalReferralsCount = (referrer) => {
   return Referral.countDocuments({ referrer });
 };
-
