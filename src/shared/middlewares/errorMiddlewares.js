@@ -1,6 +1,5 @@
 // STATIC FILE 404 HANDLER (before global 404)
 export function staticFile404(req, res, next) {
-  // Handle missing static assets only
   if (req.method === "GET" && /^\/(uploads|images|css|js)\//.test(req.path)) {
     console.log(`🧱 Missing static file: ${req.path}`);
     return res.status(404).send("File missing");
@@ -17,19 +16,20 @@ export function notFound(req, res, next) {
 
 // GLOBAL ERROR HANDLER
 export function errorHandler(err, req, res, next) {
-  
   const status = err.status || 500;
   console.error("❌ ERROR:", err);
+
   /* ----------------------------------------------------
      🔥 AJAX / API REQUESTS (Axios, Fetch, XHR)
   ---------------------------------------------------- */
   if (req.xhr || req.headers.accept?.includes("json")) {
     return res.status(status).json({
       success: false,
-      message:
-        process.env.NODE_ENV === "production"
-          ? "Something went wrong"
-          : err.message || "Internal server error",
+      message: err.isOperational
+        ? err.message
+        : process.env.NODE_ENV === "production"
+        ? "Something went wrong"
+        : err.message || "Internal server error",
     });
   }
 
@@ -45,10 +45,11 @@ export function errorHandler(err, req, res, next) {
 
     return res.status(status).render("admin/error/error", {
       pageTitle: `${status} Error`,
-      message:
-        process.env.NODE_ENV === "production"
-          ? "Something went wrong"
-          : err.message,
+      message: err.isOperational
+        ? err.message
+        : process.env.NODE_ENV === "production"
+        ? "Something went wrong"
+        : err.message,
     });
   }
 
@@ -63,9 +64,10 @@ export function errorHandler(err, req, res, next) {
 
   return res.status(status).render("user/error/error", {
     pageTitle: `${status} Error`,
-    message:
-      process.env.NODE_ENV === "production"
-        ? "Something went wrong"
-        : err.message,
+    message: err.isOperational
+      ? err.message
+      : process.env.NODE_ENV === "production"
+      ? "Something went wrong"
+      : err.message,
   });
 }
