@@ -1,3 +1,6 @@
+import { AppError } from "../utils/app.error.js";
+import { HttpStatus } from "../constants/statusCode.js";
+
 // STATIC FILE 404 HANDLER (before global 404)
 export function staticFile404(req, res, next) {
   if (req.method === "GET" && /^\/(uploads|images|css|js)\//.test(req.path)) {
@@ -9,8 +12,7 @@ export function staticFile404(req, res, next) {
 
 // GLOBAL 404 HANDLER (for routes)
 export function notFound(req, res, next) {
-  const error = new Error("Page not found");
-  error.status = 404;
+  const error = new AppError("Page not found", HttpStatus.NOT_FOUND);
   next(error);
 }
 

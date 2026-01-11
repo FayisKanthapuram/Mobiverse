@@ -1,6 +1,8 @@
 import multer from "multer";
 import cloudinary from "../../config/cloudinary.js";
 import path from "path";
+import { AppError } from "../utils/app.error.js";
+import { HttpStatus } from "../constants/statusCode.js";
 
 // Multer memory storage
 const storage = multer.memoryStorage();
@@ -10,7 +12,7 @@ const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
   const allowed = /jpeg|jpg|png|webp|svg/;
   if (allowed.test(ext)) cb(null, true);
-  else cb(new Error("Only image files are allowed"));
+  else cb(new AppError("Only image files are allowed", HttpStatus.UNPROCESSABLE_ENTITY));
 };
 
 const uploadFile = multer({ storage, fileFilter });

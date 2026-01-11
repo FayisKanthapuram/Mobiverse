@@ -1,4 +1,6 @@
 import Joi from "joi";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { AppError } from "../../shared/utils/app.error.js";
 
 // Product validation schemas
 // Product creation/update validation schema
@@ -25,7 +27,7 @@ export const productValidationSchema = Joi.object({
       try {
         const parsed = JSON.parse(value);
         if (!Array.isArray(parsed) || parsed.length === 0) {
-          throw new Error("At least one variant is required");
+          throw new AppError("At least one variant is required", HttpStatus.BAD_REQUEST);
         }
 
         const variantSchema = Joi.object({
@@ -43,8 +45,9 @@ export const productValidationSchema = Joi.object({
             .custom((value, helpers) => {
               const { salePrice } = helpers.state.ancestors[0];
               if (value !== undefined && value !== "" && value <= salePrice) {
-                throw new Error(
-                  "Regular price must be greater than sale price"
+                throw new AppError(
+                  "Regular price must be greater than sale price",
+                  HttpStatus.BAD_REQUEST
                 );
               }
               return value;
@@ -75,7 +78,7 @@ export const productValidationSchema = Joi.object({
             abortEarly: false,
           });
           if (error) {
-            throw new Error(`Variant ${i + 1}: ${error.message}`);
+            throw new AppError(`Variant ${i + 1}: ${error.message}`, HttpStatus.BAD_REQUEST);
           }
         }
 

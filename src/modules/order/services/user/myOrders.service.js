@@ -6,6 +6,7 @@ import {
   saveOrder,
 } from "../../repo/order.repo.js";
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
+import { AppError } from "../../../../shared/utils/app.error.js";
 import { OrderItemsSchema } from "../../order.validator.js";
 import { incrementVariantStock } from "../../../product/repo/variant.repo.js";
 import { updateUserWalletBalance } from "../../../user/user.repo.js";
@@ -201,9 +202,7 @@ export const loadOrderDetailsService = async (orderId) => {
   const order = await findOrderByOrderIdWithUser(orderId);
 
   if (!order) {
-    const err = new Error(OrderMessages.ORDER_NOT_FOUND);
-    err.status = 404;
-    throw err;
+    throw new AppError(OrderMessages.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   return order;
@@ -225,9 +224,7 @@ export const loadInvoiceService = async (orderId) => {
   orders.finalAmount = orders.subtotal - orders.discount;
 
   if (!orders) {
-    const err = new Error(OrderMessages.ORDER_NOT_FOUND);
-    err.status = 404;
-    throw err;
+    throw new AppError(OrderMessages.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
 
   return {

@@ -8,6 +8,7 @@ import {
 } from "./address.service.js";
 import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AddressMessages } from "../../shared/constants/messages/addressMessages.js";
+import { AppError } from "../../shared/utils/app.error.js";
 
 // Address controller - handle address-related HTTP requests
 
@@ -27,9 +28,7 @@ export const loadManageAddress = async (req, res) => {
 export const addAddress = async (req, res) => {
   const { error } = addressSchema.validate(req.body);
   if (error) {
-    const err = new Error(error.details[0].message);
-    err.status = HttpStatus.BAD_REQUEST;
-    throw err;
+    throw new AppError(error.details[0].message, HttpStatus.BAD_REQUEST);
   }
 
   await addAddressService(req?.user, req.body);
@@ -46,9 +45,7 @@ export const editAddress = async (req, res) => {
 
   const { error } = addressSchema.validate(req.body);
   if (error) {
-    const err = new Error(error.details[0].message);
-    err.status = HttpStatus.BAD_REQUEST;
-    throw err;
+    throw new AppError(error.details[0].message, HttpStatus.BAD_REQUEST);
   }
 
   await editAddressService(req?.user, addressId, req.body);

@@ -5,6 +5,8 @@ import cloudinary from "../../config/cloudinary.js";
 import { DEFAULT_USER_AVATAR } from "../../shared/constants/assets.js";
 import { createOtp, sendOtpEmail } from "../user-auth/auth.helper.js";
 import { UserMessages } from "../../shared/constants/messages/userMessages.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
+import { AppError } from "../../shared/utils/app.error.js";
 
 // User service - profile and account operations
 // Fetch user profile by id
@@ -48,13 +50,13 @@ export const requestEmailChangeService = async (
 ) => {
   const existUser = await findUserByEmail(newEmail);
   if (existUser) {
-    throw new Error(UserMessages.USER_ALREADY_EXISTS_EMAIL);
+    throw new AppError(UserMessages.USER_ALREADY_EXISTS_EMAIL, HttpStatus.CONFLICT);
   }
 
   const { otp, expiry } = createOtp();
 
   const sent = await sendOtpEmail(newEmail, otp, "changeEmail");
-  if (!sent) throw new Error(UserMessages.FAILED_SEND_OTP);
+  if (!sent) throw new AppError(UserMessages.FAILED_SEND_OTP, HttpStatus.INTERNAL_SERVER_ERROR);
   console.log("Change Email OTP: ",otp)
 
   session.oldEmail = oldEmail;
@@ -67,11 +69,11 @@ export const requestEmailChangeService = async (
 // Verify OTP and update email
 export const verifyEmailOtpService = async (otp, session) => {
   if (!session.otp || !session.oldEmail || !session.newEmail) {
-    throw new Error(UserMessages.OTP_NOT_FOUND);
+    throw new AppError(UserMessages.OTP_NOT_FOUND, HttpStatus.BAD_REQUEST);
   }
 
-  if (Date.now() > session.otpExpiry) throw new Error(UserMessages.OTP_EXPIRED);
-  if (otp !== session.otp) throw new Error(UserMessages.INCORRECT_OTP);
+  if (Date.now() > session.otpExpiry) throw new AppError(UserMessages.OTP_EXPIRED, HttpStatus.BAD_REQUEST);
+  if (otp !== session.otp) throw new AppError(UserMessages.INCORRECT_OTP, HttpStatus.BAD_REQUEST);
 
   const user = await findUserByEmail(session.oldEmail);
   user.email = session.newEmail;
@@ -86,11 +88,11 @@ export const verifyEmailOtpService = async (otp, session) => {
 };
 // Resend email change OTP
 export const resendEmailOtpService = async (session) => {
-  if (!session.newEmail) throw new Error(UserMessages.USER_DATA_NOT_FOUND);
+  if (!session.newEmail) throw new AppError(UserMessages.USER_DATA_NOT_FOUND, HttpStatus.BAD_REQUEST);
 
   const { otp, expiry } = createOtp();
   const sent = await sendOtpEmail(session.newEmail, otp, "resendChangeEmail");
-  if (!sent) throw new Error(UserMessages.FAILED_RESEND_OTP);
+  if (!sent) throw new AppError(UserMessages.FAILED_RESEND_OTP, HttpStatus.INTERNAL_SERVER_ERROR);
   console.log("Change Email Resend OTP: ", otp);
 
   session.otp = otp;
@@ -106,7 +108,7 @@ export const updatePasswordService = async (
 ) => {
   const user = await findUserById(userId);
   const isMatch = await bcrypt.compare(currentPassword, user.password);
-  if (!isMatch) throw new Error(UserMessages.CURRENT_PASSWORD_MISMATCH);
+  if (!isMatch) throw new AppError(UserMessages.CURRENT_PASSWORD_MISMATCH, HttpStatus.BAD_REQUEST);
 
   const hashed = await bcrypt.hash(newPassword, 10);
   user.password = hashed;

@@ -1,4 +1,5 @@
 import { HttpStatus } from "../../../../shared/constants/statusCode.js";
+import { AppError } from "../../../../shared/utils/app.error.js";
 import { orderValidation } from "../../order.validator.js";
 
 import { findAddressById } from "../../../address/address.repo.js";
@@ -58,8 +59,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
 
     // Fetch and validate shipping address
     const address = await findAddressById(addressId);
-    if (!address)
-      throw { status: HttpStatus.NOT_FOUND, message: "Address not found" };
+    if (!address) throw new AppError("Address not found", HttpStatus.NOT_FOUND);
 
     // Fetch cart items for user
     const items = await fetchCartItems(userId);
@@ -67,8 +67,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
     for (let item of items) {
       item.offer = getAppliedOffer(item, item?.variantId?.salePrice) || 0;
     }
-    if (!items.length)
-      throw { status: HttpStatus.BAD_REQUEST, message: "Your cart is empty" };
+    if (!items.length) throw new AppError("Your cart is empty", HttpStatus.BAD_REQUEST);
     const cartTotals = await calculateCartTotals(userId, items);
 
     if (cartTotals.hasAdjustedItem) {
@@ -104,11 +103,10 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       paymentMethod === "cod" &&
       finalAmount - appliedCoupon?.discount >= 20000
     ) {
-      throw {
-        status: HttpStatus.BAD_REQUEST,
-        success: false,
-        message: "Cash on Delivery is allowed only for orders below ₹20,000",
-      };
+      throw new AppError(
+        "Cash on Delivery is allowed only for orders below ₹20,000",
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     const orderedItems = items.map((item) => ({
@@ -137,10 +135,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
       const wallet = await findWalletByUserId(userId, session);
 
       if (!wallet || wallet.balance - wallet.holdBalance < finalAmount) {
-        throw {
-          status: HttpStatus.BAD_REQUEST,
-          message: "Insufficient wallet balance",
-        };
+        throw new AppError("Insufficient wallet balance", HttpStatus.BAD_REQUEST);
       }
 
       // Increase holdBalance
@@ -222,10 +217,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
         await session.abortTransaction();
         session.endSession();
 
-        throw {
-          status: HttpStatus.BAD_REQUEST,
-          message: "razorpay payment failed",
-        };
+        throw new AppError("razorpay payment failed", HttpStatus.BAD_REQUEST);
       }
     }
 
@@ -322,10 +314,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           await incrementVariantStock(item.variantId, item.quantity, session);
         }
 
-        throw {
-          status: HttpStatus.BAD_REQUEST,
-          message: "Wallet payment failed",
-        };
+        throw new AppError("Wallet payment failed", HttpStatus.BAD_REQUEST);
       }
     }
 
@@ -370,7 +359,7 @@ export const retryPaymentService = async (tempOrderId) => {
   try {
     const tempOrder = await findTempOrderById(tempOrderId);
     if (!tempOrder) {
-      return res.json({ success: false, message: "Order not found" });
+      throw new AppError("Order not found", HttpStatus.NOT_FOUND);
     }
 
     const razorpayOrder = await createRazorpayOrderService({
@@ -398,10 +387,7 @@ export const retryPaymentService = async (tempOrderId) => {
     await session.abortTransaction();
     session.endSession();
     console.log(error);
-    throw {
-      status: HttpStatus.BAD_REQUEST,
-      message: "razorpay payment failed",
-    };
+    throw new AppError("razorpay payment failed", HttpStatus.BAD_REQUEST);
   }
 };
 
@@ -409,9 +395,7 @@ export const retryPaymentService = async (tempOrderId) => {
 export const loadOrderSuccessService = async (orderId) => {
   const order = await findOrderByOrderId(orderId);
   if (!order) {
-    const err = new Error("Order not found");
-    err.status = HttpStatus.NOT_FOUND;
-    throw err;
+    throw new AppError("Order not found", HttpStatus.NOT_FOUND);
   }
 
   return order;
@@ -421,9 +405,7 @@ export const loadOrderSuccessService = async (orderId) => {
 export const loadOrderFailureService = async (orderId) => {
   const order = await findTempOrderById(orderId);
   if (!order) {
-    const err = new Error("Order not found");
-    err.status = HttpStatus.NOT_FOUND;
-    throw err;
+    throw new AppError("Order not found", HttpStatus.NOT_FOUND);
   }
 
   return order;

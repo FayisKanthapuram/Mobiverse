@@ -2,6 +2,8 @@ import { generateOtp } from "../../shared/utils/otp.js";
 import { sendEmail } from "../../shared/utils/mailer.util.js";
 import { renderEmailTemplate } from "../../shared/utils/emailRenderer.util.js";
 import { LOGONAME } from "../../shared/constants/assets.js";
+import { AppError } from "../../shared/utils/app.error.js";
+import { HttpStatus } from "../../shared/constants/statusCode.js";
 
 export const createOtp = () => ({
   otp: generateOtp(),
@@ -45,7 +47,7 @@ export const sendOtpEmail = async ( email, otp, type = "signup" ) => {
   };
 
   const config = configMap[type];
-  if (!config) throw new Error("Invalid OTP email type");
+  if (!config) throw new AppError("Invalid OTP email type", HttpStatus.BAD_REQUEST);
 
   const html = renderEmailTemplate("otp-email.html", {
     TITLE: config.title,
