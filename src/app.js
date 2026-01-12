@@ -38,7 +38,7 @@ app.use(passport.session());
 
 // user middleware
 app.use(setUser);
-app.use(limiter);
+// app.use(limiter);
 
 // Static + views
 app.use(express.static(path.join(__dirname, "../public")));
