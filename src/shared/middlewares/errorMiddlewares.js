@@ -1,28 +1,41 @@
 import { AppError } from "../utils/app.error.js";
 import { HttpStatus } from "../constants/statusCode.js";
 
-// STATIC FILE 404 HANDLER (before global 404)
+/* ----------------------------------------------------
+   🧱 STATIC FILE 404 HANDLER
+   (no error logging – normal browser behavior)
+---------------------------------------------------- */
 export function staticFile404(req, res, next) {
   if (req.method === "GET" && /^\/(uploads|images|css|js)\//.test(req.path)) {
-    console.log(`🧱 Missing static file: ${req.path}`);
-    return res.status(404).send("File missing");
+    return res.status(404).send("File not found");
   }
   next();
 }
 
-// GLOBAL 404 HANDLER (for routes)
+/* ----------------------------------------------------
+   🚫 GLOBAL 404 HANDLER (routes only)
+---------------------------------------------------- */
 export function notFound(req, res, next) {
-  const error = new AppError("Page not found", HttpStatus.NOT_FOUND);
-  next(error);
+  next(new AppError("Page not found", HttpStatus.NOT_FOUND));
 }
 
-// GLOBAL ERROR HANDLER
+/* ----------------------------------------------------
+   ❌ GLOBAL ERROR HANDLER
+---------------------------------------------------- */
 export function errorHandler(err, req, res, next) {
-  const status = err.status || 500;
-  console.error("❌ ERROR:", err);
+  const status = err.status || HttpStatus.INTERNAL_SERVER_ERROR;
 
   /* ----------------------------------------------------
-     🔥 AJAX / API REQUESTS (Axios, Fetch, XHR)
+     🔇 LOGGING STRATEGY (IMPORTANT)
+     - Log ONLY real server bugs
+     - Ignore normal 404 bot noise
+  ---------------------------------------------------- */
+  if (!err.isOperational && status >= 500) {
+    console.error("🔥 INTERNAL ERROR:", err);
+  }
+
+  /* ----------------------------------------------------
+     🔥 API / AJAX REQUESTS
   ---------------------------------------------------- */
   if (req.xhr || req.headers.accept?.includes("json")) {
     return res.status(status).json({
@@ -31,7 +44,7 @@ export function errorHandler(err, req, res, next) {
         ? err.message
         : process.env.NODE_ENV === "production"
         ? "Something went wrong"
-        : err.message || "Internal server error",
+        : err.message,
     });
   }
 
