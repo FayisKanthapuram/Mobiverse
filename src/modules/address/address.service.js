@@ -1,7 +1,6 @@
 import { AppError } from "../../shared/utils/app.error.js";
 import { AddressMessages } from "../../shared/constants/messages/addressMessages.js";
 import { UserMessages } from "../../shared/constants/messages/userMessages.js";
-import userModel from "../user/user.model.js";
 import {
   findAddressesByUser,
   findAddressById,

@@ -1,36 +1,23 @@
-// eslint.config.js
 import globals from "globals";
-import pluginJs from "@eslint/js";
 
 export default [
-  // Node.js backend files
+  //  IGNORE public folder completely
   {
-    files: ["server.js", "config/**/*.js", "routes/**/*.js", "controllers/**/*.js", "models/**/*.js"],
+    ignores: ["public/**"],
+  },
+
+  //  Backend / app linting
+  {
+    files: ["src/**/*.js"],
     languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
       globals: {
-        ...globals.node, // enable process, __dirname, etc.
+        ...globals.node,
       },
     },
     rules: {
-      ...pluginJs.configs.recommended.rules,
-      "no-undef": "off", // disable false 'error is not defined' warning
-      "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }], // ignore unused vars like _err
-    },
-  },
-
-  // Browser frontend files
-  {
-    files: ["public/js/**/*.js"],
-    languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
-      globals: {
-        ...globals.browser, // enable document, window, etc.
-        axios: true,        // custom global
-        Toastify: true      // custom global
-      },
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "no-console": "off",
+      "no-undef": "error",
     },
   },
 ];

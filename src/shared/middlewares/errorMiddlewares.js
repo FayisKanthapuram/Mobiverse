@@ -22,7 +22,7 @@ export function notFound(req, res, next) {
 /* ----------------------------------------------------
    ❌ GLOBAL ERROR HANDLER
 ---------------------------------------------------- */
-export function errorHandler(err, req, res, next) {
+export function errorHandler(err, req, res, _next) {
   const status = err.status || HttpStatus.INTERNAL_SERVER_ERROR;
 
   /* ----------------------------------------------------

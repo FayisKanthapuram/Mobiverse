@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/main.js",
     "dev": "nodemon src/main.js",
-    "watch:css": "tailwindcss -i public/css/tailwind/input.css -o public/css/tailwind/style.css --watch"
+    "watch:css": "tailwindcss -i public/css/tailwind/input.css -o public/css/tailwind/style.css --watch",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",

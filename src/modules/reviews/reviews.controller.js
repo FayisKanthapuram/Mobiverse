@@ -2,7 +2,7 @@ import { HttpStatus } from "../../shared/constants/statusCode.js";
 import { AppError } from "../../shared/utils/app.error.js";
 import { createReviewService } from "./reviews.service.js";
 
-export const createReview = async (req, res, next) => {
+export const createReview = async (req, res) => {
   const userId = req.user._id;
   const { orderItemId, productId, variantId, rating, comment } = req.body;
 

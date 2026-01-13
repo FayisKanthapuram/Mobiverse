@@ -23,8 +23,7 @@ function formatISTDate(date) {
       <h1 class="text-3xl font-bold text-gray-900 mb-2">Banner Management</h1>
       <p class="text-gray-600">Manage hero banners with drag-and-drop reordering</p>
     </div>
-    <a href="/admin/banners/create" 
-       class="mt-4 md:mt-0 inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+    <a href="/admin/banners/create" class="mt-4 md:mt-0 inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
       <i class="bi bi-plus-circle"></i>
       <span>Add New Banner</span>
     </a>
@@ -33,161 +32,151 @@ function formatISTDate(date) {
   <!-- Banners Grid with Drag and Drop -->
   <div id="banners-container" class="grid grid-cols-1 gap-6">
     <% if (banners && banners.length > 0) { %>
-      <% banners.forEach((banner, index) => { 
+    <% banners.forEach((banner, index) => { 
         const now = new Date();
         const isScheduled = banner.isScheduled;
         const isUpcoming = isScheduled && banner.scheduledStart && new Date(banner.scheduledStart) > now;
         const isExpired = isScheduled && banner.scheduledEnd && new Date(banner.scheduledEnd) < now;
         const isCurrentlyActive = banner.isActive && (!isScheduled || (!isUpcoming && !isExpired));
       %>
-        <div class="banner-item bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-move"
-             data-banner-id="<%= banner._id %>"
-             data-order="<%= banner.order %>">
-          <div class="flex flex-col md:flex-row">
-            <!-- Drag Handle -->
-            <div class="md:w-12 bg-gray-100 flex items-center justify-center cursor-move hover:bg-gray-200 transition-colors">
-              <i class="bi bi-grip-vertical text-2xl text-gray-400"></i>
-            </div>
+    <div class="banner-item bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow cursor-move" data-banner-id="<%= banner._id %>" data-order="<%= banner.order %>">
+      <div class="flex flex-col md:flex-row">
+        <!-- Drag Handle -->
+        <div class="md:w-12 bg-gray-100 flex items-center justify-center cursor-move hover:bg-gray-200 transition-colors">
+          <i class="bi bi-grip-vertical text-2xl text-gray-400"></i>
+        </div>
 
-            <!-- Banner Preview -->
-            <div class="md:w-2/5 bg-gray-900 relative">
-              <img src="<%= banner.images.desktop %>" 
-                   alt="<%= banner.title %>" 
-                   class="w-full h-64 md:h-full object-cover opacity-80">
-              
-              <!-- Status Badges -->
-              <div class="absolute top-4 left-4 flex flex-col gap-2">
-                <% if (isCurrentlyActive) { %>
-                  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
-                    Active
-                  </span>
-                <% } else if (isUpcoming) { %>
-                  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-500 text-white">
-                    Scheduled
-                  </span>
-                <% } else if (isExpired) { %>
-                  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-orange-500 text-white">
-                    Expired
-                  </span>
-                <% } else { %>
-                  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-500 text-white">
-                    Inactive
-                  </span>
-                <% } %>
+        <!-- Banner Preview -->
+        <div class="md:w-2/5 bg-gray-900 relative">
+          <img src="<%= banner.images.desktop %>" alt="<%= banner.title %>" class="w-full h-64 md:h-full object-cover opacity-80">
 
-                <% if (banner.images.tablet || banner.images.mobile) { %>
-                  <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-500 text-white">
-                    <i class="bi bi-phone"></i> Responsive
-                  </span>
-                <% } %>
-              </div>
+          <!-- Status Badges -->
+          <div class="absolute top-4 left-4 flex flex-col gap-2">
+            <% if (isCurrentlyActive) { %>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
+              Active
+            </span>
+            <% } else if (isUpcoming) { %>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-500 text-white">
+              Scheduled
+            </span>
+            <% } else if (isExpired) { %>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-orange-500 text-white">
+              Expired
+            </span>
+            <% } else { %>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-500 text-white">
+              Inactive
+            </span>
+            <% } %>
 
-              <div class="absolute top-4 right-4">
-                <span class="px-3 py-1 text-xs font-semibold bg-blue-500 text-white rounded-full">
-                  #<%= banner.order %>
-                </span>
-              </div>
-            </div>
+            <% if (banner.images.tablet || banner.images.mobile) { %>
+            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-500 text-white">
+              <i class="bi bi-phone"></i> Responsive
+            </span>
+            <% } %>
+          </div>
 
-            <!-- Banner Details -->
-            <div class="md:w-3/5 p-6">
-              <div class="mb-4">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2"><%= banner.title %></h3>
-                <p class="text-gray-600"><%= banner.subtitle %></p>
-              </div>
-
-              <div class="space-y-3 mb-6">
-                <% if (banner.link) { %>
-                  <div class="flex items-center gap-2 text-sm">
-                    <i class="bi bi-link-45deg text-blue-600"></i>
-                    <span class="text-gray-700">Link: </span>
-                    <code class="bg-gray-100 px-2 py-1 rounded text-xs"><%= banner.link %></code>
-                  </div>
-                <% } %>
-
-                <% if (isScheduled) { %>
-                  <div class="flex items-start gap-2 text-sm">
-                    <i class="bi bi-calendar-event text-blue-600 mt-0.5"></i>
-                    <div>
-                      <span class="text-gray-700">Schedule (IST): </span>
-                      <div class="mt-1 space-y-1">
-                        <% if (banner.scheduledStart) { %>
-                          <div class="text-xs text-gray-600">
-                            <strong>Start:</strong> <%= formatISTDate(banner.scheduledStart) %>
-                          </div>
-                        <% } %>
-                        <% if (banner.scheduledEnd) { %>
-                          <div class="text-xs text-gray-600">
-                            <strong>End:</strong> <%= formatISTDate(banner.scheduledEnd) %>
-                          </div>
-                        <% } %>
-                      </div>
-                    </div>
-                  </div>
-                <% } %>
-
-                <!-- Responsive Images Info -->
-                <% if (banner.images.tablet || banner.images.mobile) { %>
-                  <div class="flex items-center gap-2 text-sm">
-                    <i class="bi bi-aspect-ratio text-blue-600"></i>
-                    <span class="text-gray-700">Images: </span>
-                    <div class="flex gap-1">
-                      <span class="px-2 py-0.5 text-xs bg-gray-100 rounded">Desktop</span>
-                      <% if (banner.images.tablet) { %>
-                        <span class="px-2 py-0.5 text-xs bg-gray-100 rounded">Tablet</span>
-                      <% } %>
-                      <% if (banner.images.mobile) { %>
-                        <span class="px-2 py-0.5 text-xs bg-gray-100 rounded">Mobile</span>
-                      <% } %>
-                    </div>
-                  </div>
-                <% } %>
-
-                <div class="flex items-center gap-2 text-sm">
-                  <i class="bi bi-calendar-check text-blue-600"></i>
-                  <span class="text-gray-700">Created: </span>
-                  <span class="text-gray-600"><%= new Date(banner.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }) %></span>
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-3">
-                <a href="/admin/banners/edit/<%= banner._id %>" 
-                   class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  <i class="bi bi-pencil-square"></i>
-                  <span>Edit</span>
-                </a>
-
-                <button type="button"
-                        onclick="toggleBannerStatus('<%= banner._id %>', <%= banner.isActive %>)"
-                        class="inline-flex items-center gap-2 px-4 py-2 <%= banner.isActive ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700' %> text-white rounded-lg transition-colors">
-                  <i class="bi bi-<%= banner.isActive ? 'eye-slash' : 'eye' %>"></i>
-                  <span><%= banner.isActive ? 'Deactivate' : 'Activate' %></span>
-                </button>
-
-                <button type="button"
-                        onclick="confirmDelete('<%= banner._id %>')"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                  <i class="bi bi-trash"></i>
-                  <span>Delete</span>
-                </button>
-              </div>
-            </div>
+          <div class="absolute top-4 right-4">
+            <span class="px-3 py-1 text-xs font-semibold bg-blue-500 text-white rounded-full">
+              #<%= banner.order %>
+            </span>
           </div>
         </div>
-      <% }) %>
-    <% } else { %>
-      <!-- Empty State -->
-      <div class="bg-white rounded-xl shadow-md p-12 text-center">
-        <i class="bi bi-megaphone text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">No Banners Yet</h3>
-        <p class="text-gray-600 mb-6">Create your first banner to display on the home page</p>
-        <a href="/admin/banners/create" 
-           class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-          <i class="bi bi-plus-circle"></i>
-          <span>Create Banner</span>
-        </a>
+
+        <!-- Banner Details -->
+        <div class="md:w-3/5 p-6">
+          <div class="mb-4">
+            <h3 class="text-2xl font-bold text-gray-900 mb-2"><%= banner.title %></h3>
+            <p class="text-gray-600"><%= banner.subtitle %></p>
+          </div>
+
+          <div class="space-y-3 mb-6">
+            <% if (banner.link) { %>
+            <div class="flex items-center gap-2 text-sm">
+              <i class="bi bi-link-45deg text-blue-600"></i>
+              <span class="text-gray-700">Link: </span>
+              <code class="bg-gray-100 px-2 py-1 rounded text-xs"><%= banner.link %></code>
+            </div>
+            <% } %>
+
+            <% if (isScheduled) { %>
+            <div class="flex items-start gap-2 text-sm">
+              <i class="bi bi-calendar-event text-blue-600 mt-0.5"></i>
+              <div>
+                <span class="text-gray-700">Schedule (IST): </span>
+                <div class="mt-1 space-y-1">
+                  <% if (banner.scheduledStart) { %>
+                  <div class="text-xs text-gray-600">
+                    <strong>Start:</strong> <%= formatISTDate(banner.scheduledStart) %>
+                  </div>
+                  <% } %>
+                  <% if (banner.scheduledEnd) { %>
+                  <div class="text-xs text-gray-600">
+                    <strong>End:</strong> <%= formatISTDate(banner.scheduledEnd) %>
+                  </div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+            <% } %>
+
+            <!-- Responsive Images Info -->
+            <% if (banner.images.tablet || banner.images.mobile) { %>
+            <div class="flex items-center gap-2 text-sm">
+              <i class="bi bi-aspect-ratio text-blue-600"></i>
+              <span class="text-gray-700">Images: </span>
+              <div class="flex gap-1">
+                <span class="px-2 py-0.5 text-xs bg-gray-100 rounded">Desktop</span>
+                <% if (banner.images.tablet) { %>
+                <span class="px-2 py-0.5 text-xs bg-gray-100 rounded">Tablet</span>
+                <% } %>
+                <% if (banner.images.mobile) { %>
+                <span class="px-2 py-0.5 text-xs bg-gray-100 rounded">Mobile</span>
+                <% } %>
+              </div>
+            </div>
+            <% } %>
+
+            <div class="flex items-center gap-2 text-sm">
+              <i class="bi bi-calendar-check text-blue-600"></i>
+              <span class="text-gray-700">Created: </span>
+              <span class="text-gray-600"><%= new Date(banner.createdAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }) %></span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-3">
+            <a href="/admin/banners/edit/<%= banner._id %>" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="bi bi-pencil-square"></i>
+              <span>Edit</span>
+            </a>
+
+            <button type="button" onclick="toggleBannerStatus('<%= banner._id %>', <%= banner.isActive %>)" class="inline-flex items-center gap-2 px-4 py-2 <%= banner.isActive ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700' %> text-white rounded-lg transition-colors">
+              <i class="bi bi-<%= banner.isActive ? 'eye-slash' : 'eye' %>"></i>
+              <span><%= banner.isActive ? 'Deactivate' : 'Activate' %></span>
+            </button>
+
+            <button type="button" onclick="confirmDelete('<%= banner._id %>')" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+              <i class="bi bi-trash"></i>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
+    <% }) %>
+    <% } else { %>
+    <!-- Empty State -->
+    <div class="bg-white rounded-xl shadow-md p-12 text-center">
+      <i class="bi bi-megaphone text-6xl text-gray-300 mb-4"></i>
+      <h3 class="text-xl font-semibold text-gray-900 mb-2">No Banners Yet</h3>
+      <p class="text-gray-600 mb-6">Create your first banner to display on the home page</p>
+      <a href="/admin/banners/create" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+        <i class="bi bi-plus-circle"></i>
+        <span>Create Banner</span>
+      </a>
+    </div>
     <% } %>
   </div>
 </div>

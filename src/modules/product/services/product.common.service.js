@@ -11,7 +11,7 @@ import {
 // Product common service - shared product operations
 // Get latest products with offers and cart/wishlist status
 export const getLatestProducts = async (limit, userId) => {
-  const latestProducts = await getLatestProductsAgg(limit, userId);
+  const latestProducts = await getLatestProductsAgg(limit);
   for (let product of latestProducts) {
     product.offer = getAppliedOffer(product, product?.variants?.salePrice);
   }
@@ -27,7 +27,7 @@ export const getLatestProducts = async (limit, userId) => {
 
 // Get featured products with offers and cart/wishlist status
 export const getFeaturedProducts = async (userId) => {
-  const featuredProducts = await getFeaturedProductsAgg(userId);
+  const featuredProducts = await getFeaturedProductsAgg();
   for (let product of featuredProducts) {
     product.offer = getAppliedOffer(product, product?.variants?.salePrice);
   }

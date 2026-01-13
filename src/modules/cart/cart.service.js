@@ -2,7 +2,6 @@ import {
   addItemToCart,
   fetchCartItems,
   findCartItem,
-  findUserCart,
   getCartItemsCount,
   removeCartItem,
   updateCartItemQuantity,
@@ -68,7 +67,6 @@ export const addToCartService = async (userId, body) => {
       status: HttpStatus.CONFLICT,
       success: true,
       message: CartMessages.ALREADY_IN_CART,
-      cartCount: await getCartItemsCount(userId),
     };
   }
 

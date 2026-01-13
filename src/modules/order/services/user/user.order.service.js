@@ -213,7 +213,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
           amount: razorpayOrder.amount,
           tempOrderId: tempOrder._id,
         };
-      } catch (error) {
+      } catch  {
         await session.abortTransaction();
         session.endSession();
 

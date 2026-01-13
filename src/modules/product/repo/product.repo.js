@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 
 // Product repository - data access layer for products
 // Aggregate latest products with brand and variant details
-export const getLatestProductsAgg = (limit = 5, userId = null) => {
+export const getLatestProductsAgg = (limit = 5) => {
   return productModel.aggregate([
     {
       $lookup: {
@@ -139,7 +139,7 @@ export const getLatestProductsAgg = (limit = 5, userId = null) => {
 };
 
 // Aggregate featured products with brand and variant details
-export const getFeaturedProductsAgg = (userId = null) => {
+export const getFeaturedProductsAgg = () => {
   return productModel.aggregate([
     {
       $lookup: {
