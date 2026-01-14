@@ -7,18 +7,18 @@ export const createOrder = (orderData) => {
 };
 
 // Find order by order ID with populated items
-export const findOrderByOrderId = (orderId) => {
-  return Order.findOne({ orderId })
+export const findOrderByOrderId = (orderId, userId) => {
+  return Order.findOne({ orderId, userId })
     .populate("orderedItems.productId")
     .populate("orderedItems.variantId");
 };
 
 // Get aggregated order transactions with pagination
-export const getOrderTransations = (pipeline,skip,limit) => {
+export const getOrderTransations = (pipeline, skip, limit) => {
   return Order.aggregate([...pipeline, { $skip: skip }, { $limit: limit }]);
 };
 
-export const getOrderTransationsTotal=(pipeline)=>{
+export const getOrderTransationsTotal = (pipeline) => {
   return Order.aggregate([
     ...pipeline,
     {
@@ -31,7 +31,7 @@ export const getOrderTransationsTotal=(pipeline)=>{
       },
     },
   ]);
-}
+};
 
 // Find all orders for a user
 export const findUserOrders = (query) => {
@@ -46,7 +46,6 @@ export const findOrderById = (orderId) => {
   return Order.findById(orderId);
 };
 
-
 export const saveOrder = (order) => {
   return order.save();
 };
@@ -59,19 +58,19 @@ export const findOrderByIdWithItems = (orderId) => {
 };
 
 // Find order with user information
-export const findOrderByOrderIdWithUser = (orderId) => {
-  return Order.findOne({ orderId })
+export const findOrderByOrderIdWithUser = (orderId, userId) => {
+  return Order.findOne({ orderId, userId })
     .populate("orderedItems.productId")
     .populate("orderedItems.variantId")
     .populate("userId");
 };
 
 // Find order with delivered items aggregated pipeline
-export const findOrderByOrderIdWithDeliveredItems = (orderId) => {
+export const findOrderByOrderIdWithDeliveredItems = (orderId, userId) => {
   return Order.aggregate([
     // 1️⃣ Match order
     {
-      $match: { orderId },
+      $match: { orderId, userId },
     },
 
     // 2️⃣ Keep only Delivered / ReturnRequested / ReturnRejected items

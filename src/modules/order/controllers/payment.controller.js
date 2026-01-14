@@ -21,6 +21,6 @@ export const verifyRazorpayPayment = async (req, res) => {
 
 // Delete temporary order
 export const deleteTemperoryOrder=async(req,res)=>{
-  await deleteTempOrder(req.params.id);
+  await deleteTempOrder(req.params.orderId);
   res.status(HttpStatus.OK).json({ success:true });
 }

@@ -69,7 +69,7 @@ export const loadMyOrdersService = async (user, queryParams) => {
   };
 };
 
-export const cancelOrderItemsService = async (orderId, body) => {
+export const cancelOrderItemsService = async (orderId, body, userId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -86,7 +86,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
     const { itemIds, reason, comments } = body;
     const itemIdSet = new Set(itemIds);
 
-    const order = await findOrderByOrderId(orderId).session(session);
+    const order = await findOrderByOrderId(orderId, userId).session(session);
     if (!order) {
       return {
         status: HttpStatus.NOT_FOUND,
@@ -138,16 +138,16 @@ export const cancelOrderItemsService = async (orderId, body) => {
 
     // 💳 Wallet handling
     if (order.paymentMethod !== "cod" && refundAmount > 0) {
-      await updateWalletBalanceAndCredit(order.userId, refundAmount, session);
+      await updateWalletBalanceAndCredit(userId, refundAmount, session);
 
-      const wallet = await findWalletByUserId(order.userId, session);
+      const wallet = await findWalletByUserId(userId, session);
 
-      await updateUserWalletBalance(order.userId, wallet.balance, session);
+      await updateUserWalletBalance(userId, wallet.balance, session);
 
       await createLedgerEntry(
         {
           walletId: wallet._id,
-          userId: order.userId,
+          userId: userId,
           amount: refundAmount,
           type: "CREDIT",
           referenceId: order.orderId,
@@ -179,7 +179,7 @@ export const cancelOrderItemsService = async (orderId, body) => {
 };
 
 // Return ordered items with reason
-export const returnOrderItemsService = async (orderId, body) => {
+export const returnOrderItemsService = async (orderId, body, userId) => {
   // Validate request body
   const { error } = OrderItemsSchema.validate(body);
   if (error) {
@@ -193,7 +193,7 @@ export const returnOrderItemsService = async (orderId, body) => {
   const { itemIds, reason, comments } = body;
 
   // Fetch order by ID
-  const order = await findOrderByOrderId(orderId);
+  const order = await findOrderByOrderId(orderId, userId);
 
   if (!order) {
     return {
@@ -237,9 +237,8 @@ export const returnOrderItemsService = async (orderId, body) => {
 };
 
 // Load order details for user view
-export const loadOrderDetailsService = async (orderId) => {
-  const order = await findOrderByOrderIdWithUser(orderId);
-
+export const loadOrderDetailsService = async (orderId, userId) => {
+  const order = await findOrderByOrderIdWithUser(orderId, userId);
   if (!order) {
     throw new AppError(OrderMessages.ORDER_NOT_FOUND, HttpStatus.NOT_FOUND);
   }
@@ -248,8 +247,8 @@ export const loadOrderDetailsService = async (orderId) => {
 };
 
 // Load and calculate invoice with subtotal and discount breakdown
-export const loadInvoiceService = async (orderId) => {
-  const output = await findOrderByOrderIdWithDeliveredItems(orderId);
+export const loadInvoiceService = async (orderId,userId) => {
+  const output = await findOrderByOrderIdWithDeliveredItems(orderId, userId);
   const orders = output[0];
   // Calculate subtotal and discount
   orders.subtotal = 0;

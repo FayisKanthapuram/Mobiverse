@@ -38,7 +38,7 @@ export const verifyRazorpayPaymentService = async ({
   session.startTransaction();
 
   try {
-    const tempOrder = await findTempOrderById(tempOrderId);
+    const tempOrder = await findTempOrderById(tempOrderId, userId);
     if (!tempOrder) throw { status: 400, message: "Temp order not found" };
 
     // Verify Razorpay payment signature
@@ -54,6 +54,7 @@ export const verifyRazorpayPaymentService = async ({
 
     // Update temporary order with payment details
     await updateTempOrder(
+      userId,
       tempOrderId,
       {
         paymentStatus: "Success",
@@ -104,7 +105,7 @@ export const verifyRazorpayPaymentService = async ({
     await clearCart(userId);
 
     // Complete referral reward if applicable
-    await completeReferralReward(userId,order._id,session)
+    await completeReferralReward(userId, order._id, session);
 
     // Delete temporary order
     await deleteTempOrder(tempOrderId, session);

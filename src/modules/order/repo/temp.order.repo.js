@@ -7,14 +7,14 @@ export const createTempOrder = (data, session) => {
 };
 
 // Update temporary order
-export const updateTempOrder = (id, data, session) => {
+export const updateTempOrder = (userId,id, data, session) => {
   const options = session ? { session } : {};
-  return TempOrder.updateOne({ _id: id }, { $set: data }, { options });
+  return TempOrder.updateOne({ _id: id ,userId}, { $set: data }, { options });
 };
 
 // Find temporary order by ID
-export const findTempOrderById = (id) => {
-  return TempOrder.findById(id);
+export const findTempOrderById = (id,userId) => {
+  return TempOrder.findOne({_id:id,userId});
 };
 
 // Delete temporary order

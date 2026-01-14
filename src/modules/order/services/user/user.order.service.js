@@ -196,6 +196,7 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
         });
 
         await updateTempOrder(
+          userId,
           tempOrder._id,
           { razorpayOrderId: razorpayOrder.id },
           session
@@ -353,11 +354,11 @@ export const placeOrderService = async (userId, body, appliedCoupon) => {
   }
 };
 
-export const retryPaymentService = async (tempOrderId) => {
+export const retryPaymentService = async (tempOrderId,userId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const tempOrder = await findTempOrderById(tempOrderId);
+    const tempOrder = await findTempOrderById(tempOrderId, userId);
     if (!tempOrder) {
       throw new AppError("Order not found", HttpStatus.NOT_FOUND);
     }
@@ -368,6 +369,7 @@ export const retryPaymentService = async (tempOrderId) => {
     });
 
     await updateTempOrder(
+      userId,
       tempOrder._id,
       { razorpayOrderId: razorpayOrder.id },
       session
@@ -392,8 +394,8 @@ export const retryPaymentService = async (tempOrderId) => {
 };
 
 // Load order details after successful placement
-export const loadOrderSuccessService = async (orderId) => {
-  const order = await findOrderByOrderId(orderId);
+export const loadOrderSuccessService = async (orderId,userId) => {
+  const order = await findOrderByOrderId(orderId, userId);
   if (!order) {
     throw new AppError("Order not found", HttpStatus.NOT_FOUND);
   }
@@ -402,8 +404,8 @@ export const loadOrderSuccessService = async (orderId) => {
 };
 
 // Load temporary order on failure
-export const loadOrderFailureService = async (orderId) => {
-  const order = await findTempOrderById(orderId);
+export const loadOrderFailureService = async (orderId,userId) => {
+  const order = await findTempOrderById(orderId,userId);
   if (!order) {
     throw new AppError("Order not found", HttpStatus.NOT_FOUND);
   }

@@ -31,13 +31,13 @@ export const placeOrder = async (req, res) => {
 
 // Retry payment for an order
 export const retryPayment = async (req, res) => {
-  const result = await retryPaymentService(req.params.id);
+  const result = await retryPaymentService(req.params.orderId,req.user._id);
   res.status(result.status).json(result);
 };
 
 // Render order success page
 export const loadOrderSuccess = async (req, res) => {
-  const order = await loadOrderSuccessService(req.params.id);
+  const order = await loadOrderSuccessService(req.params.orderId, req.user._id);
 
   res.status(HttpStatus.OK).render("user/orders/orderSuccess", {
     pageTitle: "Success",
@@ -47,7 +47,7 @@ export const loadOrderSuccess = async (req, res) => {
 
 // Render order failure page
 export const loadOrderFailure = async (req, res) => {
-  const order = await loadOrderFailureService(req.params.id);
+  const order = await loadOrderFailureService(req.params.orderId, req.user._id);
 
   res.status(HttpStatus.OK).render("user/orders/orderFailed", {
     pageTitle: "Order Failed",
@@ -72,19 +72,27 @@ export const loadMyOrders = async (req, res) => {
 
 // Cancel items in an order
 export const cancelOrderItems = async (req, res) => {
-  const result = await cancelOrderItemsService(req.params.id, req.body);
+  const result = await cancelOrderItemsService(
+    req.params.orderId,
+    req.body,
+    req.user._id
+  );
   res.status(result.status).json(result);
 };
 
 // Return items from an order
 export const returnOrderItems = async (req, res) => {
-  const result = await returnOrderItemsService(req.params.id, req.body);
+  const result = await returnOrderItemsService(
+    req.params.orderId,
+    req.body,
+    req.user._id
+  );
   res.status(result.status).json(result);
 };
 
 // Render order details page
 export const loadOrderDetails = async (req, res) => {
-  const order = await loadOrderDetailsService(req.params.id);
+  const order = await loadOrderDetailsService(req.params.orderId,req.user._id);
 
   res.status(HttpStatus.OK).render("user/orders/orderDetails", {
     pageTitle: "Order Details",
@@ -94,7 +102,10 @@ export const loadOrderDetails = async (req, res) => {
 
 // Download invoice PDF
 export const downloadInvoice = async (req, res) => {
-  const { order, user } = await loadInvoiceService(req.params.id);
+  const { order, user } = await loadInvoiceService(
+    req.params.orderId,
+    req.user._id
+  );
 
   res.status(HttpStatus.OK).render("user/orders/invoice", {
     layout: false,
