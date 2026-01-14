@@ -20,6 +20,7 @@ import {
   calculateOrderPaymentStatus,
   calculateOrderStatus,
 } from "../../order.helper.js";
+import mongoose from "mongoose";
 
 // My orders service - handle user order operations
 // Load user orders with filtering
@@ -68,75 +69,113 @@ export const loadMyOrdersService = async (user, queryParams) => {
   };
 };
 
-// Cancel selected order items
 export const cancelOrderItemsService = async (orderId, body) => {
-  // Validate request body
-  const { error } = OrderItemsSchema.validate(body);
-  if (error) {
-    return {
-      status: HttpStatus.BAD_REQUEST,
-      success: false,
-      message: error.details[0].message,
-    };
-  }
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  const { itemIds, reason, comments } = body;
+  try {
+    const { error } = OrderItemsSchema.validate(body);
+    if (error) {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        success: false,
+        message: error.details[0].message,
+      };
+    }
 
-  const order = await findOrderByOrderId(orderId);
+    const { itemIds, reason, comments } = body;
+    const itemIdSet = new Set(itemIds);
 
-  if (!order) {
-    return {
-      status: HttpStatus.NOT_FOUND,
-      success: false,
-      message: OrderMessages.ORDER_NOT_FOUND,
-    };
-  }
+    const order = await findOrderByOrderId(orderId).session(session);
+    if (!order) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        success: false,
+        message: OrderMessages.ORDER_NOT_FOUND,
+      };
+    }
 
-  let refundAmount = 0;
+    let refundAmount = 0;
+    let newlyCancelledCount = 0;
 
-  for (const item of order.orderedItems) {
-    const isSelected = itemIds.includes(item._id.toString());
+    for (const item of order.orderedItems) {
+      if (!itemIdSet.has(item._id.toString())) continue;
 
-    if (isSelected) {
-      // Restore item stock to inventory
-      await incrementVariantStock(item.variantId, item.quantity);
+      // 🔐 CRITICAL: prevent double cancel
+      if (item.itemStatus === "Cancelled") continue;
 
-      // Update Item
+      newlyCancelledCount++;
+
+      await incrementVariantStock(item.variantId, item.quantity, session);
+
+      const discount = (item.couponShare || 0) + (item.offer || 0);
+
+      refundAmount += (item.price - discount) * item.quantity;
+
       item.itemStatus = "Cancelled";
       item.paymentStatus =
         order.paymentMethod === "cod" ? "Cancelled" : "Refunded";
-      item.reason = `${reason}, ${comments}`;
-      item.itemTimeline.cancelledAt = Date.now();
-      refundAmount +=
-        (item.price - item.couponShare - item.offer) * item.quantity;
+
+      item.reason = comments ? `${reason}, ${comments}` : reason;
+
+      item.itemTimeline = {
+        ...item.itemTimeline,
+        cancelledAt: new Date(),
+      };
     }
+
+    // 🚫 Nothing new was cancelled
+    if (newlyCancelledCount === 0) {
+      await session.abortTransaction();
+      session.endSession();
+
+      return {
+        status: HttpStatus.CONFLICT,
+        success: false,
+        message: "Selected items are already cancelled",
+      };
+    }
+
+    // 💳 Wallet handling
+    if (order.paymentMethod !== "cod" && refundAmount > 0) {
+      await updateWalletBalanceAndCredit(order.userId, refundAmount, session);
+
+      const wallet = await findWalletByUserId(order.userId, session);
+
+      await updateUserWalletBalance(order.userId, wallet.balance, session);
+
+      await createLedgerEntry(
+        {
+          walletId: wallet._id,
+          userId: order.userId,
+          amount: refundAmount,
+          type: "CREDIT",
+          referenceId: order.orderId,
+          note: `Refund of ₹${refundAmount} processed for cancelled items in order ${order.orderId}`,
+          balanceAfter: wallet.balance,
+        },
+        session
+      );
+    }
+
+    order.orderStatus = calculateOrderStatus(order.orderedItems);
+    order.paymentStatus = calculateOrderPaymentStatus(order.orderedItems);
+
+    await order.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      status: HttpStatus.OK,
+      success: true,
+      message: OrderMessages.ORDER_CANCELLED_SUCCESSFULLY,
+    };
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    throw err;
   }
-
-  if (order.paymentMethod !== "cod") {
-    await updateWalletBalanceAndCredit(order.userId, refundAmount);
-    const wallet = await findWalletByUserId(order.userId);
-    await updateUserWalletBalance(order.userId, wallet.balance);
-    await createLedgerEntry({
-      walletId: wallet._id,
-      userId: order.userId,
-      amount: refundAmount,
-      type: "CREDIT",
-      referenceId: order.orderId,
-      note: `Refund of ₹${refundAmount} has been processed for the cancelled order: ${order.orderId}`,
-      balanceAfter: wallet.balance,
-    });
-  }
-
-  order.orderStatus = calculateOrderStatus(order.orderedItems);
-  order.paymentStatus = calculateOrderPaymentStatus(order.orderedItems);
-
-  await saveOrder(order);
-
-  return {
-    status: HttpStatus.OK,
-    success: true,
-    message: OrderMessages.ORDER_CANCELLED_SUCCESSFULLY,
-  };
 };
 
 // Return ordered items with reason
