@@ -8,25 +8,23 @@ const productVariantSchema = new mongoose.Schema(
       index: true,
       required: true,
     },
+
     regularPrice: { type: Number, default: 0 },
+
     salePrice: {
       type: Number,
       required: true,
       min: 0,
       validate: {
         validator: function (v) {
-          if (this.regularPrice > 0 && v > this.regularPrice) {
-            return false;
-          }
-          return true;
+          return !(this.regularPrice > 0 && v > this.regularPrice);
         },
         message: "Sale price cannot be greater than regular price",
       },
     },
-    rating:{
-      type:Number,
-      default:0
-    },
+
+    rating: { type: Number, default: 0 },
+
     ram: {
       type: String,
       enum: [
@@ -43,26 +41,35 @@ const productVariantSchema = new mongoose.Schema(
       ],
       default: "4GB",
     },
+
     storage: {
       type: String,
       enum: ["16GB", "32GB", "64GB", "128GB", "256GB", "512GB", "1TB", "2TB"],
       default: "64GB",
     },
+
     colour: { type: String, trim: true, required: true },
+
+    // 🔐 ACTUAL SELLABLE STOCK
     stock: { type: Number, default: 0, min: 0 },
-    images: {
-      type: [String],
-      required: true,
-    },
+
+    // 🔐 RESERVED FOR PENDING PAYMENTS
+    reservedStock: { type: Number, default: 0, min: 0 },
+
+    images: { type: [String], required: true },
+
     discount: { type: Number, default: 0, min: 0 },
 
     isListed: {
-      type: Boolean, 
+      type: Boolean,
       required: true,
       default: true,
     },
   },
   { timestamps: true }
 );
+
+// 🚀 Fast stock queries
+productVariantSchema.index({ productId: 1, stock: 1, reservedStock: 1 });
 
 export default mongoose.model("variant", productVariantSchema);

@@ -17,7 +17,12 @@ export const couponUsageCreate = (
   couponId,
   userId,
   orderId,
-  discountAmount
+  discountAmount,
+  session = null
 ) => {
-  return couponUsageModel.create({ couponId, userId, orderId, discountAmount });
+  const options = session ? { session } : {};
+  return couponUsageModel.create(
+    [{ couponId, userId, orderId, discountAmount }],
+    options
+  );
 };

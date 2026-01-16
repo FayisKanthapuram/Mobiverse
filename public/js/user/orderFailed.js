@@ -90,9 +90,9 @@ async function retryPayment(orderId) {
 // REDIRECT FUNCTION
 // ========================================
 
-async function redirect(href, orderId) {
+async function redirect(href) {
   try {
-    const response = await axios.delete(`/order/delete/temp-order/${orderId}`);
+    const response = await axios.post(`/order/abandon-pending-payment`);
 
     if (response.data.success) {
       window.location.href = href;

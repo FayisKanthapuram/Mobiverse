@@ -20,7 +20,8 @@ export const placeOrder = async (req, res) => {
   const appliedCoupon = req.session.appliedCoupon || null;
 
   const result = await placeOrderService(userId, req.body, appliedCoupon);
-  req.session.cartCount=0;
+
+  req.session.cartCount = 0;
 
   if (req.body.paymentMethod !== "razorpay") {
     req.session.appliedCoupon = null;
@@ -50,11 +51,14 @@ export const loadOrderFailure = async (req, res) => {
   const order = await loadOrderFailureService(req.params.orderId, req.user._id);
 
   res.status(HttpStatus.OK).render("user/orders/orderFailed", {
-    pageTitle: "Order Failed",
-    pageJs:'orderFailed',
+    pageTitle:
+      order.viewType === "PENDING" ? "Payment In Progress" : "Payment Failed",
+    pageJs: "orderFailed",
     order,
+    viewType: order.viewType,
   });
 };
+
 
 // Render my orders page
 export const loadMyOrders = async (req, res) => {
@@ -113,3 +117,4 @@ export const downloadInvoice = async (req, res) => {
     user,
   });
 };
+

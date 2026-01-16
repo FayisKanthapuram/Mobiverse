@@ -75,118 +75,126 @@ export const removeCartItem = (userId, variantId) => {
   );
 };
 
-export const clearCart = (userId) => {
-  return cartModel.deleteOne({ userId });
+export const clearCart = (userId, session = null) => {
+  const options = session ? { session } : {};
+  return cartModel.deleteOne({ userId }, options);
 };
 
 
 // Fetch detailed cart items for a user
-export const fetchCartItems = (userId) => {
-  return cartModel.aggregate([
-    { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+export const fetchCartItems = (userId, session = null) => {
+  const options = session ? { session } : {};
 
-    { $unwind: "$items" },
+  return cartModel.aggregate(
+    [
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
 
-    {
-      $lookup: {
-        from: "variants",
-        localField: "items.variantId",
-        foreignField: "_id",
-        as: "variantId",
-      },
-    },
-    { $unwind: "$variantId" },
-    { $match: { "variantId.isListed": true } },
+      { $unwind: "$items" },
 
-    {
-      $lookup: {
-        from: "products",
-        localField: "items.productId",
-        foreignField: "_id",
-        as: "productId",
-      },
-    },
-    { $unwind: "$productId" },
-    { $match: { "productId.isListed": true } },
-
-    {
-      $lookup: {
-        from: "brands",
-        localField: "productId.brandID",
-        foreignField: "_id",
-        as: "brand",
-      },
-    },
-    { $unwind: "$brand" },
-    { $match: { "brand.isListed": true } },
-
-    //product offer
-    {
-      $lookup: {
-        from: "offers",
-        let: {
-          productId: "$productId._id",
-          today: new Date(),
+      {
+        $lookup: {
+          from: "variants",
+          localField: "items.variantId",
+          foreignField: "_id",
+          as: "variantId",
         },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$offerType", "product"] },
-                  { $in: ["$$productId", "$productID"] },
-                  { $lte: ["$startDate", "$$today"] },
-                  { $gte: ["$endDate", "$$today"] },
-                  { $eq: ["$isActive", true] },
-                ],
+      },
+      { $unwind: "$variantId" },
+      { $match: { "variantId.isListed": true } },
+
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.productId",
+          foreignField: "_id",
+          as: "productId",
+        },
+      },
+      { $unwind: "$productId" },
+      { $match: { "productId.isListed": true } },
+
+      {
+        $lookup: {
+          from: "brands",
+          localField: "productId.brandID",
+          foreignField: "_id",
+          as: "brand",
+        },
+      },
+      { $unwind: "$brand" },
+      { $match: { "brand.isListed": true } },
+
+      // Product offer
+      {
+        $lookup: {
+          from: "offers",
+          let: {
+            productId: "$productId._id",
+            today: new Date(),
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$offerType", "product"] },
+                    { $in: ["$$productId", "$productID"] },
+                    { $lte: ["$startDate", "$$today"] },
+                    { $gte: ["$endDate", "$$today"] },
+                    { $eq: ["$isActive", true] },
+                  ],
+                },
               },
             },
-          },
-        ],
-        as: "productOffer",
-      },
-    },
-    //brand offer
-    {
-      $lookup: {
-        from: "offers",
-        let: {
-          brandID: "$brand._id",
-          today: new Date(),
+          ],
+          as: "productOffer",
         },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$offerType", "brand"] },
-                  { $eq: ["$$brandID", "$brandID"] },
-                  { $lte: ["$startDate", "$$today"] },
-                  { $gte: ["$endDate", "$$today"] },
-                  { $eq: ["$isActive", true] },
-                ],
+      },
+
+      // Brand offer
+      {
+        $lookup: {
+          from: "offers",
+          let: {
+            brandID: "$brand._id",
+            today: new Date(),
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$offerType", "brand"] },
+                    { $eq: ["$$brandID", "$brandID"] },
+                    { $lte: ["$startDate", "$$today"] },
+                    { $gte: ["$endDate", "$$today"] },
+                    { $eq: ["$isActive", true] },
+                  ],
+                },
               },
             },
-          },
-        ],
-        as: "brandOffer",
+          ],
+          as: "brandOffer",
+        },
       },
-    },
 
-    {
-      $project: {
-        _id: 0,
-        itemId: "$items.variantId",
-        quantity: "$items.quantity",
-        productId: 1,
-        variantId: 1,
-        brand: 1,
-        productOffer: 1,
-        brandOffer:1,
+      {
+        $project: {
+          _id: 0,
+          itemId: "$items.variantId",
+          quantity: "$items.quantity",
+          productId: 1,
+          variantId: 1,
+          brand: 1,
+          productOffer: 1,
+          brandOffer: 1,
+        },
       },
-    },
-  ]);
+    ],
+    options
+  );
 };
+
 
 
 // Get total items count in cart (aggregated, considering listings)

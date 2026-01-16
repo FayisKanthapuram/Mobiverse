@@ -4,11 +4,15 @@ import { clearCart } from "../../../cart/cart.repo.js";
 import { createOrder } from "../../repo/order.repo.js";
 import {
   deleteTempOrder,
+  deleteTempOrderById,
+  
+  findActiveTempOrderByUser,
   findTempOrderById,
+  markTempOrderPaymentFailed,
   updateTempOrder,
 } from "../../repo/temp.order.repo.js";
 import crypto from "crypto";
-import { decrementVariantStock } from "../../../product/repo/variant.repo.js";
+import { confirmReservedStock, releaseReservedStock } from "../../../product/repo/variant.repo.js";
 import { couponUsageCreate } from "../../../coupon/repo/coupon.usage.repo.js";
 import { findCouponIncrementCount } from "../../../coupon/repo/coupon.repo.js";
 import { completeReferralReward } from "../../../referral/referral.service.js";
@@ -34,43 +38,46 @@ export const verifyRazorpayPaymentService = async ({
   userId,
   appliedCoupon,
 }) => {
+  // Fetch temp order OUTSIDE transaction
+  const tempOrder = await findTempOrderById(tempOrderId, userId);
+  if (!tempOrder) {
+    return { success: false, status: 400, message: "Temp order not found" };
+  }
+
+  // Expiry guard
+  if (tempOrder.expiresAt < new Date()) {
+    return { success: false, status: 410, message: "Payment window expired" };
+  }
+
+  //  Verify signature
+  const sign = razorpay_order_id + "|" + razorpay_payment_id;
+  const expected = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(sign)
+    .digest("hex");
+
+  if (expected !== razorpay_signature) {
+    return {
+      success: false,
+      status: 400,
+      message: "Invalid Razorpay signature",
+    };
+  }
+
+  // SHORT TRANSACTION (ONLY WHAT MUST BE ATOMIC)
   const session = await mongoose.startSession();
-  session.startTransaction();
+  let order;
 
   try {
-    const tempOrder = await findTempOrderById(tempOrderId, userId);
-    if (!tempOrder) throw { status: 400, message: "Temp order not found" };
+    session.startTransaction();
 
-    // Verify Razorpay payment signature
-    const sign = razorpay_order_id + "|" + razorpay_payment_id;
-    const expected = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(sign)
-      .digest("hex");
-
-    if (expected !== razorpay_signature) {
-      throw { status: 400, message: "Invalid Razorpay signature" };
+    // confirm reserved stock
+    for (const item of tempOrder.orderedItems) {
+      await confirmReservedStock(item.variantId, item.quantity, session);
     }
 
-    // Update temporary order with payment details
-    await updateTempOrder(
-      userId,
-      tempOrderId,
-      {
-        paymentStatus: "Success",
-        razorpayPaymentId: razorpay_payment_id,
-        razorpaySignature: razorpay_signature,
-      },
-      session
-    );
-
-    // Decrement variant stock for each item
-    for (let item of tempOrder.orderedItems) {
-      await decrementVariantStock(item.variantId._id, item.quantity, session);
-    }
-
-    // Create final order from temp order
-    const order = await createOrder(
+    // create final order
+    order = await createOrder(
       {
         userId,
         addressId: tempOrder.addressId,
@@ -91,43 +98,134 @@ export const verifyRazorpayPaymentService = async ({
       session
     );
 
-    if (appliedCoupon) {
-      await couponUsageCreate(
-        appliedCoupon.couponId,
-        userId,
-        order._id,
-        appliedCoupon.discount
-      );
-      await findCouponIncrementCount(appliedCoupon.couponId);
-    }
-
-    // Clear user shopping cart
-    await clearCart(userId);
-
-    // Complete referral reward if applicable
-    await completeReferralReward(userId, order._id, session);
-
-    // Delete temporary order
-    await deleteTempOrder(tempOrderId, session);
-
     await session.commitTransaction();
-    session.endSession();
-
-    return {
-      success: true,
-      status: 200,
-      message: "Payment verified successfully",
-      orderId: order.orderId,
-    };
   } catch (err) {
-    console.log(err);
     await session.abortTransaction();
     session.endSession();
 
     return {
       success: false,
-      status: err.status || 500,
-      message: err.message || "Verification failed",
+      status: 409,
+      message: "Payment verification conflict. Please retry.",
+    };
+  }
+
+  session.endSession();
+
+  // EVERYTHING ELSE — OUTSIDE TRANSACTION
+
+  await updateTempOrder(userId, tempOrderId, {
+    paymentStatus: "Success",
+    razorpayPaymentId: razorpay_payment_id,
+    razorpaySignature: razorpay_signature,
+  });
+
+  if (appliedCoupon) {
+    await couponUsageCreate(
+      appliedCoupon.couponId,
+      userId,
+      order._id,
+      appliedCoupon.discount
+    );
+    await findCouponIncrementCount(appliedCoupon.couponId);
+  }
+
+  await clearCart(userId);
+  await completeReferralReward(userId, order._id);
+  await deleteTempOrder(tempOrderId);
+
+  return {
+    success: true,
+    status: 200,
+    message: "Payment verified successfully",
+    orderId: order.orderId,
+  };
+};
+
+
+
+export const deleteTempOrderService = async (tempOrderId, userId, session = null) => {
+  const tempOrder = await findTempOrderById(tempOrderId, userId, session);
+
+  if (!tempOrder) {
+    return {
+      success: false,
+      status: 404,
+      message: "Temp order not found",
+    };
+  }
+
+  try {
+    // Release reserved stock
+    for (const item of tempOrder.orderedItems) {
+      await releaseReservedStock(item.variantId, item.quantity, session);
+    }
+
+    // Delete temp order
+    await deleteTempOrderById(tempOrderId, session);
+
+    return {
+      success: true,
+      status: 200,
+      message: "Temp order deleted successfully",
+    };
+  } catch (err) {
+    return {
+      success: false,
+      status: 500,
+      message: "Error deleting temp order",
     };
   }
 };
+
+export const abandonPendingPaymentService = async (userId) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const tempOrder = await findActiveTempOrderByUser(userId, session);
+
+    // No pending order → nothing to do
+    if (!tempOrder) {
+      await session.commitTransaction();
+      session.endSession();
+      return { success: true };
+    }
+
+    // Release reserved stock
+    for (const item of tempOrder.orderedItems) {
+      await releaseReservedStock(item.variantId, item.quantity, session);
+    }
+
+    // Delete temp order
+    await deleteTempOrderById(tempOrder._id, session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true };
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    throw err;
+  }
+};
+
+export const markRazorpayPaymentFailedService = async (tempOrderId, userId) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    await markTempOrderPaymentFailed(tempOrderId, userId, session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return { success: true };
+  } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
+    throw err;
+  }
+};
+

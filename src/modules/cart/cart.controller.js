@@ -15,6 +15,11 @@ export const loadCart = async (req, res) => {
   if (req.session.appliedCoupon) req.session.appliedCoupon = null;
 
   const data = await loadCartService(req?.user?._id);
+
+  if (data.hasPendingPayment) {
+    return res.redirect(`/order/failure/${data.tempOrderId}`);
+  }
+
   req.session.cartCount = data.cartCount;
 
   res.status(HttpStatus.OK).render("user/cart", {
@@ -22,9 +27,10 @@ export const loadCart = async (req, res) => {
     pageJs: "cart",
     cart: data.cart,
     relatedProducts: data.relatedProducts,
-    isAdjested:data.cart.hasAdjustedItem,
+    isAdjested: data.cart.hasAdjustedItem,
   });
 };
+
 
 // Add item to cart
 export const addToCart = async (req, res) => {

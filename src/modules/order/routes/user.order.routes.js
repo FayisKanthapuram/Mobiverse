@@ -11,7 +11,11 @@ import {
   loadOrderFailure,
   retryPayment,
 } from "../controllers/user.order.controller.js";
-import { deleteTemperoryOrder, verifyRazorpayPayment } from "../controllers/payment.controller.js";
+import {
+  abandonPendingPayment,
+  markRazorpayPaymentFailed,
+  verifyRazorpayPayment,
+} from "../controllers/payment.controller.js";
 
 // User order routes
 const router = express.Router();
@@ -22,16 +26,17 @@ router.get("/orders", requireLogin, loadMyOrders);
 router.post("/order/place", requireLogin, placeOrder);
 // Retry payment for order
 router.post("/order/retry-payment/:orderId", requireLogin, retryPayment);
-// Delete temporary order
-router.delete(
-  "/order/delete/temp-order/:orderId",
+// Delete abandon pending payment
+router.post(
+  "/order/abandon-pending-payment",
   requireLogin,
-  deleteTemperoryOrder
+  abandonPendingPayment
 );
 // Load order success page
 router.get("/order/success/:orderId", requireLogin, loadOrderSuccess);
 // Load order failure page
 router.get("/order/failure/:orderId", requireLogin, loadOrderFailure);
+router.post("/order/razorpay/failed", requireLogin, markRazorpayPaymentFailed);
 // Cancel selected items
 router.post("/order/:orderId/cancel-items", requireLogin, cancelOrderItems);
 // Request return for items

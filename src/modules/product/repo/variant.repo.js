@@ -5,8 +5,7 @@ import variantModel from "../models/variant.model.js";
 // Find variant by ID
 export const findVariantById = (variantId) => {
   return variantModel.findById(variantId);
-}
-
+};
 
 export const findVariantByIdAgg = (variantId, userId) => {
   return variantModel.aggregate([
@@ -62,23 +61,76 @@ export const findVariantByIdAgg = (variantId, userId) => {
   ]);
 };
 
-
 // Find variants belonging to a product
 export const findVariantsByProduct = (productId) => {
   return variantModel.find({ productId }).lean();
 };
 
-
-// Decrement variant stock
-export const decrementVariantStock = (variantId, qty, session = null) => {
+export const reserveVariantStock = (variantId, qty, session = null) => {
   const options = session ? { session } : {};
   return variantModel.updateOne(
-    { _id: variantId },
-    { $inc: { stock: -qty } },
+    {
+      _id: variantId,
+      stock: { $gte: qty },
+    },
+    {
+      $inc: {
+        stock: -qty,
+        reservedStock: qty,
+      },
+    },
     options
   );
 };
 
+export const confirmReservedStock = (variantId, qty, session = null) => {
+  const options = session ? { session } : {};
+  return variantModel.updateOne(
+    {
+      _id: variantId,
+      reservedStock: { $gte: qty },
+    },
+    {
+      $inc: {
+        reservedStock: -qty,
+      },
+    },
+    options
+  );
+};
+
+export const releaseReservedStock = (variantId, qty, session = null) => {
+  const options = session ? { session } : {};
+  return variantModel.updateOne(
+    {
+      _id: variantId,
+      reservedStock: { $gte: qty },
+    },
+    {
+      $inc: {
+        stock: qty,
+        reservedStock: -qty,
+      },
+    },
+    options
+  );
+};
+
+// Decrement variant stock
+export const decrementVariantStock = async (variantId, qty, session = null) => {
+  const options = session ? { session } : {};
+
+  return variantModel.updateOne(
+    {
+      _id: variantId,
+      stock: { $gte: qty }, 
+    },
+    {
+      $inc: { stock: -qty },
+    },
+    options
+  );
+};
 
 // Increment variant stock
 export const incrementVariantStock = (variantId, qty, session = null) => {

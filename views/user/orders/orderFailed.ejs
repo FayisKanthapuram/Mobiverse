@@ -1,110 +1,167 @@
 <div class="min-h-screen bg-gray-50 py-16">
   <div class="container mx-auto px-4">
     <div class="max-w-3xl mx-auto text-center">
-      <!-- Failed Animation -->
+
+      <!-- STATUS ICON -->
       <div class="mb-8">
         <div class="inline-block">
-          <div
-            class="w-32 h-32 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce"
-          >
+          <div class="w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce
+              <%= viewType === 'PENDING' ? 'bg-blue-100' : 'bg-red-100' %>">
+            <% if (viewType === "PENDING") { %>
+            <i class="bi bi-hourglass-split text-6xl text-blue-600"></i>
+            <% } else { %>
             <i class="bi bi-x-circle-fill text-6xl text-red-600"></i>
+            <% } %>
           </div>
         </div>
 
-        <h1 class="text-4xl font-bold text-red-600 mb-3">Payment Failed!</h1>
+        <!-- TITLE -->
+        <% if (viewType === "PENDING") { %>
+        <h1 class="text-4xl font-bold text-blue-600 mb-3">
+          Payment In Progress
+        </h1>
         <p class="text-lg text-gray-600">
-          Unfortunately, your payment could not be completed.
+          A payment attempt is currently in progress for this order.
         </p>
+        <% } else { %>
+        <h1 class="text-4xl font-bold text-red-600 mb-3">
+          Payment Failed
+        </h1>
+        <p class="text-lg text-gray-600">
+          Don’t worry — your order is safe and has not been cancelled.
+        </p>
+        <% } %>
       </div>
 
-      <!-- Order Info -->
-      <div
-        class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8"
-      >
-        <h3 class="text-lg font-bold text-gray-900 mb-4">Order Information</h3>
+      <!-- IMPORTANT NOTICE -->
+      <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-5 mb-6 text-left">
+        <div class="flex gap-3">
+          <i class="bi bi-info-circle-fill text-yellow-600 text-xl mt-1"></i>
+          <div>
+            <h4 class="font-semibold text-yellow-800 mb-1">
+              Action Required
+            </h4>
+            <p class="text-sm text-yellow-700 leading-relaxed">
+              This order has a <strong>pending payment</strong>.
+              <br />
+              • Your cart is temporarily locked to prevent stock issues.
+              <br />
+              • Please complete the payment to continue.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXTRA INFO ONLY FOR PENDING -->
+      <% if (viewType === "PENDING") { %>
+      <div class="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700">
+        ⏳ Please complete the payment in the opened Razorpay window.
+        <br />
+        Do not refresh or open multiple tabs.
+      </div>
+      <% } %>
+
+      <!-- ORDER INFO -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 mb-8">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">
+          Order Information
+        </h3>
 
         <div class="flex justify-between text-gray-700 text-sm mb-3">
           <span>Order ID</span>
-          <span class="font-semibold">#<%= order.orderId || order._id %></span>
+          <span class="font-semibold">
+            #<%= order.orderId || order._id %>
+          </span>
         </div>
 
         <div class="flex justify-between text-gray-700 text-sm mb-3">
           <span>Payment Method</span>
-          <span class="font-semibold capitalize"
-            ><%= order.paymentMethod %></span
-          >
+          <span class="font-semibold capitalize">
+            <%= order.paymentMethod %>
+          </span>
         </div>
 
         <% if (order.razorpayOrderId) { %>
         <div class="flex justify-between text-gray-700 text-sm mb-3">
           <span>Razorpay Order ID</span>
-          <span class="font-semibold"><%= order.razorpayOrderId %></span>
-        </div>
-        <% } %> 
-        
-        <% if (order.razorpayPaymentId) { %>
-        <div class="flex justify-between text-gray-700 text-sm mb-3">
-          <span>Razorpay Payment ID</span>
-          <span class="font-semibold"><%= order.razorpayPaymentId %></span>
+          <span class="font-semibold">
+            <%= order.razorpayOrderId %>
+          </span>
         </div>
         <% } %>
 
-        <div
-          class="mt-4 px-4 py-3 bg-red-50 rounded-lg flex items-center gap-2"
-        >
-          <i class="bi bi-exclamation-triangle text-red-600"></i>
+        <% if (order.razorpayPaymentId) { %>
+        <div class="flex justify-between text-gray-700 text-sm mb-3">
+          <span>Razorpay Payment ID</span>
+          <span class="font-semibold">
+            <%= order.razorpayPaymentId %>
+          </span>
+        </div>
+        <% } %>
+
+        <div class="mt-4 px-4 py-3 bg-red-50 rounded-lg flex items-center gap-2">
+          <i class="bi bi-exclamation-triangle-fill text-red-600"></i>
           <p class="text-sm text-red-700">
-            Your payment attempt was unsuccessful. Please try again.
+            No amount has been deducted. Stock is reserved only for a short time.
           </p>
         </div>
       </div>
 
-      <!-- Action Buttons -->
+      <!-- ACTION BUTTONS (ONLY WHEN FAILED) -->
+      <% if (viewType === "FAILED") { %>
       <div class="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
+
         <!-- Retry Payment -->
-        <div class="flex-1">
-          <button
-            onclick="retryPayment('<%= order._id %>')"
-            class="w-full px-6 py-4 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold rounded-xl shadow-md hover:from-red-700 hover:to-red-600 transition-all"
-          >
-            <i class="bi bi-arrow-repeat"></i> Retry Payment
-          </button>
-        </div>
-
-        <!-- Return to Checkout -->
-        <button 
-          onclick="redirect('/checkout','<%= order._id %>')" 
-          class="flex-1 text-center px-6 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition-all">
-          <i class="bi bi-arrow-counterclockwise"></i> Return to Checkout
+        <button onclick="retryPayment('<%= order._id %>')" class="flex-1 px-6 py-4 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold rounded-xl shadow-md hover:from-red-700 hover:to-red-600 transition-all">
+          <i class="bi bi-arrow-repeat"></i>
+          Retry Payment
         </button>
 
-        <!-- Return to Home -->
-        <button 
-          onclick="redirect('/','<%= order._id %>')" 
-          class="flex-1 text-center px-6 py-4 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors">
-          <i class="bi bi-house-door"></i> Return to Home
+        <!-- Change Payment Method -->
+        <button onclick="redirect('/checkout')" class="flex-1 px-6 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition-all">
+          <i class="bi bi-credit-card-2-front"></i>
+          Go to checkout
         </button>
+
       </div>
+      <% } %>
+
+      <!-- SECONDARY NAVIGATION -->
+      <div class="mt-6">
+        <% if (viewType === "FAILED") { %>
+        <button onclick="redirect('/')" class="text-sm text-gray-500 hover:text-gray-700 underline">
+          Return to Home
+        </button>
+        <% } else { %>
+        <a href="/" class="text-sm text-gray-400 underline">
+          Return to Home
+        </a>
+        <% } %>
+      </div>
+
+
     </div>
   </div>
 </div>
 
 <style>
   @keyframes bounce {
+
     0%,
     100% {
       transform: translateY(0);
     }
+
     50% {
-      transform: translateY(-20px);
+      transform: translateY(-18px);
     }
   }
+
   .animate-bounce {
-    animation: bounce 1s ease-in-out 2;
+    animation: bounce 0.9s ease-in-out 2;
   }
 </style>
 
-<!-- Pass server-side data to JavaScript -->
 <script>
   window.orderFailureData = {
     orderId: "<%= order._id %>",

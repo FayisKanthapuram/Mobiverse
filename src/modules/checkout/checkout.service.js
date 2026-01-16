@@ -17,10 +17,23 @@ import { AppError } from "../../shared/utils/app.error.js";
 import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 import { CouponMessages } from "../../shared/constants/messages/couponMessages.js";
 import { UserMessages } from "../../shared/constants/messages/userMessages.js";
+import {  findActiveTempOrderByUser } from "../order/repo/temp.order.repo.js";
 // Checkout service - business logic for loading checkout and applying coupons
 
 // Load checkout data for a user
 export const loadCheckoutService = async (userId) => {
+  // 🔐 NEW: block checkout if pending Razorpay payment exists
+  const activeTempOrder = await findActiveTempOrderByUser(userId);
+
+  if (activeTempOrder) {
+    return {
+      hasPendingPayment: true,
+      tempOrderId: activeTempOrder._id,
+      expiresAt: activeTempOrder.expiresAt,
+    };
+  }
+
+  // ✅ existing logic untouched
   const user = await findUserById(userId);
   if (!user) {
     throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -28,15 +41,18 @@ export const loadCheckoutService = async (userId) => {
 
   const addresses = await findUserAddresses(userId);
   const items = await fetchCartItems(userId);
+
   // ---------------- OFFERS ----------------
   for (let item of items) {
-    item.offer = getAppliedOffer(item, item?.variantId?.salePrice)||0;
+    item.offer = getAppliedOffer(item, item?.variantId?.salePrice) || 0;
   }
-  const cartTotals = await calculateCartTotals(userId,items);
+
+  const cartTotals = await calculateCartTotals(userId, items);
   const now = new Date();
   const availableCoupons = await getAvailableCoupon(userId, now);
 
   return {
+    hasPendingPayment: false,
     user,
     addresses,
     cartTotals,

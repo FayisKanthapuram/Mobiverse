@@ -13,9 +13,11 @@ export const findAddressesByUser = (userId) => {
 };
 
 // Find a single address by id
-export const findAddressById = (id) => {
-  return addressModel.findById(id);
+export const findAddressById = (id, session = null) => {
+  const options = session ? { session } : {};
+  return addressModel.findById(id, null, options);
 };
+
 
 // Create a new address document
 export const createAddress = (data) => {

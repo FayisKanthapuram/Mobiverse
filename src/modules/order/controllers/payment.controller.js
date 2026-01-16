@@ -1,6 +1,5 @@
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
-import { deleteTempOrder } from "../repo/temp.order.repo.js";
-import { verifyRazorpayPaymentService } from "../services/user/payment.service.js";
+import { abandonPendingPaymentService, deleteTempOrderService, markRazorpayPaymentFailedService, verifyRazorpayPaymentService } from "../services/user/payment.service.js";
 
 // Payment controller - handle payment verification endpoints
 // Verify Razorpay payment
@@ -19,8 +18,22 @@ export const verifyRazorpayPayment = async (req, res) => {
   return res.status(result.status).json(result);
 };
 
-// Delete temporary order
-export const deleteTemperoryOrder=async(req,res)=>{
-  await deleteTempOrder(req.params.orderId);
-  res.status(HttpStatus.OK).json({ success:true });
-}
+export const abandonPendingPayment = async (req, res) => {
+  await abandonPendingPaymentService(req.user._id);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+    message: "Pending payment cancelled. You can continue checkout.",
+  });
+};
+
+export const markRazorpayPaymentFailed = async (req, res) => {
+  const { tempOrderId } = req.body;
+  const userId = req.user._id;
+
+  await markRazorpayPaymentFailedService(tempOrderId, userId);
+
+  res.status(HttpStatus.OK).json({
+    success: true,
+  });
+};

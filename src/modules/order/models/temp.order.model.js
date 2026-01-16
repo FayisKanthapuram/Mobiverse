@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-// Temporary order model - stores order data pending payment
 const tempOrderSchema = new mongoose.Schema(
   {
     userId: {
@@ -15,19 +14,51 @@ const tempOrderSchema = new mongoose.Schema(
       required: true,
     },
 
-    orderedItems: { type: Array, required: true },
+    orderedItems: {
+      type: [
+        {
+          productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "product",
+            required: true,
+          },
+          variantId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "variant",
+            required: true,
+          },
+          quantity: {
+            type: Number,
+            required: true,
+          },
+          regularPrice: Number,
+          offer: Number,
+          price: {
+            type: Number,
+            required: true,
+          },
+          couponShare: Number,
+        },
+      ],
+      required: true,
+    },
 
     shippingAddress: { type: Object, required: true },
 
     subtotal: Number,
     discount: Number,
     couponDiscount: Number,
-    couponCode: { type: String, default: null },
-    couponId: { type: String },
+    couponCode: String,
+    couponId: String,
 
     finalAmount: Number,
 
-    paymentMethod: { type: String, enum: ["razorpay"], default: "razorpay" },
+    paymentMethod: {
+      type: String,
+      enum: ["razorpay"],
+      default: "razorpay",
+    },
+
     paymentStatus: {
       type: String,
       enum: ["Pending", "Success", "Failed"],
@@ -37,8 +68,15 @@ const tempOrderSchema = new mongoose.Schema(
     razorpayOrderId: String,
     razorpayPaymentId: String,
     razorpaySignature: String,
+
+    expiresAt: {
+      type: Date,
+      required: true,
+      index: true,
+    },
   },
   { timestamps: true }
 );
+
 
 export default mongoose.model("TempOrder", tempOrderSchema);

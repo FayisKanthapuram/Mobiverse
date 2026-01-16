@@ -119,6 +119,23 @@ export const deleteCoupon = (id) => {
 };
 
 // Increment coupon usage count safely
-export const findCouponIncrementCount=(_id)=>{
-  return Coupon.findOneAndUpdate({_id,totalUsageLimit:{$ne:0}},{$inc:{currentUsageCount:1}},{new:true})
-}
+export const findCouponIncrementCount = (_id, session = null) => {
+  const options = {
+    new: true,
+    session,
+  };
+
+  return Coupon.findOneAndUpdate(
+    {
+      _id,
+      totalUsageLimit: { $ne: 0 },
+      $expr: {
+        $lt: ["$currentUsageCount", "$totalUsageLimit"],
+      },
+    },
+    {
+      $inc: { currentUsageCount: 1 },
+    },
+    options
+  );
+};

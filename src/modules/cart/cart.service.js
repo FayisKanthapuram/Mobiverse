@@ -18,27 +18,41 @@ import { getLatestProducts } from "../product/services/product.common.service.js
 import { getAppliedOffer } from "../product/helpers/user.product.helper.js";
 import { CartMessages } from "../../shared/constants/messages/cartMessages.js";
 import { checkInWishlist, getWishlistItemsCount, removeWishlistItem } from "../wishlist/wishlist.repo.js";
+import {  findActiveTempOrderByUser } from "../order/repo/temp.order.repo.js";
 
 // Cart service - business logic for user cart operations
 
 // Load cart service
 export const loadCartService = async (userId) => {
+  // 🔐 HARD GUARD
+  const pendingTempOrder = await findActiveTempOrderByUser(userId);
+
+  if (pendingTempOrder) {
+    return {
+      hasPendingPayment: true,
+      tempOrderId: pendingTempOrder._id,
+    };
+  }
+
+  // ✅ existing logic
   const relatedProducts = await getLatestProducts(5, userId);
   const items = await fetchCartItems(userId);
-  // ---------------- OFFERS ----------------
+
   for (let item of items) {
     item.offer = getAppliedOffer(item, item?.variantId?.salePrice) || 0;
   }
-  const cartTotals = await calculateCartTotals(userId,items);
+
+  const cartTotals = await calculateCartTotals(userId, items);
   const cartCount = await getCartItemsCount(userId);
-  
 
   return {
+    hasPendingPayment: false,
     cartCount,
     relatedProducts,
     cart: cartTotals,
   };
 };
+
 
 // Add to cart service
 export const addToCartService = async (userId, body) => {

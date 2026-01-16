@@ -116,7 +116,6 @@ function handleCartAdjusted() {
   });
 }
 
-
 // ========================================
 // ORDER PLACEMENT FUNCTION
 // ========================================
@@ -243,6 +242,13 @@ async function placeOrder() {
             if (verifyRes.data.success) {
               window.location.href = "/order/success/" + verifyRes.data.orderId;
             } else {
+              try {
+                await axios.post("/order/razorpay/failed", {
+                  tempOrderId,
+                });
+              } catch (err) {
+                console.error("Failed to mark payment as failed", err);
+              }
               window.location.href = `/order/failure/${tempOrderId}`;
             }
           } catch (error) {
@@ -258,21 +264,30 @@ async function placeOrder() {
         },
 
         modal: {
-          ondismiss: function () {
-            Toastify({
-              text: "Payment cancelled",
-              duration: 3000,
-              gravity: "bottom",
-              position: "right",
-              backgroundColor: "#ef4444",
-            }).showToast();
+          ondismiss: async function () {
+            try {
+              await axios.post("/order/razorpay/failed", {
+                tempOrderId,
+              });
+            } catch (err) {
+              console.error("Failed to mark payment as failed", err);
+            }
+            window.location.href = `/order/failure/${tempOrderId}`;
           },
         },
       };
 
       const rzp = new Razorpay(options);
 
-      rzp.on("payment.failed", function (response) {
+      rzp.on("payment.failed", async function (response) {
+        try {
+          await axios.post("/order/razorpay/failed", {
+            tempOrderId,
+          });
+        } catch (err) {
+          console.error("Failed to mark payment as failed", err);
+        }
+
         window.location.href = `/order/failure/${tempOrderId}`;
       });
 
@@ -392,7 +407,6 @@ document
       }).showToast();
     }
   });
-
 
 // Close modals on outside click
 document.getElementById("addressModal").addEventListener("click", function (e) {
