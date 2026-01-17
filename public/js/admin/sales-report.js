@@ -74,7 +74,14 @@ document.getElementById("pdfLimit")?.addEventListener("change", (e) => {
 
 /* 🔹 Confirm & download PDF */
 function confirmPdfDownload() {
-  const limit = document.getElementById("pdfLimit").value;
+  const select = document.getElementById("pdfLimit");
+  let limit = Number(select.value);
+
+  // ✅ HARD GUARD
+  if (!Number.isInteger(limit) || limit <= 0) {
+    alert("No orders available for PDF download");
+    return;
+  }
 
   const params = new URLSearchParams(window.location.search);
   params.set("limit", limit);
@@ -83,6 +90,7 @@ function confirmPdfDownload() {
 
   window.location.href = `/admin/sales-report/pdf?${params.toString()}`;
 }
+
 
 /* ---------------- BUILD PDF LIMIT OPTIONS ---------------- */
 function buildPdfLimitOptions() {
@@ -95,51 +103,70 @@ function buildPdfLimitOptions() {
 
   const total = Number(window.TOTAL_ORDERS || 0);
 
-  // Edge case: no orders
+  // ✅ NO ORDERS → DISABLE PDF
   if (total === 0) {
     const opt = document.createElement("option");
-    opt.value = 0;
+    opt.value = "";
     opt.textContent = "No orders available";
     select.appendChild(opt);
     select.disabled = true;
+    warning.classList.add("hidden");
     return;
   }
 
   const limits = [100, 500, 1000, 5000, 10000, 50000, 100000];
 
-  const validLimits = limits.filter(l => l <= total);
+  limits
+    .filter((l) => l <= total)
+    .forEach((l) => {
+      const opt = document.createElement("option");
+      opt.value = l;
+      opt.textContent =
+        l >= 10000
+          ? `${l.toLocaleString()} orders ⚠️`
+          : `${l.toLocaleString()} orders`;
+      select.appendChild(opt);
+    });
 
-  validLimits.forEach(l => {
-    const opt = document.createElement("option");
-    opt.value = l;
-    opt.textContent =
-      l >= 10000
-        ? `${l.toLocaleString()} orders ⚠️`
-        : `${l.toLocaleString()} orders`;
-
-    select.appendChild(opt);
-  });
-
-  // If total < 100, auto-select total
-  if (total < 100) {
-    const opt = document.createElement("option");
-    opt.value = total;
-    opt.textContent = `${total} orders (All)`;
-    select.appendChild(opt);
-    select.value = total;
-  } else {
-    select.value = validLimits[0];
-  }
-
-  warning.classList.add("hidden");
+  select.value = select.options[0].value;
   select.disabled = false;
+  warning.classList.add("hidden");
 }
+
 
 
 /* =================================================
    EXCEL DOWNLOAD (UNCHANGED)
 ================================================= */
-function downloadExcel() {
+async function downloadExcel() {
   const params = new URLSearchParams(window.location.search);
-  window.location.href = "/admin/sales-report/excel?" + params.toString();
+  const url = "/admin/sales-report/excel?" + params.toString();
+
+  try {
+    const response = await fetch(url);
+
+    // ❌ No data / validation error
+    if (!response.ok) {
+      const error = await response.json();
+      alert(error.message || "No sales data available");
+      return;
+    }
+
+    // ✅ Valid Excel file
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = "delivered-sales-report.xlsx";
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to download report");
+  }
 }
+

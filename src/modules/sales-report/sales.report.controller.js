@@ -44,21 +44,39 @@ export const loadSalesReportDownload = async (req, res) => {
     startDate,
     endDate,
     page: 1,
-    limit: MAX_EXCEL_LIMIT, // fetch all
+    limit: MAX_EXCEL_LIMIT,
   });
+
+  // ✅ HANDLE NO SALES CASE
+  if (
+    !data.salesData.transactions ||
+    data.salesData.transactions.length === 0
+  ) {
+    return res.status(HttpStatus.BAD_REQUEST).json({
+      success: false,
+      message: "No sales data available for the selected period",
+    });
+  }
+
   return generateSalesReportExcel(res, data.salesData);
 };
 
+
 // Render sales report PDF page
 export const loadSalesReportPDF = async (req, res) => {
-  const {
-    reportType = "daily",
-    startDate,
-    endDate,
-    limit = 1000, // Default safe limit
-  } = req.query;
+  let { reportType = "daily", startDate, endDate, limit = 1000 } = req.query;
 
-  if (Number(limit) > 100000) {
+  limit = Number(limit);
+
+  // ✅ VALIDATE LIMIT
+  if (!Number.isInteger(limit) || limit <= 0) {
+    throw new AppError(
+      "Limit must be a positive number",
+      HttpStatus.BAD_REQUEST
+    );
+  }
+
+  if (limit > 100000) {
     throw new AppError(
       "Maximum PDF download limit exceeded",
       HttpStatus.BAD_REQUEST
@@ -70,9 +88,21 @@ export const loadSalesReportPDF = async (req, res) => {
     startDate,
     endDate,
     page: 1,
-    limit: Number(limit),
+    limit,
   });
 
+  // ✅ NO SALES → STOP EARLY
+  if (
+    !data.salesData.transactions ||
+    data.salesData.transactions.length === 0
+  ) {
+    throw new AppError(
+      "No sales data available for the selected period",
+      HttpStatus.BAD_REQUEST
+    );
+  }
+
+  // ✅ GENERATE PDF ONLY IF DATA EXISTS
   const browser = await puppeteer.launch({
     headless: "new",
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -101,7 +131,7 @@ export const loadSalesReportPDF = async (req, res) => {
 
   const pdfBuffer = await page.pdf({
     format: "A4",
-    landscape: true, // Use landscape orientation
+    landscape: true,
     printBackground: true,
     margin: {
       top: "15mm",
@@ -121,3 +151,5 @@ export const loadSalesReportPDF = async (req, res) => {
 
   res.end(pdfBuffer);
 };
+
+

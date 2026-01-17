@@ -12,7 +12,6 @@ export const getDeliveredSalesReportService = async ({
   page,
   limit,
 }) => {
-  // Build date filter based on report type
   let dateFilter = {};
   const now = new Date();
 
@@ -62,10 +61,8 @@ export const getDeliveredSalesReportService = async ({
 
   const skip = (page - 1) * limit;
 
-  // Build aggregation pipeline for sales data
   const basePipeline = [
     { $match: dateFilter },
-
     {
       $lookup: {
         from: "users",
@@ -76,7 +73,6 @@ export const getDeliveredSalesReportService = async ({
     },
     { $unwind: "$user" },
     { $unwind: "$orderedItems" },
-
     {
       $match: {
         "orderedItems.itemStatus": {
@@ -84,7 +80,6 @@ export const getDeliveredSalesReportService = async ({
         },
       },
     },
-
     {
       $addFields: {
         itemGrossTotal: {
@@ -118,7 +113,6 @@ export const getDeliveredSalesReportService = async ({
         },
       },
     },
-
     {
       $addFields: {
         itemNetTotal: {
@@ -126,7 +120,6 @@ export const getDeliveredSalesReportService = async ({
         },
       },
     },
-
     {
       $group: {
         _id: "$_id",
@@ -140,7 +133,6 @@ export const getDeliveredSalesReportService = async ({
         discount: { $sum: "$itemDiscountTotal" },
       },
     },
-
     { $sort: { createdAt: -1 } },
   ];
 
@@ -148,20 +140,19 @@ export const getDeliveredSalesReportService = async ({
   const totalsAgg = await getOrderTransationsTotal(basePipeline);
   const totals = totalsAgg[0] || {};
 
-  const totalTransactions = totals.totalOrders || 0;
+  const totalOrders = totals.totalOrders || 0;
 
   return {
     salesData: {
       transactions,
       totalSales: totals.totalSales || 0,
-      totalOrders: totals.totalOrders || 0,
+      totalOrders,
       totalDiscounts: totals.totalDiscounts || 0,
       productsSold: totals.productsSold || 0,
-      averageOrderValue:
-        totals.totalOrders > 0 ? totals.totalSales / totals.totalOrders : 0,
+      averageOrderValue: totalOrders > 0 ? totals.totalSales / totalOrders : 0,
     },
-    totalTransactions,
-    totalPages: Math.ceil(totalTransactions / limit),
+    totalTransactions: totalOrders,
+    totalPages: limit > 0 ? Math.ceil(totalOrders / limit) : 0,
     currentPage: page,
     limit,
   };

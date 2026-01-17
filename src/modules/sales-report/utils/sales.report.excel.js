@@ -1,10 +1,16 @@
 import ExcelJS from "exceljs";
 
 export const generateSalesReportExcel = async (res, salesData) => {
+  if (!salesData.transactions || salesData.transactions.length === 0) {
+    throw new AppError(
+      "No sales data available to generate report",
+      HttpStatus.BAD_REQUEST
+    );
+  }
+
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Delivered Sales");
 
-  // Worksheet header columns
   sheet.columns = [
     { header: "Date", key: "date", width: 15 },
     { header: "Order ID", key: "orderId", width: 20 },
@@ -15,7 +21,6 @@ export const generateSalesReportExcel = async (res, salesData) => {
     { header: "Payment Method", key: "payment", width: 20 },
   ];
 
-  // Write transaction rows
   salesData.transactions.forEach((t) => {
     sheet.addRow({
       date: new Date(t.createdAt).toLocaleDateString("en-IN"),
@@ -28,7 +33,6 @@ export const generateSalesReportExcel = async (res, salesData) => {
     });
   });
 
-  // Append totals row
   sheet.addRow({});
   sheet.addRow({
     customer: "TOTAL",
@@ -36,7 +40,6 @@ export const generateSalesReportExcel = async (res, salesData) => {
     discount: salesData.totalDiscounts,
   });
 
-  // Send workbook in response
   res.setHeader(
     "Content-Disposition",
     "attachment; filename=delivered-sales-report.xlsx"
@@ -49,3 +52,4 @@ export const generateSalesReportExcel = async (res, salesData) => {
   await workbook.xlsx.write(res);
   res.end();
 };
+
