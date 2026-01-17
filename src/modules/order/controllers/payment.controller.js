@@ -1,5 +1,5 @@
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
-import { abandonPendingPaymentService, deleteTempOrderService, markRazorpayPaymentFailedService, verifyRazorpayPaymentService } from "../services/user/payment.service.js";
+import { abandonPendingPaymentService, markRazorpayPaymentFailedService, verifyRazorpayPaymentService } from "../services/user/payment.service.js";
 
 // Payment controller - handle payment verification endpoints
 // Verify Razorpay payment

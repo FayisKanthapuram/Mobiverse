@@ -6,7 +6,7 @@ import { findAddressById } from "../../../address/address.repo.js";
 import { createOrder, findOrderByOrderId } from "../../repo/order.repo.js";
 import {
   decrementVariantStock,
-  incrementVariantStock,
+  // incrementVariantStock,
   reserveVariantStock,
 } from "../../../product/repo/variant.repo.js";
 import { clearCart, fetchCartItems } from "../../../cart/cart.repo.js";
@@ -27,7 +27,7 @@ import {
 import { createLedgerEntry } from "../../../wallet/repo/wallet.ledger.repo.js";
 import { updateUserWalletBalance } from "../../../user/user.repo.js";
 import {
-  completeReferralReward,
+  // completeReferralReward,
   markReferralAsPending,
 } from "../../../referral/referral.service.js";
 

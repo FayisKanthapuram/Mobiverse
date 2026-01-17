@@ -99,7 +99,7 @@ export const verifyRazorpayPaymentService = async ({
     );
 
     await session.commitTransaction();
-  } catch (err) {
+  } catch {
     await session.abortTransaction();
     session.endSession();
 
@@ -142,41 +142,6 @@ export const verifyRazorpayPaymentService = async ({
   };
 };
 
-
-
-export const deleteTempOrderService = async (tempOrderId, userId, session = null) => {
-  const tempOrder = await findTempOrderById(tempOrderId, userId, session);
-
-  if (!tempOrder) {
-    return {
-      success: false,
-      status: 404,
-      message: "Temp order not found",
-    };
-  }
-
-  try {
-    // Release reserved stock
-    for (const item of tempOrder.orderedItems) {
-      await releaseReservedStock(item.variantId, item.quantity, session);
-    }
-
-    // Delete temp order
-    await deleteTempOrderById(tempOrderId, session);
-
-    return {
-      success: true,
-      status: 200,
-      message: "Temp order deleted successfully",
-    };
-  } catch (err) {
-    return {
-      success: false,
-      status: 500,
-      message: "Error deleting temp order",
-    };
-  }
-};
 
 export const abandonPendingPaymentService = async (userId) => {
   const session = await mongoose.startSession();

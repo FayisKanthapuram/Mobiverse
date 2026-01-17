@@ -1,4 +1,6 @@
 import ExcelJS from "exceljs";
+import { AppError } from "../../../shared/utils/app.error.js";
+import { HttpStatus } from "../../../shared/constants/statusCode.js";
 
 export const generateSalesReportExcel = async (res, salesData) => {
   if (!salesData.transactions || salesData.transactions.length === 0) {
