@@ -1,15 +1,183 @@
-<main class="flex items-center justify-center min-h-[70vh] px-4">
-  <div class="bg-white border border-gray-200 shadow-lg rounded-2xl p-10 max-w-lg w-full text-center">
 
-    <h1 class="text-6xl font-extrabold text-red-600">404</h1>
-    <h2 class="text-2xl font-semibold mt-2 text-gray-800">Admin Page Not Found</h2>
-    <p class="text-gray-500 mt-3">
-      This admin route does not exist or you may have mistyped the URL.
-    </p>
+<!DOCTYPE html>
+<html lang="en">
 
-    <a href="/admin/dashboard"
-      class="mt-6 inline-block bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-all">
-      Back to Admin Dashboard
-    </a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title><%= pageTitle %> - Mobiverse Admin</title>
+  <link rel="icon" href="<%= logo %>" />
+
+  <!-- tailwind -->
+  <link rel="stylesheet" href="/css/tailwind/style.css">
+  <link rel="stylesheet" href="/css/tailwind/input.css">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Cropper.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+
+  <!-- Toastify -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+  <style>
+    /* Sidebar transition */
+    .sidebar {
+      transition: transform 0.3s ease-in-out;
+    }
+
+    /* Overlay for mobile */
+    .sidebar-overlay {
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+    }
+  </style>
+
+  <% if (typeof pageCss !== 'undefined' && pageCss) { %>
+  <link rel="stylesheet" href="/css/admin/<%= pageCss %>.css" />
+  <% } %>
+</head>
+
+<body class="bg-gray-50 font-sans">
+  <div class="flex">
+
+    <!-- Main Content -->
+    <div class="flex-1 md:ml-72 flex flex-col min-h-screen w-full">
+      <!-- Mobile Header with Menu Toggle -->
+      <div class="md:hidden sticky top-0 z-30 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <i class="bi bi-phone text-2xl text-blue-600"></i>
+          <h2 class="text-lg font-bold text-gray-900">Mobiverse Admin</h2>
+        </div>
+        <button id="mobile-menu-btn" class="text-2xl text-gray-600 hover:text-gray-900">
+          <i class="bi bi-list"></i>
+        </button>
+      </div>
+
+      <main class="flex-1 p-4 md:p-8">
+        <main class="flex items-center justify-center min-h-[70vh] px-4">
+          <div class="bg-white border border-gray-200 shadow-lg rounded-2xl p-10 max-w-lg w-full text-center">
+
+            <h1 class="text-6xl font-extrabold text-red-600">404</h1>
+            <h2 class="text-2xl font-semibold mt-2 text-gray-800">Admin Page Not Found</h2>
+            <p class="text-gray-500 mt-3">
+              This admin route does not exist or you may have mistyped the URL.
+            </p>
+
+            <a href="/admin/dashboard" class="mt-6 inline-block bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-all">
+              Back to Admin Dashboard
+            </a>
+          </div>
+        </main>
+
+      </main>
+
+    </div>
   </div>
-</main>
+
+  <!-- Mobile Overlay -->
+  <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="/js/admin/admin.js"></script>
+
+  <!-- Mobile Menu Toggle Script -->
+  <script>
+    const sidebar = document.getElementById('admin-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const closeBtn = document.getElementById('mobile-close-btn');
+
+    function openSidebar() {
+      sidebar.classList.add('active');
+      overlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('active');
+      overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    if (menuBtn) {
+      menuBtn.addEventListener('click', openSidebar);
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeSidebar);
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', closeSidebar);
+    }
+
+    // Close sidebar when clicking on a link (mobile only)
+    const sidebarLinks = sidebar.querySelectorAll('.sidebar-nav a');
+    sidebarLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth < 768) {
+          closeSidebar();
+        }
+      });
+    });
+  </script>
+
+  <!-- Toast messages -->
+  <script>
+    const successMsg = sessionStorage.getItem("toastSuccess");
+    const errorMsg = sessionStorage.getItem("toastError");
+
+    if (successMsg) {
+      Toastify({
+        text: successMsg,
+        duration: 4000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+        close: true,
+      }).showToast();
+
+      sessionStorage.removeItem("toastSuccess");
+    }
+
+    if (errorMsg) {
+      Toastify({
+        text: errorMsg,
+        duration: 4000,
+        gravity: "bottom",
+        position: "right",
+        style: {
+          background: "#e74c3c",
+        },
+        close: true,
+      }).showToast();
+
+      sessionStorage.removeItem("toastError");
+    }
+  </script>
+
+  <% if (typeof pageJs !== 'undefined' && pageJs) { %>
+  <script src="/js/admin/<%= pageJs %>.js"></script>
+  <% } %>
+</body>
+
+</html>

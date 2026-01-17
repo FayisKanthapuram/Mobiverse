@@ -55,6 +55,7 @@ export function errorHandler(err, req, res, _next) {
     if (status === 404) {
       return res.status(404).render("admin/error/404", {
         pageTitle: "404 Error",
+        layout: false,
       });
     }
 
