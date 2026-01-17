@@ -16,13 +16,12 @@ jobs:
 
       - name: Create .env file on server
         run: echo "${{ secrets.APP_ENV }}" > /home/ubuntu/.env
-        
-      - name: Remove old container
-        run: docker rm -f mobiverse-container || true
 
       - name: Pull latest image
         run: docker pull ${{ secrets.DOCKER_USERNAME }}/mobiverse:latest
 
+      - name: Remove old container
+        run: docker rm -f mobiverse-container || true
 
       - name: Free up docker storage
         run: docker image prune -f
