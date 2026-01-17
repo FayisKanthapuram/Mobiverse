@@ -22,7 +22,7 @@ import {  findActiveTempOrderByUser } from "../order/repo/temp.order.repo.js";
 
 // Load checkout data for a user
 export const loadCheckoutService = async (userId) => {
-  // 🔐 NEW: block checkout if pending Razorpay payment exists
+  // 🔐 Block checkout if pending Razorpay payment exists
   const activeTempOrder = await findActiveTempOrderByUser(userId);
 
   if (activeTempOrder) {
@@ -33,7 +33,6 @@ export const loadCheckoutService = async (userId) => {
     };
   }
 
-  // ✅ existing logic untouched
   const user = await findUserById(userId);
   if (!user) {
     throw new AppError(UserMessages.USER_NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -42,23 +41,40 @@ export const loadCheckoutService = async (userId) => {
   const addresses = await findUserAddresses(userId);
   const items = await fetchCartItems(userId);
 
+  // 🚫 EMPTY CART CHECK (IMPORTANT)
+  if (!items || items.length === 0) {
+    return {
+      isCartEmpty: true,
+    };
+  }
+
   // ---------------- OFFERS ----------------
   for (let item of items) {
     item.offer = getAppliedOffer(item, item?.variantId?.salePrice) || 0;
   }
 
   const cartTotals = await calculateCartTotals(userId, items);
+
+  // 🚫 Cart became empty after adjustments
+  if (cartTotals.totalItems === 0) {
+    return {
+      isCartEmpty: true,
+    };
+  }
+
   const now = new Date();
   const availableCoupons = await getAvailableCoupon(userId, now);
 
   return {
     hasPendingPayment: false,
+    isCartEmpty: false,
     user,
     addresses,
     cartTotals,
     availableCoupons,
   };
 };
+
 
 // Validate and apply coupon for given total
 export const applyCouponService = async (body, userId) => {

@@ -9,12 +9,21 @@ export const loadCheckOut = async (req, res) => {
   const data = await loadCheckoutService(req?.user?._id);
   const appliedCoupon = req.session.appliedCoupon || null;
 
-  // 🚫 BLOCK checkout if pending Razorpay payment exists
+  // 🚫 Pending Razorpay payment
   if (data.hasPendingPayment) {
     return res.redirect(`/order/failure/${data.tempOrderId}`);
   }
 
-  // ✅ existing cart adjustment logic
+  // 🚫 Empty cart
+  if (data.isCartEmpty) {
+    req.session.toast = {
+      type: "warning",
+      message: "Your cart is empty",
+    };
+    return res.redirect("/cart");
+  }
+
+  // 🚫 Quantity adjusted
   if (data.cartTotals.hasAdjustedItem) {
     req.session.toast = {
       type: "warning",
@@ -33,6 +42,7 @@ export const loadCheckOut = async (req, res) => {
     appliedCoupon,
   });
 };
+
 
 
 // Apply a coupon to the current cart
