@@ -1,7 +1,6 @@
 import { HttpStatus } from "../../../shared/constants/statusCode.js";
 import { abandonPendingPaymentService, markRazorpayPaymentFailedService, verifyRazorpayPaymentService } from "../services/user/payment.service.js";
 
-// Payment controller - handle payment verification endpoints
 // Verify Razorpay payment
 export const verifyRazorpayPayment = async (req, res) => {
   const appliedCoupon = req.session.appliedCoupon;
