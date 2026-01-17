@@ -64,6 +64,12 @@ export const findOrderByOrderIdWithUser = (orderId, userId) => {
     .populate("orderedItems.variantId")
     .populate("userId");
 };
+export const findOrderByOrderIdWithUserForAdmin = (orderId) => {
+  return Order.findOne({ orderId })
+    .populate("orderedItems.productId")
+    .populate("orderedItems.variantId")
+    .populate("userId");
+};
 
 // Find order with delivered items aggregated pipeline
 export const findOrderByOrderIdWithDeliveredItems = (orderId, userId) => {
