@@ -103,36 +103,45 @@ function buildPdfLimitOptions() {
 
   const total = Number(window.TOTAL_ORDERS || 0);
 
-  // ✅ NO ORDERS → DISABLE PDF
+  // Edge case: no orders
   if (total === 0) {
     const opt = document.createElement("option");
-    opt.value = "";
+    opt.value = 0;
     opt.textContent = "No orders available";
     select.appendChild(opt);
     select.disabled = true;
-    warning.classList.add("hidden");
     return;
   }
 
   const limits = [100, 500, 1000, 5000, 10000, 50000, 100000];
 
-  limits
-    .filter((l) => l <= total)
-    .forEach((l) => {
-      const opt = document.createElement("option");
-      opt.value = l;
-      opt.textContent =
-        l >= 10000
-          ? `${l.toLocaleString()} orders ⚠️`
-          : `${l.toLocaleString()} orders`;
-      select.appendChild(opt);
-    });
+  const validLimits = limits.filter(l => l <= total);
 
-  select.value = select.options[0].value;
-  select.disabled = false;
+  validLimits.forEach(l => {
+    const opt = document.createElement("option");
+    opt.value = l;
+    opt.textContent =
+      l >= 10000
+        ? `${l.toLocaleString()} orders ⚠️`
+        : `${l.toLocaleString()} orders`;
+
+    select.appendChild(opt);
+  });
+
+  // If total < 100, auto-select total
+  if (total < 100) {
+    const opt = document.createElement("option");
+    opt.value = total;
+    opt.textContent = `${total} orders (All)`;
+    select.appendChild(opt);
+    select.value = total;
+  } else {
+    select.value = validLimits[0];
+  }
+
   warning.classList.add("hidden");
+  select.disabled = false;
 }
-
 
 
 /* =================================================
